@@ -492,6 +492,8 @@ def get_workspace_produccion_page():
 
 
 @app.get("/contabilidad", response_class=HTMLResponse, tags=["General Ledger & Journal Entries"])
+@app.get("/workspace_contabilidad_metro_format_2.html", response_class=HTMLResponse, tags=["General Ledger & Journal Entries"])
+@app.get("/workspace_contabilidad_metro_format_2", response_class=HTMLResponse, tags=["General Ledger & Journal Entries"])
 @app.get("/workspace_contabilidad", response_class=HTMLResponse, tags=["General Ledger & Journal Entries"])
 @app.get("/workspace-contabilidad", response_class=HTMLResponse, tags=["General Ledger & Journal Entries"])
 @app.get("/workspace_contabilidad.html", response_class=HTMLResponse, tags=["General Ledger & Journal Entries"])
@@ -501,7 +503,9 @@ def get_workspace_produccion_page():
 def get_workspace_contabilidad_page():
     """Sirve la interfaz oficial del Módulo de Contabilidad Central & Libro Diario Multimoneda."""
     from pathlib import Path
-    html_path = Path(__file__).parent.parent.parent / "workspace_contabilidad.html"
+    html_path = Path(__file__).parent.parent.parent / "workspace_contabilidad_metro_format_2.html"
+    if not html_path.exists():
+        html_path = Path(__file__).parent.parent.parent / "workspace_contabilidad.html"
     if not html_path.exists():
         html_path = Path(__file__).parent.parent / "public" / "workspace_contabilidad.html"
     if not html_path.exists():

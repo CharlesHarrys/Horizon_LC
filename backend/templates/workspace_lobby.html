@@ -526,7 +526,7 @@
     </div>
 
     <div class="p-4 border-t border-slate-200">
-      <a href="/contabilidad" class="block w-full py-2 text-center text-xs mono font-bold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors">
+      <a href="workspace_contabilidad_metro_format_2.html" class="block w-full py-2 text-center text-xs mono font-bold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors">
         Ver Historial Completo de Auditoría &rarr;
       </a>
     </div>
@@ -797,7 +797,7 @@
       </article>
 
       <!-- CUADRANTE 4: CONTABILIDAD -->
-      <article data-module="contabilidad" onclick="abrirModulo('contabilidad')" class="dock-tile flex flex-col justify-between group">
+      <article data-module="contabilidad" onclick="window.location.href='workspace_contabilidad_metro_format_2.html'" class="dock-tile flex flex-col justify-between group">
         <div class="pt-4 px-4 flex-1 flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="font-mono text-xs font-black text-slate-300 group-hover:text-slate-900 transition-colors">04</span>
@@ -1177,7 +1177,7 @@
         colorClass: "bg-rose-50 text-rose-700 border-rose-200",
         badgeColor: "bg-rose-50 text-rose-700 border-rose-200",
         options: [
-          { key: "1", title: "Contabilidad Central & Libro Diario", desc: "Registro de asientos manuales y automáticos con validación estricta de partida doble.", link: "/contabilidad", badge: "Cuadrado" },
+          { key: "1", title: "Contabilidad Central & Libro Diario", desc: "Registro de asientos manuales y automáticos con validación estricta de partida doble.", link: "workspace_contabilidad_metro_format_2.html", badge: "Cuadrado" },
           { key: "2", title: "Estados Financieros NIIF & Balances", desc: "Balance General, Estado de Resultados, Flujo de Efectivo y Notas NIIF.", link: "/estados-financieros", badge: "NIIF PyMES" },
           { key: "3", title: "Declaración Mensual SAR-252", desc: "Mapeo fiscal consolidado listo para exportación al módulo DET de la administración.", link: "/libros-fiscales", badge: "DET Live" }
         ]
@@ -1337,7 +1337,7 @@
         id: "contabilidad-diario",
         title: "Contabilidad Central & Libro Diario",
         desc: "Registro de asientos contables con partida doble balanceada NIIF",
-        link: "/contabilidad",
+        link: "workspace_contabilidad_metro_format_2.html",
         block: "BLOQUE 04 • CONTABILIDAD",
         icon: "⚖️",
         badge: "Partida Doble"
@@ -1416,9 +1416,9 @@
         stripeClass: "stripe-rose",
         iconBoxClass: "bg-rose-50 border border-rose-200 text-rose-700",
         badgeClass: "bg-rose-50 text-rose-700 border border-rose-200",
-        badgeText: "3 SUBPROCESOS",
+        badgeText: "4 PANELES",
         hoverClass: "group-hover:text-rose-700",
-        action: "openQuadrantModal('contabilidad')"
+        action: "window.location.href='workspace_contabilidad_metro_format_2.html'"
       },
       logistica: {
         id: "logistica",
@@ -1548,7 +1548,7 @@
               '/cxp': 'workspace_cxp.html',
               '/bancos': 'workspace_bancos.html',
               '/bancos/proyecciones': 'workspace_proyecciones.html',
-              '/contabilidad': 'workspace_contabilidad.html',
+              '/contabilidad': 'workspace_contabilidad_metro_format_2.html',
               '/estados-financieros': 'workspace_estados_financieros.html',
               '/libros-fiscales': 'workspace_libros_fiscales.html',
               '/inventario': 'workspace_logistica_general.html',
@@ -2201,7 +2201,7 @@
         if (e.key === '1') { window.location.href = '/ventas'; }
         else if (e.key === '2') { window.location.href = 'workspace_logistica_general.html'; }
         else if (e.key === '3') { window.location.href = '/bancos'; }
-        else if (e.key === '4') { window.location.href = '/contabilidad'; }
+        else if (e.key === '4') { window.location.href = 'workspace_contabilidad_metro_format_2.html'; }
       }
     });
   </script>
@@ -2793,7 +2793,7 @@ const HORIZON_ROUTES = {
     egresos: { url: 'workspace_compras.html', route: '/compras' },
     tesoreria: { url: 'workspace_bancos.html', route: '/bancos' },
     bancos: { url: 'workspace_bancos.html', route: '/bancos' },
-    contabilidad: { url: 'workspace_contabilidad.html', route: '/contabilidad' },
+    contabilidad: { url: 'workspace_contabilidad_metro_format_2.html', route: 'workspace_contabilidad_metro_format_2.html' },
     logistica: { url: 'workspace_logistica_general.html', route: '/logistica' },
     rrhh_activos: { url: 'workspace_rrhh.html', route: '/rrhh' }
 };
@@ -2811,6 +2811,10 @@ const QUADRANT_MODULE_ALIAS = {
 };
 
 window.abrirModulo = function(moduloKey) {
+    if (moduloKey === 'contabilidad') {
+        window.location.href = 'workspace_contabilidad_metro_format_2.html';
+        return;
+    }
     const quadrantKey = QUADRANT_MODULE_ALIAS[moduloKey] || moduloKey;
     if (typeof window.openQuadrantModal === 'function' && window.QUADRANT_DATA && window.QUADRANT_DATA[quadrantKey]) {
         window.openQuadrantModal(quadrantKey);

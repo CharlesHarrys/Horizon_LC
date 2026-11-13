@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace de Contabilidad — Horizon LC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.08);
+    }
+    .mono, .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Retícula arquitectónica de fondo con efecto Vignette */
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 80% 75% at 50% 50%, black 35%, transparent 92%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 75% at 50% 50%, black 35%, transparent 92%);
+      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Estilo exacto de Metro Tile del Workspace de Ventas */
+    .metro-tile {
+      background-color: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .metro-tile:hover {
+      transform: translateY(-4px);
+      border-color: #0f172a;
+      box-shadow: 0 18px 32px -8px rgba(15, 23, 42, 0.12);
+    }
+
+    /* Franja Colgante Propuesta 1A */
+    .hanging-ribbon {
+      background: #0f172a;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 6px 14px -2px rgba(15, 23, 42, 0.35);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid #0284c7;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-slate-900 selection:text-white relative bg-[#f6f5f4] p-2.5">
+
+  <!-- Retícula de fondo -->
+  <div class="grid-vignette"></div>
+
+  <!-- =========================================================================
+       HEADER CORPORATIVO CON FRANJA COLGANTE "CONTABILIDAD"
+       ========================================================================= -->
+<header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 shrink-0 min-h-16 relative z-10" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);">
+
+<div class="flex items-center gap-3.5 shrink-0 justify-self-start">       
+    <!-- Botón Regresar -->
+    <button type="button" onclick="manejarBotonRegresar()" title="Regresar" class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
+      ←
+    </button>
+    
+    <!-- Logo Horizon LC (Con redirección al Lobby) -->
+    <div class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal">
+    <!-- Isotipo: Eclipse / Sol Negro Naciente (LOGO)-->
+      <div class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+          <!-- Corona de Fotones Cian (Arco exterior) -->
+          <path d="M4.5 13.5C4.5 9.35786 7.85786 6 12 6C16.1421 6 19.5 9.35786 19.5 13.5" stroke="#3ba6f1" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Singularidad Central (Semiesfera negra sobre el horizonte) -->
+          <path d="M7 13.5C7 10.7386 9.23858 8.5 12 8.5C14.7614 8.5 17 10.7386 17 13.5H7Z" fill="#0f172a"></path>
+          <!-- Horizonte de Sucesos (Plano ecuatorial) -->
+          <path d="M2 13.5H22" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Destello de Acreción Central en Cian -->
+          <path d="M6 16.5H18" stroke="#3ba6f1" stroke-width="2" stroke-linecap="round"></path>
+          <!-- Eco Gravitacional Inferior -->
+          <path d="M9.5 19H14.5" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <!-- Wordmark tipográfico -->
+      <div class="flex flex-col leading-none" style="font-family: 'Inter', sans-serif;">
+        <div class="flex items-center gap-1">
+          <span class="text-[16px] font-extrabold tracking-tight text-slate-900 uppercase">HORIZON</span>
+          <span class="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#3ba6f1]/15 text-[#0284c7] tracking-wider">LC</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 tracking-wider uppercase mt-0.5">SYSTEM ANALYTICS</span>
+      </div>
+    </div>
+
+    <!-- Bloque Detalle de Módulo con Línea Divisoria Vertical -->
+    <span class="h-6 w-[1px] bg-slate-200 mx-1.5"></span>
+
+    <!-- Franja Colgante Propuesta 1A -->
+    <div class="relative -mt-2 -mb-2 self-start pointer-events-none">
+      <div class="hanging-ribbon px-3.5 pt-3.5 pb-3.5 flex flex-col items-center justify-center">
+        <span class="text-[11px] font-black text-white tracking-wider font-mono">CONTABILIDAD</span>
+      </div>
+    </div>
+</div>
+
+<!-- Zona Central: Logotipo Corporativo + Identidad Institucional Dinámica -->
+<div class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;">
+  <div class="flex items-center gap-2.5">
+    <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800" id="hdr-company-logo-container">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+
+    <!-- Bloque de Texto (Nombre destacado + RTN centrado) -->
+    <div class="flex flex-col min-w-0 leading-none items-center text-center">
+      <div class="w-full min-w-0">
+        <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="SOLUTIONS &amp; APPLIANCES LTD">SOLUTIONS &amp; APPLIANCES LTD</span>
+      </div>
+      <div class="mt-1 select-none">
+        <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">RTN: 08011990123456</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="flex items-center gap-3.5 shrink-0 justify-self-end">
+    <!-- Badge de Periodo Minimalista (Limpio y corporativo) -->
+    <div id="hdr-period-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 border border-slate-200/80 rounded-xl text-[11px] font-bold text-slate-700 tracking-wide select-none" style="font-family: 'Inter', sans-serif; cursor: default;">
+      <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+      <span id="hdr-period-text">OCTUBRE 2026</span>
+    </div>
+
+    <!-- Bloque de Usuario (Avatar y Perfil) -->
+    <div class="flex items-center gap-2.5 border-l border-slate-200 pl-3.5" style="font-family: 'Inter', sans-serif;">
+      <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs">
+        CH
+      </div>
+      <div class="text-left hidden sm:flex flex-col leading-tight">
+        <span class="text-xs font-extrabold text-slate-900">Carlos Hernández</span>
+        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Contador General</span>
+      </div>
+    </div>
+</div>
+</header>
+
+
+  <!-- =========================================================================
+       GATEWAY DE CONTABILIDAD (FORMATO EXACTO DE WORKSPACE DE VENTAS)
+       ========================================================================= -->
+  <div class="flex-1 flex flex-col justify-center py-2 max-w-7xl w-full mx-auto relative z-10" id="view-gateway">
+        
+    <!-- Cabecera Editorial del Gateway -->
+    <div class="text-center max-w-2xl mx-auto mb-4 space-y-1">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
+        ÁREA CONTABLE Y FISCAL
+      </h1>
+    </div>
+
+    <!-- Grid 2x2 Metro UI (Mismo formato, medidas y márgenes de Ventas) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-8">
+      
+      <!-- PANEL 1: LIBROS DIARIOS (COMPRA, VENTA, PÓLIZAS) -->
+      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; margin-left: 145px; height: 300px;">
+        <div style="border-bottom-width: 1px;">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">LIBROS DIARIOS</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Libros de ingresos, egresos, pólizas y asientos operativos.</p>
+        </div>
+    
+        <div class="my-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
+            <path d="M16 22C16 18.6863 18.6863 16 22 16H44C46.2091 16 48 17.7909 48 20V78C48 75.7909 46.2091 74 44 74H22C18.6863 74 16 71.3137 16 68V22Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
+            <path d="M80 22C80 18.6863 77.3137 16 74 16H52C49.7909 16 48 17.7909 48 20V78C48 75.7909 49.7909 74 52 74H74C77.3137 74 80 71.3137 80 68V22Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
+            <path d="M26 32H38" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M26 44H38" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M26 56H34" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M58 32H70" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M58 44H70" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M58 56H66" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+          </svg>
+        </div>
+
+        <div class="pt-1 flex items-center justify-end">
+          <button type="button" onclick="ingresarAPanel('diarios')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
+            INGRESAR
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 2: REGISTROS CONTABLES MANUALES (LEDGERS), MAYOR Y AJUSTES -->
+      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; height: 300px;">
+        <div style="border-bottom-width: 1px;">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">LEDGERS Y MAYOR</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Registros contables manuales, libro mayor, balanza de comprobación y ajustes.</p>
+        </div>
+        
+        <div class="my-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
+            <rect x="18" y="16" width="60" height="64" rx="6" stroke="currentColor" stroke-width="4"></rect>
+            <path d="M18 32H78" stroke="currentColor" stroke-width="4"></path>
+            <path d="M48 32V80" stroke="currentColor" stroke-width="4"></path>
+            <path d="M28 46H40" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M28 58H38" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M56 46H68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M56 64H68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+          </svg>
+        </div>
+
+        <div class="pt-1 flex items-center justify-end">
+          <button type="button" onclick="ingresarAPanel('ledgers')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
+            INGRESAR
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 3: EXTRACTOS FINANCIEROS (LOS 5 ESTADOS FINANCIEROS PRINCIPALES) -->
+      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; margin-left: 145px; height: 300px;">
+        <div style="border-bottom-width: 1px;">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">EXTRACTOS FINANCIEROS</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Balance General, Estado de Resultados, Flujo de Efectivo, Patrimonio y Notas.</p>
+        </div>
+        
+        <div class="my-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
+            <rect x="16" y="18" width="64" height="60" rx="8" stroke="currentColor" stroke-width="4"></rect>
+            <path d="M30 62V46" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M44 62V34" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M58 62V42" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M68 62V28" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M24 62H72" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+          </svg>
+        </div>
+
+        <div class="pt-1 flex items-center justify-end">
+          <button type="button" onclick="ingresarAPanel('estados')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
+            INGRESAR
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 4: FISCAL Y SAR AUDITORÍA -->
+      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; height: 300px;">
+        <div style="border-bottom-width: 1px;">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">FISCAL Y SAR</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Libros fiscales SAR (Compras/Ventas), declaración ISV, retenciones y auditoría tributaria.</p>
+        </div>
+        
+        <div class="my-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
+            <path d="M48 14L76 26V46C76 64.5 64.1 79.8 48 84C31.9 79.8 20 64.5 20 46V26L48 14Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
+            <path d="M36 48L44 56L60 40" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+
+        <div class="pt-1 flex items-center justify-end">
+          <button type="button" onclick="ingresarAPanel('fiscal')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
+            INGRESAR
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- =========================================================================
+       VISTAS INTERNAS AL DAR CLIC EN "INGRESAR" (CONECTADAS A CUENTAS DE CONFIG)
+       ========================================================================= -->
+  <!-- PANEL 01: LIBROS DIARIOS -->
+  <div id="view-panel-diarios" class="hidden flex-1 max-w-7xl w-full mx-auto py-4 relative z-10">
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
+          <span class="mono text-[10px] font-bold text-sky-600 uppercase">PANEL 01 • LIBROS DIARIOS</span>
+          <h2 class="text-xl font-black text-slate-950">Libros Diarios (Compras, Ventas, Pólizas y Asientos Operativos)</h2>
+          <p class="text-xs text-slate-500 mt-1">Registro de pólizas y asientos operativos vinculados en tiempo real al Catálogo de Cuentas de Configuración (<code class="mono text-[11px]">entorno_config.html</code>).</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="abrirModalCatalogo()" class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 cursor-pointer transition">
+            Catálogo de Cuentas (Config)
+          </button>
+          <a href="workspace_contabilidad.html" class="px-4 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-xs font-bold text-white cursor-pointer transition">
+            Abrir Libro Diario Multimoneda &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Registro rápido en Libro Diario enlazado al Catálogo de Cuentas de Config -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+        <div>
+          <label class="block text-[10px] mono font-bold text-slate-500 uppercase mb-1">Tipo de Póliza / Diario</label>
+          <select id="diario-tipo-poliza" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono">
+            <option value="DIARIO-INGRESO">Póliza de Ingresos (Ventas)</option>
+            <option value="DIARIO-EGRESO">Póliza de Egresos (Compras/Pagos)</option>
+            <option value="DIARIO-OPERATIVO">Póliza de Diario Operativo</option>
+          </select>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[10px] mono font-bold text-slate-500 uppercase mb-1">Cuenta Contable Oficial (Sincronizada con Config)</label>
+          <select id="select-cuenta-diarios" class="select-cuenta-config-sync w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono"></select>
+        </div>
+        <div>
+          <label class="block text-[10px] mono font-bold text-slate-500 uppercase mb-1">Concepto / Glosa Operativa</label>
+          <input id="diario-concepto" type="text" placeholder="Ej. Registro póliza operativa del día" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs">
+        </div>
+      </div>
+
+      <!-- Accesos rápidos a sub-libros operativos -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="workspace_libro_ventas.html" class="p-4 rounded-2xl border border-slate-200 hover:border-slate-900 bg-white transition flex items-center justify-between group">
+          <div>
+            <span class="mono text-[10px] font-bold text-emerald-600 uppercase">DIARIO AUXILIAR</span>
+            <h3 class="text-sm font-black text-slate-900 mt-0.5">Libro Diario de Ventas</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Facturación comercial e ingresos devengados</p>
+          </div>
+          <span class="text-slate-400 group-hover:text-slate-900 font-bold">&rarr;</span>
+        </a>
+        <a href="libro_compras_ledger.html" class="p-4 rounded-2xl border border-slate-200 hover:border-slate-900 bg-white transition flex items-center justify-between group">
+          <div>
+            <span class="mono text-[10px] font-bold text-amber-600 uppercase">DIARIO AUXILIAR</span>
+            <h3 class="text-sm font-black text-slate-900 mt-0.5">Libro Diario de Compras</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Adquisiciones, DUA e ISV crédito fiscal</p>
+          </div>
+          <span class="text-slate-400 group-hover:text-slate-900 font-bold">&rarr;</span>
+        </a>
+        <a href="workspace_contabilidad.html" class="p-4 rounded-2xl border border-slate-200 hover:border-slate-900 bg-white transition flex items-center justify-between group">
+          <div>
+            <span class="mono text-[10px] font-bold text-sky-600 uppercase">LIBRO CENTRAL</span>
+            <h3 class="text-sm font-black text-slate-900 mt-0.5">Asientos y Pólizas Operativas</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Libro diario general y partida doble</p>
+          </div>
+          <span class="text-slate-400 group-hover:text-slate-900 font-bold">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 02: LEDGERS Y MAYOR -->
+  <div id="view-panel-ledgers" class="hidden flex-1 max-w-7xl w-full mx-auto py-4 relative z-10">
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
+          <span class="mono text-[10px] font-bold text-sky-600 uppercase">PANEL 02 • LEDGERS Y MAYOR</span>
+          <h2 class="text-xl font-black text-slate-950">Registros Contables Manuales, Libro Mayor, Balanza y Ajustes</h2>
+          <p class="text-xs text-slate-500 mt-1">Partidas manuales y ajustes contables NIIF conectados al Catálogo de Cuentas administrado en Configuración.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="abrirModalCatalogo()" class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 cursor-pointer transition">
+            Catálogo de Cuentas (Config)
+          </button>
+          <a href="entorno_config.html" class="px-4 py-2 rounded-full border border-slate-200 hover:border-slate-900 text-xs font-bold text-slate-800 cursor-pointer transition">
+            Administrar Cuentas en Config &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Formulario de Registro de Partida enlazado a #select-cuenta-config -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 items-end">
+        <div class="md:col-span-5">
+          <label class="block text-[10px] mono font-bold text-slate-500 uppercase mb-1">Seleccionar Cuenta Contable (Desde Config)</label>
+          <select id="select-cuenta-config" class="select-cuenta-config-sync w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono"></select>
+        </div>
+        <div class="md:col-span-3">
+          <label class="block text-[10px] mono font-bold text-slate-500 uppercase mb-1">Detalle / Referencia de Ajuste</label>
+          <input id="ledger-glosa-input" type="text" placeholder="Ej. Ajuste devengo mensual NIIF" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[10px] mono font-bold text-slate-500 uppercase mb-1">Cargo / Debe (L)</label>
+          <input id="ledger-debe-input" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono text-right">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[10px] mono font-bold text-slate-500 uppercase mb-1">Abono / Haber (L)</label>
+          <input id="ledger-haber-input" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono text-right">
+        </div>
+        <div class="md:col-span-12 flex justify-end pt-1">
+          <button type="button" onclick="agregarLineaPartidaLedger()" class="px-5 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider cursor-pointer transition">
+            + Agregar Línea a Partida
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de Partida en Construcción -->
+      <div class="border border-slate-200 rounded-2xl overflow-hidden">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-100/80 border-b border-slate-200 text-[10px] mono font-bold text-slate-600 uppercase">
+              <th class="py-2.5 px-4">Código</th>
+              <th class="py-2.5 px-4">Nombre de Cuenta (Config)</th>
+              <th class="py-2.5 px-4">Naturaleza / Nivel</th>
+              <th class="py-2.5 px-4">Glosa</th>
+              <th class="py-2.5 px-4 text-right">Debe (L)</th>
+              <th class="py-2.5 px-4 text-right">Haber (L)</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-partidas-ledger" class="divide-y divide-slate-100 font-mono text-xs">
+            <tr>
+              <td colspan="6" class="py-4 px-4 text-center text-slate-400 font-sans">Seleccione una cuenta del catálogo oficial de Configuración para registrar movimientos en el Mayor.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 04: FISCAL Y SAR -->
+  <div id="view-panel-fiscal" class="hidden flex-1 max-w-7xl w-full mx-auto py-4 relative z-10">
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
+          <span class="mono text-[10px] font-bold text-sky-600 uppercase">PANEL 04 • FISCAL Y SAR</span>
+          <h2 class="text-xl font-black text-slate-950">Libros Fiscales SAR, Declaración ISV, Retenciones y Auditoría Tributaria</h2>
+          <p class="text-xs text-slate-500 mt-1">Control tributario hondureño (SAR), libros de compras y ventas, liquidación ISV 15%/18% y retenciones ISR/ISV.</p>
+        </div>
+        <a href="workspace_libros_fiscales.html" class="px-4 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-xs font-bold text-white cursor-pointer transition">
+          Abrir Workspace Libros Fiscales SAR &rarr;
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="workspace_libros_fiscales.html" class="p-4 rounded-2xl border border-slate-200 hover:border-slate-900 bg-slate-50/60 transition flex flex-col justify-between">
+          <div>
+            <span class="mono text-[10px] font-bold text-emerald-700 uppercase">SAR HONDURAS • DET LIVE</span>
+            <h3 class="text-sm font-black text-slate-900 mt-1">Libros Fiscales SAR Consolidados</h3>
+            <p class="text-xs text-slate-500 mt-1">Libro de Ventas y Libro de Compras validados con CAI y RTN.</p>
+          </div>
+          <span class="text-xs font-bold text-slate-900 mt-4">Abrir Módulo &rarr;</span>
+        </a>
+        <a href="workspace_libro_ventas.html" class="p-4 rounded-2xl border border-slate-200 hover:border-slate-900 bg-slate-50/60 transition flex flex-col justify-between">
+          <div>
+            <span class="mono text-[10px] font-bold text-sky-700 uppercase">DÉBITO FISCAL ISV</span>
+            <h3 class="text-sm font-black text-slate-900 mt-1">Libro Fiscal de Ventas</h3>
+            <p class="text-xs text-slate-500 mt-1">Detalle de facturas emitidas, base gravable 15%/18% y exentos.</p>
+          </div>
+          <span class="text-xs font-bold text-slate-900 mt-4">Ver Libro de Ventas &rarr;</span>
+        </a>
+        <a href="libro_compras_ledger.html" class="p-4 rounded-2xl border border-slate-200 hover:border-slate-900 bg-slate-50/60 transition flex flex-col justify-between">
+          <div>
+            <span class="mono text-[10px] font-bold text-amber-700 uppercase">CRÉDITO FISCAL & RETENCIONES</span>
+            <h3 class="text-sm font-black text-slate-900 mt-1">Libro Fiscal de Compras</h3>
+            <p class="text-xs text-slate-500 mt-1">Pólizas de importación DUA, compras locales y retenciones Art. 50.</p>
+          </div>
+          <span class="text-xs font-bold text-slate-900 mt-4">Ver Libro de Compras &rarr;</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =========================================================================
+       MODAL: CATÁLOGO DE CUENTAS TRAÍDO DESDE CONFIG
+       ========================================================================= -->
+  <div id="modal-catalogo" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-3xl w-full max-h-[82vh] flex flex-col overflow-hidden">
+      <div class="p-4 px-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="text-sm font-black text-slate-900 uppercase">Catálogo de Cuentas Contables (Sincronizado con Config)</h3>
+          <p class="text-[11px] text-slate-500">Cuentas cargadas directamente desde <code class="mono">horizon_system_config</code> (<code class="mono">entorno_config.html</code>).</p>
+        </div>
+        <button type="button" onclick="cerrarModalCatalogo()" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center text-xs cursor-pointer">✕</button>
+      </div>
+      <div class="px-5 py-2.5 bg-white border-b border-slate-100 flex items-center gap-3">
+        <input id="input-buscar-cuenta-modal" type="text" oninput="filtrarModalCatalogo(this.value)" placeholder="Buscar por código, nombre o naturaleza (DEBE / HABER)..." class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono focus:outline-none focus:border-slate-900">
+      </div>
+      <div id="lista-cuentas-config" class="p-4 overflow-y-auto flex-1 font-mono text-xs divide-y divide-slate-100"></div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. NAVEGACIÓN ENTRE EL GATEWAY (4 PANELES) Y LAS SUB-VISTAS / WORKSPACES
+    // -------------------------------------------------------------------------
+    function ingresarAPanel(panelKey) {
+      // Panel 3: Redirige directamente al Workspace existente de los 5 Estados Financieros y Notas NIIF
+      if (panelKey === 'estados') {
+        if (typeof window.irAEstadosFinancieros === 'function') {
+          window.irAEstadosFinancieros();
+        } else {
+          window.location.href = 'workspace_estados_financieros.html';
+        }
+        return;
+      }
+
+      // Ocultar el Gateway 2x2 y mostrar el panel seleccionado
+      const gateway = document.getElementById('view-gateway');
+      if (gateway) gateway.classList.add('hidden');
+
+      ['diarios', 'ledgers', 'fiscal'].forEach(k => {
+        const el = document.getElementById(`view-panel-${k}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById(`view-panel-${panelKey}`);
+      if (target) target.classList.remove('hidden');
+    }
+
+    function volverAGateway() {
+      ['diarios', 'ledgers', 'fiscal'].forEach(k => {
+        const el = document.getElementById(`view-panel-${k}`);
+        if (el) el.classList.add('hidden');
+      });
+      const gateway = document.getElementById('view-gateway');
+      if (gateway) gateway.classList.remove('hidden');
+    }
+
+    // Botón "←" inteligente del Header: si está en un sub-panel vuelve al Gateway; si está en el Gateway vuelve al Lobby
+    function manejarBotonRegresar() {
+      const gateway = document.getElementById('view-gateway');
+      if (gateway && gateway.classList.contains('hidden')) {
+        volverAGateway();
+      } else {
+        window.location.href = 'workspace_lobby.html';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. SINCRONIZACIÓN DE IDENTIDAD (HEADER) Y CATÁLOGO DE CUENTAS DESDE CONFIG
+    // -------------------------------------------------------------------------
+    // Catálogo por defecto idéntico al definido en entorno_config.html (catalogoCuentasNIIF)
+    const CUENTAS_FALLBACK = [
+      { codigo: '1.1.01', nombre: 'Efectivo y Equivalentes de Efectivo', naturaleza: 'DEBE', tipo: 'MAYOR', estado: 'Activa' },
+      { codigo: '1.1.01.01', nombre: 'Fondo Fijo de Caja Chica Administración', naturaleza: 'DEBE', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '1.1.01.02', nombre: 'Banco Atlántida Cta. Cheques HNL', naturaleza: 'DEBE', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '1.1.03.01', nombre: 'Anticipos a Proveedores Locales y Exterior', naturaleza: 'DEBE', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '1.1.04.01', nombre: 'Crédito Fiscal ISV 15% por Acreditar SAR', naturaleza: 'DEBE', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '1.1.05.01', nombre: 'Inventario Mercaderías para la Venta', naturaleza: 'DEBE', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '1.2.01', nombre: 'Propiedad, Planta y Equipo (Neto)', naturaleza: 'DEBE', tipo: 'MAYOR', estado: 'Activa' },
+      { codigo: '2.1.01', nombre: 'Cuentas y Documentos por Pagar Comerciales', naturaleza: 'HABER', tipo: 'MAYOR', estado: 'Activa' },
+      { codigo: '2.1.01.01', nombre: 'Proveedores Locales Comerciales (CxP)', naturaleza: 'HABER', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '2.1.03.01', nombre: 'Retenciones ISR / ISV por Pagar SAR (Art. 50)', naturaleza: 'HABER', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '2.1.03.02', nombre: 'ISV Débito Fiscal por Pagar SAR', naturaleza: 'HABER', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '3.1.01.01', nombre: 'Capital Social Suscrito y Pagado', naturaleza: 'HABER', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '4.1.01.01', nombre: 'Ingresos por Ventas de Bienes y Servicios Giro Principal', naturaleza: 'HABER', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '5.1.01', nombre: 'Costos y Gastos de Operación, Aduanas y Logística', naturaleza: 'DEBE', tipo: 'MAYOR', estado: 'Activa' },
+      { codigo: '5.2.01', nombre: 'Gastos Generales de Administración y Ventas', naturaleza: 'DEBE', tipo: 'MAYOR', estado: 'Activa' },
+      { codigo: '5.2.01.01', nombre: 'Servicios Públicos (ENEE / SANAA / Telecomunicaciones)', naturaleza: 'DEBE', tipo: 'DETALLE', estado: 'Activa' },
+      { codigo: '5.2.01.02', nombre: 'Arrendamiento de Locales y Bodegas Operativas', naturaleza: 'DEBE', tipo: 'DETALLE', estado: 'Activa' }
+    ];
+
+    function sincronizarIdentidadDesdeConfig() {
+      try {
+        const rawCfg = localStorage.getItem('horizon_system_config');
+        if (!rawCfg) return;
+        const cfg = JSON.parse(rawCfg);
+
+        const companyName = cfg.empresa_nombre || (cfg.company && cfg.company.name) || cfg.company_name || cfg.razon_social || cfg.empresa || 'SOLUTIONS & APPLIANCES LTD';
+        const companyRtn = cfg.empresa_rtn || (cfg.company && cfg.company.rtn) || cfg.company_rtn || cfg.rtn || '08011990123456';
+        const periodText = cfg.periodo_activo || (cfg.period && cfg.period.label) || cfg.active_period || 'OCTUBRE 2026';
+
+        const elName = document.getElementById('hdr-company-name');
+        const elRtn = document.getElementById('hdr-company-rtn');
+        const elPeriod = document.getElementById('hdr-period-text');
+        const elLogo = document.getElementById('hdr-company-logo-container');
+
+        if (elName) {
+          elName.textContent = String(companyName).toUpperCase();
+          elName.title = String(companyName).toUpperCase();
+        }
+        if (elRtn) {
+          const cleanRtn = String(companyRtn).replace(/^RTN:\s*/i, '').trim();
+          elRtn.textContent = `RTN: ${cleanRtn}`;
+        }
+        if (elPeriod) {
+          elPeriod.textContent = String(periodText).toUpperCase();
+        }
+
+        const logoData = cfg.company_logo || cfg.empresa_logo || (cfg.company && (cfg.company.logo || cfg.company.logo_url || cfg.company.logo_data_url));
+        if (elLogo && logoData) {
+          if (String(logoData).trim().startsWith('<svg')) {
+            elLogo.innerHTML = logoData;
+          } else {
+            elLogo.innerHTML = `<img src="${logoData}" alt="${companyName}" class="w-full h-full object-contain rounded-lg">`;
+          }
+        }
+      } catch (e) {
+        console.warn('Error sincronizando identidad del Header con Config:', e);
+      }
+    }
+
+    function normalizarCuenta(c) {
+      const codigo = c.codigo || c.code || '';
+      const nombre = c.nombre || c.name || '';
+      const naturalezaRaw = (c.naturaleza || c.nature || '').toUpperCase();
+      const naturaleza = naturalezaRaw.includes('HABER') || naturalezaRaw.includes('ACREED') || naturalezaRaw === 'CREDIT'
+        ? 'Acreedora (HABER)'
+        : 'Deudora (DEBE)';
+      const nivel = c.tipo || c.nivel || (codigo.split('.').length >= 4 ? 'DETALLE' : 'MAYOR');
+      return { codigo, nombre, naturaleza, nivel, raw: c };
+    }
+
+    function obtenerCuentasDeConfig() {
+      try {
+        const rawCfg = localStorage.getItem('horizon_system_config');
+        if (rawCfg) {
+          const parsed = JSON.parse(rawCfg);
+          const cuentas = parsed.catalogo_cuentas || parsed.catalogoCuentasNIIF || parsed.cuentas_contables || parsed.accounts || parsed.chart_of_accounts;
+          if (Array.isArray(cuentas) && cuentas.length > 0) {
+            return cuentas.map(normalizarCuenta);
+          }
+        }
+        const rawCat = localStorage.getItem('horizon_catalogo_cuentas') || localStorage.getItem('catalogo_cuentas');
+        if (rawCat) {
+          const list = JSON.parse(rawCat);
+          if (Array.isArray(list) && list.length > 0) {
+            return list.map(normalizarCuenta);
+          }
+        }
+      } catch (e) {
+        console.warn('Error sincronizando catálogo con Config:', e);
+      }
+      return CUENTAS_FALLBACK.map(normalizarCuenta);
+    }
+
+    function renderizarListaModalCatalogo(cuentas) {
+      const listaModal = document.getElementById('lista-cuentas-config');
+      if (!listaModal) return;
+      listaModal.innerHTML = cuentas.map(c => `
+        <div class="py-2.5 px-2 flex items-center justify-between hover:bg-slate-50 rounded-lg gap-2">
+          <div class="min-w-0">
+            <span class="font-bold text-sky-700 mr-2">${c.codigo}</span>
+            <span class="text-slate-800 font-medium">${c.nombre}</span>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">${c.naturaleza}</span>
+            <span class="px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-bold">${c.nivel}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function sincronizarCuentasEnVistas() {
+      const cuentas = obtenerCuentasDeConfig();
+      const optionsHtml = cuentas.map(c =>
+        `<option value="${c.codigo}" data-nombre="${c.nombre}" data-naturaleza="${c.naturaleza}" data-nivel="${c.nivel}">${c.codigo} — ${c.nombre} [${c.naturaleza} • ${c.nivel}]</option>`
+      ).join('');
+
+      document.querySelectorAll('.select-cuenta-config-sync, #select-cuenta-config').forEach(sel => {
+        sel.innerHTML = optionsHtml;
+      });
+
+      renderizarListaModalCatalogo(cuentas);
+    }
+
+    function filtrarModalCatalogo(termino) {
+      const q = (termino || '').trim().toLowerCase();
+      const cuentas = obtenerCuentasDeConfig();
+      const filtradas = !q ? cuentas : cuentas.filter(c =>
+        c.codigo.toLowerCase().includes(q) ||
+        c.nombre.toLowerCase().includes(q) ||
+        c.naturaleza.toLowerCase().includes(q) ||
+        c.nivel.toLowerCase().includes(q)
+      );
+      renderizarListaModalCatalogo(filtradas);
+    }
+
+    const partidasLedgerTemp = [];
+    function agregarLineaPartidaLedger() {
+      const select = document.getElementById('select-cuenta-config');
+      if (!select || !select.value) return;
+      const opt = select.options[select.selectedIndex];
+      const codigo = select.value;
+      const nombre = opt?.getAttribute('data-nombre') || codigo;
+      const naturaleza = opt?.getAttribute('data-naturaleza') || 'Deudora (DEBE)';
+      const nivel = opt?.getAttribute('data-nivel') || 'DETALLE';
+      const glosa = document.getElementById('ledger-glosa-input')?.value?.trim() || 'Partida contable manual';
+      const debe = parseFloat(document.getElementById('ledger-debe-input')?.value) || 0;
+      const haber = parseFloat(document.getElementById('ledger-haber-input')?.value) || 0;
+
+      partidasLedgerTemp.push({ codigo, nombre, naturaleza, nivel, glosa, debe, haber });
+
+      const tbody = document.getElementById('tbody-partidas-ledger');
+      if (tbody) {
+        tbody.innerHTML = partidasLedgerTemp.map(p => `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2 px-4 font-bold text-sky-700">${p.codigo}</td>
+            <td class="py-2 px-4 text-slate-900 font-sans font-semibold">${p.nombre}</td>
+            <td class="py-2 px-4 text-[10px]">${p.naturaleza} • ${p.nivel}</td>
+            <td class="py-2 px-4 font-sans text-slate-600">${p.glosa}</td>
+            <td class="py-2 px-4 text-right font-bold text-slate-900">${p.debe.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td class="py-2 px-4 text-right font-bold text-slate-900">${p.haber.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          </tr>
+        `).join('');
+      }
+      if (document.getElementById('ledger-debe-input')) document.getElementById('ledger-debe-input').value = '';
+      if (document.getElementById('ledger-haber-input')) document.getElementById('ledger-haber-input').value = '';
+    }
+
+    function abrirModalCatalogo() {
+      sincronizarCuentasEnVistas();
+      document.getElementById('modal-catalogo').classList.remove('hidden');
+    }
+
+    function cerrarModalCatalogo() {
+      document.getElementById('modal-catalogo').classList.add('hidden');
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (!e.key || e.key === 'horizon_system_config' || e.key === 'horizon_catalogo_cuentas' || e.key === 'catalogo_cuentas') {
+        sincronizarIdentidadDesdeConfig();
+        sincronizarCuentasEnVistas();
+      }
+    });
+
+    // Inicializar siempre mostrando #view-gateway primero
+    volverAGateway();
+    sincronizarIdentidadDesdeConfig();
+    sincronizarCuentasEnVistas();
+  </script>
+</body>
+</html>

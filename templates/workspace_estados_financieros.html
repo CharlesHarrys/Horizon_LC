@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
+<!-- saved from url=(0048)http://127.0.0.1:8000/estados-financieros#ratios -->
+<html lang="es"><head><meta charset="UTF-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estados Financieros NIIF & Cierre Contable | Horizon Ledger ERP</title>
+  <title>Estados Financieros NIIF &amp; Cierre Contable | Horizon Ledger ERP</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -30,8 +30,8 @@
   </script>
 
   <!-- Google Fonts: Plus Jakarta Sans & Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
@@ -70,31 +70,24 @@
     }
   </style>
 </head>
-<body class="bg-[#eef2f6] text-slate-900 min-h-screen flex flex-col text-xs gap-3 relative selection:bg-rose-500 selection:text-white p-2.5">
+<body class="bg-[#eef2f6] text-slate-900 min-h-screen flex flex-col text-xs gap-2.5 relative selection:bg-rose-500 selection:text-white p-2.5" >
 
   <!-- Retícula de fondo sutil -->
   <div class="grid-vignette"></div>
 
   <!-- 1. HEADER INSTITUCIONAL (HORIZON LEDGER) -->
-  <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 mb-2 shrink-0 min-h-16" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);"
->
+  <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 shrink-0 min-h-16" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);">
 
-<div 
-	class="flex items-center gap-3.5 shrink-0 justify-self-start"
->       
+<div class="flex items-center gap-3.5 shrink-0 justify-self-start">       
     <!-- Botón Regresar -->
-    <button type="button" onclick="if(history.length > 1){ history.back(); } else { window.location.href='workspace_lobby.html'; }" title="Regresar" 
-	class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
+    <button type="button" onclick="window.location.href='workspace_contabilidad_metro_format_2.html'" title="Regresar a Contabilidad" class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
       ←
     </button>
     
     <!-- Logo Horizon LC (Con redirección al Lobby) -->
-    <div 
-	class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal"
-	>
+    <div class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal">
     <!-- Isotipo: Eclipse / Sol Negro Naciente (LOGO)-->
-      <div
-	class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
+      <div class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
           <!-- Corona de Fotones Cian (Arco exterior) -->
           <path d="M4.5 13.5C4.5 9.35786 7.85786 6 12 6C16.1421 6 19.5 9.35786 19.5 13.5" stroke="#3ba6f1" stroke-width="2.2" stroke-linecap="round"></path>
@@ -134,17 +127,15 @@
 	
 <!-- Zona Central: Logotipo Corporativo + Identidad Institucional Dinámica -->
 
-<div
- 	class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;"
->
+<div class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;">
   
   	<!-- Contenedor del Logotipo Vectorial / SVG de la Empresa (w-10 h-10 y gap-2.5) -->
   	<div class="flex items-center gap-2.5">
     	<div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800" id="hdr-company-logo-container">
 	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
 	</svg>
     	</div>
 
@@ -152,16 +143,12 @@
     	<div class="flex flex-col min-w-0 leading-none items-center text-center">
       	<!-- Nombre de la Empresa -->
       	<div class="w-full min-w-0">
-        <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="Empresa Activa">
-          SOLUTIONS &amp; APPLIANCES
-        </span>
+        <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="SOLUTIONS &amp; APPLIANCES">SOLUTIONS &amp; APPLIANCES</span>
       	</div>
 
       	<!-- RTN Centrado -->
       	<div class="mt-1 select-none">
-        <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">
-          RTN: 08011990123456
-        </span>
+        <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">RTN: 08011990123456</span>
       	</div>
     </div>
   </div>
@@ -264,102 +251,105 @@
 </script>
 
 <!-- BARRA DE ACCIÓN SUPERIOR EEFF (Exportación & Cuadernillo) -->
-<div class="flex items-center justify-end gap-2 mb-2 no-print">
-  <button type="button" onclick="exportFullPDF()" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5">
-    <span>📄</span>
-    <span class="hidden md:inline">Cuadernillo PDF</span>
-  </button>
-  <button type="button" onclick="exportExcelEEFF()" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5">
-    <span>📊</span>
-    <span class="hidden md:inline">Exportar Excel</span>
-  </button>
-</div>
+
 
 
   <!-- 2. BARRA SUPERIOR DE PESTAÑAS CONMUTABLES (TAB NAVIGATION) -->
-  <div class="flex items-center gap-1.5 overflow-x-auto bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm relative z-10 flex-shrink-0 tab-nav-bar">
-    <button onclick="switchTab('bbgg')" id="tab-btn-bbgg" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border tab-active whitespace-nowrap">
-      <span>🏛️</span>
-      <span>1. Balance General (BBGG)</span>
-    </button>
-    <button onclick="switchTab('eerr')" id="tab-btn-eerr" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
-      <span>📈</span>
-      <span>2. Estado de Resultados (EERR)</span>
-    </button>
-    <button onclick="switchTab('patrimonio')" id="tab-btn-patrimonio" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
-      <span>🔄</span>
-      <span>3. Cambios en el Patrimonio</span>
-    </button>
-    <button onclick="switchTab('flujo')" id="tab-btn-flujo" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
-      <span>💧</span>
-      <span>4. Flujo de Efectivo (NIIF 7)</span>
-    </button>
-    <button onclick="switchTab('balanza')" id="tab-btn-balanza" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
-      <span>⚖️</span>
-      <span>5. Balanza de Comprobación (6 Cols)</span>
-    </button>
-    <button onclick="switchTab('ajustes')" id="tab-btn-ajustes" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
-      <span>⚙️</span>
-      <span>6. Ajustes de Cierre & Devengos</span>
-    </button>
-    <button onclick="switchTab('notas')" id="tab-btn-notas" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
-      <span>📝</span>
-      <span>7. Notas Explicativas NIIF</span>
-    </button>
-    <button onclick="switchTab('ratios')" id="tab-btn-ratios" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
-      <span>📈</span>
-      <span>8. Ratios Financieros &amp; DuPont</span>
-    </button>
+  <div class="flex items-center justify-between w-full gap-4 relative z-10 shrink-0">
+  
+  <!-- Barra de Pestañas de Navegación (Izquierda) -->
+  <div class="inline-flex items-center bg-white border border-slate-200 rounded-2xl p-1.5 tab-nav-bar" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);">
+    <div class="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 shadow-inner tracking-wider" style="box-shadow: inset 0 2px 4px 0 rgba(15, 23, 42, 0.04);">
+    
+      <button onclick="switchTab('bbgg')" id="tab-btn-bbgg" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+        Balance General
+      </button>
+
+      <button onclick="switchTab('eerr')" id="tab-btn-eerr" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+        Estado de Resultados
+      </button>
+
+      <button onclick="switchTab('patrimonio')" id="tab-btn-patrimonio" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+        Cambios en el Patrimonio
+      </button>
+
+      <button onclick="switchTab('flujo')" id="tab-btn-flujo" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+        Flujo de Efectivo
+      </button>
+
+      <button onclick="switchTab('balanza')" id="tab-btn-balanza" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+        Balanza de Comprobación
+      </button>
+
+      <button onclick="switchTab('ajustes')" id="tab-btn-ajustes" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+        Ajustes de Cierre
+      </button>
+
+      <button onclick="switchTab('notas')" id="tab-btn-notas" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+        Notas Explicativas
+      </button>
+
+      <button onclick="switchTab('ratios')" id="tab-btn-ratios" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border tab-active whitespace-nowrap">
+        Ratios &amp; DuPont
+      </button>
+
+    </div>
   </div>
+
+  <!-- Botones de Exportación (Derecha) -->
+  <div class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl px-3 py-2 shadow-xs shrink-0 flex items-center justify-between gap-2 text-xs shad-bx" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);">
+    <button type="button" onclick="exportFullPDF()" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+      <span>📄</span>
+      <span class="hidden md:inline">PDF</span>
+    </button>
+    <button type="button" onclick="exportExcelEEFF()" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+      <span>📊</span>
+      <span class="hidden md:inline">Excel</span>
+    </button>
+    
+  </div>
+
+
+</div>
+
+
+<style>
+  /* Estándar corporativo azul para la pestaña activa con texto en azul corporativo */
+  .tab-active {
+    background-color: #ffffff !important;
+    color: #0369a1 !important; /* text-sky-700 */
+    border-color: #bae6fd !important; /* border-sky-200 */
+    box-shadow: 0 2px 8px -2px rgba(14, 165, 233, 0.15) !important;
+  }
+</style>
 
   <!-- 3. CONTENEDOR PRINCIPAL: VISTA DE CADA ESTADO FINANCIERO -->
   <main class="flex-1 flex flex-col min-h-0 relative z-10">
     
     <!-- TARJETA CONTENEDORA CON FRANJA ROSE -->
-    <div class="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden border-l-[6px] border-l-rose-500 sheet-container">
+    <div class="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden sheet-container">
       
       <!-- ============================================================== -->
       <!-- TAB 1: BALANCE GENERAL (ESTADO DE SITUACIÓN FINANCIERA)         -->
       <!-- ============================================================== -->
-      <div id="pane-bbgg" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4">
+      <div id="pane-bbgg" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4 hidden">
         <!-- Cabecera Formal del Estado -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+        <div class="flex flex-col sm:items-center text-center justify-between pb-3 border-b border-slate-200">
           <div>
-            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Estado de Situación Financiera (Balance General Clasificado)</h2>
-            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</span> · RTN <span data-hz="rtn">08011999123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
-            <p class="text-[11px] text-slate-500 tabular-nums">Al 30 de Septiembre de 2026 • Cifras en Lempiras Hondureños (HNL) • Norma NIIF para PYMES</p>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight" data-hz="empresa">SOLUTIONS &amp; APPLIANCES</h2>
+            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span>BALANCE GENERAL CLASIFICADO</span></p>
+            <p class="text-[11px] text-slate-500 tabular-nums">Al 30 de Septiembre de 2026 • Cifras en Lempiras (HNL)</p>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 tabular-nums text-[10px] font-bold flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              ECUACIÓN CONTABLE CUADRADA (L 0.00 DIFERENCIA)
-            </span>
-            <button type="button" id="btn-toggle-ha" onclick="toggleAnalisisHorizontal()" class="bg-white text-slate-700 border border-slate-200 rounded-full font-bold px-5 py-2 text-xs hover:bg-slate-50 transition">Análisis Horizontal: OFF</button>
-          </div>
+          
         </div>
 
         <!-- 3 KPIs Resumen del Balance -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-            <span class="text-[10px] font-bold tabular-nums uppercase text-slate-500">TOTAL ACTIVO</span>
-            <div class="text-xl font-black tabular-nums text-slate-950 mt-0.5">L 3,842,500.00</div>
-            <span class="text-[9.5px] text-emerald-700 font-medium">Corriente: L 2,660,050.00 | No Corriente: L 1,182,450.00</span>
-          </div>
-          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-            <span class="text-[10px] font-bold tabular-nums uppercase text-slate-500">TOTAL PASIVO</span>
-            <div class="text-xl font-black tabular-nums text-slate-950 mt-0.5">L 1,420,150.00</div>
-            <span class="text-[9.5px] text-slate-500 font-medium">Corriente: L 995,150.00 | No Corriente: L 425,000.00</span>
-          </div>
-          <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl">
-            <span class="text-[10px] font-bold tabular-nums uppercase text-rose-700">PATRIMONIO NETO</span>
-            <div class="text-xl font-black tabular-nums text-rose-900 mt-0.5">L 2,422,350.00</div>
-            <span class="text-[9.5px] text-rose-700 font-bold">Pasivo + Patrimonio: L 3,842,500.00 (100% Cuadrado)</span>
-          </div>
-        </div>
+        
 
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] text-slate-500 tabular-nums">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
           <span><strong class="text-slate-700">Columnas:</strong> Monto · % Vertical (sobre Total Activo)</span>
           <span id="ha-legend-h" class="hidden"><strong class="text-slate-700">Análisis Horizontal:</strong> Δ L y Δ % vs. cierre 31-Dic-2025 (▲ verde = mejora; ▼ rojo = deterioro; en pasivos y depreciación un aumento se muestra en rojo)</span>
+    <button type="button" id="btn-toggle-ha" onclick="toggleAnalisisHorizontal()" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5 cursor-pointer">Análisis Horizontal: OFF</button>
         </div>
 
         <!-- Estructura Clasificada a Dos Columnas (Activo vs Pasivo + Patrimonio) -->
@@ -368,159 +358,159 @@
           <!-- COLUMNA IZQUIERDA: ACTIVOS -->
           <div class="space-y-4">
             <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec data-kind="asset">
+              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec="" data-kind="asset">
                 <span class="flex-1 min-w-0">1. ACTIVO CORRIENTE</span>
-                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt>L 2,660,050.00</span>
-                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert></span>
-                <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz></span>
+                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt="">L 2,660,050.00</span>
+                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert="">69.2%</span>
+                <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-300 hidden" data-horiz="">▲ + L 325,250.00 (+13.9%)</span>
               </div>
               <div class="divide-y divide-slate-100 tabular-nums text-[11px] p-2 bg-white">
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="1.1.01" data-kind="asset" data-cur="745200.00" data-prev="612400.00">
-                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">1.1.01 Efectivo y Equivalentes (Caja & Bancos BAC/Ficohsa)</span>
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="1.1.01" data-kind="asset" data-cur="745200.00" data-prev="612400.00">
+                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">1.1.01 Efectivo y Equivalentes (Caja &amp; Bancos BAC/Ficohsa)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 745,200.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">19.4%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▲ + L 132,800.00 (+21.7%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="1.1.02" data-kind="asset" data-cur="428600.00" data-prev="465900.00">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="1.1.02" data-kind="asset" data-cur="428600.00" data-prev="465900.00">
                   <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">1.1.02 Cuentas Comerciales por Cobrar (Clientes Cartera Neta)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 428,600.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">11.2%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-rose-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▼ - L 37,300.00 (-8.0%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="1.1.04" data-kind="asset" data-cur="1420850.00" data-prev="1185300.00">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="1.1.04" data-kind="asset" data-cur="1420850.00" data-prev="1185300.00">
                   <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">1.1.04 Inventarios Valuados a CPP (Almacén Central)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 1,420,850.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">37.0%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▲ + L 235,550.00 (+19.9%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="1.1.05" data-kind="asset" data-cur="65400.00" data-prev="71200.00">
-                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">1.1.05 Pagos Anticipados & Pólizas de Seguro</span>
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="1.1.05" data-kind="asset" data-cur="65400.00" data-prev="71200.00">
+                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">1.1.05 Pagos Anticipados &amp; Pólizas de Seguro</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 65,400.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">1.7%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-rose-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▼ - L 5,800.00 (-8.1%)</span>
                 </div>
               </div>
             </div>
 
             <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec data-kind="asset">
+              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec="" data-kind="asset">
                 <span class="flex-1 min-w-0">1.2 ACTIVO NO CORRIENTE</span>
-                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt>L 1,182,450.00</span>
-                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert></span>
-                <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz></span>
+                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt="">L 1,182,450.00</span>
+                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert="">30.8%</span>
+                <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-300 hidden" data-horiz="">▲ + L 12,000.00 (+1.0%)</span>
               </div>
               <div class="divide-y divide-slate-100 tabular-nums text-[11px] p-2 bg-white">
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="1.2.01" data-kind="asset" data-cur="1350000.00" data-prev="1290000.00">
-                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">1.2.01 Propiedad, Planta y Equipo (Servidores, Equipos & Mobiliario)</span>
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="1.2.01" data-kind="asset" data-cur="1350000.00" data-prev="1290000.00">
+                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">1.2.01 Propiedad, Planta y Equipo (Servidores, Equipos &amp; Mobiliario)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 1,350,000.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">35.1%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▲ + L 60,000.00 (+4.7%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50 text-rose-600" data-bs-row data-code="1.2.02" data-kind="asset" data-cur="-167550.00" data-prev="-119550.00" data-contra="1">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50 text-rose-600" data-bs-row="" data-code="1.2.02" data-kind="asset" data-cur="-167550.00" data-prev="-119550.00" data-contra="1">
                   <span class="font-sans font-medium flex-1 min-w-0">1.2.02 (-) Depreciación Acumulada PPE (NIC 16)</span>
                   <span class="font-bold w-28 text-right shrink-0 tabular-nums">- L 167,550.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">- 4.4%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-rose-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▲ + L 48,000.00 (+40.2%)</span>
                 </div>
               </div>
             </div>
 
             <div class="p-3.5 bg-slate-950 text-white rounded-xl flex items-center gap-2" data-bs-total="A">
               <span class="font-bold text-xs uppercase flex-1 min-w-0">TOTAL DEL ACTIVO</span>
-              <strong class="text-base font-black text-emerald-400 w-36 text-right shrink-0 tabular-nums" data-total-amt>L 3,842,500.00</strong>
-              <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert></span>
-              <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz></span>
+              <strong class="text-base font-black text-emerald-400 w-36 text-right shrink-0 tabular-nums" data-total-amt="">L 3,842,500.00</strong>
+              <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert="">100.0%</span>
+              <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-300 hidden" data-horiz="">▲ + L 337,250.00 (+9.6%)</span>
             </div>
           </div>
 
           <!-- COLUMNA DERECHA: PASIVOS Y PATRIMONIO -->
           <div class="space-y-4">
             <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec data-kind="liab">
+              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec="" data-kind="liab">
                 <span class="flex-1 min-w-0">2.1 PASIVO CORRIENTE</span>
-                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt>L 995,150.00</span>
-                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert></span>
-                <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz></span>
+                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt="">L 995,150.00</span>
+                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert="">25.9%</span>
+                <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-300 hidden" data-horiz="">▼ - L 45,700.00 (-4.4%)</span>
               </div>
               <div class="divide-y divide-slate-100 tabular-nums text-[11px] p-2 bg-white">
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="2.1.01" data-kind="liab" data-cur="812450.00" data-prev="861300.00">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="2.1.01" data-kind="liab" data-cur="812450.00" data-prev="861300.00">
                   <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">2.1.01 Cuentas Comerciales por Pagar (Proveedores CxP)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 812,450.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">21.1%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▼ - L 48,850.00 (-5.7%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="2.1.02" data-kind="liab" data-cur="58270.00" data-prev="61350.00">
-                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">2.1.02 Impuestos por Pagar (Débito Fiscal ISV & Retenciones)</span>
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="2.1.02" data-kind="liab" data-cur="58270.00" data-prev="61350.00">
+                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">2.1.02 Impuestos por Pagar (Débito Fiscal ISV &amp; Retenciones)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 58,270.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">1.5%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▼ - L 3,080.00 (-5.0%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="2.1.03" data-kind="liab" data-cur="124430.00" data-prev="118200.00">
-                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">2.1.03 Beneficios Sociales & Retenciones por Pagar (IHSS/RAP)</span>
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="2.1.03" data-kind="liab" data-cur="124430.00" data-prev="118200.00">
+                  <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">2.1.03 Beneficios Sociales &amp; Retenciones por Pagar (IHSS/RAP)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 124,430.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">3.2%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-rose-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▲ + L 6,230.00 (+5.3%)</span>
                 </div>
               </div>
             </div>
 
             <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec data-kind="liab">
+              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec="" data-kind="liab">
                 <span class="flex-1 min-w-0">2.2 PASIVO NO CORRIENTE</span>
-                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt>L 425,000.00</span>
-                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert></span>
-                <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz></span>
+                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt="">L 425,000.00</span>
+                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert="">11.1%</span>
+                <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-300 hidden" data-horiz="">▼ - L 56,400.00 (-11.7%)</span>
               </div>
               <div class="divide-y divide-slate-100 tabular-nums text-[11px] p-2 bg-white">
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="2.2.01" data-kind="liab" data-cur="425000.00" data-prev="481400.00">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="2.2.01" data-kind="liab" data-cur="425000.00" data-prev="481400.00">
                   <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">2.2.01 Préstamos Bancarios a Largo Plazo (BAC Credomatic)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 425,000.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">11.1%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▼ - L 56,400.00 (-11.7%)</span>
                 </div>
               </div>
             </div>
 
             <div class="border border-rose-200 rounded-xl overflow-hidden shadow-2xs bg-rose-50/30">
-              <div class="bg-rose-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec data-kind="eq">
+              <div class="bg-rose-900 text-white px-4 py-2 font-bold uppercase text-xs flex items-center gap-2" data-bs-sec="" data-kind="eq">
                 <span class="flex-1 min-w-0">3. PATRIMONIO NETO</span>
-                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt>L 2,422,350.00</span>
-                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert></span>
-                <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz></span>
+                <span class="w-28 text-right shrink-0 tabular-nums" data-sec-amt="">L 2,422,350.00</span>
+                <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert="">63.0%</span>
+                <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-300 hidden" data-horiz="">▲ + L 439,350.00 (+22.2%)</span>
               </div>
               <div class="divide-y divide-rose-100 tabular-nums text-[11px] p-2 bg-white">
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="3.1.01" data-kind="eq" data-cur="1500000.00" data-prev="1500000.00">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="3.1.01" data-kind="eq" data-cur="1500000.00" data-prev="1500000.00">
                   <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">3.1.01 Capital Social Suscrito y Pagado</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 1,500,000.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">39.0%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-slate-400 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">■ L 0.00 (0.0%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="3.1.02" data-kind="eq" data-cur="128000.00" data-prev="128000.00">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="3.1.02" data-kind="eq" data-cur="128000.00" data-prev="128000.00">
                   <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">3.1.02 Reserva Legal (5% Acumulada Código de Comercio)</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 128,000.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">3.3%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-slate-400 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">■ L 0.00 (0.0%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row data-code="3.1.03" data-kind="eq" data-cur="355000.00" data-prev="61200.00">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50" data-bs-row="" data-code="3.1.03" data-kind="eq" data-cur="355000.00" data-prev="61200.00">
                   <span class="font-sans font-medium text-slate-700 flex-1 min-w-0">3.1.03 Resultados Acumulados de Ejercicios Anteriores</span>
                   <span class="font-bold text-slate-900 w-28 text-right shrink-0 tabular-nums">L 355,000.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">9.2%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▲ + L 293,800.00 (+480.1%)</span>
                 </div>
-                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50 bg-emerald-50/50" data-bs-row data-code="3.1.04" data-kind="eq" data-cur="439350.00" data-prev="293800.00">
+                <div class="flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50 bg-emerald-50/50" data-bs-row="" data-code="3.1.04" data-kind="eq" data-cur="439350.00" data-prev="293800.00">
                   <span class="font-sans font-bold text-emerald-900 flex-1 min-w-0">3.1.04 Utilidad Neta del Período (Ene - Sep 2026)</span>
                   <span class="font-bold text-emerald-700 w-28 text-right shrink-0 tabular-nums">L 439,350.00</span>
-                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert title="% Vertical sobre Total Activo"></span>
-                  <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz title="Variación vs. cierre 31-Dic-2025"></span>
+                  <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums" data-vert="" title="% Vertical sobre Total Activo">11.4%</span>
+                  <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-600 hidden" data-horiz="" title="Variación vs. cierre 31-Dic-2025">▲ + L 145,550.00 (+49.5%)</span>
                 </div>
               </div>
             </div>
 
             <div class="p-3.5 bg-slate-950 text-white rounded-xl flex items-center gap-2" data-bs-total="PP">
               <span class="font-bold text-xs uppercase flex-1 min-w-0">TOTAL PASIVO + PATRIMONIO</span>
-              <strong class="text-base font-black text-rose-400 w-36 text-right shrink-0 tabular-nums" data-total-amt>L 3,842,500.00</strong>
-              <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert></span>
-              <span class="ha-col hidden w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums" data-horiz></span>
+              <strong class="text-base font-black text-rose-400 w-36 text-right shrink-0 tabular-nums" data-total-amt="">L 3,842,500.00</strong>
+              <span class="w-14 text-right shrink-0 text-[10px] font-semibold text-slate-300 tabular-nums" data-vert="">100.0%</span>
+              <span class="ha-col w-44 text-right shrink-0 text-[10px] font-semibold tabular-nums text-emerald-300 hidden" data-horiz="">▲ + L 337,250.00 (+9.6%)</span>
             </div>
           </div>
 
@@ -530,18 +520,14 @@
       <!-- ============================================================== -->
       <!-- TAB 2: ESTADO DE RESULTADOS INTEGRAL (EERR)                    -->
       <!-- ============================================================== -->
-      <div id="pane-eerr" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+      <div id="pane-eerr" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4 hidden">
+        <div class="flex flex-col sm:items-center text-center justify-between pb-3 border-b border-slate-200">
           <div>
-            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Estado de Resultados Integral (Por Función del Gasto)</h2>
-            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</span> · RTN <span data-hz="rtn">08011999123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
-            <p class="text-[11px] text-slate-500 tabular-nums">Período del 01 de Enero al 30 de Septiembre de 2026 • Sección 5 NIIF para PYMES</p>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight" data-hz="empresa">SOLUTIONS &amp; APPLIANCES</h2>
+            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span>ESTADO DE RESULTADOS INTEGRAL</span></p>
+            <p class="text-[11px] text-slate-500 tabular-nums">Período del 01 de Enero al 30 de Septiembre de 2026</p>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 tabular-nums text-[10px] font-bold">
-              MARGEN NETO: 17.9% | EBITDA: L 627,900.00
-            </span>
-          </div>
+          
         </div>
 
         <div class="max-w-6xl mx-auto w-full border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
@@ -558,111 +544,110 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 text-slate-800">
-              <tr class="hover:bg-slate-50 font-bold bg-slate-50/50" data-er data-key="ventas" data-kind="gain" data-cur="2450800" data-prev="2118600">
-                <td class="py-3 px-4 font-sans text-slate-950">(+) Ingresos Ordinarios por Ventas (POS & Facturación Fiscal SAR)</td>
+              <tr class="hover:bg-slate-50 font-bold bg-slate-50/50" data-er="" data-key="ventas" data-kind="gain" data-cur="2450800" data-prev="2118600">
+                <td class="py-3 px-4 font-sans text-slate-950">(+) Ingresos Ordinarios por Ventas (POS &amp; Facturación Fiscal SAR)</td>
                 <td class="py-3 px-4 text-center text-slate-500 text-[10px]">Nota 3.2</td>
                 <td class="py-3 px-4 text-right text-slate-950">L 2,450,800.00</td>
                 <td class="py-3 px-4 text-right text-slate-600">100.0%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">L 2,118,600.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-var="">+ L 332,200.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-varpct="">▲ +15.7%</td>
               </tr>
-              <tr class="hover:bg-slate-50 text-rose-600" data-er data-key="cogs" data-kind="exp" data-cur="1225400" data-prev="1080200">
+              <tr class="hover:bg-slate-50 text-rose-600" data-er="" data-key="cogs" data-kind="exp" data-cur="1225400" data-prev="1080200">
                 <td class="py-2.5 px-4 font-sans">(-) Costo de Mercaderías Vendidas (CPP Kardex Continuo)</td>
                 <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 3.1</td>
                 <td class="py-2.5 px-4 text-right">- L 1,225,400.00</td>
                 <td class="py-2.5 px-4 text-right">- 50.0%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">- L 1,080,200.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-rose-600" data-er-var="">+ L 145,200.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-rose-600" data-er-varpct="">▲ +13.4%</td>
               </tr>
-              <tr class="bg-emerald-50 font-black border-y border-emerald-200 text-emerald-950" data-er data-key="ub" data-kind="gain" data-cur="1225400" data-prev="1038400">
+              <tr class="bg-emerald-50 font-black border-y border-emerald-200 text-emerald-950" data-er="" data-key="ub" data-kind="gain" data-cur="1225400" data-prev="1038400">
                 <td class="py-3 px-4 font-sans">(=) UTILIDAD BRUTA</td>
                 <td class="py-3 px-4 text-center text-emerald-700 text-[10px]">-</td>
                 <td class="py-3 px-4 text-right text-emerald-800">L 1,225,400.00</td>
                 <td class="py-3 px-4 text-right text-emerald-700">50.0%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">L 1,038,400.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-var="">+ L 187,000.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-varpct="">▲ +18.0%</td>
               </tr>
-              <tr class="hover:bg-slate-50 text-slate-700" data-er data-key="adm" data-kind="exp" data-cur="412000" data-prev="378500">
-                <td class="py-2.5 px-4 font-sans pl-8">(-) Gastos Generales de Administración (Sueldos, Servicios & Arrendamiento)</td>
+              <tr class="hover:bg-slate-50 text-slate-700" data-er="" data-key="adm" data-kind="exp" data-cur="412000" data-prev="378500">
+                <td class="py-2.5 px-4 font-sans pl-8">(-) Gastos Generales de Administración (Sueldos, Servicios &amp; Arrendamiento)</td>
                 <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 4.1</td>
                 <td class="py-2.5 px-4 text-right text-rose-600">- L 412,000.00</td>
                 <td class="py-2.5 px-4 text-right text-slate-500">- 16.8%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">- L 378,500.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-rose-600" data-er-var="">+ L 33,500.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-rose-600" data-er-varpct="">▲ +8.9%</td>
               </tr>
-              <tr class="hover:bg-slate-50 text-slate-700" data-er data-key="vta" data-kind="exp" data-cur="185500" data-prev="162300">
+              <tr class="hover:bg-slate-50 text-slate-700" data-er="" data-key="vta" data-kind="exp" data-cur="185500" data-prev="162300">
                 <td class="py-2.5 px-4 font-sans pl-8">(-) Gastos de Venta y Comercialización (Comisiones POS, Publicidad)</td>
                 <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 4.2</td>
                 <td class="py-2.5 px-4 text-right text-rose-600">- L 185,500.00</td>
                 <td class="py-2.5 px-4 text-right text-slate-500">- 7.6%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">- L 162,300.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-rose-600" data-er-var="">+ L 23,200.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-rose-600" data-er-varpct="">▲ +14.3%</td>
               </tr>
-              <tr class="bg-sky-50 font-bold border-y border-sky-200 text-sky-950" data-er data-key="ebitda" data-kind="gain" data-cur="627900" data-prev="497600">
+              <tr class="bg-sky-50 font-bold border-y border-sky-200 text-sky-950" data-er="" data-key="ebitda" data-kind="gain" data-cur="627900" data-prev="497600">
                 <td class="py-3 px-4 font-sans">(=) UTILIDAD DE OPERACIÓN (EBITDA)</td>
                 <td class="py-3 px-4 text-center text-sky-700 text-[10px]">-</td>
                 <td class="py-3 px-4 text-right text-sky-800">L 627,900.00</td>
                 <td class="py-3 px-4 text-right text-sky-700">25.6%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">L 497,600.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-var="">+ L 130,300.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-varpct="">▲ +26.2%</td>
               </tr>
-              <tr class="hover:bg-slate-50 text-slate-700" data-er data-key="fin" data-kind="exp" data-cur="42100" data-prev="47800">
+              <tr class="hover:bg-slate-50 text-slate-700" data-er="" data-key="fin" data-kind="exp" data-cur="42100" data-prev="47800">
                 <td class="py-2.5 px-4 font-sans pl-8">(-) Gastos Financieros y Comisiones Bancarias (Intereses BAC Credomatic)</td>
                 <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 4.3</td>
                 <td class="py-2.5 px-4 text-right text-rose-600">- L 42,100.00</td>
                 <td class="py-2.5 px-4 text-right text-slate-500">- 1.7%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">- L 47,800.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-var="">- L 5,700.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-varpct="">▼ -11.9%</td>
               </tr>
-              <tr class="bg-slate-100 font-bold border-y border-slate-300 text-slate-900" data-er data-key="ebt" data-kind="gain" data-cur="585800" data-prev="449800">
+              <tr class="bg-slate-100 font-bold border-y border-slate-300 text-slate-900" data-er="" data-key="ebt" data-kind="gain" data-cur="585800" data-prev="449800">
                 <td class="py-3 px-4 font-sans">(=) UTILIDAD ANTES DE IMPUESTOS (EBT)</td>
                 <td class="py-3 px-4 text-center text-slate-600 text-[10px]">-</td>
                 <td class="py-3 px-4 text-right text-slate-950">L 585,800.00</td>
                 <td class="py-3 px-4 text-right text-slate-700">23.9%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">L 449,800.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-var="">+ L 136,000.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-600" data-er-varpct="">▲ +30.2%</td>
               </tr>
-              <tr class="hover:bg-slate-50 text-rose-700" data-er data-key="isr" data-kind="exp" data-cur="146450" data-prev="112450">
+              <tr class="hover:bg-slate-50 text-rose-700" data-er="" data-key="isr" data-kind="exp" data-cur="146450" data-prev="112450">
                 <td class="py-2.5 px-4 font-sans pl-8">(-) Estimación Impuesto Sobre la Renta (25% ISR Régimen General SAR)</td>
                 <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 4.4</td>
                 <td class="py-2.5 px-4 text-right font-bold">- L 146,450.00</td>
                 <td class="py-2.5 px-4 text-right text-slate-500">- 6.0%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev="">- L 112,450.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-rose-600" data-er-var="">+ L 34,000.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-rose-600" data-er-varpct="">▲ +30.2%</td>
               </tr>
-              <tr class="bg-slate-950 text-white font-black text-sm" data-er data-key="neta" data-kind="gain" data-cur="439350" data-prev="337350" data-dark>
+              <tr class="bg-slate-950 text-white font-black text-sm" data-er="" data-key="neta" data-kind="gain" data-cur="439350" data-prev="337350" data-dark="">
                 <td class="py-3.5 px-4 font-sans">(=) UTILIDAD NETA DEL EJERCICIO (ENE - SEP 2026)</td>
                 <td class="py-3.5 px-4 text-center text-slate-400 text-[10px] font-normal">NIIF</td>
                 <td class="py-3.5 px-4 text-right text-emerald-400 text-base">L 439,350.00</td>
                 <td class="py-3.5 px-4 text-right text-emerald-300">17.9%</td>
-                <td class="py-2.5 px-4 text-right tabular-nums text-slate-500" data-er-prev></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-var></td>
-                <td class="py-2.5 px-4 text-right tabular-nums" data-er-varpct></td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-slate-300" data-er-prev="">L 337,350.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-300" data-er-var="">+ L 102,000.00</td>
+                <td class="py-2.5 px-4 text-right tabular-nums text-emerald-300" data-er-varpct="">▲ +30.2%</td>
               </tr>
             </tbody>
           </table>
           <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-200 text-[10px] text-slate-500 tabular-nums">Comparativo: mismo período del ejercicio anterior (01-Ene a 30-Sep-2025). Variación horizontal = Actual − Anterior; en gastos, ▲ (incremento del gasto) se muestra en rojo.</div>
         </div>
       </div>
-
       <!-- ============================================================== -->
       <!-- TAB 3: ESTADO DE CAMBIOS EN EL PATRIMONIO NETO                 -->
       <!-- ============================================================== -->
-      <div id="pane-patrimonio" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+      <div id="pane-patrimonio" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4 hidden">
+        <div class="flex flex-col sm:items-center text-center justify-between pb-3 border-b border-slate-200">
           <div>
-            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Estado de Cambios en el Patrimonio Neto</h2>
-            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</span> · RTN <span data-hz="rtn">08011999123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
-            <p class="text-[11px] text-slate-500 tabular-nums">Movimientos de Capital, Reservas y Resultados Acumulados • Enero - Septiembre 2026</p>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight" data-hz="empresa">SOLUTIONS &amp; APPLIANCES</h2>
+            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span>ESTADO DE CAMBIOS EN EL PATRIMONIO NETO
+            </span></p><p class="text-[11px] text-slate-500 tabular-nums">Movimientos de Capital, Reservas y Resultados Acumulados • Enero - Septiembre 2026</p>
           </div>
         </div>
 
@@ -727,18 +712,14 @@
       <!-- ============================================================== -->
       <!-- TAB 4: ESTADO DE FLUJOS DE EFECTIVO (SECCIÓN 7 NIIF)           -->
       <!-- ============================================================== -->
-      <div id="pane-flujo" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+      <div id="pane-flujo" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4 hidden">
+        <div class="flex flex-col sm:items-center text-center justify-between pb-3 border-b border-slate-200">
           <div>
-            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Estado de Flujos de Efectivo (Método Indirecto NIIF 7)</h2>
-            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</span> · RTN <span data-hz="rtn">08011999123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight" data-hz="empresa">SOLUTIONS &amp; APPLIANCES</h2>
+            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span>Estado de Flujos de Efectivo</span></p>
             <p class="text-[11px] text-slate-500 tabular-nums">Conciliación de la Utilidad Neta con el Efectivo Operativo, de Inversión y Financiación</p>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-xl bg-sky-50 text-sky-800 border border-sky-200 tabular-nums text-[10px] font-bold">
-              SALDO FINAL EN LIBROS: L 745,200.00 (CONCILIADO)
-            </span>
-          </div>
+          
         </div>
 
         <div class="max-w-4xl mx-auto w-full border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
@@ -823,17 +804,15 @@
       <!-- ============================================================== -->
       <!-- TAB 5: BALANZA DE COMPROBACIÓN (SUMAS Y SALDOS A 6 COLUMNAS)   -->
       <!-- ============================================================== -->
-      <div id="pane-balanza" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+      <div id="pane-balanza" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4 hidden">
+        <div class="flex flex-col sm:items-center text-center justify-between pb-3 border-b border-slate-200">
           <div>
-            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Balanza de Comprobación de Sumas y Saldos (6 Columnas)</h2>
-            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</span> · RTN <span data-hz="rtn">08011999123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
-            <p class="text-[11px] text-slate-500 tabular-nums">Consolidación Analítica de Cuentas de Mayor y Auxiliares • Septiembre 2026</p>
+                <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight" data-hz="empresa">SOLUTIONS &amp; APPLIANCES</h2>
+            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span>BALANZA DE COMPROBACION</span></p>
+            <p class="text-[11px] text-slate-500 tabular-nums">Consolidación de Cuentas de Mayor y Auxiliares • Septiembre 2026</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 tabular-nums text-[10px] font-bold">
-              SUMAS IGUALES VERIFICADAS (DÉBITOS = CRÉDITOS)
-            </span>
+            
           </div>
         </div>
 
@@ -924,7 +903,7 @@
               </tr>
               <tr class="hover:bg-slate-50">
                 <td class="py-2 px-3 font-bold text-slate-900">4.1.01</td>
-                <td class="py-2 px-3 font-sans font-medium text-slate-800">Ingresos por Ventas Gravadas & Exentas</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Ingresos por Ventas Gravadas &amp; Exentas</td>
                 <td class="py-2 px-3 text-right text-slate-400">0.00</td>
                 <td class="py-2 px-3 text-right text-slate-400">0.00</td>
                 <td class="py-2 px-3 text-right text-slate-400">0.00</td>
@@ -952,7 +931,7 @@
                 <td class="py-3 px-3 text-right text-slate-200">L 6,494,300.00</td>
                 <td class="py-3 px-3 text-right text-slate-200">L 6,494,300.00</td>
                 <td class="py-3 px-3 text-right text-emerald-400">L 5,170,050.00</td>
-                <td class="py-3 px-3 text-right text-rose-400">L 5,170,050.00</td>
+                <td class="py-3 px-4 text-right text-rose-400">L 5,170,050.00</td>
               </tr>
             </tfoot>
           </table>
@@ -962,11 +941,11 @@
       <!-- ============================================================== -->
       <!-- TAB 6: MOTOR & REPORTE DE AJUSTES CONTABLES DEL MES            -->
       <!-- ============================================================== -->
-      <div id="pane-ajustes" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+      <div id="pane-ajustes" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4 hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
           <div>
-            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Motor de Devengos, Amortizaciones & Cierre Mensual</h2>
-            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</span> · RTN <span data-hz="rtn">08011999123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Motor de Devengos, Amortizaciones &amp; Cierre Mensual</h2>
+            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">SOLUTIONS &amp; APPLIANCES</span> · RTN <span data-hz="rtn">08011990123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
             <p class="text-[11px] text-slate-500 tabular-nums">Generación de Partidas Automáticas de Depreciación, Pólizas Diferidas y Provisiones</p>
           </div>
           <button onclick="executeClosingAdjustments()" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition">
@@ -994,7 +973,7 @@
           <!-- Card 2: Amortización de Seguros -->
           <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-xs text-slate-900">2. Amortización de Seguros & Pólizas (NIC 38)</span>
+              <span class="font-bold text-xs text-slate-900">2. Amortización de Seguros &amp; Pólizas (NIC 38)</span>
               <span class="bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded text-[9px] tabular-nums font-bold">DEVENGADO</span>
             </div>
             <p class="text-[11px] text-slate-500 leading-snug">Póliza Todo Riesgo FICOHSA Seguros (Contrato 24 meses / L 2,000.00 mensual).</p>
@@ -1008,7 +987,7 @@
           <!-- Card 3: Provisiones Laborales -->
           <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-xs text-slate-900">3. Provisiones Laborales & Pasivo Social</span>
+              <span class="font-bold text-xs text-slate-900">3. Provisiones Laborales &amp; Pasivo Social</span>
               <span class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[9px] tabular-nums font-bold">CÓDIGO TRABAJO</span>
             </div>
             <p class="text-[11px] text-slate-500 leading-snug">Provisión de Cesantía, Preaviso, Décimo Tercero y Décimo Cuarto mes de salario.</p>
@@ -1039,11 +1018,11 @@
       <!-- ============================================================== -->
       <!-- TAB 7: NOTAS EXPLICATIVAS A LOS ESTADOS FINANCIEROS            -->
       <!-- ============================================================== -->
-      <div id="pane-notas" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+      <div id="pane-notas" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4 hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
           <div>
             <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Notas Explicativas a los Estados Financieros</h2>
-            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</span> · RTN <span data-hz="rtn">08011999123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
+            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">SOLUTIONS &amp; APPLIANCES</span> · RTN <span data-hz="rtn">08011990123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
             <p class="text-[11px] text-slate-500 tabular-nums">Marco Técnico Normativo NIIF para las PYMES • Período Terminado al 30 de Septiembre de 2026</p>
           </div>
         </div>
@@ -1056,7 +1035,7 @@
               NOTA 1: ENTIDAD EMISORA Y OPERACIONES COMERCIALES
             </h3>
             <p class="text-slate-600 leading-relaxed">
-              <strong data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</strong> (RTN <span data-hz="rtn">08011999123456</span>) es una sociedad mercantil constituida bajo las leyes de la República de Honduras, con domicilio fiscal y centro de operaciones principales en Tegucigalpa, Municipio del Distrito Central. Su actividad económica principal consiste en la comercialización, distribución mayorista y minorista de soluciones tecnológicas, suministros y servicios corporativos.
+              <strong data-hz="empresa">SOLUTIONS &amp; APPLIANCES</strong> (RTN <span data-hz="rtn">08011990123456</span>) es una sociedad mercantil constituida bajo las leyes de la República de Honduras, con domicilio fiscal y centro de operaciones principales en Tegucigalpa, Municipio del Distrito Central. Su actividad económica principal consiste en la comercialización, distribución mayorista y minorista de soluciones tecnológicas, suministros y servicios corporativos.
             </p>
           </div>
 
@@ -1100,11 +1079,11 @@
       <!-- ============================================================== -->
       <!-- TAB 8: RATIOS FINANCIEROS & DESCOMPOSICIÓN DUPONT              -->
       <!-- ============================================================== -->
-      <div id="pane-ratios" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+      <div id="pane-ratios" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
           <div>
             <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Ratios Financieros &amp; Descomposición DuPont</h2>
-            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">Inversiones Globales de Honduras S.A. de C.V.</span> · RTN <span data-hz="rtn">08011999123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
+            <p class="text-[11px] font-bold text-slate-800 tabular-nums"><span data-hz="empresa">SOLUTIONS &amp; APPLIANCES</span> · RTN <span data-hz="rtn">08011990123456</span> · Período activo: <span data-hz="periodo">OCTUBRE 2026</span></p>
             <p class="text-[11px] text-slate-500 tabular-nums">Calculados en tiempo real sobre el Balance General y el Estado de Resultados · Ene–Sep 2026 (<span id="dias-periodo">273</span> días) · Cifras en HNL</p>
           </div>
           <span class="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold tabular-nums">FUENTE: BBGG + EERR</span>
@@ -1122,36 +1101,36 @@
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
               <div class="flex items-start justify-between gap-2">
                 <span class="text-[10px] font-bold uppercase text-slate-500">Razón Circulante</span>
-                <span id="rt-circ-b"></span>
+                <span id="rt-circ-b" class="px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase bg-emerald-50 text-emerald-700 border-emerald-200">Saludable</span>
               </div>
-              <div id="rt-circ" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-circ" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">2.67x</div>
               <span class="text-[9.5px] text-slate-500 font-medium">Activo Corriente ÷ Pasivo Corriente</span>
             </div>
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
               <div class="flex items-start justify-between gap-2">
                 <span class="text-[10px] font-bold uppercase text-slate-500">Prueba Ácida</span>
-                <span id="rt-acida-b"></span>
+                <span id="rt-acida-b" class="px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase bg-emerald-50 text-emerald-700 border-emerald-200">Saludable</span>
               </div>
-              <div id="rt-acida" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-acida" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">1.25x</div>
               <span class="text-[9.5px] text-slate-500 font-medium">(Activo Corriente − Inventarios) ÷ Pasivo Corriente</span>
             </div>
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
               <div class="flex items-start justify-between gap-2">
                 <span class="text-[10px] font-bold uppercase text-slate-500">Capital de Trabajo Neto</span>
-                <span id="rt-ctn-b"></span>
+                <span id="rt-ctn-b" class="px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase bg-emerald-50 text-emerald-700 border-emerald-200">Positivo</span>
               </div>
-              <div id="rt-ctn" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-ctn" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">L 1,664,900.00</div>
               <span class="text-[9.5px] text-slate-500 font-medium">Activo Corriente − Pasivo Corriente</span>
             </div>
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
               <div class="flex items-start justify-between gap-2">
                 <span class="text-[10px] font-bold uppercase text-slate-500">Endeudamiento Total</span>
-                <span id="rt-endeu-b"></span>
+                <span id="rt-endeu-b" class="px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase bg-emerald-50 text-emerald-700 border-emerald-200">Moderado</span>
               </div>
-              <div id="rt-endeu" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-endeu" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">36.96%</div>
               <span class="text-[9.5px] text-slate-500 font-medium">Pasivo Total ÷ Activo Total</span>
             </div>
-            </div>
+            
           </section>
 
           <!-- 2. Ciclo de Conversión de Efectivo -->
@@ -1166,7 +1145,7 @@
                 <span class="text-[10px] font-bold uppercase text-slate-500">Días de Inventario (DIO)</span>
                 <span id="rt-dio-b"></span>
               </div>
-              <div id="rt-dio" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-dio" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">316.5 días</div>
               <span class="text-[9.5px] text-slate-500 font-medium">Inventarios ÷ Costo de Ventas × días</span>
             </div>
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
@@ -1174,7 +1153,7 @@
                 <span class="text-[10px] font-bold uppercase text-slate-500">Días de Cuentas por Cobrar (DSO)</span>
                 <span id="rt-dso-b"></span>
               </div>
-              <div id="rt-dso" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-dso" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">47.7 días</div>
               <span class="text-[9.5px] text-slate-500 font-medium">CxC ÷ Ventas × días</span>
             </div>
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
@@ -1182,22 +1161,22 @@
                 <span class="text-[10px] font-bold uppercase text-slate-500">Días de Cuentas por Pagar (DPO)</span>
                 <span id="rt-dpo-b"></span>
               </div>
-              <div id="rt-dpo" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-dpo" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">181.0 días</div>
               <span class="text-[9.5px] text-slate-500 font-medium">CxP ÷ Costo de Ventas × días</span>
             </div>
               <div class="p-3.5 bg-slate-950 border-slate-950 border rounded-xl">
               <div class="flex items-start justify-between gap-2">
                 <span class="text-[10px] font-bold uppercase text-slate-400">Ciclo Neto (CCE)</span>
-                <span id="rt-cce-b"></span>
+                <span id="rt-cce-b" class="px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase bg-rose-50 text-rose-700 border-rose-200">Lento</span>
               </div>
-              <div id="rt-cce" class="text-xl font-black text-white mt-0.5 tabular-nums">—</div>
+              <div id="rt-cce" class="text-xl font-black text-white mt-0.5 tabular-nums">183.3 días</div>
               <span class="text-[9.5px] text-slate-400 font-medium">DIO + DSO − DPO</span>
             </div>
             </div>
             <div class="space-y-1.5 pt-1">
-              <div class="flex items-center gap-2 text-[10px] font-semibold text-slate-500"><span class="w-10">DIO</span><div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden"><div id="bar-dio" class="h-full rounded-full bg-amber-400" style="width:0%"></div></div></div>
-              <div class="flex items-center gap-2 text-[10px] font-semibold text-slate-500"><span class="w-10">DSO</span><div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden"><div id="bar-dso" class="h-full rounded-full bg-sky-400" style="width:0%"></div></div></div>
-              <div class="flex items-center gap-2 text-[10px] font-semibold text-slate-500"><span class="w-10">DPO</span><div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden"><div id="bar-dpo" class="h-full rounded-full bg-emerald-400" style="width:0%"></div></div></div>
+              <div class="flex items-center gap-2 text-[10px] font-semibold text-slate-500"><span class="w-10">DIO</span><div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden"><div id="bar-dio" class="h-full rounded-full bg-amber-400" style="width: 100%;"></div></div></div>
+              <div class="flex items-center gap-2 text-[10px] font-semibold text-slate-500"><span class="w-10">DSO</span><div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden"><div id="bar-dso" class="h-full rounded-full bg-sky-400" style="width: 15.1%;"></div></div></div>
+              <div class="flex items-center gap-2 text-[10px] font-semibold text-slate-500"><span class="w-10">DPO</span><div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden"><div id="bar-dpo" class="h-full rounded-full bg-emerald-400" style="width: 57.2%;"></div></div></div>
             </div>
           </section>
 
@@ -1213,7 +1192,7 @@
                 <span class="text-[10px] font-bold uppercase text-slate-500">Margen Bruto</span>
                 <span id="rt-mb-b"></span>
               </div>
-              <div id="rt-mb" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-mb" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">50.0%</div>
               <span class="text-[9.5px] text-slate-500 font-medium">Utilidad Bruta ÷ Ventas</span>
             </div>
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
@@ -1221,7 +1200,7 @@
                 <span class="text-[10px] font-bold uppercase text-slate-500">Margen EBITDA</span>
                 <span id="rt-me-b"></span>
               </div>
-              <div id="rt-me" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-me" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">25.6%</div>
               <span class="text-[9.5px] text-slate-500 font-medium">Utilidad de Operación ÷ Ventas</span>
             </div>
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
@@ -1229,15 +1208,15 @@
                 <span class="text-[10px] font-bold uppercase text-slate-500">Margen Neto</span>
                 <span id="rt-mn-b"></span>
               </div>
-              <div id="rt-mn" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-mn" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">17.9%</div>
               <span class="text-[9.5px] text-slate-500 font-medium">Utilidad Neta ÷ Ventas</span>
             </div>
               <div class="p-3.5 bg-slate-50 border-slate-200 border rounded-xl">
               <div class="flex items-start justify-between gap-2">
                 <span class="text-[10px] font-bold uppercase text-slate-500">Cobertura de Intereses</span>
-                <span id="rt-cob-b"></span>
+                <span id="rt-cob-b" class="px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase bg-emerald-50 text-emerald-700 border-emerald-200">Holgada</span>
               </div>
-              <div id="rt-cob" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">—</div>
+              <div id="rt-cob" class="text-xl font-black text-slate-950 mt-0.5 tabular-nums">14.9x</div>
               <span class="text-[9.5px] text-slate-500 font-medium">Utilidad de Operación ÷ Gastos Financieros</span>
             </div>
             </div>
@@ -1252,31 +1231,31 @@
             <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
               <div class="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
                 <div class="text-[10px] font-bold uppercase text-slate-500">Margen Neto</div>
-                <div id="dp-mn" class="text-2xl font-black text-slate-950 tabular-nums">—</div>
+                <div id="dp-mn" class="text-2xl font-black text-slate-950 tabular-nums">17.93%</div>
                 <div class="text-[9.5px] text-slate-500 font-medium">Utilidad Neta ÷ Ventas</div>
               </div>
               <div class="text-center text-xl font-black text-slate-400">×</div>
               <div class="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
                 <div class="text-[10px] font-bold uppercase text-slate-500">Rotación de Activos</div>
-                <div id="dp-rot" class="text-2xl font-black text-slate-950 tabular-nums">—</div>
+                <div id="dp-rot" class="text-2xl font-black text-slate-950 tabular-nums">0.64x</div>
                 <div class="text-[9.5px] text-slate-500 font-medium">Ventas ÷ Activo Total (período Ene–Sep)</div>
               </div>
               <div class="text-center text-xl font-black text-slate-400">×</div>
               <div class="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
                 <div class="text-[10px] font-bold uppercase text-slate-500">Multiplicador de Apalancamiento</div>
-                <div id="dp-mult" class="text-2xl font-black text-slate-950 tabular-nums">—</div>
+                <div id="dp-mult" class="text-2xl font-black text-slate-950 tabular-nums">1.59x</div>
                 <div class="text-[9.5px] text-slate-500 font-medium">Activo Total ÷ Patrimonio</div>
               </div>
               <div class="text-center text-xl font-black text-slate-400">=</div>
               <div class="flex-1 p-3.5 bg-slate-950 border border-slate-950 rounded-xl text-center">
                 <div class="text-[10px] font-bold uppercase text-slate-400">ROE</div>
-                <div id="dp-roe" class="text-2xl font-black text-emerald-400 tabular-nums">—</div>
+                <div id="dp-roe" class="text-2xl font-black text-emerald-400 tabular-nums">18.14%</div>
                 <div class="text-[9.5px] text-slate-400 font-medium">Utilidad Neta ÷ Patrimonio</div>
               </div>
             </div>
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-[11px] text-rose-900">
-              <span><strong>ROA = Margen Neto × Rotación de Activos =</strong> <strong id="dp-roa" class="tabular-nums">—</strong></span>
-              <span id="dp-check" class="tabular-nums text-rose-700"></span>
+              <span><strong>ROA = Margen Neto × Rotación de Activos =</strong> <strong id="dp-roa" class="tabular-nums">11.43%</strong></span>
+              <span id="dp-check" class="tabular-nums text-rose-700">ROE = Margen × Rotación × Apalancamiento = 18.14% (cifras sin redondear)</span>
             </div>
             <p class="text-[10px] text-slate-400">La rotación corresponde al período Ene–Sep 2026 (no anualizada); por ello ROE y ROA reflejan el rendimiento acumulado de nueve meses.</p>
           </section>
@@ -1288,9 +1267,9 @@
   </main>
 
   <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toast" class="fixed bottom-4 right-4 bg-slate-950 text-white border border-slate-800 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs font-medium">
-    <span id="toast-icon">✅</span>
-    <span id="toast-message">Notificación del sistema</span>
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-950 text-white border border-slate-800 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 transform transition-all duration-300 z-50 text-xs font-medium translate-y-20 opacity-0">
+    <span id="toast-icon">📊</span>
+    <span id="toast-message">Exportando Balance General y Estado de Resultados en formato tabular...</span>
   </div>
 
   <!-- SCRIPT DE INTERACTIVIDAD Y NAVEGACIÓN -->
@@ -1583,5 +1562,5 @@
       }
     });
   </script>
-</body>
-</html>
+
+</body></html>
