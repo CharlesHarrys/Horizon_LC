@@ -2877,39 +2877,48 @@ const LOBBY_MODULES_META = {
 
 function obtenerModulosLobbyActivos() {
     let modulos = null;
-    try {
-        const raw = localStorage.getItem('horizon_lobby_modules');
-        if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                modulos = parsed;
-            }
-        }
-    } catch (e) {}
+    const raw = localStorage.getItem('horizon_lobby_modules');
 
-    if (!modulos) {
+    if (raw === null) {
         modulos = DEFAULT_LOBBY_MODULES.map(m => ({ ...m }));
         try {
             localStorage.setItem('horizon_lobby_modules', JSON.stringify(modulos));
         } catch (e) {}
+    } else {
+        try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                modulos = parsed;
+            }
+        } catch (e) {}
+        if (!Array.isArray(modulos)) {
+            modulos = DEFAULT_LOBBY_MODULES.map(m => ({ ...m }));
+        }
     }
 
     const completos = DEFAULT_LOBBY_MODULES.map(def => {
         const found = modulos.find(m => m.id === def.id);
-        return found ? {
-            id: def.id,
-            nombre: found.nombre || def.nombre,
-            activo: def.id === 'config' ? true : !!found.activo,
-            orden: Number(found.orden) || def.orden,
-            ruta: found.ruta || def.ruta
-        } : { ...def };
+        if (found) {
+            const isActivo = def.id === 'config' ? true : (found.activo === true || found.activo === 'true');
+            return {
+                id: def.id,
+                nombre: found.nombre || def.nombre,
+                activo: isActivo,
+                orden: Number(found.orden) || def.orden,
+                ruta: found.ruta || def.ruta
+            };
+        }
+        return {
+            ...def,
+            activo: def.id === 'config' ? true : false
+        };
     });
 
     window._currentLobbyLayout = completos;
 
-    return completos
-        .filter(m => m.activo === true)
-        .sort((a, b) => (Number(a.orden) || 999) - (Number(b.orden) || 999));
+    const visibles = completos.filter(m => m.activo === true || m.activo === 'true');
+    visibles.sort((a, b) => Number(a.orden) - Number(b.orden));
+    return visibles;
 }
 
 function renderLobbyModulesGrid() {
@@ -2969,7 +2978,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 window.addEventListener('pageshow', aplicarConfiguracionHorizon);
 window.addEventListener('storage', (e) => {
-    if (!e.key || e.key === 'horizon_lobby_modules' || e.key === 'horizon_system_config') {
+    if (!e.key || e.key === 'horizon_lobby_modules') {
+        renderLobbyModulesGrid();
+    }
+    if (!e.key || e.key === 'horizon_system_config') {
         aplicarConfiguracionHorizon();
     }
 });

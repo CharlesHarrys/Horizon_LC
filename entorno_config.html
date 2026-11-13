@@ -3943,28 +3943,31 @@
 
     function initLobbyLayoutState(storedLayout) {
       let source = null;
+      let hasHorizonLobbyModules = false;
       try {
         const rawModules = localStorage.getItem('horizon_lobby_modules');
-        if (rawModules) {
+        if (rawModules !== null) {
+          hasHorizonLobbyModules = true;
           const parsed = JSON.parse(rawModules);
-          if (Array.isArray(parsed) && parsed.length > 0) source = parsed;
+          if (Array.isArray(parsed)) source = parsed;
         }
       } catch (e) {}
 
-      if (!source && Array.isArray(storedLayout) && storedLayout.length > 0) {
+      if (!hasHorizonLobbyModules && Array.isArray(storedLayout) && storedLayout.length > 0) {
         source = storedLayout;
       }
 
-      if (Array.isArray(source) && source.length > 0) {
+      if (Array.isArray(source)) {
         const merged = CATALOGO_LOBBY_MODULOS.map(cat => {
           const found = source.find(m => m.id === cat.id);
           if (found) {
+            const isActivo = cat.protegido ? true : (found.activo === true || found.activo === 'true');
             return {
               id: cat.id,
               nombre: cat.nombre,
               desc: cat.desc,
               ruta: cat.ruta,
-              activo: cat.protegido ? true : !!found.activo,
+              activo: isActivo,
               orden: Number(found.orden) || cat.defaultOrden,
               protegido: !!cat.protegido
             };
@@ -3974,7 +3977,7 @@
             nombre: cat.nombre,
             desc: cat.desc,
             ruta: cat.ruta,
-            activo: cat.defaultActivo,
+            activo: hasHorizonLobbyModules ? false : cat.defaultActivo,
             orden: cat.defaultOrden,
             protegido: !!cat.protegido
           };
