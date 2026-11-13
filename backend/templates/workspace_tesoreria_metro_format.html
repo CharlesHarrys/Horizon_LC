@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace de Tesorería — Horizon LC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.08);
+    }
+    .mono, .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Retícula arquitectónica de fondo con efecto Vignette */
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 80% 75% at 50% 50%, black 35%, transparent 92%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 75% at 50% 50%, black 35%, transparent 92%);
+      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Estilo exacto de Metro Tile */
+    .metro-tile {
+      background-color: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .metro-tile:hover {
+      transform: translateY(-4px);
+      border-color: #0f172a;
+      box-shadow: 0 18px 32px -8px rgba(15, 23, 42, 0.12);
+    }
+
+    /* Franja Colgante Propuesta 1A */
+    .hanging-ribbon {
+      background: #0f172a;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 6px 14px -2px rgba(15, 23, 42, 0.35);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid #0284c7;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-slate-900 selection:text-white relative bg-[#f6f5f4] p-2.5">
+
+  <!-- Retícula de fondo -->
+  <div class="grid-vignette"></div>
+
+  <!-- =========================================================================
+       HEADER CORPORATIVO CON FRANJA COLGANTE "TESORERÍA"
+       ========================================================================= -->
+  <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 shrink-0 min-h-16 relative z-10" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);">
+
+    <div class="flex items-center gap-3.5 shrink-0 justify-self-start">
+      <!-- Botón Regresar -->
+      <button type="button" onclick="manejarBotonRegresar()" title="Regresar" class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
+        ←
+      </button>
+
+      <!-- Logo Horizon LC (Con redirección al Lobby) -->
+      <div class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal">
+        <div class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+            <path d="M4.5 13.5C4.5 9.35786 7.85786 6 12 6C16.1421 6 19.5 9.35786 19.5 13.5" stroke="#3ba6f1" stroke-width="2.2" stroke-linecap="round"></path>
+            <path d="M7 13.5C7 10.7386 9.23858 8.5 12 8.5C14.7614 8.5 17 10.7386 17 13.5H7Z" fill="#0f172a"></path>
+            <path d="M2 13.5H22" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"></path>
+            <path d="M6 16.5H18" stroke="#3ba6f1" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M9.5 19H14.5" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div class="flex flex-col leading-none" style="font-family: 'Inter', sans-serif;">
+          <div class="flex items-center gap-1">
+            <span class="text-[16px] font-extrabold tracking-tight text-slate-900 uppercase">HORIZON</span>
+            <span class="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#3ba6f1]/15 text-[#0284c7] tracking-wider">LC</span>
+          </div>
+          <span class="text-[10px] font-medium text-slate-400 tracking-wider uppercase mt-0.5">SYSTEM ANALYTICS</span>
+        </div>
+      </div>
+
+      <!-- Bloque Detalle de Módulo con Línea Divisoria Vertical -->
+      <span class="h-6 w-[1px] bg-slate-200 mx-1.5"></span>
+
+      <!-- Franja Colgante Propuesta 1A -->
+      <div class="relative -mt-2 -mb-2 self-start pointer-events-none">
+        <div class="hanging-ribbon px-3.5 pt-3.5 pb-3.5 flex flex-col items-center justify-center">
+          <span class="text-[11px] font-black text-white tracking-wider font-mono">TESORERÍA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zona Central: Logotipo Corporativo + Identidad Institucional Dinámica -->
+    <div class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800" id="hdr-company-logo-container">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+
+        <div class="flex flex-col min-w-0 leading-none items-center text-center">
+          <div class="w-full min-w-0">
+            <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="SOLUTIONS &amp; APPLIANCES LTD">SOLUTIONS &amp; APPLIANCES LTD</span>
+          </div>
+          <div class="mt-1 select-none">
+            <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">RTN: 08011990123456</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zona Derecha: Periodo Fiscal + Usuario en Sesión -->
+    <div class="flex items-center gap-3.5 shrink-0 justify-self-end">
+      <div id="hdr-period-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 border border-slate-200/80 rounded-xl text-[11px] font-bold text-slate-700 tracking-wide select-none" style="font-family: 'Inter', sans-serif; cursor: default;">
+        <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+        <span id="hdr-period-text">OCTUBRE 2026</span>
+      </div>
+
+      <div class="flex items-center gap-2.5 border-l border-slate-200 pl-3.5" style="font-family: 'Inter', sans-serif;">
+        <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs">
+          CH
+        </div>
+        <div class="text-left hidden sm:flex flex-col leading-tight">
+          <span class="text-xs font-extrabold text-slate-900">Carlos Hernández</span>
+          <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Tesorero Corporativo</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       GATEWAY DE TESORERÍA (4 PANELES METRO UI)
+       ========================================================================= -->
+  <div class="flex-1 flex flex-col justify-center py-2 max-w-7xl w-full mx-auto relative z-10" id="view-gateway">
+
+    <!-- Cabecera Editorial del Gateway -->
+    <div class="text-center max-w-2xl mx-auto mb-4 space-y-1">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
+        ÁREA DE TESORERÍA Y LIQUIDEZ
+      </h1>
+    </div>
+
+    <!-- Grid 2x2 Metro UI -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-8">
+
+      <!-- PANEL 1: BANCOS Y CAJAS -->
+      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; margin-left: 145px; height: 300px;">
+        <div style="border-bottom-width: 1px;">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">BANCOS Y CAJAS</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Cuentas bancarias, caja chica, saldos disponibles en tiempo real y transferencias internas.</p>
+        </div>
+
+        <div class="my-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
+            <path d="M16 38L48 20L80 38H16Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
+            <path d="M26 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M40 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M56 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M70 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M16 74H80" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+          </svg>
+        </div>
+
+        <div class="pt-1 flex items-center justify-end">
+          <button type="button" onclick="ingresarAPanel('bancos')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
+            INGRESAR
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 2: INGRESOS Y EGRESOS -->
+      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; height: 300px;">
+        <div style="border-bottom-width: 1px;">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">INGRESOS Y EGRESOS</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Registro de cobros, pagos a proveedores, cheques, transferencias ACH y flujo de caja diario.</p>
+        </div>
+
+        <div class="my-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
+            <path d="M24 34H72" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M60 22L72 34L60 46" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M72 62H24" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M36 50L24 62L36 74" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+
+        <div class="pt-1 flex items-center justify-end">
+          <button type="button" onclick="ingresarAPanel('movimientos')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
+            INGRESAR
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 3: CONCILIACIÓN BANCARIA -->
+      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; margin-left: 145px; height: 300px;">
+        <div style="border-bottom-width: 1px;">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">CONCILIACIÓN BANCARIA</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Cruce de extractos bancarios vs. libros auxiliares, partidas en tránsito y ajustes.</p>
+        </div>
+
+        <div class="my-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
+            <rect x="16" y="20" width="30" height="56" rx="6" stroke="currentColor" stroke-width="4"></rect>
+            <rect x="50" y="20" width="30" height="56" rx="6" stroke="currentColor" stroke-width="4"></rect>
+            <path d="M24 38H38" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M24 50H38" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M58 46L64 52L74 38" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+
+        <div class="pt-1 flex items-center justify-end">
+          <button type="button" onclick="ingresarAPanel('conciliacion')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
+            INGRESAR
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 4: PRÉSTAMOS Y CRÉDITOS -->
+      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; height: 300px;">
+        <div style="border-bottom-width: 1px;">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">PRÉSTAMOS Y CRÉDITOS</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Control de desembolsos, líneas de crédito, calendario de cuotas, capital e intereses bancarios.</p>
+        </div>
+
+        <div class="my-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
+            <rect x="16" y="26" width="64" height="44" rx="8" stroke="currentColor" stroke-width="4"></rect>
+            <path d="M16 40H80" stroke="currentColor" stroke-width="4"></path>
+            <path d="M28 56H46" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <circle cx="66" cy="56" r="5" stroke="currentColor" stroke-width="4"></circle>
+          </svg>
+        </div>
+
+        <div class="pt-1 flex items-center justify-end">
+          <button type="button" onclick="ingresarAPanel('prestamos')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
+            INGRESAR
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SUB-VISTA 1: BANCOS Y CAJAS (#view-panel-bancos)
+       ========================================================================= -->
+  <div id="view-panel-bancos" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+      <div>
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Disponibilidad Inmediata</span>
+        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Bancos y Cajas Chicas</h2>
+        <p class="text-xs text-slate-500">Saldos disponibles en tiempo real y vinculación directa con cuentas de Efectivo y Bancos de Config.</p>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
+          ← Volver al Gateway
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs de Liquidez -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Saldo Consolidado (HNL)</span>
+        <div id="kpi-bancos-hnl" class="text-2xl font-black text-slate-950 mt-1 mono">L 1,485,200.00</div>
+        <span class="text-[11px] font-semibold text-emerald-600 mt-1 block">Disponible inmediato</span>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Cuentas en Dólares (USD)</span>
+        <div id="kpi-bancos-usd" class="text-2xl font-black text-sky-700 mt-1 mono">$ 28,450.00</div>
+        <span class="text-[11px] font-semibold text-slate-500 mt-1 block">Reserva operativa USD</span>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Caja Chica Matriz</span>
+        <div class="text-2xl font-black text-slate-950 mt-1 mono">L 25,000.00</div>
+        <span class="text-[11px] font-semibold text-amber-600 mt-1 block">Fondo fijo autorizado</span>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Cuentas Activas</span>
+        <div id="kpi-bancos-count" class="text-2xl font-black text-slate-950 mt-1 mono">4</div>
+        <span class="text-[11px] font-semibold text-slate-500 mt-1 block">Enlazadas a Config</span>
+      </div>
+    </div>
+
+    <!-- Registro de Cuenta Bancaria enlazada a Config -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Registrar Nueva Cuenta Bancaria / Caja</h3>
+          <p class="text-[11px] text-slate-500">Selecciona una cuenta contable de Efectivo o Bancos del catálogo de Config.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+        <div class="md:col-span-2">
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cuenta Contable (Config - Efectivo/Bancos)</label>
+          <select id="select-cuenta-bancos" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800"></select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Institución / Alias</label>
+          <input id="banco-nombre-input" type="text" placeholder="Ej. BAC Credomatic Cheques" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Moneda &amp; Saldo Inicial</label>
+          <div class="flex gap-1.5">
+            <select id="banco-moneda-input" class="w-20 px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+              <option value="HNL">HNL</option>
+              <option value="USD">USD</option>
+            </select>
+            <input id="banco-saldo-input" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
+          </div>
+        </div>
+        <div>
+          <button type="button" onclick="registrarCuentaBancaria()" class="w-full px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">
+            + Registrar Cuenta
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Cuentas Bancarias y Cajas -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Cuentas Bancarias y Cajas Registradas</h3>
+        <span class="text-[11px] font-mono text-slate-400">Sincronizado con Catálogo NIIF</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
+              <th class="py-3 px-4">Institución / Caja</th>
+              <th class="py-3 px-4">No. Cuenta / Ref</th>
+              <th class="py-3 px-4">Cuenta Contable Config</th>
+              <th class="py-3 px-4 text-center">Moneda</th>
+              <th class="py-3 px-4 text-right">Saldo Disponible</th>
+              <th class="py-3 px-4 text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-bancos" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SUB-VISTA 2: INGRESOS Y EGRESOS (#view-panel-movimientos)
+       ========================================================================= -->
+  <div id="view-panel-movimientos" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+      <div>
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Flujo Operativo Diario</span>
+        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Ingresos y Egresos de Caja y Bancos</h2>
+        <p class="text-xs text-slate-500">Cobros a clientes, pagos a proveedores, emisión de cheques y transferencias ACH.</p>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
+          ← Volver al Gateway
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs de Flujo -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Entradas del Periodo</span>
+        <div id="kpi-mov-ingresos" class="text-2xl font-black text-emerald-700 mt-1 mono">L 0.00</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Salidas del Periodo</span>
+        <div id="kpi-mov-egresos" class="text-2xl font-black text-rose-700 mt-1 mono">L 0.00</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Flujo Neto de Tesorería</span>
+        <div id="kpi-mov-neto" class="text-2xl font-black text-slate-950 mt-1 mono">L 0.00</div>
+      </div>
+    </div>
+
+    <!-- Formulario de Nuevo Movimiento -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-3">
+      <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Registrar Movimiento de Tesorería</h3>
+      <div class="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Tipo</label>
+          <select id="mov-tipo-input" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+            <option value="INGRESO">INGRESO (+)</option>
+            <option value="EGRESO">EGRESO (-)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Referencia / Cheque / ACH</label>
+          <input id="mov-ref-input" type="text" placeholder="ACH-90412" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cuenta Bancaria</label>
+          <select id="mov-banco-select" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"></select>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Contrapartida Contable (Config)</label>
+          <select id="mov-cuenta-select" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800"></select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Monto (L)</label>
+          <div class="flex gap-1.5">
+            <input id="mov-monto-input" type="number" step="0.01" placeholder="15000.00" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
+            <button type="button" onclick="registrarMovimientoTesoreria()" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer shrink-0">
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Movimientos -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Bitácora de Entradas y Salidas de Efectivo</h3>
+        <span class="text-[11px] font-mono text-slate-400">Partida Doble Tesorería</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
+              <th class="py-3 px-4">Fecha</th>
+              <th class="py-3 px-4">Tipo</th>
+              <th class="py-3 px-4">Referencia</th>
+              <th class="py-3 px-4">Cuenta Bancaria</th>
+              <th class="py-3 px-4">Contrapartida Contable</th>
+              <th class="py-3 px-4 text-right">Monto</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-movimientos" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SUB-VISTA 3: CONCILIACIÓN BANCARIA (#view-panel-conciliacion)
+       ========================================================================= -->
+  <div id="view-panel-conciliacion" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+      <div>
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Control de Extractos</span>
+        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Conciliación Bancaria</h2>
+        <p class="text-xs text-slate-500">Comparativa entre saldo en libros auxiliares, saldo según estado de cuenta bancario y partidas en tránsito.</p>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <select id="concil-cuenta-select" onchange="recalcularConciliacion()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"></select>
+        <select id="concil-mes-select" onchange="recalcularConciliacion()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+          <option value="OCTUBRE 2026">OCTUBRE 2026</option>
+          <option value="NOVIEMBRE 2026">NOVIEMBRE 2026</option>
+          <option value="SEPTIEMBRE 2026">SEPTIEMBRE 2026</option>
+        </select>
+        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
+          ← Volver
+        </button>
+      </div>
+    </div>
+
+    <!-- Comparativa de Saldos -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Saldo en Libros Auxiliares</span>
+        <div id="concil-saldo-libros" class="text-2xl font-black text-slate-950 mt-1 mono">L 842,500.00</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Saldo según Estado de Banco</span>
+        <div id="concil-saldo-banco" class="text-2xl font-black text-sky-700 mt-1 mono">L 864,700.00</div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Diferencia Neta en Tránsito</span>
+        <div id="concil-diferencia" class="text-2xl font-black text-amber-600 mt-1 mono">L 0.00</div>
+      </div>
+    </div>
+
+    <!-- Partidas en Tránsito -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+          <h3 class="text-xs font-black text-slate-900 uppercase">Depósitos en Tránsito (+)</h3>
+          <span id="concil-total-depositos" class="text-xs font-mono font-bold text-emerald-700">L 0.00</span>
+        </div>
+        <div id="concil-lista-depositos" class="divide-y divide-slate-100 p-4 space-y-2 text-xs"></div>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+          <h3 class="text-xs font-black text-slate-900 uppercase">Cheques Pendientes de Cobro (-)</h3>
+          <span id="concil-total-cheques" class="text-xs font-mono font-bold text-rose-700">L 0.00</span>
+        </div>
+        <div id="concil-lista-cheques" class="divide-y divide-slate-100 p-4 space-y-2 text-xs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SUB-VISTA 4: PRÉSTAMOS Y CRÉDITOS (#view-panel-prestamos)
+       ========================================================================= -->
+  <div id="view-panel-prestamos" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+      <div>
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Obligaciones Financieras</span>
+        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Préstamos, Líneas de Crédito y Cuotas</h2>
+        <p class="text-xs text-slate-500">Control de desembolsos, tasas de interés, saldo insoluto y desglose mensual entre capital e intereses.</p>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
+          ← Volver al Gateway
+        </button>
+      </div>
+    </div>
+
+    <!-- Alta de Obligación Financiera vinculada a Config -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-4">
+      <div class="border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Registrar Obligación / Crédito Bancario</h3>
+        <p class="text-[11px] text-slate-500">Enlaza con cuentas de Obligaciones Financieras y Préstamos del catálogo de Config.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+        <div class="md:col-span-2">
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cuenta Contable (Config - Préstamos/Pasivos)</label>
+          <select id="select-cuenta-prestamos" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800"></select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Institución Bancaria</label>
+          <input id="prestamo-banco-input" type="text" placeholder="Ej. Banco Ficohsa" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Saldo Insoluto &amp; Tasa %</label>
+          <div class="flex gap-1.5">
+            <input id="prestamo-saldo-input" type="number" step="0.01" placeholder="500000" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
+            <input id="prestamo-tasa-input" type="number" step="0.1" value="11.5" class="w-20 px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
+          </div>
+        </div>
+        <div>
+          <button type="button" onclick="agregarPrestamoTesoreria()" class="w-full px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">
+            + Agregar Crédito
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Préstamos Activos -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Obligaciones Financieras Activas y Desglose de Cuota</h3>
+        <span class="text-[11px] font-mono text-slate-400">Amortización Mensual (36 meses ref.)</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
+              <th class="py-3 px-4">Institución Bancaria</th>
+              <th class="py-3 px-4">Cuenta Contable Config</th>
+              <th class="py-3 px-4 text-right">Tasa Anual</th>
+              <th class="py-3 px-4 text-right">Saldo Insoluto</th>
+              <th class="py-3 px-4 text-right">Cuota Capital</th>
+              <th class="py-3 px-4 text-right">Cuota Interés</th>
+              <th class="py-3 px-4 text-right">Cuota Total</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-prestamos" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MOTOR JAVASCRIPT: NAVEGACIÓN, SINCRONIZACIÓN CONFIG & TESORERÍA
+       ========================================================================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. NAVEGACIÓN DEL GATEWAY DE 4 PANELES
+    // -------------------------------------------------------------------------
+    function ocultarTodasLasSubVistas() {
+      ['view-panel-bancos', 'view-panel-movimientos', 'view-panel-conciliacion', 'view-panel-prestamos'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+    }
+
+    function ingresarAPanel(panelId) {
+      const gateway = document.getElementById('view-gateway');
+      ocultarTodasLasSubVistas();
+
+      const mapaVistas = {
+        bancos: 'view-panel-bancos',
+        movimientos: 'view-panel-movimientos',
+        conciliacion: 'view-panel-conciliacion',
+        prestamos: 'view-panel-prestamos'
+      };
+
+      const targetId = mapaVistas[panelId];
+      if (!targetId) return;
+
+      if (gateway) gateway.classList.add('hidden');
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      sincronizarCuentasTesoreria();
+      if (panelId === 'conciliacion') recalcularConciliacion();
+    }
+
+    function volverAGateway() {
+      ocultarTodasLasSubVistas();
+      const gateway = document.getElementById('view-gateway');
+      if (gateway) gateway.classList.remove('hidden');
+    }
+
+    function manejarBotonRegresar() {
+      const gateway = document.getElementById('view-gateway');
+      if (gateway && gateway.classList.contains('hidden')) {
+        volverAGateway();
+      } else {
+        window.location.href = 'workspace_lobby.html';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. SINCRONIZACIÓN DE IDENTIDAD Y CATÁLOGO DE CUENTAS DESDE CONFIG
+    // -------------------------------------------------------------------------
+    const CUENTAS_TESORERIA_FALLBACK = [
+      { codigo: '1.1.01.01', nombre: 'Caja General y Caja Chica Matriz', naturaleza: 'DEBE', tipo: 'DETALLE' },
+      { codigo: '1.1.01.02', nombre: 'Banco Atlántida Cta. Cheques HNL', naturaleza: 'DEBE', tipo: 'DETALLE' },
+      { codigo: '1.1.01.03', nombre: 'BAC Credomatic Cta. Corriente HNL', naturaleza: 'DEBE', tipo: 'DETALLE' },
+      { codigo: '1.1.01.04', nombre: 'Banco Ficohsa Cta. Ahorro USD', naturaleza: 'DEBE', tipo: 'DETALLE' },
+      { codigo: '1.1.02.01', nombre: 'Cuentas por Cobrar Clientes Nacionales', naturaleza: 'DEBE', tipo: 'DETALLE' },
+      { codigo: '2.1.01.01', nombre: 'Proveedores Nacionales por Pagar', naturaleza: 'HABER', tipo: 'DETALLE' },
+      { codigo: '2.1.03.01', nombre: 'Préstamos Bancarios Corto Plazo (BAC)', naturaleza: 'HABER', tipo: 'DETALLE' },
+      { codigo: '2.2.01.01', nombre: 'Obligaciones Financieras Largo Plazo (Ficohsa)', naturaleza: 'HABER', tipo: 'DETALLE' },
+      { codigo: '5.2.01.01', nombre: 'Gastos Financieros e Intereses Bancarios', naturaleza: 'DEBE', tipo: 'DETALLE' }
+    ];
+
+    function sincronizarIdentidadDesdeConfig() {
+      try {
+        const rawCfg = localStorage.getItem('horizon_system_config');
+        if (!rawCfg) return;
+        const cfg = JSON.parse(rawCfg);
+
+        const companyName = cfg.empresa_nombre || (cfg.company && cfg.company.name) || cfg.company_name || cfg.razon_social || cfg.empresa || 'SOLUTIONS & APPLIANCES LTD';
+        const companyRtn = cfg.empresa_rtn || (cfg.company && cfg.company.rtn) || cfg.company_rtn || cfg.rtn || '08011990123456';
+        const periodText = cfg.periodo_activo || (cfg.period && cfg.period.label) || cfg.active_period || 'OCTUBRE 2026';
+
+        const elName = document.getElementById('hdr-company-name');
+        const elRtn = document.getElementById('hdr-company-rtn');
+        const elPeriod = document.getElementById('hdr-period-text');
+        const elLogo = document.getElementById('hdr-company-logo-container');
+
+        if (elName) {
+          elName.textContent = String(companyName).toUpperCase();
+          elName.title = String(companyName).toUpperCase();
+        }
+        if (elRtn) {
+          const cleanRtn = String(companyRtn).replace(/^RTN:\s*/i, '').trim();
+          elRtn.textContent = `RTN: ${cleanRtn}`;
+        }
+        if (elPeriod) {
+          elPeriod.textContent = String(periodText).toUpperCase();
+        }
+
+        const logoData = cfg.company_logo || cfg.empresa_logo || (cfg.company && (cfg.company.logo || cfg.company.logo_url || cfg.company.logo_data_url));
+        if (elLogo && logoData) {
+          if (String(logoData).trim().startsWith('<svg')) {
+            elLogo.innerHTML = logoData;
+          } else {
+            elLogo.innerHTML = `<img src="${logoData}" alt="${companyName}" class="w-full h-full object-contain rounded-lg">`;
+          }
+        }
+      } catch (e) {
+        console.warn('Error sincronizando identidad del Header con Config:', e);
+      }
+    }
+
+    function normalizarCuentaTesoreria(c) {
+      const codigo = c.codigo || c.code || '';
+      const nombre = c.nombre || c.name || '';
+      const natRaw = (c.naturaleza || c.nature || '').toUpperCase();
+      const naturaleza = natRaw.includes('HABER') || natRaw.includes('ACREED') || natRaw === 'CREDIT'
+        ? 'Acreedora (HABER)'
+        : 'Deudora (DEBE)';
+      const nivel = c.tipo || c.nivel || (codigo.split('.').length >= 4 ? 'DETALLE' : 'MAYOR');
+      return { codigo, nombre, naturaleza, nivel };
+    }
+
+    function obtenerCuentasDeConfig() {
+      try {
+        const rawCfg = localStorage.getItem('horizon_system_config');
+        if (rawCfg) {
+          const parsed = JSON.parse(rawCfg);
+          const cuentas = parsed.catalogo_cuentas || parsed.catalogoCuentasNIIF || parsed.cuentas_contables || parsed.accounts || parsed.chart_of_accounts;
+          if (Array.isArray(cuentas) && cuentas.length > 0) {
+            return cuentas.map(normalizarCuentaTesoreria);
+          }
+        }
+        const rawCat = localStorage.getItem('horizon_catalogo_cuentas') || localStorage.getItem('catalogo_cuentas');
+        if (rawCat) {
+          const list = JSON.parse(rawCat);
+          if (Array.isArray(list) && list.length > 0) {
+            return list.map(normalizarCuentaTesoreria);
+          }
+        }
+      } catch (e) {
+        console.warn('Error sincronizando catálogo con Config:', e);
+      }
+      return CUENTAS_TESORERIA_FALLBACK.map(normalizarCuentaTesoreria);
+    }
+
+    function sincronizarCuentasTesoreria() {
+      const todas = obtenerCuentasDeConfig();
+
+      const cuentasBancos = todas.filter(c => {
+        const txt = `${c.codigo} ${c.nombre}`.toLowerCase();
+        return txt.includes('caja') || txt.includes('banco') || txt.includes('efectivo') || c.codigo.startsWith('1.1.01');
+      });
+      const listaBancos = cuentasBancos.length > 0 ? cuentasBancos : todas;
+
+      const cuentasPrestamos = todas.filter(c => {
+        const txt = `${c.codigo} ${c.nombre}`.toLowerCase();
+        return txt.includes('préstamo') || txt.includes('prestamo') || txt.includes('crédito') || txt.includes('credito') || txt.includes('obligaci') || c.codigo.startsWith('2.1.03') || c.codigo.startsWith('2.2');
+      });
+      const listaPrestamos = cuentasPrestamos.length > 0 ? cuentasPrestamos : todas;
+
+      const selBancos = document.getElementById('select-cuenta-bancos');
+      if (selBancos) {
+        selBancos.innerHTML = listaBancos.map(c =>
+          `<option value="${c.codigo}" data-nombre="${c.nombre}">${c.codigo} — ${c.nombre}</option>`
+        ).join('');
+      }
+
+      const selMovCuenta = document.getElementById('mov-cuenta-select');
+      if (selMovCuenta) {
+        selMovCuenta.innerHTML = todas.map(c =>
+          `<option value="${c.codigo}" data-nombre="${c.nombre}">${c.codigo} — ${c.nombre}</option>`
+        ).join('');
+      }
+
+      const selPrestamos = document.getElementById('select-cuenta-prestamos');
+      if (selPrestamos) {
+        selPrestamos.innerHTML = listaPrestamos.map(c =>
+          `<option value="${c.codigo}" data-nombre="${c.nombre}">${c.codigo} — ${c.nombre}</option>`
+        ).join('');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. DATOS OPERATIVOS DE LAS 4 SUB-VISTAS DE TESORERÍA
+    // -------------------------------------------------------------------------
+    const cuentasBancariasData = [
+      { banco: 'Banco Atlántida — Cta. Cheques', numero: '1100-492018-4', cuentaConfig: '1.1.01.02 — Banco Atlántida Cta. Cheques HNL', moneda: 'HNL', saldo: 842500.00, estado: 'Activa' },
+      { banco: 'BAC Credomatic — Cta. Corriente', numero: '740-192831-0', cuentaConfig: '1.1.01.03 — BAC Credomatic Cta. Corriente HNL', moneda: 'HNL', saldo: 617700.00, estado: 'Activa' },
+      { banco: 'Banco Ficohsa — Reserva USD', numero: '2000-881209-1', cuentaConfig: '1.1.01.04 — Banco Ficohsa Cta. Ahorro USD', moneda: 'USD', saldo: 28450.00, estado: 'Activa' },
+      { banco: 'Caja Chica Casa Matriz TGU', numero: 'CC-MATRIZ-01', cuentaConfig: '1.1.01.01 — Caja General y Caja Chica Matriz', moneda: 'HNL', saldo: 25000.00, estado: 'Activa' }
+    ];
+
+    const movimientosData = [
+      { fecha: '2026-10-12', tipo: 'INGRESO', ref: 'DEP-88412', banco: 'Banco Atlántida', contrapartida: '1.1.02.01 — Cuentas por Cobrar Clientes', monto: 145000.00 },
+      { fecha: '2026-10-13', tipo: 'EGRESO', ref: 'CHQ-00419', banco: 'BAC Credomatic', contrapartida: '2.1.01.01 — Proveedores Nacionales por Pagar', monto: 62400.00 },
+      { fecha: '2026-10-14', tipo: 'EGRESO', ref: 'ACH-77120', banco: 'Banco Atlántida', contrapartida: '5.2.01.01 — Gastos Financieros e Intereses', monto: 18500.00 },
+      { fecha: '2026-10-15', tipo: 'INGRESO', ref: 'POS-99210', banco: 'BAC Credomatic', contrapartida: '1.1.02.01 — Cuentas por Cobrar Clientes', monto: 94200.00 }
+    ];
+
+    const conciliacionDepositos = [
+      { id: 'dep1', ref: 'DEP-88450', desc: 'Liquidación Lote POS BAC 15/10', monto: 48200.00, conciliado: false },
+      { id: 'dep2', ref: 'DEP-88459', desc: 'Transferencia Cliente Distribuidora Sur', monto: 31500.00, conciliado: false }
+    ];
+
+    const conciliacionCheques = [
+      { id: 'chq1', ref: 'CHQ-00422', desc: 'Pago Proveedor Logística del Norte', monto: 64100.00, conciliado: false },
+      { id: 'chq2', ref: 'CHQ-00425', desc: 'Anticipo Servicios Aduanales', monto: 37800.00, conciliado: false }
+    ];
+
+    const prestamosData = [
+      { banco: 'BAC Credomatic — Línea Capital Trabajo', cuentaConfig: '2.1.03.01 — Préstamos Bancarios Corto Plazo', tasa: 11.5, saldo: 450000.00 },
+      { banco: 'Banco Ficohsa — Crédito Maquinaria NIIF', cuentaConfig: '2.2.01.01 — Obligaciones Financieras Largo Plazo', tasa: 10.2, saldo: 1200000.00 }
+    ];
+
+    function fmt(num, sym = 'L ') {
+      return sym + Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function renderBancos() {
+      const tbody = document.getElementById('tbody-bancos');
+      const selMovBanco = document.getElementById('mov-banco-select');
+      const selConcil = document.getElementById('concil-cuenta-select');
+      if (!tbody) return;
+
+      tbody.innerHTML = cuentasBancariasData.map(c => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-sans font-bold text-slate-900">${c.banco}</td>
+          <td class="py-3 px-4 text-slate-600">${c.numero}</td>
+          <td class="py-3 px-4 text-sky-700 font-semibold">${c.cuentaConfig}</td>
+          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">${c.moneda}</span></td>
+          <td class="py-3 px-4 text-right font-bold text-slate-900">${fmt(c.saldo, c.moneda === 'USD' ? '$ ' : 'L ')}</td>
+          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">${c.estado}</span></td>
+        </tr>
+      `).join('');
+
+      const totalHnl = cuentasBancariasData.filter(c => c.moneda === 'HNL').reduce((s, c) => s + Number(c.saldo), 0);
+      const totalUsd = cuentasBancariasData.filter(c => c.moneda === 'USD').reduce((s, c) => s + Number(c.saldo), 0);
+      const elHnl = document.getElementById('kpi-bancos-hnl');
+      const elUsd = document.getElementById('kpi-bancos-usd');
+      const elCount = document.getElementById('kpi-bancos-count');
+      if (elHnl) elHnl.textContent = fmt(totalHnl);
+      if (elUsd) elUsd.textContent = fmt(totalUsd, '$ ');
+      if (elCount) elCount.textContent = String(cuentasBancariasData.length);
+
+      const opts = cuentasBancariasData.map(c => `<option value="${c.banco}">${c.banco} (${c.moneda})</option>`).join('');
+      if (selMovBanco) selMovBanco.innerHTML = opts;
+      if (selConcil) selConcil.innerHTML = opts;
+    }
+
+    function registrarCuentaBancaria() {
+      const sel = document.getElementById('select-cuenta-bancos');
+      const banco = document.getElementById('banco-nombre-input')?.value?.trim();
+      const moneda = document.getElementById('banco-moneda-input')?.value || 'HNL';
+      const saldo = parseFloat(document.getElementById('banco-saldo-input')?.value) || 0;
+      if (!banco) return;
+
+      const opt = sel && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex] : null;
+      const cuentaConfig = opt ? opt.textContent : '1.1.01.02 — Bancos';
+
+      cuentasBancariasData.push({
+        banco,
+        numero: 'CTA-' + Math.floor(100000 + Math.random() * 900000),
+        cuentaConfig,
+        moneda,
+        saldo,
+        estado: 'Activa'
+      });
+
+      document.getElementById('banco-nombre-input').value = '';
+      document.getElementById('banco-saldo-input').value = '';
+      renderBancos();
+    }
+
+    function renderMovimientos() {
+      const tbody = document.getElementById('tbody-movimientos');
+      if (!tbody) return;
+
+      tbody.innerHTML = movimientosData.map(m => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 text-slate-500">${m.fecha}</td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${m.tipo === 'INGRESO' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
+              ${m.tipo}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-bold text-slate-800">${m.ref}</td>
+          <td class="py-3 px-4 font-sans font-semibold text-slate-700">${m.banco}</td>
+          <td class="py-3 px-4 text-sky-700">${m.contrapartida}</td>
+          <td class="py-3 px-4 text-right font-bold ${m.tipo === 'INGRESO' ? 'text-emerald-700' : 'text-rose-700'}">${m.tipo === 'INGRESO' ? '+' : '-'} ${fmt(m.monto)}</td>
+        </tr>
+      `).join('');
+
+      const ing = movimientosData.filter(m => m.tipo === 'INGRESO').reduce((s, m) => s + Number(m.monto), 0);
+      const egr = movimientosData.filter(m => m.tipo === 'EGRESO').reduce((s, m) => s + Number(m.monto), 0);
+      document.getElementById('kpi-mov-ingresos').textContent = fmt(ing);
+      document.getElementById('kpi-mov-egresos').textContent = fmt(egr);
+      document.getElementById('kpi-mov-neto').textContent = fmt(ing - egr);
+    }
+
+    function registrarMovimientoTesoreria() {
+      const tipo = document.getElementById('mov-tipo-input')?.value || 'INGRESO';
+      const ref = document.getElementById('mov-ref-input')?.value?.trim() || ('MOV-' + Math.floor(1000 + Math.random() * 9000));
+      const banco = document.getElementById('mov-banco-select')?.value || 'Banco Atlántida';
+      const selCuenta = document.getElementById('mov-cuenta-select');
+      const contrapartida = selCuenta && selCuenta.selectedIndex >= 0 ? selCuenta.options[selCuenta.selectedIndex].textContent : '1.1.02.01';
+      const monto = parseFloat(document.getElementById('mov-monto-input')?.value) || 0;
+      if (monto <= 0) return;
+
+      movimientosData.unshift({
+        fecha: new Date().toISOString().slice(0, 10),
+        tipo,
+        ref,
+        banco,
+        contrapartida,
+        monto
+      });
+      document.getElementById('mov-ref-input').value = '';
+      document.getElementById('mov-monto-input').value = '';
+      renderMovimientos();
+    }
+
+    function togglePartidaConciliacion(tipo, id) {
+      const arr = tipo === 'dep' ? conciliacionDepositos : conciliacionCheques;
+      const item = arr.find(x => x.id === id);
+      if (item) item.conciliado = !item.conciliado;
+      recalcularConciliacion();
+    }
+
+    function recalcularConciliacion() {
+      const saldoLibros = 842500.00;
+      const depPendientes = conciliacionDepositos.filter(d => !d.conciliado).reduce((s, d) => s + d.monto, 0);
+      const chqPendientes = conciliacionCheques.filter(c => !c.conciliado).reduce((s, c) => s + c.monto, 0);
+      const saldoBanco = saldoLibros - depPendientes + chqPendientes;
+      const diferencia = saldoBanco - saldoLibros - chqPendientes + depPendientes;
+
+      document.getElementById('concil-saldo-libros').textContent = fmt(saldoLibros);
+      document.getElementById('concil-saldo-banco').textContent = fmt(saldoBanco);
+      document.getElementById('concil-diferencia').textContent = fmt(diferencia);
+      document.getElementById('concil-total-depositos').textContent = fmt(depPendientes);
+      document.getElementById('concil-total-cheques').textContent = fmt(chqPendientes);
+
+      const contDep = document.getElementById('concil-lista-depositos');
+      if (contDep) {
+        contDep.innerHTML = conciliacionDepositos.map(d => `
+          <label class="flex items-center justify-between pt-2 cursor-pointer">
+            <div class="flex items-center gap-2.5">
+              <input type="checkbox" ${d.conciliado ? 'checked' : ''} onchange="togglePartidaConciliacion('dep', '${d.id}')" class="w-4 h-4 accent-slate-900">
+              <div>
+                <span class="font-mono font-bold text-slate-900">${d.ref}</span>
+                <p class="text-[11px] text-slate-500">${d.desc}</p>
+              </div>
+            </div>
+            <span class="font-mono font-bold ${d.conciliado ? 'line-through text-slate-400' : 'text-emerald-700'}">${fmt(d.monto)}</span>
+          </label>
+        `).join('');
+      }
+
+      const contChq = document.getElementById('concil-lista-cheques');
+      if (contChq) {
+        contChq.innerHTML = conciliacionCheques.map(c => `
+          <label class="flex items-center justify-between pt-2 cursor-pointer">
+            <div class="flex items-center gap-2.5">
+              <input type="checkbox" ${c.conciliado ? 'checked' : ''} onchange="togglePartidaConciliacion('chq', '${c.id}')" class="w-4 h-4 accent-slate-900">
+              <div>
+                <span class="font-mono font-bold text-slate-900">${c.ref}</span>
+                <p class="text-[11px] text-slate-500">${c.desc}</p>
+              </div>
+            </div>
+            <span class="font-mono font-bold ${c.conciliado ? 'line-through text-slate-400' : 'text-rose-700'}">${fmt(c.monto)}</span>
+          </label>
+        `).join('');
+      }
+    }
+
+    function renderPrestamos() {
+      const tbody = document.getElementById('tbody-prestamos');
+      if (!tbody) return;
+
+      tbody.innerHTML = prestamosData.map(p => {
+        const r = (p.tasa / 100) / 12;
+        const cuotaTotal = p.saldo > 0 && r > 0 ? (p.saldo * r) / (1 - Math.pow(1 + r, -36)) : 0;
+        const interes = p.saldo * r;
+        const capital = Math.max(0, cuotaTotal - interes);
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="py-3 px-4 font-sans font-bold text-slate-900">${p.banco}</td>
+            <td class="py-3 px-4 text-sky-700 font-semibold">${p.cuentaConfig}</td>
+            <td class="py-3 px-4 text-right font-bold text-sky-700">${Number(p.tasa).toFixed(2)}%</td>
+            <td class="py-3 px-4 text-right font-bold text-slate-900">${fmt(p.saldo)}</td>
+            <td class="py-3 px-4 text-right text-emerald-700 font-bold">${fmt(capital)}</td>
+            <td class="py-3 px-4 text-right text-amber-700 font-bold">${fmt(interes)}</td>
+            <td class="py-3 px-4 text-right font-black text-slate-950">${fmt(cuotaTotal)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function agregarPrestamoTesoreria() {
+      const sel = document.getElementById('select-cuenta-prestamos');
+      const banco = document.getElementById('prestamo-banco-input')?.value?.trim();
+      const saldo = parseFloat(document.getElementById('prestamo-saldo-input')?.value) || 0;
+      const tasa = parseFloat(document.getElementById('prestamo-tasa-input')?.value) || 11.5;
+      if (!banco || saldo <= 0) return;
+
+      const opt = sel && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex] : null;
+      const cuentaConfig = opt ? opt.textContent : '2.1.03.01 — Préstamos Bancarios';
+
+      prestamosData.push({ banco, cuentaConfig, tasa, saldo });
+      document.getElementById('prestamo-banco-input').value = '';
+      document.getElementById('prestamo-saldo-input').value = '';
+      renderPrestamos();
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (!e.key || e.key === 'horizon_system_config' || e.key === 'horizon_catalogo_cuentas' || e.key === 'catalogo_cuentas') {
+        sincronizarIdentidadDesdeConfig();
+        sincronizarCuentasTesoreria();
+      }
+    });
+
+    // Inicializar siempre mostrando #view-gateway primero
+    volverAGateway();
+    sincronizarIdentidadDesdeConfig();
+    sincronizarCuentasTesoreria();
+    renderBancos();
+    renderMovimientos();
+    recalcularConciliacion();
+    renderPrestamos();
+  </script>
+</body>
+</html>

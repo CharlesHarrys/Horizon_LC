@@ -2834,7 +2834,7 @@ const DEFAULT_LOBBY_MODULES = [
     { id: "logistica", nombre: "LOGÍSTICA", activo: true, orden: 2, ruta: "workspace_logistica_general.html" },
     { id: "contabilidad", nombre: "CONTABILIDAD", activo: true, orden: 3, ruta: "workspace_contabilidad_metro_format_2.html" },
     { id: "finanzas", nombre: "FINANZAS", activo: true, orden: 4, ruta: "workspace_finanzas_metro_format.html" },
-    { id: "tesoreria", nombre: "TESORERÍA", activo: true, orden: 5, ruta: "workspace_tesoreria.html" },
+    { id: "tesoreria", nombre: "TESORERÍA", activo: true, orden: 5, ruta: "workspace_tesoreria_metro_format.html" },
     { id: "rrhh", nombre: "RRHH", activo: true, orden: 6, ruta: "workspace_rrhh.html" },
     { id: "auditoria", nombre: "AUDITORÍA", activo: true, orden: 7, ruta: "workspace_estados_financieros.html" },
     { id: "config", nombre: "CONFIG", activo: true, orden: 8, ruta: "entorno_config.html" }
@@ -2896,16 +2896,23 @@ function obtenerModulosLobbyActivos() {
         }
     }
 
+    let rutaActualizada = false;
     const completos = DEFAULT_LOBBY_MODULES.map(def => {
         const found = modulos.find(m => m.id === def.id);
         if (found) {
             const isActivo = def.id === 'config' ? true : (found.activo === true || found.activo === 'true');
+            let rutaFinal = found.ruta || def.ruta;
+            if (def.id === 'tesoreria' && rutaFinal !== def.ruta) {
+                rutaFinal = def.ruta;
+                found.ruta = def.ruta;
+                rutaActualizada = true;
+            }
             return {
                 id: def.id,
                 nombre: found.nombre || def.nombre,
                 activo: isActivo,
                 orden: Number(found.orden) || def.orden,
-                ruta: found.ruta || def.ruta
+                ruta: rutaFinal
             };
         }
         return {
@@ -2913,6 +2920,12 @@ function obtenerModulosLobbyActivos() {
             activo: def.id === 'config' ? true : false
         };
     });
+
+    if (rutaActualizada) {
+        try {
+            localStorage.setItem('horizon_lobby_modules', JSON.stringify(modulos));
+        } catch (e) {}
+    }
 
     window._currentLobbyLayout = completos;
 
