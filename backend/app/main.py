@@ -514,6 +514,23 @@ def get_workspace_contabilidad_page():
         html_path = Path(__file__).parent.parent.parent / "templates" / "contabilidad.html"
     if html_path.exists():
         return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+@app.get("/finanzas", response_class=HTMLResponse, tags=["Financial Strategy & Corporate Finance"])
+@app.get("/workspace_finanzas_metro_format.html", response_class=HTMLResponse, tags=["Financial Strategy & Corporate Finance"])
+@app.get("/workspace_finanzas_metro_format", response_class=HTMLResponse, tags=["Financial Strategy & Corporate Finance"])
+def get_finanzas_gateway_page():
+    """Sirve el Gateway Metro UI del Área Financiera y Estrategia."""
+    from pathlib import Path
+    candidates = [
+        Path(__file__).parent.parent.parent / "workspace_finanzas_metro_format.html",
+        Path(__file__).parent.parent / "templates" / "workspace_finanzas_metro_format.html",
+        Path(__file__).parent.parent.parent / "templates" / "workspace_finanzas_metro_format.html",
+    ]
+    for p in candidates:
+        if p.exists():
+            return HTMLResponse(content=p.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Workspace Finanzas HTML no encontrado</h1>", status_code=404)
+
+
 @app.get("/presupuestos", response_class=HTMLResponse, tags=["Budgeting & Financial Simulation"])
 @app.get("/workspace_presupuestos", response_class=HTMLResponse, tags=["Budgeting & Financial Simulation"])
 @app.get("/workspace-presupuestos", response_class=HTMLResponse, tags=["Budgeting & Financial Simulation"])
