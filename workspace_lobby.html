@@ -663,7 +663,7 @@
   <!-- =========================================================================
        LAYOUT HÍBRIDO TRÍPTICO: [CONSOLA IZQ (320px)] + [4 TILES DOCK 1x1 (1fr)] + [RENTABILIDAD 6M (340px)]
        ========================================================================= -->
-  <main id="horizon-lobby-triptych" class="relative z-10 max-w-[1280px] h-[400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-[320px_1fr_340px] xl:grid-cols-[340px_1fr_360px] gap-4 items-stretch my-auto py-1">
+  <main id="horizon-lobby-triptych" class="relative z-10 max-w-[1280px] min-h-[400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-[320px_1fr_340px] xl:grid-cols-[340px_1fr_360px] gap-4 items-stretch my-auto py-1">
 
     <!-- =======================================================================
          1. ALA IZQUIERDA: HUB CONSOLA (EMPRESA + RELOJ + TELEMETRÍA ENLAZADO A CONFIG)
@@ -704,127 +704,10 @@
     </aside>
 
     <!-- =======================================================================
-         2. CENTRO: GRID 2x2 (4 PANELES 1x1 CON DESPLIEGUE HACIA ADENTRO)
+         2. CENTRO: GRID DINÁMICO DE MÓDULOS (SINCRONIZADO CON horizon_lobby_modules)
          ======================================================================= -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-stretch">
-      
-      <!-- CUADRANTE 1: INGRESOS -->
-      <article data-module="ventas" onclick="abrirModulo('ventas')" class="dock-tile flex flex-col justify-between group">
-        <!-- Cuerpo Superior y Centro -->
-        <div class="pt-4 px-4 flex-1 flex flex-col justify-between">
-          <div class="flex items-center justify-between">
-            <span class="font-mono text-xs font-black text-slate-300 group-hover:text-slate-900 transition-colors"></span>
-            <span class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-sky-500 group-hover:text-white text-slate-400 flex items-center justify-center text-xs transition-colors">↗</span>
-          </div>
-
-          <div class="my-auto py-1 text-center">
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-900 group-hover:scale-110 group-hover:bg-slate-900 group-hover:text-sky-400 transition-all duration-300 shadow-2xs">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <h3 class="text-base font-extrabold text-slate-950 tracking-tight mt-2.5">INGRESOS</h3>
-          </div>
-        </div>
-
-        <!-- Zona Inferior: Descripción con línea divisoria (se cubre al hacer hover) -->
-        <div class="h-[42px] px-4 border-t border-slate-100 flex items-center justify-center text-center">
-          <p class="text-[11px] text-slate-500 leading-tight">Entorno de ventas y clientes</p>
-        </div>
-
-        <!-- Borde Azul Desplegable hacia arriba (Overlay interno) -->
-        <div class="dock-slide-action">
-          <span class="dock-action-text">AVANZAR <span>→</span></span>
-        </div>
-      </article>
-
-      <!-- CUADRANTE 2: EGRESOS -->
-      <article data-module="compras" onclick="abrirModulo('compras')" class="dock-tile flex flex-col justify-between group">
-        <div class="pt-4 px-4 flex-1 flex flex-col justify-between">
-          <div class="flex items-center justify-between">
-            <span class="font-mono text-xs font-black text-slate-300 group-hover:text-slate-900 transition-colors"></span>
-            <span class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-sky-500 group-hover:text-white text-slate-400 flex items-center justify-center text-xs transition-colors">↗</span>
-          </div>
-
-          <div class="my-auto py-1 text-center">
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-900 group-hover:scale-110 group-hover:bg-slate-900 group-hover:text-sky-400 transition-all duration-300 shadow-2xs">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-              </svg>
-            </div>
-            <h3 class="text-base font-extrabold text-slate-950 tracking-tight mt-2.5">EGRESOS</h3>
-          </div>
-        </div>
-
-        <!-- Zona Inferior: Descripción con línea divisoria -->
-        <div class="h-[42px] px-4 border-t border-slate-100 flex items-center justify-center text-center">
-          <p class="text-[11px] text-slate-500 leading-tight">Entorno de compras y proveedores</p>
-        </div>
-
-        <!-- Borde Azul Desplegable hacia arriba -->
-        <div class="dock-slide-action">
-          <span class="dock-action-text">AVANZAR <span>→</span></span>
-        </div>
-      </article>
-
-      <!-- CUADRANTE 3: FINANZAS -->
-      <article data-module="finanzas" onclick="window.location.href='workspace_finanzas_metro_format.html'" class="dock-tile flex flex-col justify-between group">
-        <div class="pt-4 px-4 flex-1 flex flex-col justify-between">
-          <div class="flex items-center justify-between">
-            <span class="font-mono text-xs font-black text-slate-300 group-hover:text-slate-900 transition-colors">03</span>
-            <span class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-sky-500 group-hover:text-white text-slate-400 flex items-center justify-center text-xs transition-colors">↗</span>
-          </div>
-
-          <div class="my-auto py-1 text-center">
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-900 group-hover:scale-110 group-hover:bg-slate-900 group-hover:text-sky-400 transition-all duration-300 shadow-2xs">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 3l9 7H3l9-7z"></path>
-              </svg>
-            </div>
-            <h3 class="text-base font-extrabold text-slate-950 tracking-tight mt-2.5">FINANZAS</h3>
-          </div>
-        </div>
-
-        <!-- Zona Inferior: Descripción con línea divisoria -->
-        <div class="h-[42px] px-4 border-t border-slate-100 flex items-center justify-center text-center">
-          <p class="text-[11px] text-slate-500 leading-tight">Presupuestos, proyecciones y ratios</p>
-        </div>
-
-        <!-- Borde Azul Desplegable hacia arriba -->
-        <div class="dock-slide-action">
-          <span class="dock-action-text">AVANZAR <span>→</span></span>
-        </div>
-      </article>
-
-      <!-- CUADRANTE 4: CONTABILIDAD -->
-      <article data-module="contabilidad" onclick="window.location.href='workspace_contabilidad_metro_format_2.html'" class="dock-tile flex flex-col justify-between group">
-        <div class="pt-4 px-4 flex-1 flex flex-col justify-between">
-          <div class="flex items-center justify-between">
-            <span class="font-mono text-xs font-black text-slate-300 group-hover:text-slate-900 transition-colors">04</span>
-            <span class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-sky-500 group-hover:text-white text-slate-400 flex items-center justify-center text-xs transition-colors">↗</span>
-          </div>
-
-          <div class="my-auto py-1 text-center">
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-900 group-hover:scale-110 group-hover:bg-slate-900 group-hover:text-sky-400 transition-all duration-300 shadow-2xs">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            </div>
-            <h3 class="text-base font-extrabold text-slate-950 tracking-tight mt-2.5">CONTABILIDAD</h3>
-          </div>
-        </div>
-
-        <!-- Zona Inferior: Descripción con línea divisoria -->
-        <div class="h-[42px] px-4 border-t border-slate-100 flex items-center justify-center text-center">
-          <p class="text-[11px] text-slate-500 leading-tight">Entorno de libros y balances</p>
-        </div>
-
-        <!-- Borde Azul Desplegable hacia arriba -->
-        <div class="dock-slide-action">
-          <span class="dock-action-text">AVANZAR <span>→</span></span>
-        </div>
-      </article>
-
+    <section id="lobby-modules-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-stretch">
+      <!-- Renderizado dinámicamente desde localStorage ('horizon_lobby_modules') -->
     </section>
 
     <!-- =======================================================================
@@ -2936,16 +2819,8 @@ function aplicarConfiguracionHorizon() {
             });
         }
 
-        // 2. Estado de layout para atajos Alt+1..4
-        const layout = (Array.isArray(config.lobby_layout) && config.lobby_layout.length > 0)
-            ? config.lobby_layout
-            : [
-                { id: "ingresos", activo: true, orden: 1 },
-                { id: "tesoreria", activo: true, orden: 2 },
-                { id: "compras", activo: true, orden: 3 },
-                { id: "contabilidad", activo: true, orden: 4 }
-            ];
-        window._currentLobbyLayout = layout;
+        // 2. Renderizado dinámico de módulos del Lobby desde 'horizon_lobby_modules'
+        renderLobbyModulesGrid();
 
         // 3. Sincronizar Ala Izquierda y Tríptico Central
         syncLobbyWithConfig();
@@ -2954,13 +2829,147 @@ function aplicarConfiguracionHorizon() {
     }
 }
 
+const DEFAULT_LOBBY_MODULES = [
+    { id: "ingresos", nombre: "INGRESOS", activo: true, orden: 1, ruta: "workspace_ventas.html" },
+    { id: "logistica", nombre: "LOGÍSTICA", activo: true, orden: 2, ruta: "workspace_logistica_general.html" },
+    { id: "contabilidad", nombre: "CONTABILIDAD", activo: true, orden: 3, ruta: "workspace_contabilidad_metro_format_2.html" },
+    { id: "finanzas", nombre: "FINANZAS", activo: true, orden: 4, ruta: "workspace_finanzas_metro_format.html" },
+    { id: "tesoreria", nombre: "TESORERÍA", activo: true, orden: 5, ruta: "workspace_tesoreria.html" },
+    { id: "rrhh", nombre: "RRHH", activo: true, orden: 6, ruta: "workspace_rrhh.html" },
+    { id: "auditoria", nombre: "AUDITORÍA", activo: true, orden: 7, ruta: "workspace_estados_financieros.html" },
+    { id: "config", nombre: "CONFIG", activo: true, orden: 8, ruta: "entorno_config.html" }
+];
+
+const LOBBY_MODULES_META = {
+    ingresos: {
+        desc: "Entorno de ventas y clientes",
+        svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+    },
+    logistica: {
+        desc: "Logística DUA, Kardex y MRP",
+        svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>'
+    },
+    contabilidad: {
+        desc: "Entorno de libros y balances",
+        svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>'
+    },
+    finanzas: {
+        desc: "Presupuestos, proyecciones y ratios",
+        svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 3l9 7H3l9-7z"></path>'
+    },
+    tesoreria: {
+        desc: "Bancos, flujo de caja y conciliación",
+        svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>'
+    },
+    rrhh: {
+        desc: "Planillas, nómina e IHSS/RAP",
+        svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>'
+    },
+    auditoria: {
+        desc: "Estados financieros y control NIIF",
+        svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>'
+    },
+    config: {
+        desc: "Configuración maestra del sistema",
+        svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>'
+    }
+};
+
+function obtenerModulosLobbyActivos() {
+    let modulos = null;
+    try {
+        const raw = localStorage.getItem('horizon_lobby_modules');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                modulos = parsed;
+            }
+        }
+    } catch (e) {}
+
+    if (!modulos) {
+        modulos = DEFAULT_LOBBY_MODULES.map(m => ({ ...m }));
+        try {
+            localStorage.setItem('horizon_lobby_modules', JSON.stringify(modulos));
+        } catch (e) {}
+    }
+
+    const completos = DEFAULT_LOBBY_MODULES.map(def => {
+        const found = modulos.find(m => m.id === def.id);
+        return found ? {
+            id: def.id,
+            nombre: found.nombre || def.nombre,
+            activo: def.id === 'config' ? true : !!found.activo,
+            orden: Number(found.orden) || def.orden,
+            ruta: found.ruta || def.ruta
+        } : { ...def };
+    });
+
+    window._currentLobbyLayout = completos;
+
+    return completos
+        .filter(m => m.activo === true)
+        .sort((a, b) => (Number(a.orden) || 999) - (Number(b.orden) || 999));
+}
+
+function renderLobbyModulesGrid() {
+    const grid = document.getElementById('lobby-modules-grid');
+    if (!grid) return;
+
+    const activos = obtenerModulosLobbyActivos();
+    grid.innerHTML = '';
+
+    activos.forEach((mod, idx) => {
+        const meta = LOBBY_MODULES_META[mod.id] || {
+            desc: "Módulo operativo Horizon LC",
+            svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>'
+        };
+        const numLabel = String(idx + 1).padStart(2, '0');
+
+        const article = document.createElement('article');
+        article.setAttribute('data-module', mod.id);
+        article.className = 'dock-tile flex flex-col justify-between group';
+        article.onclick = () => {
+            window.location.href = mod.ruta;
+        };
+
+        article.innerHTML = `
+            <div class="pt-4 px-4 flex-1 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-black text-slate-300 group-hover:text-slate-900 transition-colors">${numLabel}</span>
+                <span class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-sky-500 group-hover:text-white text-slate-400 flex items-center justify-center text-xs transition-colors">↗</span>
+              </div>
+
+              <div class="my-auto py-1 text-center">
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-900 group-hover:scale-110 group-hover:bg-slate-900 group-hover:text-sky-400 transition-all duration-300 shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    ${meta.svg}
+                  </svg>
+                </div>
+                <h3 class="text-base font-extrabold text-slate-950 tracking-tight mt-2.5">${mod.nombre}</h3>
+              </div>
+            </div>
+
+            <div class="h-[42px] px-4 border-t border-slate-100 flex items-center justify-center text-center">
+              <p class="text-[11px] text-slate-500 leading-tight">${meta.desc}</p>
+            </div>
+
+            <div class="dock-slide-action">
+              <span class="dock-action-text">AVANZAR <span>→</span></span>
+            </div>
+        `;
+
+        grid.appendChild(article);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     aplicarConfiguracionHorizon();
     setTimeout(aplicarConfiguracionHorizon, 150);
 });
 window.addEventListener('pageshow', aplicarConfiguracionHorizon);
 window.addEventListener('storage', (e) => {
-    if (!e.key || e.key === 'horizon_system_config') {
+    if (!e.key || e.key === 'horizon_lobby_modules' || e.key === 'horizon_system_config') {
         aplicarConfiguracionHorizon();
     }
 });

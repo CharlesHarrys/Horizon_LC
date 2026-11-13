@@ -1447,40 +1447,45 @@
         </div>
       
           <!-- ============================================================== -->
-          <!-- BLOQUE: CONFIGURACIÓN DE CUADRANTES DEL LOBBY (6 MÓDULOS)      -->
+          <!-- BLOQUE: GESTOR DINÁMICO DE MÓDULOS DEL LOBBY (8 MÓDULOS)       -->
           <!-- ============================================================== -->
           <div class="hds-card p-5 space-y-4 col-span-1 md:col-span-2 mt-2">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#e8e6e5] pb-3 gap-2">
               <div>
                 <h3 class="text-sm font-extrabold text-[#0c0a09] uppercase tracking-wide flex items-center gap-2">
                   <span class="text-base">🏛️</span>
-                  <span>Configuración de Cuadrantes del Lobby (6 Módulos Disponibles — Máximo 4 Visibles)</span>
+                  <span>Preferencias de Usuario — Módulos del Lobby Principal (8 Módulos)</span>
                 </h3>
                 <p class="text-xs text-[#78716c] mt-0.5">
-                  Personaliza la distribución de tu Cockpit principal. Selecciona hasta 4 módulos activos y su posición exacta (1 a 4). Los cuadrantes sin asignar mostrarán el logo institucional de Horizon LC.
+                  Activa, oculta o reordena los módulos visibles en el Lobby (<code class="font-mono text-[11px]">workspace_lobby.html</code>). Los cambios se sincronizan automáticamente mediante <code class="font-mono text-[11px]">horizon_lobby_modules</code>.
                 </p>
               </div>
               <div class="flex items-center gap-2">
                 <span id="badge-lobby-active-count" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-900 text-white tabular-nums">
-                  4 / 4 Activos
+                  8 / 8 Activos
                 </span>
               </div>
             </div>
 
-            <!-- Lista de los 6 Módulos Disponibles -->
+            <!-- Lista Vertical Interactiva de los 8 Módulos -->
             <div class="space-y-2.5" id="lobby-modules-list">
               <!-- Renderizado dinámicamente vía renderLobbyConfigUI() -->
             </div>
 
-            <!-- Pie Informativo con Intercambio Inteligente y Reset -->
+            <!-- Pie Informativo con Guardar Preferencias y Reset -->
             <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600">
               <div class="flex items-center gap-2">
                 <span class="text-base shrink-0">💡</span>
-                <span><strong>Intercambio Automático:</strong> Si asignas a un módulo una posición ya ocupada, las posiciones se intercambian de inmediato. Al desactivar un módulo, su cuadrante queda como placeholder institucional con el logo de Horizon LC.</span>
+                <span><strong>Ordenamiento Dinámico:</strong> Usa el campo numérico (<code class="font-mono">1..8</code>) o los botones <code class="font-mono">↑ / ↓</code> para reordenar. El módulo <strong>CONFIG</strong> está protegido para evitar bloquear el acceso a Configuración.</span>
               </div>
-              <button type="button" onclick="restablecerLobbyDefault()" class="shrink-0 px-4 py-1.5 rounded-full bg-black text-white text-xs font-bold hover:bg-neutral-800 transition cursor-pointer">
-                Restablecer Orden Inicial
-              </button>
+              <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="restablecerLobbyDefault()" class="px-4 py-1.5 rounded-full bg-white border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition cursor-pointer">
+                  Restablecer Orden Inicial
+                </button>
+                <button type="button" onclick="guardarPreferenciasLobby()" class="px-4 py-1.5 rounded-full bg-black text-white text-xs font-bold hover:bg-neutral-800 transition cursor-pointer">
+                  Guardar Preferencias
+                </button>
+              </div>
             </div>
           </div>
 
@@ -3785,68 +3790,104 @@
 
     
     // ==============================================================
-    // MOTOR REACTIVO DE CUADRANTES DEL LOBBY (6 MÓDULOS - MAX 4)
+    // MOTOR REACTIVO DE MÓDULOS DEL LOBBY (8 MÓDULOS DINÁMICOS)
     // ==============================================================
     const CATALOGO_LOBBY_MODULOS = [
       {
         id: "ingresos",
-        nombre: "Ingresos & Comercial",
-        desc: "Facturación SAR, Clientes y CxC",
+        nombre: "INGRESOS",
+        desc: "Facturación SAR, Ventas, Clientes y CxC",
+        ruta: "workspace_ventas.html",
         icon: "⚡",
         colorBadge: "bg-emerald-50 text-emerald-700 border-emerald-200",
         colorBorder: "#10b981",
         defaultActivo: true,
-        defaultOrden: 1
+        defaultOrden: 1,
+        protegido: false
       },
       {
-        id: "tesoreria",
-        nombre: "Tesorería & Bancos",
-        desc: "Bancos, Flujo de Caja y Conciliación",
-        icon: "🏦",
-        colorBadge: "bg-sky-50 text-sky-700 border-sky-200",
-        colorBorder: "#0ea5e9",
+        id: "logistica",
+        nombre: "LOGÍSTICA",
+        desc: "Logística DUA, Kardex CPP, MRP y Control",
+        ruta: "workspace_logistica_general.html",
+        icon: "📦",
+        colorBadge: "bg-indigo-50 text-indigo-700 border-indigo-200",
+        colorBorder: "#6366f1",
         defaultActivo: true,
-        defaultOrden: 2
-      },
-      {
-        id: "compras",
-        nombre: "Compras & Proveedores",
-        desc: "Facturas de Compra, Retenciones SAR y CxP",
-        icon: "🛒",
-        colorBadge: "bg-amber-50 text-amber-700 border-amber-200",
-        colorBorder: "#f59e0b",
-        defaultActivo: true,
-        defaultOrden: 3
+        defaultOrden: 2,
+        protegido: false
       },
       {
         id: "contabilidad",
-        nombre: "Contabilidad & Fiscal",
-        desc: "Libro Diario, Mayor y Estados Financieros",
+        nombre: "CONTABILIDAD",
+        desc: "Libros Diarios, Mayor, EEFF NIIF y Libros Fiscales",
+        ruta: "workspace_contabilidad_metro_format_2.html",
         icon: "⚖️",
         colorBadge: "bg-rose-50 text-rose-700 border-rose-200",
         colorBorder: "#f43f5e",
         defaultActivo: true,
-        defaultOrden: 4
+        defaultOrden: 3,
+        protegido: false
       },
       {
-        id: "logistica",
-        nombre: "Logística, Inventarios & Producción",
-        desc: "Kardex, Landed Cost, MRP y Control — enlaza a workspace_logistica_general.html",
-        icon: "📦",
-        colorBadge: "bg-indigo-50 text-indigo-700 border-indigo-200",
-        colorBorder: "#6366f1",
-        defaultActivo: false,
-        defaultOrden: null
+        id: "finanzas",
+        nombre: "FINANZAS",
+        desc: "Presupuestos, Proyecciones, Ratios KPI y Estrategia",
+        ruta: "workspace_finanzas_metro_format.html",
+        icon: "🏛️",
+        colorBadge: "bg-amber-50 text-amber-700 border-amber-200",
+        colorBorder: "#f59e0b",
+        defaultActivo: true,
+        defaultOrden: 4,
+        protegido: false
       },
       {
-        id: "rrhh_activos",
-        nombre: "Planillas & Activos Fijos",
-        desc: "Nómina, IHSS/RAP y Depreciación NIIF",
+        id: "tesoreria",
+        nombre: "TESORERÍA",
+        desc: "Bancos, Flujo de Caja, Cheques y Conciliación",
+        ruta: "workspace_tesoreria.html",
+        icon: "🏦",
+        colorBadge: "bg-sky-50 text-sky-700 border-sky-200",
+        colorBorder: "#0ea5e9",
+        defaultActivo: true,
+        defaultOrden: 5,
+        protegido: false
+      },
+      {
+        id: "rrhh",
+        nombre: "RRHH",
+        desc: "Planillas, Nómina, IHSS/RAP y Talento Humano",
+        ruta: "workspace_rrhh.html",
         icon: "👥",
         colorBadge: "bg-purple-50 text-purple-700 border-purple-200",
         colorBorder: "#a855f7",
-        defaultActivo: false,
-        defaultOrden: null
+        defaultActivo: true,
+        defaultOrden: 6,
+        protegido: false
+      },
+      {
+        id: "auditoria",
+        nombre: "AUDITORÍA",
+        desc: "Estados Financieros Auditados, Trazabilidad y Control",
+        ruta: "workspace_estados_financieros.html",
+        icon: "🔍",
+        colorBadge: "bg-teal-50 text-teal-700 border-teal-200",
+        colorBorder: "#14b8a6",
+        defaultActivo: true,
+        defaultOrden: 7,
+        protegido: false
+      },
+      {
+        id: "config",
+        nombre: "CONFIG",
+        desc: "Configuración Maestra, Catálogo de Cuentas y Sistema",
+        ruta: "entorno_config.html",
+        icon: "⚙️",
+        colorBadge: "bg-slate-100 text-slate-800 border-slate-300",
+        colorBorder: "#0f172a",
+        defaultActivo: true,
+        defaultOrden: 8,
+        protegido: true
       }
     ];
 
@@ -3879,38 +3920,71 @@
       }
     };
 
+    function normalizarOrdenLobby(lista) {
+      const ordenados = [...lista].sort((a, b) => (Number(a.orden) || 999) - (Number(b.orden) || 999));
+      ordenados.forEach((item, idx) => {
+        item.orden = idx + 1;
+        if (item.id === 'config') item.activo = true;
+      });
+      return ordenados;
+    }
+
+    function construirEstadoDefaultLobby() {
+      return CATALOGO_LOBBY_MODULOS.map(cat => ({
+        id: cat.id,
+        nombre: cat.nombre,
+        desc: cat.desc,
+        ruta: cat.ruta,
+        activo: cat.defaultActivo,
+        orden: cat.defaultOrden,
+        protegido: !!cat.protegido
+      }));
+    }
+
     function initLobbyLayoutState(storedLayout) {
-      if (Array.isArray(storedLayout) && storedLayout.length > 0) {
-        window.lobbyLayoutState = CATALOGO_LOBBY_MODULOS.map(cat => {
-          const found = storedLayout.find(m => m.id === cat.id);
+      let source = null;
+      try {
+        const rawModules = localStorage.getItem('horizon_lobby_modules');
+        if (rawModules) {
+          const parsed = JSON.parse(rawModules);
+          if (Array.isArray(parsed) && parsed.length > 0) source = parsed;
+        }
+      } catch (e) {}
+
+      if (!source && Array.isArray(storedLayout) && storedLayout.length > 0) {
+        source = storedLayout;
+      }
+
+      if (Array.isArray(source) && source.length > 0) {
+        const merged = CATALOGO_LOBBY_MODULOS.map(cat => {
+          const found = source.find(m => m.id === cat.id);
           if (found) {
-            const activo = !!found.activo;
-            const orden = (activo && found.orden) ? Number(found.orden) : null;
             return {
               id: cat.id,
               nombre: cat.nombre,
               desc: cat.desc,
-              activo: activo,
-              orden: orden
-            };
-          } else {
-            return {
-              id: cat.id,
-              nombre: cat.nombre,
-              desc: cat.desc,
-              activo: cat.defaultActivo,
-              orden: cat.defaultActivo ? cat.defaultOrden : null
+              ruta: cat.ruta,
+              activo: cat.protegido ? true : !!found.activo,
+              orden: Number(found.orden) || cat.defaultOrden,
+              protegido: !!cat.protegido
             };
           }
+          return {
+            id: cat.id,
+            nombre: cat.nombre,
+            desc: cat.desc,
+            ruta: cat.ruta,
+            activo: cat.defaultActivo,
+            orden: cat.defaultOrden,
+            protegido: !!cat.protegido
+          };
         });
+        window.lobbyLayoutState = normalizarOrdenLobby(merged);
       } else {
-        window.lobbyLayoutState = CATALOGO_LOBBY_MODULOS.map(cat => ({
-          id: cat.id,
-          nombre: cat.nombre,
-          desc: cat.desc,
-          activo: cat.defaultActivo,
-          orden: cat.defaultActivo ? cat.defaultOrden : null
-        }));
+        window.lobbyLayoutState = normalizarOrdenLobby(construirEstadoDefaultLobby());
+        try {
+          localStorage.setItem('horizon_lobby_modules', JSON.stringify(obtenerLobbyLayoutDesdeUI()));
+        } catch (e) {}
       }
       renderLobbyConfigUI();
     }
@@ -3919,61 +3993,73 @@
       const container = document.getElementById('lobby-modules-list');
       if (!container) return;
 
-      const activeCount = window.lobbyLayoutState.filter(m => m.activo).length;
+      const listaOrdenada = normalizarOrdenLobby(window.lobbyLayoutState || []);
+      window.lobbyLayoutState = listaOrdenada;
+
+      const activeCount = listaOrdenada.filter(m => m.activo).length;
       const badgeCount = document.getElementById('badge-lobby-active-count');
       if (badgeCount) {
-        badgeCount.textContent = `${activeCount} / 4 Activos`;
-        badgeCount.className = activeCount === 4
+        badgeCount.textContent = `${activeCount} / ${listaOrdenada.length} Activos`;
+        badgeCount.className = activeCount > 0
           ? "px-3 py-1 rounded-full text-xs font-bold bg-slate-900 text-white tabular-nums"
           : "px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 tabular-nums";
       }
 
       container.innerHTML = '';
 
-      CATALOGO_LOBBY_MODULOS.forEach(cat => {
-        const state = window.lobbyLayoutState.find(m => m.id === cat.id) || { activo: false, orden: null };
+      listaOrdenada.forEach((state, idx) => {
+        const cat = CATALOGO_LOBBY_MODULOS.find(c => c.id === state.id) || state;
+        const isFirst = idx === 0;
+        const isLast = idx === listaOrdenada.length - 1;
         const row = document.createElement('div');
         row.className = `flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border transition-all gap-3 ${
           state.activo ? 'bg-white border-[#e8e6e5] shadow-xs' : 'bg-[#fafaf9] border-[#f1f0ee] opacity-75'
         }`;
-        row.style.borderLeft = state.activo ? `5px solid ${cat.colorBorder}` : `5px solid #d6d3d1`;
+        row.style.borderLeft = state.activo ? `5px solid ${cat.colorBorder || '#0f172a'}` : `5px solid #d6d3d1`;
 
         row.innerHTML = `
           <div class="flex items-center gap-3.5">
-            <input type="checkbox" id="chk-lobby-${cat.id}" data-module-id="${cat.id}" class="chk-lobby-module w-4 h-4 rounded text-black accent-black cursor-pointer shrink-0" 
-              ${state.activo ? 'checked' : ''} 
+            <input type="checkbox" id="chk-lobby-${cat.id}" data-module-id="${cat.id}"
+              class="chk-lobby-module w-4 h-4 rounded text-black accent-black cursor-pointer shrink-0 ${cat.protegido ? 'opacity-70 cursor-not-allowed' : ''}"
+              ${state.activo ? 'checked' : ''}
               onchange="actualizarYGuardarLobbyLayout('${cat.id}', 'check')" />
 
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 border ${cat.colorBadge}">
-              ${cat.icon}
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 border ${cat.colorBadge || 'bg-slate-50 border-slate-200'}">
+              ${cat.icon || '📁'}
             </div>
 
             <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-[#0c0a09]">${cat.nombre}</span>
-                ${cat.id === 'logistica' ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">workspace_logistica_general.html</span>' : ''}
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-black text-[#0c0a09] tracking-tight">${cat.nombre}</span>
+                <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">id: ${cat.id}</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">${cat.ruta}</span>
+                ${cat.protegido ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">🔒 Protegido</span>' : ''}
               </div>
               <p class="text-[11px] text-[#78716c] leading-tight mt-0.5">${cat.desc}</p>
             </div>
           </div>
 
-          <div class="flex items-center gap-3 self-end sm:self-center">
-            <div class="flex items-center gap-1.5">
-              <label class="text-[11px] font-semibold text-[#78716c]">Posición:</label>
-              <select id="sel-lobby-${cat.id}" data-module-id="${cat.id}" class="sel-lobby-pos hds-input !py-1 !px-2 text-xs font-bold tabular-nums ${!state.activo ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900 cursor-pointer'}" 
-                ${!state.activo ? 'disabled' : ''} 
-                onchange="actualizarYGuardarLobbyLayout('${cat.id}', 'pos')">
-                <option value="1" ${state.orden === 1 ? 'selected' : ''}>1 · Sup. Izquierda</option>
-                <option value="2" ${state.orden === 2 ? 'selected' : ''}>2 · Sup. Derecha</option>
-                <option value="3" ${state.orden === 3 ? 'selected' : ''}>3 · Inf. Izquierda</option>
-                <option value="4" ${state.orden === 4 ? 'selected' : ''}>4 · Inf. Derecha</option>
-              </select>
+          <div class="flex items-center gap-2.5 self-end sm:self-center">
+            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+              <button type="button" onclick="moverModuloLobby('${cat.id}', -1)" ${isFirst ? 'disabled' : ''}
+                class="w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold transition ${isFirst ? 'text-slate-300 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-200 cursor-pointer'}"
+                title="Subir posición">↑</button>
+              <button type="button" onclick="moverModuloLobby('${cat.id}', 1)" ${isLast ? 'disabled' : ''}
+                class="w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold transition ${isLast ? 'text-slate-300 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-200 cursor-pointer'}"
+                title="Bajar posición">↓</button>
             </div>
 
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border tabular-nums ${
-              state.activo ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-400 border-slate-200'
+            <div class="flex items-center gap-1.5">
+              <label for="ord-lobby-${cat.id}" class="text-[11px] font-semibold text-[#78716c]">Orden:</label>
+              <input id="ord-lobby-${cat.id}" type="number" min="1" max="${listaOrdenada.length}" value="${state.orden}"
+                onchange="actualizarYGuardarLobbyLayout('${cat.id}', 'orden', this.value)"
+                class="w-14 hds-input !py-1 !px-2 text-xs font-bold text-center tabular-nums bg-white text-slate-900" />
+            </div>
+
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border tabular-nums ${
+              state.activo ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'
             }">
-              ${state.activo ? `Cuadrante #${state.orden}` : 'Inactivo'}
+              ${state.activo ? `Activo #${state.orden}` : 'Oculto'}
             </span>
           </div>
         `;
@@ -3982,96 +4068,108 @@
       });
     }
 
-    window.actualizarYGuardarLobbyLayout = function(triggerModuleId = null, triggerType = null) {
+    window.moverModuloLobby = function(moduleId, delta) {
+      const lista = normalizarOrdenLobby(window.lobbyLayoutState || []);
+      const idx = lista.findIndex(m => m.id === moduleId);
+      if (idx === -1) return;
+      const targetIdx = idx + delta;
+      if (targetIdx < 0 || targetIdx >= lista.length) return;
+
+      const tempOrden = lista[idx].orden;
+      lista[idx].orden = lista[targetIdx].orden;
+      lista[targetIdx].orden = tempOrden;
+
+      window.lobbyLayoutState = normalizarOrdenLobby(lista);
+      persistirLobbyModules("Orden actualizado y sincronizado");
+      renderLobbyConfigUI();
+    };
+
+    window.actualizarYGuardarLobbyLayout = function(triggerModuleId = null, triggerType = null, customValue = null) {
+      const lista = normalizarOrdenLobby(window.lobbyLayoutState || []);
+
       if (triggerModuleId && triggerType === 'check') {
         const chk = document.getElementById(`chk-lobby-${triggerModuleId}`);
-        if (chk && chk.checked) {
-          const currentActive = (window.lobbyLayoutState || []).filter(m => m.activo).length;
-          if (currentActive >= 4) {
-            alert("Máximo 4 cuadrantes pueden estar activos simultáneamente en el Lobby. Desactiva uno primero.");
-            chk.checked = false;
+        const target = lista.find(m => m.id === triggerModuleId);
+        if (target) {
+          if (target.protegido && chk && !chk.checked) {
+            chk.checked = true;
+            window.mostrarToastGuardado("El módulo CONFIG está protegido y no puede ocultarse del Lobby.", true);
             return;
           }
-          const occupied = (window.lobbyLayoutState || []).filter(m => m.activo && m.orden).map(m => Number(m.orden));
-          const freeSlot = [1, 2, 3, 4].find(s => !occupied.includes(s)) || 1;
-          const target = (window.lobbyLayoutState || []).find(m => m.id === triggerModuleId);
-          if (target) {
-            target.activo = true;
-            target.orden = Number(freeSlot);
-          }
-        } else if (chk && !chk.checked) {
-          const target = (window.lobbyLayoutState || []).find(m => m.id === triggerModuleId);
-          if (target) {
-            target.activo = false;
-            target.orden = null;
-          }
+          target.activo = chk ? !!chk.checked : target.activo;
         }
       }
 
-      if (triggerModuleId && triggerType === 'pos') {
-        const sel = document.getElementById(`sel-lobby-${triggerModuleId}`);
-        if (sel) {
-          const newPos = parseInt(sel.value, 10);
-          const currentItem = (window.lobbyLayoutState || []).find(m => m.id === triggerModuleId);
-          const prevPos = currentItem && currentItem.orden ? Number(currentItem.orden) : null;
-          
-          if (currentItem && prevPos !== newPos) {
-            const occupier = (window.lobbyLayoutState || []).find(m => m.activo && m.id !== triggerModuleId && Number(m.orden) === newPos);
-            if (occupier) {
-              occupier.orden = prevPos || [1, 2, 3, 4].find(s => s !== newPos) || 1;
-            }
-            currentItem.orden = Number(newPos);
-          }
+      if (triggerModuleId && (triggerType === 'orden' || triggerType === 'pos')) {
+        const inputEl = document.getElementById(`ord-lobby-${triggerModuleId}`);
+        const rawVal = customValue !== null ? customValue : (inputEl ? inputEl.value : null);
+        let newPos = parseInt(rawVal, 10);
+        if (isNaN(newPos)) newPos = 1;
+        newPos = Math.max(1, Math.min(lista.length, newPos));
+
+        const currentIdx = lista.findIndex(m => m.id === triggerModuleId);
+        if (currentIdx !== -1) {
+          const [moved] = lista.splice(currentIdx, 1);
+          lista.splice(newPos - 1, 0, moved);
+          lista.forEach((m, i) => { m.orden = i + 1; });
         }
       }
 
+      window.lobbyLayoutState = normalizarOrdenLobby(lista);
       renderLobbyConfigUI();
+      persistirLobbyModules("Preferencias del Lobby guardadas y sincronizadas");
+    };
 
-      // Guardar inmediatamente en localStorage (horizon_system_config)
+    function persistirLobbyModules(toastMsg = null) {
+      const listaOrdenada = obtenerLobbyLayoutDesdeUI();
       try {
+        localStorage.setItem('horizon_lobby_modules', JSON.stringify(listaOrdenada));
+
         let fullConfig = {};
         const raw = localStorage.getItem('horizon_system_config');
         if (raw) {
           try { fullConfig = JSON.parse(raw); } catch (e) {}
         }
-        fullConfig.lobby_layout = obtenerLobbyLayoutDesdeUI();
+        fullConfig.lobby_layout = listaOrdenada;
         fullConfig.updated_at = new Date().toISOString();
         localStorage.setItem('horizon_system_config', JSON.stringify(fullConfig));
-        
+
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'horizon_lobby_modules',
+          newValue: JSON.stringify(listaOrdenada)
+        }));
         window.dispatchEvent(new StorageEvent('storage', {
           key: 'horizon_system_config',
           newValue: JSON.stringify(fullConfig)
         }));
 
-        window.mostrarToastGuardado("Cuadrantes actualizados y sincronizados");
+        if (toastMsg) window.mostrarToastGuardado(toastMsg);
       } catch (err) {
-        console.error("Error guardando layout de cuadrantes:", err);
+        console.error("Error guardando horizon_lobby_modules:", err);
       }
+    }
+
+    window.guardarPreferenciasLobby = function() {
+      window.lobbyLayoutState = normalizarOrdenLobby(window.lobbyLayoutState || []);
+      renderLobbyConfigUI();
+      persistirLobbyModules("Preferencias de módulos del Lobby guardadas en horizon_lobby_modules");
     };
 
     window.restablecerLobbyDefault = function() {
-      window.lobbyLayoutState = CATALOGO_LOBBY_MODULOS.map(cat => ({
-        id: cat.id,
-        nombre: cat.nombre,
-        desc: cat.desc,
-        activo: cat.defaultActivo,
-        orden: cat.defaultActivo ? cat.defaultOrden : null
-      }));
+      window.lobbyLayoutState = normalizarOrdenLobby(construirEstadoDefaultLobby());
       renderLobbyConfigUI();
-      actualizarYGuardarLobbyLayout();
+      persistirLobbyModules("Orden inicial de los 8 módulos restablecido");
     };
 
     function obtenerLobbyLayoutDesdeUI() {
-      return CATALOGO_LOBBY_MODULOS.map(cat => {
-        const item = (window.lobbyLayoutState || []).find(m => m.id === cat.id);
-        const activo = item ? !!item.activo : false;
-        const orden = (activo && item && item.orden) ? Number(item.orden) : null;
-        return {
-          id: cat.id,
-          activo: activo,
-          orden: orden
-        };
-      });
+      const lista = normalizarOrdenLobby(window.lobbyLayoutState || []);
+      return lista.map((item, idx) => ({
+        id: item.id,
+        nombre: item.nombre,
+        activo: item.id === 'config' ? true : !!item.activo,
+        orden: idx + 1,
+        ruta: item.ruta
+      }));
     }
 
 
