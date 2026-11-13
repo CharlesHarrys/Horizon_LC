@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Libro de Compras Fiscal SAR - ERP Antigravity Master</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col p-4 text-xs gap-3">
+
+  <!-- ENCABEZADO FISCAL OFICIAL -->
+  <header class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="space-y-1">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800 font-mono text-[10px] font-bold">
+          SAR-923 / D-030
+        </span>
+        <span class="text-slate-500 text-[10px] font-mono">COMPLIANCE TRIBUTARIO HONDURAS</span>
+      </div>
+      <h1 class="text-base font-bold text-slate-100 flex items-center gap-2">
+        <span>📑</span> LIBRO FISCAL DE COMPRAS (SAR)
+      </h1>
+      <div class="text-slate-400 text-xs flex flex-wrap gap-x-4">
+        <span>Empresa: <b id="hdr-company-name" class="text-slate-200">Empresa Demo Honduras S.A.</b></span>
+        <span>RTN: <b id="hdr-company-rtn" class="text-slate-200 font-mono">08011995123456</b></span>
+      </div>
+    </div>
+
+    <!-- FILTROS Y ACCIONES -->
+    <div class="flex flex-wrap items-center gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800">
+      <div class="flex items-center gap-1.5">
+        <label class="text-slate-400 text-[11px] font-semibold">Mes:</label>
+        <select id="sel-month" class="bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-slate-200 text-xs font-medium focus:border-blue-500 focus:outline-none">
+          <option value="1">01 - Enero</option>
+          <option value="2">02 - Febrero</option>
+          <option value="3">03 - Marzo</option>
+          <option value="4">04 - Abril</option>
+          <option value="5">05 - Mayo</option>
+          <option value="6">06 - Junio</option>
+          <option value="7">07 - Julio</option>
+          <option value="8">08 - Agosto</option>
+          <option value="9" selected>09 - Septiembre</option>
+          <option value="10">10 - Octubre</option>
+          <option value="11">11 - Noviembre</option>
+          <option value="12">12 - Diciembre</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <label class="text-slate-400 text-[11px] font-semibold">Año:</label>
+        <select id="sel-year" class="bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-slate-200 text-xs font-mono font-medium focus:border-blue-500 focus:outline-none">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027</option>
+        </select>
+      </div>
+
+      <button onclick="loadLibroCompras()" class="px-3 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/30 flex items-center gap-1 transition-all">
+        <span>🔍</span> Consultar
+      </button>
+
+      <button onclick="exportToExcel()" class="px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-700/30 flex items-center gap-1 transition-all">
+        <span>📥</span> Exportar CSV
+      </button>
+
+      <a href="/workspace" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 flex items-center gap-1 transition-all">
+        <span>↩️</span> Workspace Compras
+      </a>
+    </div>
+  </header>
+
+  <!-- TARJETAS DE RESUMEN EJECUTIVO / FISCAL -->
+  <section class="grid grid-cols-1 md:grid-cols-5 gap-3">
+    
+    <!-- KPI 1: Base Gravada 15% -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow space-y-1">
+      <span class="text-slate-400 text-[10px] font-semibold block uppercase tracking-wider">Base Gravada 15%</span>
+      <div id="kpi-base-15" class="text-sm font-bold font-mono text-blue-400">L 0.00</div>
+      <span class="text-slate-500 text-[9px] block">Crédito general de mercaderías/servicios</span>
+    </div>
+
+    <!-- KPI 2: Base Gravada 18% -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow space-y-1">
+      <span class="text-slate-400 text-[10px] font-semibold block uppercase tracking-wider">Base Gravada 18%</span>
+      <div id="kpi-base-18" class="text-sm font-bold font-mono text-purple-400">L 0.00</div>
+      <span class="text-slate-500 text-[9px] block">Licores, cigarrillos y pasajes aéreos</span>
+    </div>
+
+    <!-- KPI 3: Total ISV Crédito Fiscal -->
+    <div class="bg-slate-900 border border-blue-800/60 rounded-xl p-3 shadow space-y-1 bg-blue-950/20">
+      <span class="text-blue-300 text-[10px] font-semibold block uppercase tracking-wider">Total ISV Crédito Fiscal</span>
+      <div id="kpi-total-isv" class="text-base font-bold font-mono text-emerald-400">L 0.00</div>
+      <span class="text-slate-400 text-[9px] block">ISV 15% + ISV 18% liquidado</span>
+    </div>
+
+    <!-- KPI 4: Total Retención 1% ISV -->
+    <div class="bg-slate-900 border border-rose-800/60 rounded-xl p-3 shadow space-y-1 bg-rose-950/20">
+      <span class="text-rose-300 text-[10px] font-semibold block uppercase tracking-wider">Retenciones 1% Sufridas</span>
+      <div id="kpi-total-ret" class="text-sm font-bold font-mono text-rose-400">- L 0.00</div>
+      <span class="text-slate-400 text-[9px] block">Crédito en DJSAR D-030</span>
+    </div>
+
+    <!-- KPI 5: Total Compras Período -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow space-y-1">
+      <span class="text-slate-400 text-[10px] font-semibold block uppercase tracking-wider">Total Neto Liquidado</span>
+      <div id="kpi-grand-total" class="text-base font-bold font-mono text-slate-100">L 0.00</div>
+      <span id="kpi-entries-count" class="text-slate-400 text-[9px] block font-mono">0 Comprobantes SAR</span>
+    </div>
+
+  </section>
+
+  <!-- TABLA OFICIAL SAR DE LIBRO DE COMPRAS -->
+  <main class="bg-slate-900 border border-slate-800 rounded-xl shadow-lg flex-1 flex flex-col p-3 overflow-hidden">
+    <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-slate-800">
+      <div class="flex items-center gap-2">
+        <h2 class="font-bold text-slate-200 text-xs">Registros Fiscales del Período</h2>
+        <span id="badge-record-count" class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-950 text-blue-400 border border-slate-800">
+          Cargando...
+        </span>
+      </div>
+      <span class="text-[10px] text-slate-400">
+        Valores expresados en Lempiras (HNL) • Las Notas de Crédito restan del crédito fiscal neto.
+      </span>
+    </div>
+
+    <div class="overflow-x-auto flex-1">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-slate-800 text-slate-400 text-[9px] uppercase font-semibold bg-slate-950/80">
+            <th class="py-2.5 px-2 w-20">Fecha</th>
+            <th class="py-2.5 px-2 w-28">RTN Proveedor</th>
+            <th class="py-2.5 px-2 min-w-[180px]">Razón Social</th>
+            <th class="py-2.5 px-2 w-32">Código CAI</th>
+            <th class="py-2.5 px-1.5 w-16 text-center">Tipo</th>
+            <th class="py-2.5 px-2 w-32"># Documento</th>
+            <th class="py-2.5 px-2 w-28"># Fac. Afectada</th>
+            <th class="py-2.5 px-2 text-right w-24">Exento</th>
+            <th class="py-2.5 px-2 text-right w-24">Grav 15%</th>
+            <th class="py-2.5 px-2 text-right w-20">Grav 18%</th>
+            <th class="py-2.5 px-2 text-right w-20">ISV 15%</th>
+            <th class="py-2.5 px-2 text-right w-20">ISV 18%</th>
+            <th class="py-2.5 px-2 text-right w-20">Ret 1%</th>
+            <th class="py-2.5 px-2 text-right w-28">Total Doc</th>
+          </tr>
+        </thead>
+        <tbody id="table-body" class="divide-y divide-slate-800/60 font-mono text-[11px]">
+          <tr>
+            <td colspan="14" class="text-center py-8 text-slate-500 font-sans">
+              Consultando Libro Fiscal de Compras...
+            </td>
+          </tr>
+        </tbody>
+        <tfoot id="table-footer" class="bg-slate-950 font-mono text-[11px] font-bold border-t-2 border-slate-700">
+          <tr class="text-slate-200">
+            <td colspan="7" class="py-2.5 px-2 text-right font-sans text-xs uppercase tracking-wider text-slate-400">
+              TOTALES PERÍODO:
+            </td>
+            <td id="foot-tot-exempt" class="py-2.5 px-2 text-right">L 0.00</td>
+            <td id="foot-tot-tax15" class="py-2.5 px-2 text-right text-blue-400">L 0.00</td>
+            <td id="foot-tot-tax18" class="py-2.5 px-2 text-right text-purple-400">L 0.00</td>
+            <td id="foot-tot-isv15" class="py-2.5 px-2 text-right text-emerald-400">L 0.00</td>
+            <td id="foot-tot-isv18" class="py-2.5 px-2 text-right text-emerald-400">L 0.00</td>
+            <td id="foot-tot-ret" class="py-2.5 px-2 text-right text-rose-400">- L 0.00</td>
+            <td id="foot-grand-total" class="py-2.5 px-2 text-right text-slate-100 text-xs">L 0.00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function formatMoney(num) {
+      return (Number(num) || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    async function loadLibroCompras() {
+      const month = document.getElementById('sel-month').value;
+      const year = document.getElementById('sel-year').value;
+      const tbody = document.getElementById('table-body');
+      const badge = document.getElementById('badge-record-count');
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="14" class="text-center py-8 text-slate-400 font-sans animate-pulse">
+            Consultando registros del período ${month}/${year}...
+          </td>
+        </tr>
+      `;
+
+      try {
+        const response = await fetch(`/api/v1/purchases/libro-compras?month=${month}&year=${year}`);
+        if (!response.ok) {
+          throw new Error(`Error HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        renderReport(data);
+      } catch (err) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="14" class="text-center py-8 text-rose-400 font-sans">
+              ❌ No se pudo cargar el Libro de Compras: ${err.message}
+            </td>
+          </tr>
+        `;
+        badge.textContent = "ERROR";
+      }
+    }
+
+    function renderReport(data) {
+      document.getElementById('hdr-company-name').textContent = data.legal_name || "Empresa Demo Honduras S.A.";
+      document.getElementById('hdr-company-rtn').textContent = data.company_tax_id || "08011995123456";
+
+      // Actualizar KPIs
+      document.getElementById('kpi-base-15').textContent = `L ${formatMoney(data.total_taxable_15)}`;
+      document.getElementById('kpi-base-18').textContent = `L ${formatMoney(data.total_taxable_18)}`;
+      const totalISV = (Number(data.total_isv_15) || 0) + (Number(data.total_isv_18) || 0);
+      document.getElementById('kpi-total-isv').textContent = `L ${formatMoney(totalISV)}`;
+      document.getElementById('kpi-total-ret').textContent = `- L ${formatMoney(data.total_retention_1_percent)}`;
+      document.getElementById('kpi-grand-total').textContent = `L ${formatMoney(data.grand_total)}`;
+      document.getElementById('kpi-entries-count').textContent = `${data.entries_count} Documentos Fiscales`;
+      document.getElementById('badge-record-count').textContent = `${data.entries_count} REGISTROS`;
+
+      // Actualizar Footer
+      document.getElementById('foot-tot-exempt').textContent = `L ${formatMoney(data.total_exempt)}`;
+      document.getElementById('foot-tot-tax15').textContent = `L ${formatMoney(data.total_taxable_15)}`;
+      document.getElementById('foot-tot-tax18').textContent = `L ${formatMoney(data.total_taxable_18)}`;
+      document.getElementById('foot-tot-isv15').textContent = `L ${formatMoney(data.total_isv_15)}`;
+      document.getElementById('foot-tot-isv18').textContent = `L ${formatMoney(data.total_isv_18)}`;
+      document.getElementById('foot-tot-ret').textContent = `- L ${formatMoney(data.total_retention_1_percent)}`;
+      document.getElementById('foot-grand-total').textContent = `L ${formatMoney(data.grand_total)}`;
+
+      // Renderizar Filas
+      const tbody = document.getElementById('table-body');
+      if (!data.invoices || data.invoices.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="14" class="text-center py-8 text-slate-500 font-sans">
+              No hay transacciones registradas para el período seleccionado.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = data.invoices.map((inv, idx) => {
+        const isNC = (inv.document_type === 'NC' || inv.document_type === 'NOTA_CREDITO');
+        const isND = (inv.document_type === 'ND' || inv.document_type === 'NOTA_DEBITO');
+
+        let typeBadge = `<span class="px-1.5 py-0.2 rounded text-[9px] bg-blue-950 text-blue-300 border border-blue-800">FAC</span>`;
+        if (isNC) {
+          typeBadge = `<span class="px-1.5 py-0.2 rounded text-[9px] bg-amber-950 text-amber-300 border border-amber-800 font-bold">NC</span>`;
+        } else if (isND) {
+          typeBadge = `<span class="px-1.5 py-0.2 rounded text-[9px] bg-purple-950 text-purple-300 border border-purple-800 font-bold">ND</span>`;
+        }
+
+        const signPrefix = isNC ? "- " : "";
+        const rowClass = isNC ? "bg-amber-950/10 hover:bg-amber-950/20" : "hover:bg-slate-800/30";
+
+        return `
+          <tr class="${rowClass} transition-colors border-b border-slate-800/50">
+            <td class="py-2 px-2 text-slate-300">${inv.issue_date}</td>
+            <td class="py-2 px-2 text-slate-300">${inv.supplier_tax_id}</td>
+            <td class="py-2 px-2 text-slate-100 font-sans font-medium truncate max-w-[200px]" title="${inv.supplier_legal_name}">${inv.supplier_legal_name}</td>
+            <td class="py-2 px-2 text-slate-400 text-[10px] truncate max-w-[130px]" title="${inv.cai}">${inv.cai}</td>
+            <td class="py-2 px-1.5 text-center">${typeBadge}</td>
+            <td class="py-2 px-2 text-blue-400 font-semibold">${inv.document_number || inv.invoice_number}</td>
+            <td class="py-2 px-2 text-amber-400">${inv.affected_invoice_number || '—'}</td>
+            <td class="py-2 px-2 text-right text-slate-400">${signPrefix}${formatMoney(inv.subtotal_exempt)}</td>
+            <td class="py-2 px-2 text-right text-slate-200">${signPrefix}${formatMoney(inv.subtotal_taxable_15)}</td>
+            <td class="py-2 px-2 text-right text-slate-200">${signPrefix}${formatMoney(inv.subtotal_taxable_18)}</td>
+            <td class="py-2 px-2 text-right text-emerald-400">${signPrefix}${formatMoney(inv.isv_15_amount)}</td>
+            <td class="py-2 px-2 text-right text-emerald-400">${signPrefix}${formatMoney(inv.isv_18_amount)}</td>
+            <td class="py-2 px-2 text-right text-rose-400">${inv.isv_retention_1_percent > 0 ? (signPrefix + formatMoney(inv.isv_retention_1_percent)) : '0.00'}</td>
+            <td class="py-2 px-2 text-right font-bold ${isNC ? 'text-amber-400' : 'text-slate-100'}">${signPrefix}L ${formatMoney(inv.total_amount)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function exportToExcel() {
+      const month = document.getElementById('sel-month').value;
+      const year = document.getElementById('sel-year').value;
+      window.location.href = `/api/v1/purchases/libro-compras/export?month=${month}&year=${year}`;
+    }
+
+    // Carga inicial
+    loadLibroCompras();
+  </script>
+</body>
+</html>

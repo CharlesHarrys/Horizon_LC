@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sandbox - Registro de Compras & CxP | Horizon Ledger Core</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background-color: #f8fafc; 
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-corporate { font-family: 'Cinzel', serif; }
+
+    /* PATRÓN DE CUADRÍCULA FINTECH CON DIFUMINADO RADIAL */
+    .bg-grid-blueprint {
+      background-size: 28px 28px;
+      background-image: 
+        linear-gradient(to right, rgba(148, 163, 184, 0.18) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 80%);
+      -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 80%);
+    }
+
+    /* Estandarización tipográfica para inputs y selects */
+    .input-std {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      color: #0f172a !important;
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 0.35rem 0.55rem;
+      transition: all 0.15s ease-in-out;
+    }
+    .input-std:focus {
+      outline: none;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+      background-color: #ffffff;
+    }
+    .select-std {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      color: #0f172a !important;
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 0.35rem 0.55rem;
+      transition: all 0.15s ease-in-out;
+      cursor: pointer;
+    }
+    .select-std:focus {
+      outline: none;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+      background-color: #ffffff;
+    }
+
+    /* TEXTBOX SIN BORDES: Parece texto natural */
+    .cell-frameless {
+      background-color: transparent !important;
+      border: 1px solid transparent !important;
+      border-radius: 0.375rem;
+      padding: 0.25rem 0.375rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #0f172a;
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+    .cell-frameless:hover {
+      background-color: #f1f5f9 !important;
+    }
+    .cell-frameless:focus {
+      outline: none;
+      border-color: #f59e0b !important;
+      background-color: #ffffff !important;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+    }
+
+    /* Scrollbar sutil y técnico */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f8fafc;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Animación continua en bucle para el carril de cuentas contables */
+    @keyframes marquee-scroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-marquee {
+      display: inline-flex;
+      width: max-content;
+      animation: marquee-scroll 22s linear infinite;
+    }
+    .animate-marquee:hover {
+      animation-play-state: paused;
+    }
+
+    /* SISTEMA DE ILUMINACIÓN Y ENFOQUE ACTIVO (FOCUS ZONE) */
+    .zone-container {
+      transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                  filter 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                  box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: opacity, filter, transform;
+    }
+    .zone-active {
+      opacity: 1 !important;
+      filter: grayscale(0%) brightness(100%) !important;
+    }
+    .zone-dimmed {
+      opacity: 0.45 !important;
+      filter: grayscale(45%) brightness(96%) !important;
+    }
+    .zone-dimmed:hover {
+      opacity: 0.8 !important;
+      filter: grayscale(15%) brightness(99%) !important;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased p-2.5 h-screen overflow-hidden flex flex-col justify-between relative select-none">
+
+  <!-- CAPA DE FONDO: CUADRÍCULA CON MÁSCARA RADIAL DIFUMINADA -->
+  <div class="pointer-events-none fixed inset-0 z-0 bg-grid-blueprint"></div>
+
+  <!-- WRAPPER FLEX-1 QUE OCUPA TODO EL ALTO SIN SCROLL GLOBAL -->
+  <div class="relative z-10 flex-1 flex flex-col min-h-0 w-full">
+
+    <!-- ============================================================== -->
+    <!-- ENCABEZADO INSTITUCIONAL DE 4 BLOQUES                          -->
+    <!-- ============================================================== -->
+    <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2 px-5 shadow-xs flex flex-wrap items-center justify-between gap-3 mb-2 shrink-0 border-l-4 border-l-amber-500">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="history.back()" title="Regresar" class="w-7 h-7 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer">
+          &larr;
+        </button>
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-xs flex items-center justify-center tracking-tighter">HL</span>
+          <div>
+            <div class="font-black text-xs text-slate-900 tracking-tight leading-none">HORIZON LEDGER CORE</div>
+            <div class="text-[9px] font-mono text-slate-500 font-bold leading-none mt-0.5">COMPRAS &bull; EGRESOS &bull; ADUANAS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nombre Corporativo Elegante (Cinzel) -->
+      <div class="flex items-center justify-center text-center">
+        <span class="font-corporate font-extrabold text-base sm:text-lg tracking-[0.22em] text-slate-900 drop-shadow-2xs select-none">
+          SOLUTIONS &amp; APPLIANCES LTD
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="font-mono text-xs font-bold text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl">
+          PERÍODO: ENERO &ndash; SEPTIEMBRE 2026
+        </div>
+        <div class="flex items-center gap-2 border-l border-slate-200 pl-3">
+          <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-900 font-mono font-black text-xs flex items-center justify-center border border-amber-300">
+            CH
+          </span>
+          <div class="text-left hidden sm:block">
+            <div class="text-xs font-bold text-slate-900 leading-tight">Carlos Hernández</div>
+            <div class="text-[9px] font-mono text-slate-500 leading-tight">Contador General</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================================== -->
+    <!-- ESTRUCTURA PRINCIPAL FLEX-1 MIN-H-0 (LLENA EXACTO LA ALTURA)   -->
+    <!-- ============================================================== -->
+    <main class="flex flex-col lg:flex-row gap-2.5 items-stretch w-full flex-1 min-h-0">
+
+      <!-- ============================================================== -->
+      <!-- ZONA 1 (IZQUIERDA: 320px) - INFORMACIÓN FISCAL / ADUANERA      -->
+      <!-- ============================================================== -->
+      <section id="zone-left" 
+               onfocusin="activarZona('left')" 
+               onclick="activarZona('left')" 
+               class="zone-container zone-active w-full lg:w-[320px] shrink-0 flex flex-col justify-between min-h-0">
+        
+        <div class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2.5 shadow-xs space-y-1.5 text-xs flex-1 flex flex-col justify-between min-h-0 overflow-y-auto custom-scrollbar">
+          
+          <div class="space-y-1.5">
+            <!-- 1. Selector de Documento Unificado (+ DUA / Boletín de Aduana) -->
+            <div class="border-b border-slate-100 pb-1">
+              <div class="flex items-center justify-between mb-0.5">
+                <label for="tipo-documento-fiscal" class="font-mono text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                  <span>🏛</span><span>Tipo Documento:</span>
+                </label>
+                <span id="badge-doc-status" class="text-[8px] font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1 py-0.2 rounded">
+                  SAR FISCAL
+                </span>
+              </div>
+              <select id="tipo-documento-fiscal" onchange="cambiarTipoDocumento(this.value)" class="w-full select-std font-bold py-1">
+                <option value="factura" selected>📄 Factura Comercial (SAR)</option>
+                <option value="recibo">🧾 Recibo Oficial (No CAI)</option>
+                <option value="aduana">🚢 DUA / Boletín de Aduana</option>
+                <option value="nota_credito">↩ Nota de Crédito</option>
+                <option value="nota_debito">＋ Nota de Débito</option>
+              </select>
+            </div>
+
+            <!-- 2. RTN / Identificador Fiscal -->
+            <div>
+              <div class="flex justify-between font-bold text-slate-600 text-[10px] mb-0.5">
+                <span id="lbl-rtn">RTN PROVEEDOR</span>
+                <span class="font-mono text-slate-400 text-[8px]">2x clic: buscar</span>
+              </div>
+              <input type="text" id="fac-rtn-proveedor" placeholder="08011995123456" ondblclick="abrirModalBuscarProveedor()" title="Doble clic para buscar proveedor" class="w-full input-std cursor-pointer">
+            </div>
+
+            <!-- 3. Razón Social / Entidad Fiscal -->
+            <div>
+              <div class="flex justify-between font-bold text-slate-600 text-[10px] mb-0.5">
+                <span id="lbl-proveedor">RAZÓN SOCIAL PROVEEDOR</span>
+                <span class="font-mono text-slate-400 text-[8px]">2x clic: catálogo</span>
+              </div>
+              <select id="fac-proveedor" onchange="actualizarOCsPorProveedor(this.value)" ondblclick="abrirModalBuscarProveedor()" title="Doble clic para buscar o agregar proveedor" class="w-full select-std">
+                <option value="">-- Seleccionar --</option>
+                <option value="Distribuidora Industrial S. de R.L.">Distribuidora Industrial S. de R.L.</option>
+                <option value="Molinos de Honduras S.A.">Molinos de Honduras S.A.</option>
+                <option value="AgroInsumos del Valle">AgroInsumos del Valle</option>
+                <option value="ADMINISTRACION ADUANERA DE HONDURAS">ADMINISTRACION ADUANERA DE HONDURAS</option>
+              </select>
+            </div>
+
+            <!-- 4. Campo Condicional: Factura Afectada (NC / ND) -->
+            <div id="campo-factura-afectada" class="hidden bg-amber-50/70 border border-amber-200 rounded-xl p-1.5 space-y-1">
+              <label class="block font-bold text-amber-900 text-[8px]"># FACTURA AFECTADA</label>
+              <input type="text" id="fac-afectada-num" placeholder="000-001-01-00012345" class="w-full input-std">
+            </div>
+
+            <!-- 5. Código CAI (Oculto en Modo Aduana) -->
+            <div id="bloque-cai">
+              <label class="block font-bold text-slate-600 text-[10px] mb-0.5">CÓDIGO CAI AUTORIZADO</label>
+              <select id="fac-cai-select" class="w-full select-std font-mono text-[9px]">
+                <option value="CAI-9921">3A2B1C-4D5E6F-7A8B9C-0D1E2F-3A4B5C-6D</option>
+              </select>
+            </div>
+
+            <!-- 5.B Campo de Expediente de Importación (Solo en Modo Aduana) -->
+            <div id="bloque-expediente-aduana" class="hidden bg-cyan-50/70 border border-cyan-200 rounded-xl p-1.5 space-y-0.5">
+              <div class="flex justify-between font-bold text-cyan-950 text-[9px]">
+                <span>EXPEDIENTE / PÓLIZA DE IMPORTACIÓN</span>
+                <span class="font-mono text-cyan-700">FOB</span>
+              </div>
+              <input type="text" id="fac-expediente-num" placeholder="EXP-2026-IMP-0045" value="EXP-2026-IMP-0045" oninput="actualizarExpedienteAduana(this.value)" class="w-full input-std font-bold text-cyan-900">
+            </div>
+
+            <!-- 6. Número de Documento Legal / Nro de Boletín y Fecha -->
+            <div class="grid grid-cols-2 gap-1.5">
+              <div>
+                <label id="lbl-doc-legal" class="block font-bold text-slate-600 text-[10px] mb-0.5"># DOC. LEGAL</label>
+                <input type="text" id="fac-num-legal" placeholder="000-001-01-00045821" value="000-001-01-00045821" class="w-full input-std">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 text-[10px] mb-0.5">EMISIÓN</label>
+                <input type="date" id="fac-fecha-emision" value="2026-09-17" class="w-full input-std">
+              </div>
+            </div>
+
+            <!-- 7. Rango Completo CAI (Oculto en Modo Aduana) -->
+            <div id="bloque-rango-cai" class="bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-[9px] font-mono text-slate-600 space-y-0.5">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Límite: <strong class="text-slate-700">31/12/2026</strong></span>
+                <span class="text-slate-400">Rango: <strong>00000001...50000</strong></span>
+              </div>
+            </div>
+
+            <!-- 8. Observaciones -->
+            <div>
+              <label class="block font-bold text-slate-600 text-[10px] mb-0.5">OBSERVACIONES</label>
+              <textarea id="fac-observaciones" rows="1" placeholder="Detalle contable..." class="w-full input-std resize-none"></textarea>
+            </div>
+          </div>
+
+          <!-- 9. Importar / OCR de Factura o Boletín (Compacto) -->
+          <div class="border-t border-slate-100 pt-1.5 mt-1 shrink-0">
+            <div id="dropzone-ocr" onpaste="procesarPegadoOCR(event)" onclick="document.getElementById('input-archivo-ocr').click()" class="border-2 border-dashed border-slate-300 hover:border-amber-500 bg-slate-50/70 hover:bg-amber-50/30 rounded-xl p-1.5 text-center cursor-pointer transition flex flex-col items-center justify-center gap-0.5">
+              <input type="file" id="input-archivo-ocr" accept=".pdf,.png,.jpg,.jpeg" class="hidden" onchange="procesarArchivoOCR(this)">
+              <span class="text-sm" id="icon-ocr-box">📄</span>
+              <div class="text-[9px] font-bold text-slate-700" id="lbl-ocr-drop-text">Arrastra comprobante o pega con Ctrl+V</div>
+            </div>
+            <div id="ocr-status" class="hidden mt-0.5 text-[9px] font-mono text-emerald-700 font-semibold text-center truncate">
+              ✓ Procesado
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- ZONA 2 (CENTRAL) - GRILLA PRINCIPAL Y CONTROL DE COMPRA       -->
+      <!-- ============================================================== -->
+      <section id="zone-center" 
+               onfocusin="activarZona('center')" 
+               onclick="activarZona('center')" 
+               class="zone-container zone-dimmed flex-1 min-w-0 flex flex-col justify-between gap-2 min-h-0">
+        
+        <!-- Fila de Control: Condición + OCs + USD -->
+        <div class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2 shadow-xs flex flex-wrap items-center justify-between gap-2 shrink-0">
+          <div class="w-40">
+            <label class="block font-mono text-[9px] font-bold text-slate-500 uppercase mb-0.5">Condición de Pago:</label>
+            <select id="fac-condicion-pago" onchange="evaluarDisparadoresAuxiliares()" class="w-full select-std font-semibold py-1">
+              <option value="credito30">Crédito 30 Días</option>
+              <option value="contado">Contado Comercial</option>
+              <option value="cajachica">🪙 Caja Chica / Reembolso</option>
+            </select>
+          </div>
+
+          <div class="flex-1 min-w-[270px]">
+            <div class="flex items-center justify-between mb-0.5">
+              <label for="select-oc-pendiente" class="font-mono text-[9px] font-bold text-slate-600 uppercase flex items-center gap-1">
+                <span id="icon-oc-badge">📥</span><span id="lbl-oc-source">OC Recibida en Muelle:</span>
+              </label>
+              <span id="badge-oc-count" class="text-[9px] font-mono font-bold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.2 rounded">
+                0 disp
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <select id="select-oc-pendiente" class="flex-1 select-std py-1">
+                <option value="">-- Seleccione Proveedor Primero --</option>
+              </select>
+              <button type="button" onclick="importarLineasOCSeleccionada()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3 py-1 rounded-xl shadow-xs transition cursor-pointer">
+                Cargar
+              </button>
+            </div>
+          </div>
+
+          <div class="w-24">
+            <label class="block font-mono text-[9px] font-bold text-slate-500 uppercase mb-0.5">Ref USD ($):</label>
+            <input type="text" id="fac-ref-usd" placeholder="0.00" class="w-full input-std text-right py-1">
+          </div>
+        </div>
+
+        <!-- Detalle de Renglones Imputados: FLEX-1 Y MIN-H-0 ESTIRADO AL 100% -->
+        <div class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2.5 shadow-xs flex-1 flex flex-col justify-between min-h-0">
+          <div class="flex-1 flex flex-col min-h-0">
+            
+            <div class="flex items-center justify-between pb-1.5 mb-1 shrink-0">
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                  <span id="lbl-grid-title" class="font-bold text-slate-900 text-xs tracking-tight uppercase font-mono">Detalle de Renglones Imputados</span>
+                </div>
+                <span id="badge-imputacion-status" class="bg-slate-100 text-slate-700 border border-slate-200 text-[9px] font-mono font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                  <span>ESTÁNDAR</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- TABLA DIRECTA CON SCROLL AUTOMÁTICO -->
+            <div class="overflow-y-auto overflow-x-auto flex-1 custom-scrollbar rounded-xl border border-slate-200">
+              <table class="w-full text-left font-mono text-xs border-collapse table-auto">
+                <thead class="sticky top-0 bg-slate-800 text-slate-100 z-10 border-b-2 border-slate-900 shadow-xs">
+                  <tr class="text-[10px] uppercase font-bold tracking-wider divide-x divide-slate-700/80">
+                    <th class="py-2 px-3 w-[160px] min-w-[160px] max-w-[160px] shrink-0 text-slate-100">
+                      <span class="flex items-center gap-1.5">
+                        <span class="text-amber-400 text-[9px]">■</span>
+                        <span>SKU / Cuenta</span>
+                      </span>
+                    </th>
+                    <th class="py-2 px-3 text-slate-100">Descripción del Gasto / Ítem</th>
+                    <th class="py-2 px-2 text-center w-[85px] min-w-[85px] shrink-0 text-slate-200 bg-slate-800/90">CC</th>
+                    <th class="py-2 px-2 text-right w-[75px] min-w-[75px] shrink-0 text-slate-200 bg-slate-800/90">Cant</th>
+                    <th class="py-2 px-2.5 text-right w-[105px] min-w-[105px] shrink-0 text-slate-200 bg-slate-800/90">Unit (L)</th>
+                    <th class="py-2 px-1.5 text-center w-[55px] min-w-[55px] shrink-0 text-slate-200 bg-slate-800/90">ISV</th>
+                    <th class="py-2 px-3 text-right w-[120px] min-w-[120px] shrink-0 text-amber-300 font-bold bg-slate-900">Subtotal (L)</th>
+                    <th class="py-2 px-1 text-center w-[35px] min-w-[35px] shrink-0 bg-slate-900"></th>
+                  </tr>
+                </thead>
+                <tbody id="lineas-factura-body" class="divide-y divide-slate-100 bg-white">
+                  <!-- Inyectado dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-100 pt-1.5 flex flex-wrap items-center justify-between text-[9px] font-mono text-slate-500 mt-1 shrink-0">
+            <div class="space-x-3">
+              <span class="font-bold text-slate-700">Cod Imp:</span>
+              <span class="text-emerald-700 font-bold">(0) Aduana</span>
+              <span>(1) Exento</span>
+              <span>(2) Grav 15%</span>
+              <span>(3) Grav 18%</span>
+            </div>
+            <span class="text-amber-800 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+              💡 Doble clic en SKU/Cuenta para desplegar Catálogo NIIF
+            </span>
+          </div>
+        </div>
+
+        <!-- Resumen de Impuestos y Liquidación SAR -->
+        <div class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3 font-mono text-xs shrink-0">
+          <div class="space-y-0.5 text-slate-700 text-[11px]">
+            <div class="flex items-center gap-4">
+              <div>Exento: <strong id="lbl-tot-exento" class="text-slate-900">0.00</strong></div>
+              <div>Grav 15%: <strong id="lbl-tot-grav15" class="text-slate-900">0.00</strong></div>
+              <div>Grav 18%: <strong id="lbl-tot-grav18" class="text-slate-900">0.00</strong></div>
+            </div>
+            <div class="flex items-center gap-4 pt-0.5">
+              <div>ISV 15%: <strong id="lbl-tot-isv" class="text-slate-900">0.00</strong></div>
+              <label class="flex items-center gap-1.5 text-slate-800 font-semibold cursor-pointer">
+                <input type="checkbox" id="chk-retencion-1" onchange="recalcularTotales()" class="rounded border-slate-300">
+                <span>Retención 1% ISV</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="text-right border-l border-slate-200 pl-4">
+            <div id="lbl-neto-titulo" class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">NETO PENDIENTE A PAGAR (L)</div>
+            <div id="lbl-neto-pagar" class="text-xl font-black text-slate-900">0.00</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- ZONA 3 (DERECHA: 290px) - AUXILIAR ESPECIALIZADO REACTIVO      -->
+      <!-- ============================================================== -->
+      <section id="zone-right" 
+               onfocusin="activarZona('right')" 
+               onclick="activarZona('right')" 
+               class="zone-container zone-dimmed w-full lg:w-[290px] shrink-0 flex flex-col justify-between gap-2 min-h-0">
+
+        <!-- 1. BLOQUE SUPERIOR: BOTONES COMPACTOS -->
+        <div class="grid grid-cols-2 gap-2 shrink-0">
+          <button type="button" id="btn-status-import" onclick="abrirModalLotePrecargado()" disabled class="bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 h-12 flex items-center gap-2 text-slate-400 transition cursor-not-allowed shadow-2xs group text-left">
+            <span class="text-lg shrink-0 group-hover:scale-105 transition-transform">📑</span>
+            <div class="min-w-0">
+              <div class="font-mono font-bold text-[10px] text-slate-600 leading-tight truncate" id="lbl-status-import-count">0 Facturas</div>
+              <div class="font-mono text-[8px] text-slate-400 leading-none truncate mt-0.5" id="lbl-status-import-sub">Sin lote activo</div>
+            </div>
+          </button>
+
+          <button type="button" onclick="simularImportacionExcel()" class="bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl px-2.5 py-1.5 h-12 flex items-center gap-2 text-slate-800 transition cursor-pointer shadow-2xs group text-left">
+            <span class="text-lg shrink-0 group-hover:scale-105 transition-transform">📊</span>
+            <div class="min-w-0">
+              <div class="font-mono font-bold text-[10px] text-slate-900 leading-tight">Importar Excel</div>
+              <div class="font-mono text-[8px] text-slate-400 leading-none mt-0.5">Lote .xlsx</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- 2. Panel Auxiliar Especializado Reactivo Dinámico -->
+        <div class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2.5 shadow-xs flex-1 flex flex-col justify-between min-h-0 overflow-y-auto custom-scrollbar">
+          <div>
+            <!-- Cabecera del Panel Auxiliar -->
+            <div class="border-b border-slate-100 pb-1.5 mb-1.5">
+              <div class="flex items-center justify-between gap-1 mb-0.5">
+                <span class="font-mono text-xs font-black text-slate-900 tracking-wider flex items-center gap-1.5">
+                  <span class="text-amber-500">📑</span><span>AUXILIAR ESPECIALIZADO</span>
+                </span>
+                <span id="badge-aux-estado" class="text-[8px] font-mono font-bold bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.2 rounded">
+                  INACTIVO
+                </span>
+              </div>
+              <div id="aux-activador-label" class="font-mono text-[9px] text-slate-400 leading-tight truncate">
+                Se activará automáticamente según la cuenta o condición.
+              </div>
+            </div>
+
+            <!-- ESTADO 0: AUXILIAR INACTIVO (POR DEFECTO) -->
+            <div id="aux-panel-inactivo" class="py-10 text-center space-y-1.5">
+              <div class="w-10 h-10 mx-auto rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-300 text-lg font-bold">
+                ∅
+              </div>
+              <div class="font-mono font-bold text-xs text-slate-600">Auxiliar en Reposo</div>
+              <p class="font-mono text-[9px] text-slate-400 leading-relaxed px-2">
+                Se habilitará al registrar un <strong class="text-slate-600">Boletín de Aduana</strong>, <strong class="text-slate-600">Activo Fijo</strong>, <strong class="text-slate-600">Diferidos</strong>, <strong class="text-slate-600">Gastos</strong> o <strong class="text-slate-600">Caja Chica</strong>.
+              </p>
+            </div>
+
+            <!-- MODO 5: AUXILIAR ADUANA / COMPROBACIÓN EXPEDIENTE SIMPLIFICADO -->
+            <div id="aux-panel-aduana" class="hidden space-y-1.5 font-mono text-xs">
+              <div class="bg-cyan-50/70 border border-cyan-200 rounded-xl p-1.5 text-[9px] text-cyan-950 mb-1 flex items-center justify-between">
+                <span class="font-bold flex items-center gap-1"><span>🚢</span><span>LIQUIDACIÓN ADUANERA</span></span>
+                <span class="text-[8px] bg-white px-1.5 py-0.2 rounded border border-cyan-300 font-bold text-cyan-800" id="aux-aduana-exp-badge">EXP-2026-IMP-0045</span>
+              </div>
+
+              <!-- Detalle Simplificado para efectos de comprobación -->
+              <div class="space-y-1 bg-slate-50 border border-slate-200/80 rounded-xl p-2 text-[10px]">
+                <div class="flex justify-between text-slate-600">
+                  <span>Factura Exterior (FOB):</span>
+                  <strong class="text-slate-900 font-mono">$ 15,200.00</strong>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                  <span>Flete Internacional:</span>
+                  <strong class="text-slate-900 font-mono">$ 1,850.00</strong>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                  <span>Seguro de Transporte:</span>
+                  <strong class="text-slate-900 font-mono">$ 320.00</strong>
+                </div>
+                <div class="border-t border-slate-200 pt-1 flex justify-between text-cyan-950 font-bold">
+                  <span>Base Imponible CIF:</span>
+                  <strong class="font-mono text-cyan-900">$ 17,370.00</strong>
+                </div>
+              </div>
+
+              <!-- Liquidación de Tributos Pagados en Boletín -->
+              <div class="space-y-0.5 bg-white border border-slate-200 rounded-xl p-1.5 text-[10px]">
+                <div class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Tributos en Lempiras:</div>
+                <div class="flex justify-between text-slate-700">
+                  <span>Arancel DAI (10%):</span>
+                  <strong class="text-slate-900 font-mono">L 42,886.53</strong>
+                </div>
+                <div class="flex justify-between text-slate-700">
+                  <span>Tasa Aduanera (TSA):</span>
+                  <strong class="text-slate-900 font-mono">L 1,250.00</strong>
+                </div>
+                <div class="flex justify-between text-emerald-800 font-bold">
+                  <span>ISV Aduana Crédito (15%):</span>
+                  <strong class="font-mono">L 70,762.77</strong>
+                </div>
+              </div>
+
+              <div class="p-1.5 bg-emerald-50 rounded-xl border border-emerald-200 text-[10px] text-emerald-900 flex justify-between">
+                <span>Total Boletín:</span>
+                <span class="font-black font-mono">L 114,899.30</span>
+              </div>
+            </div>
+
+            <!-- MODO 1: AUXILIAR CAJA CHICA Y REEMBOLSOS -->
+            <div id="aux-panel-cajachica" class="hidden space-y-1.5 font-mono text-xs">
+              <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-1.5 text-[9px] text-amber-900 mb-0.5 flex items-center justify-between">
+                <span class="font-bold">CONDICIÓN: CAJA CHICA</span>
+                <span class="text-[8px] bg-white px-1.5 py-0.2 rounded border border-amber-300 font-bold">FONDO ROTATIVO</span>
+              </div>
+              <div>
+                <label class="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">Fondo Responsable:</label>
+                <select class="w-full select-std py-1">
+                  <option>CC-01: Oficina Central (L 15,000)</option>
+                  <option>CC-02: Taller / Muelle (L 10,000)</option>
+                </select>
+              </div>
+              <div class="flex justify-between text-slate-600 text-[10px]">
+                <span>Custodio:</span>
+                <strong class="text-slate-900">María Morales</strong>
+              </div>
+              <div class="flex justify-between items-center text-slate-600 text-[10px]">
+                <span>N° Vale:</span>
+                <input type="text" placeholder="VALE-0042" class="w-24 input-std text-right font-bold py-1">
+              </div>
+              <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-[10px] text-slate-800 flex justify-between">
+                <span>Remanente:</span>
+                <span class="font-black text-slate-900 font-mono">L 11,420.50</span>
+              </div>
+            </div>
+
+            <!-- MODO 2: AUXILIAR ACTIVO FIJO - NIC 16 -->
+            <div id="aux-panel-activofijo" class="hidden space-y-1.5 font-mono text-xs">
+              <div class="bg-blue-50/60 border border-blue-200 rounded-xl p-1.5 text-[9px] text-blue-900 flex items-center justify-between">
+                <span class="font-bold">ACTIVO CAPITALIZABLE</span>
+                <span class="text-[8px] bg-white px-1.5 py-0.2 rounded border border-blue-300 font-bold">NIC 16</span>
+              </div>
+              <div>
+                <label class="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">Placa / Serie:</label>
+                <input type="text" placeholder="AF-2026-0089" class="w-full input-std font-bold py-1">
+              </div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <div>
+                  <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Vida Útil:</label>
+                  <select class="w-full select-std py-1">
+                    <option>5 Años</option>
+                    <option>3 Años</option>
+                    <option>10 Años</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Residual:</label>
+                  <input type="text" value="1.00%" class="w-full input-std text-right font-bold py-1">
+                </div>
+              </div>
+            </div>
+
+            <!-- MODO 3: AUXILIAR GASTOS PAGADOS POR ANTICIPADO -->
+            <div id="aux-panel-diferidos" class="hidden space-y-1.5 font-mono text-xs">
+              <div class="bg-purple-50/60 border border-purple-200 rounded-xl p-1.5 text-[9px] text-purple-900 flex items-center justify-between">
+                <span class="font-bold">GASTO DIFERIDO</span>
+                <span class="text-[8px] bg-white px-1.5 py-0.2 rounded border border-purple-300 font-bold">DEVENGADO</span>
+              </div>
+              <div>
+                <label class="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">Tipo Anticipo:</label>
+                <select class="w-full select-std py-1">
+                  <option>Póliza de Seguros</option>
+                  <option>Alquileres Anticipados</option>
+                </select>
+              </div>
+              <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 text-[10px] text-slate-700 flex justify-between">
+                <span>Amortización:</span>
+                <strong class="text-slate-900 font-mono" id="aux-amortizacion-mes">L 0.00 / mes</strong>
+              </div>
+            </div>
+
+            <!-- MODO 4: AUXILIAR PRORRATEO / MULTICENTRO -->
+            <div id="aux-panel-multicentro" class="hidden space-y-1.5 font-mono text-xs">
+              <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-1.5 text-[9px] text-emerald-900 flex items-center justify-between">
+                <span class="font-bold">PRORRATEO MULTICENTRO</span>
+                <span class="text-[8px] bg-white px-1.5 py-0.2 rounded border border-emerald-300 font-bold">100% OK</span>
+              </div>
+              <div class="space-y-1 text-[10px]">
+                <div class="flex items-center justify-between bg-slate-50 p-1 rounded border border-slate-200">
+                  <span>CC-ADM</span><span class="font-bold">50%</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-1 rounded border border-slate-200">
+                  <span>CC-OPE</span><span class="font-bold">30%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-100 pt-1.5 flex items-center justify-between text-[9px] font-mono text-slate-400">
+            <span>Control Reactivo</span>
+            <span id="aux-footer-status" class="text-slate-400 font-bold">● Esperando señal</span>
+          </div>
+        </div>
+
+        <!-- 3. Bot Auditor Fiscal SAR -->
+        <div class="bg-slate-900 text-white rounded-2xl p-2.5 shadow-xs shrink-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="lbl-auditor-title" class="font-mono text-[10px] font-bold text-amber-400 tracking-wider">BOT AUDITOR FISCAL</span>
+            </div>
+            <span id="badge-auditor-tag" class="font-mono text-[9px] text-slate-400">SAR OK</span>
+          </div>
+          <p id="auditor-text" class="font-mono text-[10px] text-slate-300 leading-tight">
+            CAI verificado. Proveedor en base SAR. Factura lista para imputación de partida doble.
+          </p>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ============================================================== -->
+    <!-- BARRA INFERIOR DE ACCIONES (ANCLADA NATURALMENTE EN LA BASE)   -->
+    <!-- ============================================================== -->
+    <footer class="mt-2 z-40 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl px-4 py-2 shadow-xs shrink-0">
+      <div class="max-w-[1700px] mx-auto flex items-center justify-between gap-4">
+        
+        <!-- Lado Izquierdo: Partida Doble en Vivo -->
+        <div class="flex-1 min-w-0 pr-4 border-r border-slate-200">
+          <div class="flex items-center gap-2 mb-0.5">
+            <span class="font-mono text-[9px] font-extrabold uppercase text-slate-500 tracking-wider">
+              ASIENTO CONTABLE PREVIO (PARTIDA DOBLE):
+            </span>
+            <span id="badge-cuadre" class="text-[8px] font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
+              CUADRADO
+            </span>
+          </div>
+
+          <div id="contenedor-marquee-wrapper" class="overflow-hidden whitespace-nowrap relative">
+            <div id="carril-asiento-cuentas" class="inline-flex items-center gap-2 font-mono text-xs">
+              <span id="seat-debe" class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+                [1.1.05 Inventario] Debe: 0.00
+              </span>
+              <span id="seat-isv" class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+                [1.1.07 ISV Crédito Fiscal] Debe: 0.00
+              </span>
+              <span id="seat-haber" class="bg-slate-100 text-slate-900 font-bold px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+                [2.1.01 Proveedores Locales CxP] Haber: 0.00
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lado Derecho: Disparador '▲' y Asentar Transacción -->
+        <div class="flex items-center gap-2 shrink-0 relative">
+          
+          <div class="relative">
+            <button type="button" id="btn-toggle-dropup" onclick="toggleMenuAccionesFlotante(event)" title="Opciones operativas: Borrador, Búsqueda y Limpieza" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 hover:border-slate-400 text-slate-700 flex items-center justify-center font-bold text-xs shadow-2xs transition-all cursor-pointer">
+              <span class="text-xs leading-none">▲</span>
+            </button>
+
+            <!-- Menú Flotante Hacia Arriba -->
+            <!-- Menú Flotante Hacia Arriba con las 4 Acciones -->
+            <div id="dropup-menu-acciones" class="hidden absolute bottom-full mb-3 right-0 w-52 bg-white border border-slate-200 rounded-2xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 font-mono text-xs animate-in fade-in slide-in-from-bottom-2 duration-150">
+              <div class="absolute -bottom-1.5 right-3 w-3 h-3 bg-white border-b border-r border-slate-200 rotate-45"></div>
+
+              <!-- Opción 1: Guardar Borrador -->
+              <button type="button" onclick="guardarBorradorAccion()" class="w-full flex items-center gap-2.5 px-3 py-1.5 text-left rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer font-bold relative z-10">
+                <span class="text-sm">💾</span>
+                <span>Guardar Borrador</span>
+              </button>
+
+              <!-- Opción 2: Buscar Transacción Registrada -->
+              <button type="button" onclick="abrirModalBuscarTransacciones()" class="w-full flex items-center gap-2.5 px-3 py-1.5 text-left rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer font-bold relative z-10">
+                <span class="text-sm">🔍</span>
+                <span>Buscar Reg.</span>
+              </button>
+
+                            <!-- Enlace Directo al Libro de Compras en Nueva Pestaña -->
+              <a href="libro_compras_ledger.html" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 onclick="document.getElementById('dropup-menu-acciones').classList.add('hidden');" 
+                 class="w-full flex items-center gap-2.5 px-3 py-1.5 text-left rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer font-bold relative z-10 font-mono text-xs no-underline">
+                <span class="text-sm">📚</span>
+                <span>Libro de Compras</span>
+              </a>
+
+              <div class="h-px bg-slate-100 my-0.5"></div>
+
+              <!-- Opción 4: Limpiar Todo -->
+              <button type="button" onclick="limpiarTodoFormulario()" class="w-full flex items-center gap-2.5 px-3 py-1.5 text-left rounded-xl text-rose-600 hover:text-rose-800 hover:bg-rose-50 transition cursor-pointer font-bold relative z-10">
+                <span class="text-sm">🧹</span>
+                <span>Limpiar Todo</span>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" onclick="alert('Transacción Asentada con Éxito')" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer">
+            Asentar Transacción
+          </button>
+
+        </div>
+
+      </div>
+    </footer>
+
+  </div><!-- Fin wrapper de contenido z-10 -->
+
+  <!-- MODAL 1: LOTE PRECARGADO -->
+  <div id="modal-lote-precargado" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-5 shadow-2xl border border-slate-200 space-y-3 font-sans">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📑</span>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Lote de Facturas Importadas (.xlsx)</h3>
+            <p class="text-[11px] text-slate-500 font-mono" id="modal-lote-resumen">3 facturas precargadas pendientes de asentar</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalLotePrecargado()" class="text-slate-400 hover:text-slate-700 font-mono text-lg font-bold">&times;</button>
+      </div>
+
+      <div class="max-h-56 overflow-y-auto border border-slate-200 rounded-xl">
+        <table class="w-full text-left font-mono text-xs">
+          <thead class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase sticky top-0">
+            <tr>
+              <th class="p-2"># Factura</th>
+              <th class="p-2">Proveedor</th>
+              <th class="p-2 text-right">Total</th>
+              <th class="p-2 text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="lote-facturas-body" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+        <button type="button" onclick="limpiarLoteExcel()" class="text-xs font-semibold text-rose-600 hover:text-rose-800">
+          Descartar Lote
+        </button>
+        <button type="button" onclick="cerrarModalLotePrecargado()" class="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: GESTIÓN DE PROVEEDORES -->
+  <div id="modal-proveedor" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-3 font-sans">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+          <span>👥</span><span>Gestión de Proveedores / Entidades</span>
+        </h3>
+        <button onclick="cerrarModalBuscarProveedor()" class="text-slate-400 hover:text-slate-700 font-mono text-lg font-bold">&times;</button>
+      </div>
+
+      <div>
+        <label class="block font-bold text-[10px] text-slate-500 uppercase mb-0.5">Buscar Existente:</label>
+        <input type="text" id="busq-prov-input" oninput="filtrarListaProveedores(this.value)" placeholder="Escribe RTN o Razón Social..." class="w-full input-std">
+        
+        <div id="lista-proveedores-modal" class="max-h-32 overflow-y-auto mt-2 border border-slate-200 rounded-xl divide-y divide-slate-100 text-xs font-mono">
+          <div onclick="seleccionarProveedorModal('08011999887766', 'Distribuidora Industrial S. de R.L.')" class="p-2 hover:bg-amber-50 cursor-pointer">
+            <div class="font-bold text-slate-800">Distribuidora Industrial S. de R.L.</div>
+            <div class="text-[10px] text-slate-400">RTN: 08011999887766</div>
+          </div>
+          <div onclick="seleccionarProveedorModal('08011990123456', 'Molinos de Honduras S.A.')" class="p-2 hover:bg-amber-50 cursor-pointer">
+            <div class="font-bold text-slate-800">Molinos de Honduras S.A.</div>
+            <div class="text-[10px] text-slate-400">RTN: 08011990123456</div>
+          </div>
+          <div onclick="seleccionarProveedorModal('05011985443322', 'AgroInsumos del Valle')" class="p-2 hover:bg-amber-50 cursor-pointer">
+            <div class="font-bold text-slate-800">AgroInsumos del Valle</div>
+            <div class="text-[10px] text-slate-400">RTN: 05011985443322</div>
+          </div>
+          <div onclick="seleccionarProveedorModal('08019015123456', 'ADMINISTRACION ADUANERA DE HONDURAS')" class="p-2 hover:bg-cyan-50 cursor-pointer">
+            <div class="font-bold text-cyan-900">ADMINISTRACION ADUANERA DE HONDURAS</div>
+            <div class="text-[10px] text-cyan-700">RTN: 08019015123456 &bull; Ente Fiscal / DUA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-100 pt-2 space-y-2">
+        <span class="font-bold text-slate-800 text-xs block">+ Dar de Alta Nuevo Proveedor</span>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <input type="text" id="nuevo-prov-rtn" placeholder="RTN (14 dígitos)" class="input-std">
+          <input type="text" id="nuevo-prov-nombre" placeholder="Razón Social" class="input-std font-sans">
+        </div>
+        <button type="button" onclick="guardarNuevoProveedor()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-1.5 rounded-xl transition">
+          Guardar y Seleccionar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: CATÁLOGO NIIF DE CUENTAS -->
+  <div id="modal-catalogo-cuentas" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-3 font-sans">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📚</span>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Catálogo de Cuentas Contables NIIF</h3>
+            <p class="text-[11px] text-slate-500 font-mono">Selecciona la cuenta para imputar al renglón</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalCuentas()" class="text-slate-400 hover:text-slate-700 font-mono text-lg font-bold">&times;</button>
+      </div>
+
+      <div>
+        <input type="text" id="busq-cuenta-input" oninput="filtrarCatalogoCuentas(this.value)" placeholder="Buscar por código (ej: 1.1) o descripción..." class="w-full input-std">
+      </div>
+
+      <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-xl divide-y divide-slate-100 text-xs font-mono" id="lista-cuentas-catalogo"></div>
+
+      <div class="flex items-center justify-end border-t border-slate-100 pt-2">
+        <button type="button" onclick="cerrarModalCuentas()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: BÚSQUEDA DE FACTURAS Y TRANSACCIONES REGISTRADAS -->
+  <div id="modal-buscar-transacciones" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-3 font-sans">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🔍</span>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Buscar Comprobantes y CxP Registradas</h3>
+            <p class="text-[11px] text-slate-500 font-mono">Búsqueda rápida en el libro de compras del período</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalBuscarTransacciones()" class="text-slate-400 hover:text-slate-700 font-mono text-lg font-bold">&times;</button>
+      </div>
+
+      <div>
+        <input type="text" id="busq-transaccion-input" oninput="filtrarTransaccionesHistoricas(this.value)" placeholder="Buscar por # Factura, CAI, DUA o Proveedor..." class="w-full input-std">
+      </div>
+
+      <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-xl divide-y divide-slate-100 text-xs font-mono" id="lista-transacciones-historicas"></div>
+
+      <div class="flex items-center justify-end border-t border-slate-100 pt-2">
+        <button type="button" onclick="cerrarModalBuscarTransacciones()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT CON CONTROLADOR ADUANERO Y MOTOR REACTIVO -->
+  
+  <!-- ============================================================== -->
+  <!-- MODAL: VISOR Y EXPORTADOR DEL LIBRO DE COMPRAS FISCAL SAR     -->
+  <!-- ============================================================== -->
+  <div id="modal-libro-compras" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl max-w-6xl w-full p-5 shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] font-sans">
+      
+      <!-- Encabezado con título fiscal y subtítulo del período 2026 -->
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-xl">
+            📚
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-slate-900 text-base">Libro de Compras Fiscal SAR</h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 text-amber-800 border border-amber-200">Régimen de Facturación SAR</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-mono">Registro oficial de compras, importaciones y crédito fiscal ISV &bull; Período Fiscal 2026</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalLibroCompras()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 font-mono text-xl font-bold transition">&times;</button>
+      </div>
+
+      <!-- Filtros: Selector de mes, búsqueda predictiva, exportar e imprimir -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 mb-3 shrink-0 bg-slate-50 p-2.5 rounded-2xl border border-slate-200/80">
+        <!-- Selector de Mes -->
+        <div class="md:col-span-3">
+          <label for="filtro-libro-mes" class="block font-mono text-[10px] font-bold text-slate-500 uppercase mb-1">Período / Mes:</label>
+          <select id="filtro-libro-mes" onchange="filtrarLibroCompras(document.getElementById('filtro-libro-input').value)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-mono font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500">
+            <option value="TODOS">Todos los Meses (2026)</option>
+            <option value="2026-09" selected>Septiembre 2026</option>
+            <option value="2026-08">Agosto 2026</option>
+            <option value="2026-07">Julio 2026</option>
+            <option value="2026-06">Junio 2026</option>
+            <option value="2026-05">Mayo 2026</option>
+            <option value="2026-04">Abril 2026</option>
+            <option value="2026-03">Marzo 2026</option>
+            <option value="2026-02">Febrero 2026</option>
+            <option value="2026-01">Enero 2026</option>
+          </select>
+        </div>
+
+        <!-- Búsqueda Predictiva en Tiempo Real -->
+        <div class="md:col-span-5">
+          <label for="filtro-libro-input" class="block font-mono text-[10px] font-bold text-slate-500 uppercase mb-1">Búsqueda Predictiva en Vivo:</label>
+          <div class="relative">
+            <input type="text" id="filtro-libro-input" oninput="filtrarLibroCompras(this.value)" placeholder="Buscar por RTN, Proveedor, # Factura, CAI o DUA..." class="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs font-mono text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500">
+            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+          </div>
+        </div>
+
+        <!-- Botones de Acción: Exportar e Imprimir -->
+        <div class="md:col-span-4 flex items-end gap-2">
+          <button type="button" onclick="exportarLibroComprasCSV()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+            <span>📥</span>
+            <span>Exportar Excel (CSV)</span>
+          </button>
+          <button type="button" onclick="imprimirLibroCompras()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+            <span>🖨️</span>
+            <span>Imprimir SAR</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla Confinada con Encabezados Fijos -->
+      <div class="flex-1 min-h-0 overflow-y-auto border border-slate-200 rounded-2xl bg-white shadow-inner">
+        <table class="w-full text-left border-collapse">
+          <thead class="sticky top-0 bg-slate-800 text-slate-100 font-mono text-[10px] uppercase tracking-wider z-10 select-none shadow-sm">
+            <tr>
+              <th class="py-2.5 px-3 border-b border-slate-700 font-semibold">Fecha</th>
+              <th class="py-2.5 px-3 border-b border-slate-700 font-semibold">RTN Proveedor</th>
+              <th class="py-2.5 px-3 border-b border-slate-700 font-semibold">Razón Social / Aduana</th>
+              <th class="py-2.5 px-3 border-b border-slate-700 font-semibold"># Factura / DUA</th>
+              <th class="py-2.5 px-3 border-b border-slate-700 font-semibold text-right">Base Gravada 15%</th>
+              <th class="py-2.5 px-3 border-b border-slate-700 font-semibold text-right">Exento / 0%</th>
+              <th class="py-2.5 px-3 border-b border-slate-700 font-semibold text-right">Crédito Fiscal ISV</th>
+              <th class="py-2.5 px-3 border-b border-slate-700 font-semibold text-right">Total Lempiras</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-libro-compras-body" class="divide-y divide-slate-100 font-mono text-xs text-slate-700">
+            <!-- Renglones dinámicos generados por JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totales al Pie del Modal -->
+      <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0 bg-slate-50/80 p-2.5 rounded-2xl border border-slate-200/80 font-mono">
+        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
+          <span class="block text-[9px] uppercase font-bold text-slate-400 tracking-wider">Documentos / DUAs</span>
+          <span id="total-docs-libro" class="text-sm font-black text-slate-800">0 reg.</span>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
+          <span class="block text-[9px] uppercase font-bold text-slate-400 tracking-wider">Base Gravada 15%</span>
+          <span id="total-gravada-libro" class="text-sm font-black text-slate-800">L 0.00</span>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
+          <span class="block text-[9px] uppercase font-bold text-slate-400 tracking-wider">Crédito Fiscal ISV</span>
+          <span id="total-isv-libro" class="text-sm font-black text-emerald-600">L 0.00</span>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
+          <span class="block text-[9px] uppercase font-bold text-slate-400 tracking-wider">Total Adquisiciones</span>
+          <span id="total-compras-libro" class="text-sm font-black text-slate-900">L 0.00</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const catalogoCuentasNIIF = {
+      "1.1.05.01": "Inventario Mercaderías para la Venta",
+      "1.1.05.02": "Inventario Materias Primas e Insumos",
+      "1.1.05.03": "Inventario Producto en Proceso",
+      "1.1.07.01": "ISV Crédito Fiscal Pagado en Aduana (15%)",
+      "1.1.07.02": "ISV Crédito Fiscal Pagado en Aduana (18%)",
+      "1.1.08.01": "Pólizas de Seguro Pagadas por Anticipado",
+      "1.1.08.02": "Rentas y Alquileres Pagados por Anticipado",
+      "1.1.08.03": "Suscripciones y Licencias de Software Anual",
+      "1.2.01.01": "Maquinaria y Equipo Industrial (NIC 16)",
+      "1.2.01.02": "Equipo de Transporte y Logística",
+      "1.2.01.03": "Mobiliario y Equipo de Oficina",
+      "1.2.01.04": "Equipo de Cómputo y Servidores",
+      "5.1.01.01": "Gastos de Operación y Muelle",
+      "5.1.02.01": "Derechos Arancelarios a la Importación (DAI)",
+      "5.1.02.02": "Tasas por Servicios de Aduana (TSA)",
+      "5.2.01.01": "Servicios Públicos (ENEE / SANAA)",
+      "5.2.01.02": "Honorarios Profesionales y Asesoría",
+      "5.2.01.03": "Combustibles y Lubricantes",
+      "5.2.01.04": "Mantenimiento y Reparaciones Generales"
+    };
+
+    const dbOrdenesCompra = [
+      {
+        numeroOC: "OC-2026-0089",
+        proveedor: "Molinos de Honduras S.A.",
+        rtn: "08011990123456",
+        estado: "RECIBIDA",
+        lineas: [
+          { sku: "1.1.05.02", desc: "Harina de Trigo Panificable (Sacos 50 Kg)", cc: "CC-OPE", cant: 100, costo: 195.00, isv: 1, subtotal: 19500.00 }
+        ]
+      },
+      {
+        numeroOC: "OC-2026-0091",
+        proveedor: "AgroInsumos del Valle",
+        rtn: "05011985443322",
+        estado: "RECIBIDA",
+        lineas: [
+          { sku: "1.1.05.02", desc: "Aceite Vegetal Industrial (Bidones 20 L)", cc: "CC-OPE", cant: 95, costo: 420.00, isv: 1, subtotal: 39900.00 }
+        ]
+      },
+      {
+        numeroOC: "OC-2026-0092",
+        proveedor: "Distribuidora Industrial S. de R.L.",
+        rtn: "08011999887766",
+        estado: "RECIBIDA",
+        lineas: [
+          { sku: "1.2.01.01", desc: "Compresor Inverter 12,000 BTU R410A", cc: "CC-ADM", cant: 10, costo: 3450.00, isv: 2, subtotal: 34500.00 }
+        ]
+      }
+    ];
+
+    const transaccionesDemo = [
+      { doc: "000-001-01-00045821", prov: "Distribuidora Industrial S. de R.L.", fecha: "17/09/2026", monto: 39675.00 },
+      { doc: "000-002-01-00091230", prov: "Molinos de Honduras S.A.", fecha: "15/09/2026", monto: 19500.00 },
+      { doc: "BOLETIN-2026-09-00812", prov: "ADMINISTRACION ADUANERA DE HONDURAS", fecha: "14/09/2026", monto: 114899.30 }
+    ];
+
+    let loteFacturasExcel = [];
+    let renglonesActivos = [];
+    let renglonIndexParaAsignarCuenta = null;
+    let zonaActivaActual = 'left';
+
+    function formatNumber(num) {
+      return (Number(num) || 0).toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function activarZona(zona) {
+      if (zonaActivaActual === zona) return;
+      zonaActivaActual = zona;
+
+      const zLeft = document.getElementById('zone-left');
+      const zCenter = document.getElementById('zone-center');
+      const zRight = document.getElementById('zone-right');
+
+      [ { el: zLeft, id: 'left' }, { el: zCenter, id: 'center' }, { el: zRight, id: 'right' } ].forEach(z => {
+        if (!z.el) return;
+        if (z.id === zona) {
+          z.el.classList.remove('zone-dimmed');
+          z.el.classList.add('zone-active');
+        } else {
+          z.el.classList.remove('zone-active');
+          z.el.classList.add('zone-dimmed');
+        }
+      });
+    }
+
+    function cambiarTipoDocumento(tipo) {
+      const campoAfectada = document.getElementById('campo-factura-afectada');
+      const bloqueCai = document.getElementById('bloque-cai');
+      const bloqueExpediente = document.getElementById('bloque-expediente-aduana');
+      const bloqueRango = document.getElementById('bloque-rango-cai');
+      const badge = document.getElementById('badge-doc-status');
+      
+      const lblRtn = document.getElementById('lbl-rtn');
+      const lblProveedor = document.getElementById('lbl-proveedor');
+      const inpRtn = document.getElementById('fac-rtn-proveedor');
+      const selProveedor = document.getElementById('fac-proveedor');
+      const lblDocLegal = document.getElementById('lbl-doc-legal');
+      const inpDocLegal = document.getElementById('fac-num-legal');
+      const lblGridTitle = document.getElementById('lbl-grid-title');
+      const lblOcrTitle = document.getElementById('lbl-ocr-title');
+      const lblOcrDrop = document.getElementById('lbl-ocr-drop-text');
+      const iconOcrBox = document.getElementById('icon-ocr-box');
+
+      campoAfectada.classList.add('hidden');
+      bloqueCai.classList.remove('hidden');
+      bloqueExpediente.classList.add('hidden');
+      bloqueRango.classList.remove('hidden');
+
+      if (tipo === 'aduana') {
+        badge.textContent = "ADUANA / DUA";
+        badge.className = "text-[9px] font-mono font-bold text-cyan-800 bg-cyan-50 border border-cyan-300 px-1.5 py-0.2 rounded";
+        
+        lblRtn.textContent = "RTN ADMINISTRACIÓN ADUANERA";
+        lblProveedor.textContent = "ADMINISTRACIÓN / ADUANA";
+        inpRtn.value = "08019015123456";
+        selProveedor.value = "ADMINISTRACION ADUANERA DE HONDURAS";
+
+        bloqueCai.classList.add('hidden');
+        bloqueRango.classList.add('hidden');
+        bloqueExpediente.classList.remove('hidden');
+
+        lblDocLegal.textContent = "# NRO DE BOLETÍN";
+        inpDocLegal.placeholder = "BOL-2026-09-00812";
+        inpDocLegal.value = "BOL-2026-09-00812";
+
+        lblGridTitle.textContent = "TRIBUTOS ADUANEROS Y CRÉDITOS LIQUIDADOS";
+        if (lblOcrTitle) lblOcrTitle.textContent = "OCR Boletín SAR";
+        if (lblOcrDrop) lblOcrDrop.textContent = "Arrastra Boletín Aduana (.pdf)";
+        if (iconOcrBox) iconOcrBox.textContent = "🚢";
+
+        renglonesActivos = [
+          {
+            sku: "1.1.07.01",
+            desc: "ISV Crédito Fiscal Aduanero Liquidado en DUA",
+            cc: "CC-ADM",
+            cant: 1,
+            costo: 70762.77,
+            isv: 0,
+            subtotal: 70762.77
+          },
+          {
+            sku: "5.1.02.01",
+            desc: "Derecho Arancelario a la Importación (DAI) Liquidado",
+            cc: "CC-ADM",
+            cant: 1,
+            costo: 42886.53,
+            isv: 0,
+            subtotal: 42886.53
+          },
+          {
+            sku: "5.1.02.02",
+            desc: "Tasa por Servicios de Aduana (TSA)",
+            cc: "CC-ADM",
+            cant: 1,
+            costo: 1250.00,
+            isv: 0,
+            subtotal: 1250.00
+          }
+        ];
+
+        renderizarTablaRenglones();
+        recalcularTotales();
+        evaluarDisparadoresAuxiliares();
+        return;
+      }
+
+      lblRtn.textContent = "RTN PROVEEDOR";
+      lblProveedor.textContent = "RAZÓN SOCIAL PROVEEDOR";
+      lblDocLegal.textContent = "# DOC. LEGAL";
+      inpDocLegal.placeholder = "000-001-01-00045821";
+      lblGridTitle.textContent = "DETALLE DE RENGLONES IMPUTADOS";
+      if (lblOcrTitle) lblOcrTitle.textContent = "OCR Evidencia";
+      if (lblOcrDrop) lblOcrDrop.textContent = "Arrastra comprobante o pega con Ctrl+V";
+      if (iconOcrBox) iconOcrBox.textContent = "📄";
+
+      if (tipo === 'factura') {
+        badge.textContent = "SAR FISCAL";
+        badge.className = "text-[9px] font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded";
+      } else if (tipo === 'recibo') {
+        badge.textContent = "RECIBO NO-CAI";
+        badge.className = "text-[9px] font-mono font-bold text-slate-600 bg-slate-100 border border-slate-200 px-1.5 py-0.2 rounded";
+        bloqueCai.classList.add('opacity-40', 'pointer-events-none');
+        bloqueRango.classList.add('opacity-40');
+      } else if (tipo === 'nota_credito' || tipo === 'nota_debito') {
+        campoAfectada.classList.remove('hidden');
+        badge.textContent = tipo === 'nota_credito' ? "NC FISCAL" : "ND FISCAL";
+        badge.className = "text-[9px] font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded";
+      }
+
+      evaluarDisparadoresAuxiliares();
+    }
+
+    function actualizarExpedienteAduana(valor) {
+      const badgeAduana = document.getElementById('aux-aduana-exp-badge');
+      if (badgeAduana) badgeAduana.textContent = valor || "SIN EXPEDIENTE";
+    }
+
+    function evaluarDisparadoresAuxiliares() {
+      const tipoDoc = document.getElementById('tipo-documento-fiscal').value;
+      const condicion = document.getElementById('fac-condicion-pago').value;
+      const paneles = ['inactivo', 'cajachica', 'activofijo', 'diferidos', 'multicentro', 'aduana'];
+      
+      const setPanel = (activoId, badgeText, badgeColorClass, labelText) => {
+        paneles.forEach(p => {
+          const el = document.getElementById(`aux-panel-${p}`);
+          if (el) {
+            if (p === activoId) el.classList.remove('hidden');
+            else el.classList.add('hidden');
+          }
+        });
+        const badge = document.getElementById('badge-aux-estado');
+        const label = document.getElementById('aux-activador-label');
+        const footer = document.getElementById('aux-footer-status');
+        const badgeImp = document.getElementById('badge-imputacion-status');
+        const auditorText = document.getElementById('auditor-text');
+        const auditorTag = document.getElementById('badge-auditor-tag');
+
+        if (badge) {
+          badge.textContent = badgeText;
+          badge.className = `text-[8px] font-mono font-bold border px-1.5 py-0.2 rounded ${badgeColorClass}`;
+        }
+        if (label) label.textContent = labelText;
+        if (footer) {
+          footer.textContent = activoId === 'inactivo' ? '● En reposo' : '● Activo y enlazado';
+          footer.className = activoId === 'inactivo' ? 'text-slate-400 font-bold' : 'text-emerald-700 font-bold';
+        }
+        if (badgeImp) {
+          badgeImp.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${activoId === 'inactivo' ? 'bg-slate-400' : 'bg-cyan-500'}"></span><span>${badgeText}</span>`;
+        }
+
+        if (activoId === 'aduana') {
+          if (auditorText) auditorText.textContent = "DUA y Boletín verificados. Base CIF y tributos validados contra expediente.";
+          if (auditorTag) auditorTag.textContent = "ADUANA OK";
+        } else {
+          if (auditorText) auditorText.textContent = "CAI verificado. Proveedor en base SAR. Factura lista para imputación de partida doble.";
+          if (auditorTag) auditorTag.textContent = "SAR OK";
+        }
+
+        if (activoId !== 'inactivo' && zonaActivaActual !== 'left') {
+          activarZona('right');
+        }
+      };
+
+      if (tipoDoc === 'aduana') {
+        const exp = document.getElementById('fac-expediente-num').value || "EXP-2026-IMP-0045";
+        actualizarExpedienteAduana(exp);
+        setPanel(
+          'aduana',
+          'ADUANA / DUA',
+          'bg-cyan-50 text-cyan-900 border-cyan-300',
+          `Comprobación: ${exp}`
+        );
+        return;
+      }
+
+      if (condicion === 'cajachica') {
+        setPanel(
+          'cajachica',
+          'CAJA CHICA',
+          'bg-amber-50 text-amber-900 border-amber-300',
+          'Condición: Reembolso / Fondo'
+        );
+        return;
+      }
+
+      let tieneActivoFijo = false;
+      let tieneDiferido = false;
+      let tieneGasto = false;
+      let subtotalDiferido = 0;
+
+      renglonesActivos.forEach(r => {
+        const sku = (r.sku || '').trim();
+        if (sku.startsWith('1.2.')) tieneActivoFijo = true;
+        if (sku.startsWith('1.1.08')) {
+          tieneDiferido = true;
+          subtotalDiferido += (Number(r.subtotal) || 0);
+        }
+        if (sku.startsWith('5.') && !sku.startsWith('5.1.02')) tieneGasto = true;
+      });
+
+      if (tieneActivoFijo) {
+        setPanel(
+          'activofijo',
+          'ACTIVO FIJO',
+          'bg-blue-50 text-blue-900 border-blue-300',
+          'Cuenta Grupo 1.2 (NIC 16)'
+        );
+      } else if (tieneDiferido) {
+        setPanel(
+          'diferidos',
+          'GASTO DIFERIDO',
+          'bg-purple-50 text-purple-900 border-purple-300',
+          'Cuenta Grupo 1.1.08'
+        );
+        const amort = subtotalDiferido > 0 ? (subtotalDiferido / 12) : 0;
+        const elAmort = document.getElementById('aux-amortizacion-mes');
+        if (elAmort) elAmort.textContent = `L ${formatNumber(amort)} / mes`;
+      } else if (tieneGasto) {
+        setPanel(
+          'multicentro',
+          'MULTICENTRO',
+          'bg-emerald-50 text-emerald-900 border-emerald-300',
+          'Resultados Grupo 5'
+        );
+      } else {
+        setPanel(
+          'inactivo',
+          'INACTIVO',
+          'bg-slate-100 text-slate-500 border-slate-200',
+          'Esperando condición o cuenta afín.'
+        );
+      }
+    }
+
+    function actualizarOCsPorProveedor(proveedor) {
+      const selectOC = document.getElementById('select-oc-pendiente');
+      const badgeCount = document.getElementById('badge-oc-count');
+      const inpRtn = document.getElementById('fac-rtn-proveedor');
+
+      selectOC.innerHTML = '';
+
+      if (!proveedor) {
+        selectOC.innerHTML = '<option value="">-- Seleccione Proveedor Primero --</option>';
+        badgeCount.textContent = '0 disp';
+        badgeCount.className = 'text-[9px] font-mono font-bold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.2 rounded';
+        inpRtn.value = '';
+        return;
+      }
+
+      if (proveedor === 'ADMINISTRACION ADUANERA DE HONDURAS') {
+        inpRtn.value = '08019015123456';
+        selectOC.innerHTML = '<option value="DUA-IMP-0045">DUA-2026-IMP-0045 • Liquidación Muelle Cortés</option>';
+        badgeCount.textContent = '1 disp';
+        badgeCount.className = 'text-[9px] font-mono font-bold text-cyan-800 bg-cyan-50 border border-cyan-300 px-1.5 py-0.2 rounded';
+        return;
+      }
+
+      const ocs = dbOrdenesCompra.filter(o => o.proveedor === proveedor && o.estado === "RECIBIDA");
+      if (ocs.length > 0) inpRtn.value = ocs[0].rtn;
+
+      badgeCount.textContent = `${ocs.length} disp`;
+      if (ocs.length > 0) {
+        badgeCount.className = 'text-[9px] font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-1.5 py-0.2 rounded';
+      }
+
+      if (ocs.length === 0) {
+        selectOC.innerHTML = '<option value="">(Sin OCs recibidas pendientes)</option>';
+        return;
+      }
+
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = "";
+      defaultOpt.textContent = `-- Seleccionar OC Recibida (${ocs.length}) --`;
+      selectOC.appendChild(defaultOpt);
+
+      ocs.forEach(oc => {
+        const total = oc.lineas.reduce((acc, l) => acc + l.subtotal, 0);
+        const opt = document.createElement('option');
+        opt.value = oc.numeroOC;
+        opt.textContent = `${oc.numeroOC} • ${formatNumber(total)}`;
+        selectOC.appendChild(opt);
+      });
+    }
+
+    function importarLineasOCSeleccionada() {
+      const ocNum = document.getElementById('select-oc-pendiente').value;
+      if (!ocNum) {
+        alert("Por favor seleccione un documento de la lista.");
+        return;
+      }
+
+      if (ocNum === 'DUA-IMP-0045') {
+        cambiarTipoDocumento('aduana');
+        document.getElementById('tipo-documento-fiscal').value = 'aduana';
+        return;
+      }
+
+      const oc = dbOrdenesCompra.find(o => o.numeroOC === ocNum);
+      if (!oc) return;
+
+      renglonesActivos = oc.lineas.map(l => ({ ...l }));
+      renderizarTablaRenglones();
+      recalcularTotales();
+      evaluarDisparadoresAuxiliares();
+      activarZona('center');
+    }
+
+    function agregarRenglonVacio() {
+      const tipoDoc = document.getElementById('tipo-documento-fiscal').value;
+      const isvDefault = (tipoDoc === 'aduana') ? 0 : 2;
+      const skuDefault = (tipoDoc === 'aduana') ? "1.1.07.01" : "1.1.05.01";
+      const descDefault = (tipoDoc === 'aduana') ? "Concepto Tributario Aduanal Liquidado" : "Nuevo concepto de compra o servicio";
+
+      renglonesActivos.push({
+        sku: skuDefault,
+        desc: descDefault,
+        cc: "CC-ADM",
+        cant: 1,
+        costo: 0.00,
+        isv: isvDefault,
+        subtotal: 0.00
+      });
+      renderizarTablaRenglones();
+      recalcularTotales();
+      evaluarDisparadoresAuxiliares();
+      activarZona('center');
+    }
+
+    function eliminarRenglon(idx) {
+      renglonesActivos.splice(idx, 1);
+      renderizarTablaRenglones();
+      recalcularTotales();
+      evaluarDisparadoresAuxiliares();
+    }
+
+    function actualizarDatoRenglon(idx, campo, valor) {
+      const linea = renglonesActivos[idx];
+      if (!linea) return;
+
+      if (campo === 'sku') {
+        linea.sku = valor;
+      } else if (campo === 'desc') {
+        linea.desc = valor;
+      } else if (campo === 'cc') {
+        linea.cc = valor;
+      } else if (campo === 'cant') {
+        linea.cant = parseFloat(valor) || 0;
+        linea.subtotal = linea.cant * linea.costo;
+      } else if (campo === 'costo') {
+        linea.costo = parseFloat(valor) || 0;
+        linea.subtotal = linea.cant * linea.costo;
+      } else if (campo === 'isv') {
+        linea.isv = parseInt(valor, 10) || 0;
+      }
+
+      const celdaSubtotal = document.getElementById(`subtotal-renglon-${idx}`);
+      if (celdaSubtotal) celdaSubtotal.textContent = formatNumber(linea.subtotal);
+
+      const labelCuenta = document.getElementById(`nombre-cuenta-${idx}`);
+      if (labelCuenta && campo === 'sku') {
+        labelCuenta.textContent = catalogoCuentasNIIF[linea.sku] || "Cuenta General Imputada";
+      }
+
+      recalcularTotales();
+      evaluarDisparadoresAuxiliares();
+    }
+
+    function renderizarTablaRenglones() {
+      const tbody = document.getElementById('lineas-factura-body');
+      tbody.innerHTML = '';
+
+      if (renglonesActivos.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-16 bg-slate-50/40 hover:bg-amber-50/40 transition-colors cursor-pointer group" onclick="agregarRenglonVacio()">
+              <div class="flex flex-col items-center justify-center gap-1.5">
+                <span class="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-slate-700 font-black text-sm group-hover:scale-110 group-hover:border-amber-400 group-hover:text-amber-600 transition-all">
+                  ＋
+                </span>
+                <div>
+                  <div class="text-xs font-bold font-mono text-slate-700 group-hover:text-amber-800 transition-colors">
+                    Presione aquí para insertar renglón
+                  </div>
+                  <div class="text-[9px] font-mono text-slate-400">
+                    O cargue una Orden de Compra o Liquidación arriba
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      renglonesActivos.forEach((l, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100 hover:bg-slate-50/70 transition-colors";
+        
+        const nombreCuenta = catalogoCuentasNIIF[l.sku] || "Cuenta General Imputada";
+
+        tr.innerHTML = `
+          <td class="p-1 align-top w-[160px] min-w-[160px] max-w-[160px] shrink-0 border-r border-slate-100">
+            <input type="text" value="${l.sku}" 
+              oninput="actualizarDatoRenglon(${idx}, 'sku', this.value)" 
+              ondblclick="abrirModalCatalogoCuentas(${idx})"
+              title="Doble clic para ver Catálogo NIIF"
+              placeholder="Ej: 1.1.05.01"
+              class="cell-frameless font-bold text-slate-900 cursor-pointer text-xs">
+            <div id="nombre-cuenta-${idx}" class="text-[8px] font-mono text-slate-400 leading-tight mt-0.5 truncate px-1" title="${nombreCuenta}">
+              ${nombreCuenta}
+            </div>
+          </td>
+
+          <td class="p-1 align-top">
+            <input type="text" value="${l.desc}" oninput="actualizarDatoRenglon(${idx}, 'desc', this.value)" class="cell-frameless text-slate-700">
+          </td>
+
+          <td class="p-1 align-top w-[85px] min-w-[85px] shrink-0 text-center">
+            <select onchange="actualizarDatoRenglon(${idx}, 'cc', this.value)" class="cell-frameless text-center text-slate-600 cursor-pointer">
+              <option value="CC-ADM" ${l.cc === 'CC-ADM' ? 'selected' : ''}>CC-ADM</option>
+              <option value="CC-OPE" ${l.cc === 'CC-OPE' ? 'selected' : ''}>CC-OPE</option>
+              <option value="CC-VEN" ${l.cc === 'CC-VEN' ? 'selected' : ''}>CC-VEN</option>
+            </select>
+          </td>
+
+          <td class="p-1 align-top w-[75px] min-w-[75px] shrink-0">
+            <input type="number" step="0.01" value="${l.cant}" oninput="actualizarDatoRenglon(${idx}, 'cant', this.value)" class="cell-frameless text-right font-bold text-slate-900">
+          </td>
+
+          <td class="p-1 align-top w-[105px] min-w-[105px] shrink-0">
+            <input type="number" step="0.01" value="${l.costo}" oninput="actualizarDatoRenglon(${idx}, 'costo', this.value)" class="cell-frameless text-right text-slate-900 font-semibold">
+          </td>
+
+          <td class="p-1 align-top text-center w-[55px] min-w-[55px] shrink-0">
+            <select onchange="actualizarDatoRenglon(${idx}, 'isv', this.value)" class="cell-frameless text-center font-bold text-slate-800 cursor-pointer">
+              <option value="0" ${l.isv === 0 ? 'selected' : ''} class="font-bold text-cyan-900" title="Aduana 0%">0</option>
+              <option value="1" ${l.isv === 1 ? 'selected' : ''} title="Exento">1</option>
+              <option value="2" ${l.isv === 2 ? 'selected' : ''} title="Gravado 15%">2</option>
+              <option value="3" ${l.isv === 3 ? 'selected' : ''} title="Gravado 18%">3</option>
+            </select>
+          </td>
+
+          <td class="p-1 align-top text-right font-black text-slate-900 pt-1.5 font-mono w-[120px] min-w-[120px] shrink-0" id="subtotal-renglon-${idx}">
+            ${formatNumber(l.subtotal)}
+          </td>
+
+          <td class="p-1 align-top text-center w-[35px] min-w-[35px] shrink-0 pt-1.5">
+            <button type="button" onclick="eliminarRenglon(${idx})" title="Eliminar renglón" class="text-slate-300 hover:text-rose-600 font-bold text-xs transition cursor-pointer">
+              &times;
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const trAdd = document.createElement('tr');
+      trAdd.className = "bg-slate-50/40 border-t border-slate-100";
+      trAdd.innerHTML = `
+        <td colspan="8" class="p-1.5 text-left">
+          <button type="button" onclick="agregarRenglonVacio()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-dashed border-slate-300 hover:border-amber-500 hover:bg-amber-50/50 text-slate-600 hover:text-amber-900 font-mono text-xs font-bold transition-all cursor-pointer group">
+            <span class="text-amber-600 font-black group-hover:scale-125 transition-transform">＋</span>
+            <span>Agregar renglón</span>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(trAdd);
+    }
+
+    function recalcularTotales() {
+      const tipoDoc = document.getElementById('tipo-documento-fiscal').value;
+      let exento = 0;
+      let grav15 = 0;
+      let grav18 = 0;
+      let isv = 0;
+
+      renglonesActivos.forEach(l => {
+        const sub = Number(l.subtotal) || 0;
+        if (l.isv === 1 || l.isv === 0) {
+          exento += sub;
+        } else if (l.isv === 2) {
+          grav15 += sub;
+          isv += sub * 0.15;
+        } else if (l.isv === 3) {
+          grav18 += sub;
+          isv += sub * 0.18;
+        }
+      });
+
+      const retencion = document.getElementById('chk-retencion-1').checked ? (grav15 * 0.01) : 0;
+      const totalNeto = exento + grav15 + grav18 + isv - retencion;
+
+      document.getElementById('lbl-tot-exento').textContent = formatNumber(exento);
+      document.getElementById('lbl-tot-grav15').textContent = formatNumber(grav15);
+      document.getElementById('lbl-tot-grav18').textContent = formatNumber(grav18);
+      document.getElementById('lbl-tot-isv').textContent = formatNumber(isv);
+      document.getElementById('lbl-neto-pagar').textContent = formatNumber(totalNeto);
+
+      const totalDebe = exento + grav15 + grav18;
+      actualizarCuentasMarquee(totalDebe, isv, retencion, totalNeto, tipoDoc);
+    }
+
+    function actualizarCuentasMarquee(debe, isv, retencion, haber, tipoDoc) {
+      const wrapper = document.getElementById('contenedor-marquee-wrapper');
+      const carril = document.getElementById('carril-asiento-cuentas');
+      if (!wrapper || !carril) return;
+
+      carril.classList.remove('animate-marquee');
+
+      let cuentasHtml = "";
+
+      if (tipoDoc === 'aduana') {
+        cuentasHtml = `
+          <span class="bg-cyan-50 text-cyan-950 px-2 py-0.5 rounded-lg border border-cyan-200 shrink-0 font-bold">
+            [1.1.07.01 Crédito Fiscal ISV Aduana] Debe: ${formatNumber(70762.77)}
+          </span>
+          <span class="bg-cyan-50 text-cyan-950 px-2 py-0.5 rounded-lg border border-cyan-200 shrink-0 font-bold">
+            [5.1.02.01 Aranceles DAI / TSA Costeo] Debe: ${formatNumber(44136.53)}
+          </span>
+          <span class="bg-slate-100 text-slate-900 font-bold px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+            [1.1.01 Bancos / Pago Boletín SAR] Haber: ${formatNumber(haber)}
+          </span>
+        `;
+      } else {
+        cuentasHtml = `
+          <span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+            [1.1.05 Inventario / Gastos] Debe: ${formatNumber(debe)}
+          </span>
+        `;
+
+        if (isv > 0) {
+          cuentasHtml += `
+            <span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+              [1.1.07 Crédito Fiscal ISV Comercial] Debe: ${formatNumber(isv)}
+            </span>
+          `;
+        }
+
+        if (retencion > 0) {
+          cuentasHtml += `
+            <span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+              [2.1.05 Retención 1% ISV SAR] Haber: ${formatNumber(retencion)}
+            </span>
+          `;
+        }
+
+        cuentasHtml += `
+          <span class="bg-slate-100 text-slate-900 font-bold px-2 py-0.5 rounded-lg border border-slate-200 shrink-0">
+            [2.1.01 Proveedores Locales CxP] Haber: ${formatNumber(haber)}
+          </span>
+        `;
+      }
+
+      carril.innerHTML = cuentasHtml;
+
+      requestAnimationFrame(() => {
+        if (carril.scrollWidth > wrapper.clientWidth) {
+          carril.innerHTML = cuentasHtml + cuentasHtml;
+          carril.classList.add('animate-marquee');
+        }
+      });
+    }
+
+    function toggleMenuAccionesFlotante(e) {
+      e.stopPropagation();
+      const menu = document.getElementById('dropup-menu-acciones');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('dropup-menu-acciones');
+      const btn = document.getElementById('btn-toggle-dropup');
+      if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+
+    function guardarBorradorAccion() {
+      const menu = document.getElementById('dropup-menu-acciones');
+      if (menu) menu.classList.add('hidden');
+      alert("Borrador de compra/boletín guardado exitosamente.");
+    }
+
+    function limpiarTodoFormulario() {
+      const menu = document.getElementById('dropup-menu-acciones');
+      if (menu) menu.classList.add('hidden');
+
+      if (!confirm("¿Está seguro de que desea limpiar todos los campos y renglones de la pantalla?")) return;
+
+      document.getElementById('fac-rtn-proveedor').value = '';
+      document.getElementById('fac-proveedor').value = '';
+      document.getElementById('fac-num-legal').value = '';
+      document.getElementById('fac-observaciones').value = '';
+      document.getElementById('fac-ref-usd').value = '';
+      document.getElementById('select-oc-pendiente').value = '';
+      document.getElementById('chk-retencion-1').checked = false;
+      document.getElementById('fac-condicion-pago').value = 'credito30';
+      document.getElementById('tipo-documento-fiscal').value = 'factura';
+      cambiarTipoDocumento('factura');
+
+      const ocrStatus = document.getElementById('ocr-status');
+      if (ocrStatus) ocrStatus.classList.add('hidden');
+
+      renglonesActivos = [];
+      renderizarTablaRenglones();
+      recalcularTotales();
+      evaluarDisparadoresAuxiliares();
+      activarZona('left');
+    }
+
+    function abrirModalBuscarTransacciones() {
+      const menu = document.getElementById('dropup-menu-acciones');
+      if (menu) menu.classList.add('hidden');
+
+      filtrarTransaccionesHistoricas('');
+      document.getElementById('modal-buscar-transacciones').classList.remove('hidden');
+      document.getElementById('busq-transaccion-input').value = '';
+      document.getElementById('busq-transaccion-input').focus();
+    }
+
+    function cerrarModalBuscarTransacciones() {
+      document.getElementById('modal-buscar-transacciones').classList.add('hidden');
+    }
+
+    function filtrarTransaccionesHistoricas(query) {
+      const container = document.getElementById('lista-transacciones-historicas');
+      container.innerHTML = '';
+      const q = query.toLowerCase().trim();
+
+      transaccionesDemo.forEach(t => {
+        if (!q || t.doc.toLowerCase().includes(q) || t.prov.toLowerCase().includes(q)) {
+          const div = document.createElement('div');
+          div.className = "p-2 hover:bg-amber-50 cursor-pointer flex items-center justify-between transition-colors";
+          div.onclick = () => {
+            alert(`Cargando comprobante ${t.doc}...`);
+            cerrarModalBuscarTransacciones();
+          };
+          div.innerHTML = `
+            <div>
+              <span class="font-bold text-slate-900">${t.doc}</span>
+              <span class="text-slate-500 block text-[9px] font-sans">${t.prov} &bull; ${t.fecha}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-black text-slate-900">L ${formatNumber(t.monto)}</span>
+            </div>
+          `;
+          container.appendChild(div);
+        }
+      });
+    }
+
+    function abrirModalCatalogoCuentas(idx) {
+      renglonIndexParaAsignarCuenta = idx;
+      filtrarCatalogoCuentas('');
+      document.getElementById('modal-catalogo-cuentas').classList.remove('hidden');
+      document.getElementById('busq-cuenta-input').value = '';
+      document.getElementById('busq-cuenta-input').focus();
+    }
+
+    function cerrarModalCuentas() {
+      document.getElementById('modal-catalogo-cuentas').classList.add('hidden');
+      renglonIndexParaAsignarCuenta = null;
+    }
+
+    function filtrarCatalogoCuentas(query) {
+      const container = document.getElementById('lista-cuentas-catalogo');
+      container.innerHTML = '';
+      const q = query.toLowerCase().trim();
+
+      Object.entries(catalogoCuentasNIIF).forEach(([cod, desc]) => {
+        if (!q || cod.includes(q) || desc.toLowerCase().includes(q)) {
+          const div = document.createElement('div');
+          div.className = "p-2 hover:bg-amber-50/80 cursor-pointer flex items-center justify-between transition-colors";
+          div.onclick = () => seleccionarCuentaModal(cod);
+          div.innerHTML = `
+            <div>
+              <span class="font-bold text-slate-900">${cod}</span>
+              <span class="text-slate-600 block text-[10px] font-sans">${desc}</span>
+            </div>
+            <span class="text-[9px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Elegir</span>
+          `;
+          container.appendChild(div);
+        }
+      });
+    }
+
+    function seleccionarCuentaModal(codigo) {
+      if (renglonIndexParaAsignarCuenta !== null) {
+        actualizarDatoRenglon(renglonIndexParaAsignarCuenta, 'sku', codigo);
+        renderizarTablaRenglones();
+      }
+      cerrarModalCuentas();
+    }
+
+    function simularImportacionExcel() {
+      loteFacturasExcel = [
+        { num: "000-001-01-00045821", prov: "Distribuidora Industrial S. de R.L.", total: 39675.00, estado: "Válida SAR" },
+        { num: "000-002-01-00091230", prov: "Molinos de Honduras S.A.", total: 19500.00, estado: "Válida SAR" },
+        { num: "BOLETIN-2026-09-00812", prov: "ADMINISTRACION ADUANERA DE HONDURAS", total: 114899.30, estado: "Boletín Pagado" }
+      ];
+
+      const btn = document.getElementById('btn-status-import');
+      const lblCount = document.getElementById('lbl-status-import-count');
+      const lblSub = document.getElementById('lbl-status-import-sub');
+
+      btn.disabled = false;
+      btn.className = "bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl px-2.5 py-1.5 h-12 flex items-center gap-2 text-emerald-800 transition cursor-pointer shadow-xs group text-left";
+      lblCount.textContent = `${loteFacturasExcel.length} Documentos`;
+      lblCount.className = "font-mono font-black text-xs text-emerald-900 leading-tight";
+      lblSub.textContent = "Ver lote importado";
+      lblSub.className = "font-mono text-[8px] text-emerald-700 leading-none underline";
+
+      alert(`¡Archivo Excel procesado con éxito! Se han precargado ${loteFacturasExcel.length} documentos.`);
+      activarZona('right');
+    }
+
+    function abrirModalLotePrecargado() {
+      const modal = document.getElementById('modal-lote-precargado');
+      const tbody = document.getElementById('lote-facturas-body');
+      const resumen = document.getElementById('modal-lote-resumen');
+
+      if (!modal || !tbody) return;
+      tbody.innerHTML = '';
+      resumen.textContent = `${loteFacturasExcel.length} documentos precargados pendientes de asentar`;
+
+      loteFacturasExcel.forEach(fac => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100 hover:bg-slate-50";
+        tr.innerHTML = `
+          <td class="p-2 font-bold text-slate-800">${fac.num}</td>
+          <td class="p-2 text-slate-600">${fac.prov}</td>
+          <td class="p-2 text-right font-black text-slate-900">${formatNumber(fac.total)}</td>
+          <td class="p-2 text-center"><span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded text-[9px] font-bold">${fac.estado}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    function cerrarModalLotePrecargado() {
+      document.getElementById('modal-lote-precargado').classList.add('hidden');
+    }
+
+    function limpiarLoteExcel() {
+      loteFacturasExcel = [];
+      const btn = document.getElementById('btn-status-import');
+      const lblCount = document.getElementById('lbl-status-import-count');
+      const lblSub = document.getElementById('lbl-status-import-sub');
+
+      btn.disabled = true;
+      btn.className = "bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 h-12 flex items-center gap-2 text-slate-400 transition cursor-not-allowed shadow-2xs group text-left";
+      lblCount.textContent = "0 Facturas";
+      lblCount.className = "font-mono font-black text-xs text-slate-500 leading-tight";
+      lblSub.textContent = "Sin lote activo";
+      lblSub.className = "font-mono text-[8px] text-slate-400 leading-none";
+
+      cerrarModalLotePrecargado();
+    }
+
+    function abrirModalBuscarProveedor() {
+      document.getElementById('modal-proveedor').classList.remove('hidden');
+    }
+
+    function cerrarModalBuscarProveedor() {
+      document.getElementById('modal-proveedor').classList.add('hidden');
+    }
+
+    function seleccionarProveedorModal(rtn, nombre) {
+      document.getElementById('fac-rtn-proveedor').value = rtn;
+      const sel = document.getElementById('fac-proveedor');
+      sel.value = nombre;
+      actualizarOCsPorProveedor(nombre);
+      cerrarModalBuscarProveedor();
+    }
+
+    function guardarNuevoProveedor() {
+      const rtn = document.getElementById('nuevo-prov-rtn').value.trim();
+      const nombre = document.getElementById('nuevo-prov-nombre').value.trim();
+      if (!rtn || !nombre) {
+        alert("Ingrese RTN y Razón Social");
+        return;
+      }
+      const sel = document.getElementById('fac-proveedor');
+      const opt = document.createElement('option');
+      opt.value = nombre;
+      opt.textContent = nombre;
+      opt.selected = true;
+      sel.appendChild(opt);
+
+      document.getElementById('fac-rtn-proveedor').value = rtn;
+      actualizarOCsPorProveedor(nombre);
+      cerrarModalBuscarProveedor();
+    }
+
+    function procesarArchivoOCR(input) {
+      if (input.files && input.files[0]) {
+        mostrarStatusOCR(input.files[0].name);
+      }
+    }
+
+    function procesarPegadoOCR(e) {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (let item of items) {
+        if (item.kind === 'file') {
+          const blob = item.getAsFile();
+          mostrarStatusOCR("Captura del Portapapeles (Imagen/PDF)");
+          break;
+        }
+      }
+    }
+
+    function mostrarStatusOCR(nombre) {
+      const status = document.getElementById('ocr-status');
+      status.textContent = `✓ Documento cargado: ${nombre}`;
+      status.classList.remove('hidden');
+    }
+
+    evaluarDisparadoresAuxiliares();
+    activarZona('left');
+  
+    // ==============================================================
+    // CONTROLADORES Y MOTOR DEL LIBRO DE COMPRAS FISCAL SAR
+    // ==============================================================
+    const LIBRO_COMPRAS_REGISTROS_BASE = [
+      {
+        fecha: "2026-09-05",
+        factura: "001-003-01-00034821",
+        cai: "8F4C2A-9E1B3D-7788BB-654321-1234AA-99",
+        rtn: "08011990123456",
+        proveedor: "DISTRIBUIDORA INDUSTRIAL S.A.",
+        exento: 0.00,
+        grav15: 72500.00,
+        grav18: 0.00,
+        credito15: 10875.00,
+        credito18: 0.00,
+        ret1: 725.00,
+        total: 83375.00
+      },
+      {
+        fecha: "2026-09-08",
+        factura: "000-002-01-00012940",
+        cai: "2B7F1C-6E8A9D-4455CC-987654-3210DD-44",
+        rtn: "08011985112233",
+        proveedor: "PAPELERÍA & SUMINISTROS DE HONDURAS",
+        exento: 3200.00,
+        grav15: 15400.00,
+        grav18: 0.00,
+        credito15: 2310.00,
+        credito18: 0.00,
+        ret1: 154.00,
+        total: 20910.00
+      },
+      {
+        fecha: "2026-09-12",
+        factura: "001-001-01-00088210",
+        cai: "9C3D1E-5F7A2B-1122DD-456789-8765EE-55",
+        rtn: "08011979334455",
+        proveedor: "IMPORTADORA TECNOLÓGICA S.A.",
+        exento: 0.00,
+        grav15: 128000.00,
+        grav18: 0.00,
+        credito15: 19200.00,
+        credito18: 0.00,
+        ret1: 1280.00,
+        total: 147200.00
+      },
+      {
+        fecha: "2026-09-14",
+        factura: "DUA-2026-09-00812",
+        cai: "POLIZA-ADUANERA-PUERTO-CORTES",
+        rtn: "08019995223344",
+        proveedor: "ADMINISTRACIÓN ADUANERA DE HONDURAS (ADUANA PUERTO CORTÉS)",
+        exento: 15000.00,
+        grav15: 86868.96,
+        grav18: 0.00,
+        credito15: 13030.34,
+        credito18: 0.00,
+        ret1: 0.00,
+        total: 114899.30
+      },
+      {
+        fecha: "2026-09-16",
+        factura: "000-001-01-00054320",
+        cai: "4A1B2C-3D4E5F-6677EE-889900-1122FF-33",
+        rtn: "08011980001122",
+        proveedor: "ENEE - EMPRESA NACIONAL DE ENERGÍA ELÉCTRICA",
+        exento: 0.00,
+        grav15: 38200.00,
+        grav18: 0.00,
+        credito15: 5730.00,
+        credito18: 0.00,
+        ret1: 382.00,
+        total: 43930.00
+      },
+      {
+        fecha: "2026-09-17",
+        factura: "000-001-01-00045821",
+        cai: "7B8C9D-1E2F3A-4455BB-667788-9900CC-11",
+        rtn: "08011990123456",
+        proveedor: "DISTRIBUIDORA INDUSTRIAL S. DE R.L.",
+        exento: 0.00,
+        grav15: 34500.00,
+        grav18: 0.00,
+        credito15: 5175.00,
+        credito18: 0.00,
+        ret1: 345.00,
+        total: 39675.00
+      },
+      {
+        fecha: "2026-09-18",
+        factura: "000-003-01-00009845",
+        cai: "5B2C3D-4E5F6A-7788FF-990011-2233AA-44",
+        rtn: "08011993445566",
+        proveedor: "CLARO HONDURAS / TELECOMUNICACIONES",
+        exento: 0.00,
+        grav15: 12500.00,
+        grav18: 0.00,
+        credito15: 1875.00,
+        credito18: 0.00,
+        ret1: 125.00,
+        total: 14375.00
+      }
+    ];
+
+    let libroComprasDataFiltrada = [];
+
+        function abrirModalLibroCompras() {
+      const menu = document.getElementById('dropup-menu-acciones');
+      if (menu) menu.classList.add('hidden');
+
+      // Determina la ruta correcta según el entorno (estático o servidor backend)
+      const targetUrl = window.location.pathname.includes('.html')
+        ? 'libro_compras_ledger.html'
+        : '/compras/libro-compras';
+
+      window.open(targetUrl, '_blank');
+    }
+
+    function cerrarModalLibroCompras() {
+      const modal = document.getElementById('modal-libro-compras');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function filtrarLibroCompras(query = '') {
+      const q = (query || '').toLowerCase().trim();
+      const mesSelect = document.getElementById('filtro-libro-mes');
+      const mes = mesSelect ? mesSelect.value : 'TODOS';
+
+      const tbody = document.getElementById('tabla-libro-compras-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      let totalGravada = 0;
+      let totalExenta = 0;
+      let totalCreditoISV = 0;
+      let totalMonto = 0;
+      let count = 0;
+
+      libroComprasDataFiltrada = [];
+
+      LIBRO_COMPRAS_REGISTROS_BASE.forEach(r => {
+        const matchesQuery = !q || 
+          (r.rtn && r.rtn.toLowerCase().includes(q)) ||
+          (r.proveedor && r.proveedor.toLowerCase().includes(q)) ||
+          (r.factura && r.factura.toLowerCase().includes(q)) ||
+          (r.cai && r.cai.toLowerCase().includes(q));
+
+        const matchesMes = mes === 'TODOS' || (r.fecha && r.fecha.startsWith(mes));
+
+        if (matchesQuery && matchesMes) {
+          libroComprasDataFiltrada.push(r);
+          count++;
+          totalGravada += (r.grav15 || 0) + (r.grav18 || 0);
+          totalExenta += (r.exento || 0);
+          const isv = (r.credito15 || 0) + (r.credito18 || 0);
+          totalCreditoISV += isv;
+          totalMonto += (r.total || 0);
+
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-amber-50/60 transition-colors";
+          tr.innerHTML = `
+            <td class="py-2 px-3 text-slate-600 whitespace-nowrap">${r.fecha}</td>
+            <td class="py-2 px-3 font-semibold text-slate-800 whitespace-nowrap">${r.rtn}</td>
+            <td class="py-2 px-3 max-w-[220px] truncate" title="${escapeHtml(r.proveedor)}">
+              <span class="font-medium text-slate-900">${escapeHtml(r.proveedor)}</span>
+            </td>
+            <td class="py-2 px-3 font-semibold text-amber-900 whitespace-nowrap">${r.factura}</td>
+            <td class="py-2 px-3 text-right text-slate-800 font-medium">L ${formatNumber(r.grav15 || 0)}</td>
+            <td class="py-2 px-3 text-right text-slate-500 font-medium">L ${formatNumber(r.exento || 0)}</td>
+            <td class="py-2 px-3 text-right text-emerald-600 font-bold">L ${formatNumber(isv)}</td>
+            <td class="py-2 px-3 text-right font-black text-slate-900">L ${formatNumber(r.total || 0)}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+
+      if (count === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-8 text-slate-400 font-mono text-xs">
+              No se encontraron registros de compras que coincidan con los filtros aplicados.
+            </td>
+          </tr>
+        `;
+      }
+
+      // Actualizar Totales en el Pie
+      const elCount = document.getElementById('total-docs-libro');
+      const elGrav = document.getElementById('total-gravada-libro');
+      const elIsv = document.getElementById('total-isv-libro');
+      const elTot = document.getElementById('total-compras-libro');
+
+      if (elCount) elCount.textContent = `${count} reg.`;
+      if (elGrav) elGrav.textContent = `L ${formatNumber(totalGravada)}`;
+      if (elIsv) elIsv.textContent = `L ${formatNumber(totalCreditoISV)}`;
+      if (elTot) elTot.textContent = `L ${formatNumber(totalMonto)}`;
+    }
+
+    function exportarLibroComprasCSV() {
+      const data = (libroComprasDataFiltrada && libroComprasDataFiltrada.length > 0) ? libroComprasDataFiltrada : LIBRO_COMPRAS_REGISTROS_BASE;
+      
+      const headers = ["Fecha", "RTN Proveedor", "Razon Social", "CAI", "No Documento", "Base Gravada 15%", "Base Gravada 18%", "Exento", "Credito Fiscal ISV 15%", "Credito Fiscal ISV 18%", "Retencion 1%", "Total Lempiras"];
+      
+      let csvContent = "\uFEFF"; // UTF-8 BOM para Excel
+      csvContent += headers.join(",") + "\r\n";
+
+      data.forEach(r => {
+        const row = [
+          `"${r.fecha || ''}"`,
+          `"${r.rtn || ''}"`,
+          `"${(r.proveedor || '').replace(/"/g, '""')}"`,
+          `"${r.cai || ''}"`,
+          `"${r.factura || ''}"`,
+          (r.grav15 || 0).toFixed(2),
+          (r.grav18 || 0).toFixed(2),
+          (r.exento || 0).toFixed(2),
+          (r.credito15 || 0).toFixed(2),
+          (r.credito18 || 0).toFixed(2),
+          (r.ret1 || 0).toFixed(2),
+          (r.total || 0).toFixed(2)
+        ];
+        csvContent += row.join(",") + "\r\n";
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Libro_de_Compras_SAR_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function imprimirLibroCompras() {
+      const data = (libroComprasDataFiltrada && libroComprasDataFiltrada.length > 0) ? libroComprasDataFiltrada : LIBRO_COMPRAS_REGISTROS_BASE;
+      
+      let totalGravada = 0;
+      let totalExenta = 0;
+      let totalISV = 0;
+      let totalGeneral = 0;
+
+      let filasHtml = data.map((r, i) => {
+        totalGravada += (r.grav15 || 0) + (r.grav18 || 0);
+        totalExenta += (r.exento || 0);
+        const isv = (r.credito15 || 0) + (r.credito18 || 0);
+        totalISV += isv;
+        totalGeneral += (r.total || 0);
+
+        return `
+          <tr style="border-bottom: 1px solid #e2e8f0; font-size: 11px;">
+            <td style="padding: 6px 8px;">${r.fecha}</td>
+            <td style="padding: 6px 8px; font-weight: bold;">${r.rtn}</td>
+            <td style="padding: 6px 8px;">${escapeHtml(r.proveedor)}</td>
+            <td style="padding: 6px 8px; font-weight: bold;">${r.factura}</td>
+            <td style="padding: 6px 8px; text-align: right;">L ${formatNumber(r.grav15 || 0)}</td>
+            <td style="padding: 6px 8px; text-align: right;">L ${formatNumber(r.exento || 0)}</td>
+            <td style="padding: 6px 8px; text-align: right; color: #047857; font-weight: bold;">L ${formatNumber(isv)}</td>
+            <td style="padding: 6px 8px; text-align: right; font-weight: bold;">L ${formatNumber(r.total || 0)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const ventana = window.open('', '_blank', 'width=1000,height=700');
+      const docHtml = '<!DOCTYPE html>' +
+        '<html>' +
+        '<head>' +
+        '<title>Reporte Oficial - Libro de Compras SAR</title>' +
+        '<style>' +
+        'body { font-family: Arial, sans-serif; margin: 20px; color: #1e293b; }' +
+        'h1 { font-size: 18px; margin: 0; text-transform: uppercase; letter-spacing: 1px; }' +
+        'h2 { font-size: 13px; margin: 4px 0 16px 0; color: #64748b; font-weight: normal; }' +
+        'table { width: 100%; border-collapse: collapse; margin-top: 10px; }' +
+        'th { background-color: #1e293b; color: #ffffff; padding: 8px; font-size: 10px; text-align: left; text-transform: uppercase; }' +
+        'th.right { text-align: right; }' +
+        '.totals-box { margin-top: 20px; border-top: 2px solid #0f172a; padding-top: 10px; display: flex; justify-content: flex-end; gap: 30px; font-size: 12px; font-weight: bold; }' +
+        '@media print { body { margin: 10mm; } button { display: none; } }' +
+        '</style>' +
+        '</head>' +
+        '<body>' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #0f172a; padding-bottom: 10px;">' +
+        '<div><h1>HORIZON LEDGER CORE &bull; LIBRO DE COMPRAS FISCAL</h1><h2>RÉGIMEN DE FACTURACIÓN SAR &bull; PERÍODO FISCAL 2026</h2></div>' +
+        '<div style="text-align:right; font-size:11px; color:#64748b;">Generado: ' + new Date().toLocaleString('es-HN') + '<br>RTN Empresa: 08011985123456</div>' +
+        '</div>' +
+        '<table><thead><tr><th>Fecha</th><th>RTN</th><th>Razón Social / Proveedor</th><th># Documento / DUA</th><th class="right">Gravada 15%</th><th class="right">Exento</th><th class="right">Crédito Fiscal ISV</th><th class="right">Total Lempiras</th></tr></thead>' +
+        '<tbody>' + filasHtml + '</tbody></table>' +
+        '<div class="totals-box">' +
+        '<div>Documentos: ' + data.length + '</div>' +
+        '<div>Base Gravada: L ' + formatNumber(totalGravada) + '</div>' +
+        '<div>Crédito Fiscal ISV: L ' + formatNumber(totalISV) + '</div>' +
+        '<div>Total Adquisiciones: L ' + formatNumber(totalGeneral) + '</div>' +
+        '</div>' +
+        '<' + 'script>window.onload = function() { window.print(); }<' + '/script>' +
+        '</body></html>';
+
+      ventana.document.write(docHtml);
+      ventana.document.close();
+    }
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<div id="pane-aux-retenciones" class="hz-aux-pane hidden space-y-2 font-mono text-xs">
+        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-2 text-amber-950 flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm">🏛️</span>
+            <div>
+              <div class="font-black text-[10px]">RETENCIONES FISCALES SAR</div>
+              <div class="text-[8px] text-amber-800">Art. 50 Ley de ISR &amp; Agente de Retención</div>
+            </div>
+          </div>
+          <span class="text-[8px] bg-white px-1.5 py-0.5 rounded border border-amber-300 font-bold text-amber-900">MULTIRRETENCIÓN</span>
+        </div>
+
+        <!-- Selector interactivo de retenciones aplicables -->
+        <div>
+          <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">Régimen / Retenciones Aplicables:</label>
+          <div class="grid grid-cols-2 gap-1 text-[10px]">
+            <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 hover:bg-amber-50 rounded-lg border border-slate-200 cursor-pointer transition">
+              <input type="checkbox" id="chk-ret-1pct" onchange="hzToggleRetSubform('1pct')" class="rounded text-amber-500">
+              <span class="font-bold text-[9px] text-slate-700">1% Anticipo ISR</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 hover:bg-amber-50 rounded-lg border border-slate-200 cursor-pointer transition">
+              <input type="checkbox" id="chk-ret-125pct" onchange="hzToggleRetSubform('125pct')" checked class="rounded text-amber-500">
+              <span class="font-bold text-[9px] text-slate-700">12.5% Honorarios PN</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 hover:bg-amber-50 rounded-lg border border-slate-200 cursor-pointer transition">
+              <input type="checkbox" id="chk-ret-10pct" onchange="hzToggleRetSubform('10pct')" class="rounded text-amber-500">
+              <span class="font-bold text-[9px] text-slate-700">10% Alquiler / PJ</span>
+            </label>
+            <label class="flex items-center gap-1.5 p-1.5 bg-slate-50 hover:bg-amber-50 rounded-lg border border-slate-200 cursor-pointer transition">
+              <input type="checkbox" id="chk-ret-isv" onchange="hzToggleRetSubform('isv')" class="rounded text-amber-500">
+              <span class="font-bold text-[9px] text-slate-700">Agente Ret. ISV</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Subformularios independientes dinámicos -->
+        <div class="space-y-2">
+          
+          <!-- SUBFORM: 12.5% Honorarios Profesionales -->
+          <div id="subform-ret-125pct" class="p-2 rounded-xl border border-amber-200 bg-amber-50/30 space-y-1.5">
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="font-bold text-amber-950 flex items-center gap-1">
+                <span>📄</span><span>Retención 12.5% Honorarios (PN)</span>
+              </span>
+              <span class="text-[8px] bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded font-bold">2.1.03.02.01</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="col-span-2">
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase"># Comprobante SAR (###-###-05-########):</label>
+                <input type="text" id="ret-125-num" value="000-001-05-00000845" maxlength="19" oninput="hzFormatearComprobanteRet(this)" class="w-full input-std py-0.5 font-bold font-mono text-xs">
+              </div>
+              <div>
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase">Fecha Emisión:</label>
+                <input type="date" id="ret-125-fecha" value="2026-10-15" class="w-full input-std py-0.5 text-xs font-mono">
+              </div>
+              <div>
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase">Base Sujeta (L):</label>
+                <input type="number" id="ret-125-base" value="20000.00" step="0.01" oninput="hzCalcRet125()" class="w-full input-std py-0.5 text-right font-bold text-xs font-mono">
+              </div>
+              <div class="col-span-2 flex items-center justify-between bg-white p-1.5 rounded-lg border border-amber-200">
+                <span class="text-[9.5px] font-bold text-slate-700">Monto Retenido (12.5%):</span>
+                <span id="ret-125-monto-lbl" class="font-mono font-black text-rose-700 text-xs">L 2,500.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBFORM: 1% Anticipo ISR Compras -->
+          <div id="subform-ret-1pct" class="p-2 rounded-xl border border-slate-200 bg-slate-50/50 space-y-1.5 hidden">
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="font-bold text-slate-900 flex items-center gap-1">
+                <span>📄</span><span>1% Anticipo ISR Compras Mercaderías</span>
+              </span>
+              <span class="text-[8px] bg-slate-200 text-slate-800 px-1.5 py-0.2 rounded font-bold">2.1.03.02.02</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="col-span-2">
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase"># Comprobante SAR:</label>
+                <input type="text" id="ret-1-num" placeholder="000-001-05-00000000" maxlength="19" oninput="hzFormatearComprobanteRet(this)" class="w-full input-std py-0.5 font-bold font-mono text-xs">
+              </div>
+              <div>
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase">Base Sujeta (L):</label>
+                <input type="number" id="ret-1-base" value="0.00" step="0.01" oninput="hzCalcRetTotales()" class="w-full input-std py-0.5 text-right font-bold text-xs font-mono">
+              </div>
+              <div class="flex items-center justify-between bg-white p-1 rounded-lg border border-slate-200 col-span-1">
+                <span class="text-[8.5px] font-bold text-slate-700">Retenido 1%:</span>
+                <span id="ret-1-monto-lbl" class="font-mono font-bold text-rose-700 text-xs">L 0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBFORM: 10% Alquileres / PJ -->
+          <div id="subform-ret-10pct" class="p-2 rounded-xl border border-slate-200 bg-slate-50/50 space-y-1.5 hidden">
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="font-bold text-slate-900 flex items-center gap-1">
+                <span>📄</span><span>10.0% Alquileres &amp; Servicios PJ</span>
+              </span>
+              <span class="text-[8px] bg-slate-200 text-slate-800 px-1.5 py-0.2 rounded font-bold">2.1.03.02.03</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="col-span-2">
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase"># Comprobante SAR:</label>
+                <input type="text" id="ret-10-num" placeholder="000-001-05-00000000" maxlength="19" oninput="hzFormatearComprobanteRet(this)" class="w-full input-std py-0.5 font-bold font-mono text-xs">
+              </div>
+              <div>
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase">Base Sujeta (L):</label>
+                <input type="number" id="ret-10-base" value="0.00" step="0.01" oninput="hzCalcRetTotales()" class="w-full input-std py-0.5 text-right font-bold text-xs font-mono">
+              </div>
+              <div class="flex items-center justify-between bg-white p-1 rounded-lg border border-slate-200 col-span-1">
+                <span class="text-[8.5px] font-bold text-slate-700">Retenido 10%:</span>
+                <span id="ret-10-monto-lbl" class="font-mono font-bold text-rose-700 text-xs">L 0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBFORM: Agente Retención ISV -->
+          <div id="subform-ret-isv" class="p-2 rounded-xl border border-slate-200 bg-slate-50/50 space-y-1.5 hidden">
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="font-bold text-slate-900 flex items-center gap-1">
+                <span>📄</span><span>Retención Agente ISV (Art. 11 Ley ISV)</span>
+              </span>
+              <span class="text-[8px] bg-slate-200 text-slate-800 px-1.5 py-0.2 rounded font-bold">2.1.03.01.05</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="col-span-2">
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase"># Comprobante SAR:</label>
+                <input type="text" id="ret-isv-num" placeholder="000-001-05-00000000" maxlength="19" oninput="hzFormatearComprobanteRet(this)" class="w-full input-std py-0.5 font-bold font-mono text-xs">
+              </div>
+              <div>
+                <label class="block text-[8.5px] font-bold text-slate-500 uppercase">ISV Sujeto (L):</label>
+                <input type="number" id="ret-isv-base" value="0.00" step="0.01" oninput="hzCalcRetTotales()" class="w-full input-std py-0.5 text-right font-bold text-xs font-mono">
+              </div>
+              <div class="flex items-center justify-between bg-white p-1 rounded-lg border border-slate-200 col-span-1">
+                <span class="text-[8.5px] font-bold text-slate-700">ISV Retenido:</span>
+                <span id="ret-isv-monto-lbl" class="font-mono font-bold text-rose-700 text-xs">L 0.00</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Consolidado de Retenciones & Neto a Pagar Proveedor -->
+        <div class="space-y-1 bg-slate-50 p-2 rounded-xl border border-slate-200 text-[10px]">
+          <div class="flex justify-between text-slate-600">
+            <span>Gran Total Factura:</span>
+            <strong id="ret-res-total-fac" class="font-mono text-slate-800">L 20,000.00</strong>
+          </div>
+          <div class="flex justify-between text-rose-700 font-bold">
+            <span>Total Retenciones SAR:</span>
+            <strong id="ret-res-total-ret" class="font-mono">- L 2,500.00</strong>
+          </div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between text-emerald-950 font-extrabold text-xs">
+            <span>Neto a Pagar Proveedor:</span>
+            <strong id="ret-res-neto-pagar" class="font-mono">L 17,500.00</strong>
+          </div>
+        </div>
+
+        <button type="button" onclick="hzAplicarRetencionesACxP()" class="w-full py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl transition cursor-pointer text-xs shadow-xs flex items-center justify-center gap-1.5">
+          <span>✓</span>
+          <span>Aplicar Retenciones a CxP y Partida</span>
+        </button>
+      </div>
+
+      <!-- ========================================================== -->
+      <!-- 4. AUXILIAR: BOLETÍN DE ADUANAS / DUA                       -->
+      <!-- ========================================================== -->
+      

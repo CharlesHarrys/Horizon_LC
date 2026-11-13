@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HORIZON LEDGER | Financial & Fiscal Operating System • Honduras</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              850: '#111827',
+              900: '#0f172a',
+              950: '#080d14',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #080d14;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    /* Glass effects */
+    .glass-dock {
+      background: rgba(13, 21, 32, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .horizon-card {
+      background: rgba(13, 21, 32, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .horizon-card:hover {
+      background: rgba(18, 29, 45, 0.85);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-[#080d14] text-slate-100 min-h-screen selection:bg-sky-500/30 selection:text-sky-200 antialiased relative overflow-x-hidden flex flex-col justify-between">
+
+  <!-- Ambient Light Background Glow -->
+  <div class="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-10%,rgba(14,165,233,0.07),transparent)]"></div>
+  <div class="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_110%,rgba(20,184,166,0.05),transparent)]"></div>
+
+  <!-- ========================================== -->
+  <!-- TOP FIXED DESIGN SELECTOR BAR              -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-50 bg-[#080d14]/95 backdrop-blur-md border-b border-slate-800 shadow-2xl px-5 py-2.5 flex flex-wrap items-center justify-between gap-4">
+    
+    <!-- Branding -->
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-400/30 flex items-center justify-center text-sky-400 font-bold text-sm shadow-inner">
+        ◆
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold tracking-widest text-white uppercase font-mono">HORIZON LEDGER</span>
+          <span class="px-1.5 py-0.2 text-[10px] font-mono rounded bg-sky-950/80 border border-sky-800 text-sky-300">Lab Suite</span>
+        </div>
+        <div class="text-[10px] text-slate-400">Financial &amp; Fiscal Operating System &bull; Honduras</div>
+      </div>
+    </div>
+
+    <!-- 3 Design Switchers -->
+    <div class="flex items-center gap-1.5 p-1 rounded-xl bg-[#0d1520] border border-slate-800 shadow-inner">
+      <button 
+        id="btn-a" 
+        onclick="showTab('a')"
+        class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 flex items-center gap-2 bg-sky-500/20 text-sky-300 border border-sky-500/50 shadow-sm"
+      >
+        <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-sky-950 text-sky-300 font-bold">A</span>
+        <span>macOS Dock + Stripes</span>
+      </button>
+
+      <button 
+        id="btn-b" 
+        onclick="showTab('b')"
+        class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 flex items-center gap-2 text-slate-400 border border-transparent hover:text-slate-200 hover:bg-[#121d2d]"
+      >
+        <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-bold">B</span>
+        <span>Terminal Station</span>
+      </button>
+
+      <button 
+        id="btn-c" 
+        onclick="showTab('c')"
+        class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 flex items-center gap-2 text-slate-400 border border-transparent hover:text-slate-200 hover:bg-[#121d2d]"
+      >
+        <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-bold">C</span>
+        <span>Executive Canvas</span>
+      </button>
+    </div>
+
+    <!-- Right: Hotkeys hint & Link to actual Lobby -->
+    <div class="flex items-center gap-3">
+      <div class="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-400">
+        <span>Atajos:</span>
+        <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded font-mono text-[10px] text-slate-300">A</kbd>
+        <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded font-mono text-[10px] text-slate-300">B</kbd>
+        <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded font-mono text-[10px] text-slate-300">C</kbd>
+      </div>
+      <a 
+        href="/workspace_lobby" 
+        class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors border border-slate-700 flex items-center gap-1.5"
+      >
+        <span>🏠 Lobby Oficial</span>
+      </a>
+    </div>
+
+  </header>
+
+
+  <!-- ========================================================================= -->
+  <!-- PROPUESTA A: HORIZON macOS DOCK + LEFT STRIPES (VISIBLE POR DEFECTO)      -->
+  <!-- ========================================================================= -->
+  <main id="view-a" class="relative z-10 flex-grow max-w-6xl mx-auto w-full px-6 py-6 flex flex-col justify-between items-center min-h-[85vh]">
+    
+    <!-- Top Telemetry Row -->
+    <div class="w-full flex items-center justify-between text-xs text-slate-400 pb-4 border-b border-slate-850">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 font-medium text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Core Operativo en Línea</span>
+        </span>
+        <span class="text-slate-600">|</span>
+        <span class="font-mono text-[11px] text-slate-400">RTN: 08011995123456</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span>Tegucigalpa &bull; GMT-6</span>
+        <span class="font-mono text-slate-200 font-semibold text-xs" id="clockA">--:--:--</span>
+      </div>
+    </div>
+
+    <!-- Central Hero / Elegant Statement -->
+    <div class="text-center my-auto max-w-3xl px-4 py-8">
+      
+      <!-- Minimalist Emblem -->
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-sky-600 via-teal-500 to-indigo-500 p-[1px] shadow-2xl shadow-sky-500/20 mb-5">
+        <div class="w-full h-full bg-[#080d14] rounded-[15px] flex items-center justify-center">
+          <span class="text-sky-400 text-xl font-bold font-mono">◆</span>
+        </div>
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-extralight text-white tracking-tight">
+        HORIZON LEDGER
+      </h1>
+      <p class="text-sm text-slate-400 mt-2 font-normal max-w-xl mx-auto">
+        Sistema Operativo Contable y Fiscal. Seleccione un módulo en el Dock inferior o presione <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded font-mono text-xs text-sky-300">Alt + 1..8</kbd>
+      </p>
+
+      <!-- Horizontal Cards Matrix with Left Colored Stripes (4px) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-8 text-left">
+        
+        <!-- POS Card -->
+        <a href="/ventas" class="horizon-card group relative p-3.5 rounded-xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400 rounded-l"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-emerald-400 font-semibold">VENTAS &bull; POS</span>
+              <span class="font-mono text-[10px] text-slate-500 group-hover:text-emerald-300">Alt+1</span>
+            </div>
+            <div class="text-sm font-medium text-white mt-1 group-hover:text-emerald-300 transition-colors">Facturación POS Fiscal</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Emisión SAR y arqueo ciego.</div>
+          </div>
+        </a>
+
+        <!-- Libro SAR Card -->
+        <a href="/libro-ventas" class="horizon-card group relative p-3.5 rounded-xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400 rounded-l"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-teal-400 font-semibold">FISCAL &bull; SAR</span>
+              <span class="font-mono text-[10px] text-slate-500 group-hover:text-teal-300">Alt+2</span>
+            </div>
+            <div class="text-sm font-medium text-white mt-1 group-hover:text-teal-300 transition-colors">Libro de Ventas SAR</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Conciliación DET Live 15%/18%.</div>
+          </div>
+        </a>
+
+        <!-- CxC Card -->
+        <a href="/cxc" class="horizon-card group relative p-3.5 rounded-xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400 rounded-l"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-cyan-400 font-semibold">CARTERA &bull; CXC</span>
+              <span class="font-mono text-[10px] text-slate-500 group-hover:text-cyan-300">Alt+3</span>
+            </div>
+            <div class="text-sm font-medium text-white mt-1 group-hover:text-cyan-300 transition-colors">Cuentas por Cobrar</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Recaudación y anticipos.</div>
+          </div>
+        </a>
+
+        <!-- Compras Card -->
+        <a href="/compras" class="horizon-card group relative p-3.5 rounded-xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400 rounded-l"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-amber-400 font-semibold">EGRESOS &bull; CXP</span>
+              <span class="font-mono text-[10px] text-slate-500 group-hover:text-amber-300">Alt+4</span>
+            </div>
+            <div class="text-sm font-medium text-white mt-1 group-hover:text-amber-300 transition-colors">Compras &amp; Proveedores</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Retención 1% ISV y pólizas DUA.</div>
+          </div>
+        </a>
+
+        <!-- Kardex Card -->
+        <a href="/compras#kardex" class="horizon-card group relative p-3.5 rounded-xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-400 rounded-l"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-violet-400 font-semibold">STOCK &bull; CPP</span>
+              <span class="font-mono text-[10px] text-slate-500 group-hover:text-violet-300">Alt+5</span>
+            </div>
+            <div class="text-sm font-medium text-white mt-1 group-hover:text-violet-300 transition-colors">Inventarios &amp; Kardex</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Costo Promedio Ponderado.</div>
+          </div>
+        </a>
+
+        <!-- Bancos Card -->
+        <a href="/bancos" class="horizon-card group relative p-3.5 rounded-xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-sky-400 rounded-l"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-sky-400 font-semibold">TESORERÍA &bull; IA</span>
+              <span class="font-mono text-[10px] text-slate-500 group-hover:text-sky-300">Alt+6</span>
+            </div>
+            <div class="text-sm font-medium text-white mt-1 group-hover:text-sky-300 transition-colors">Bancos &amp; Matching IA</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Alertas email y lotes ACH.</div>
+          </div>
+        </a>
+
+        <!-- Adquirencia Card -->
+        <a href="/adquirencia" class="horizon-card group relative p-3.5 rounded-xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-400 rounded-l"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-indigo-400 font-semibold">TARJETAS &bull; POS</span>
+              <span class="font-mono text-[10px] text-slate-500 group-hover:text-indigo-300">Alt+7</span>
+            </div>
+            <div class="text-sm font-medium text-white mt-1 group-hover:text-indigo-300 transition-colors">Conciliación Adquirencia</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Lotes BAC, Banpaís, Ficohsa.</div>
+          </div>
+        </a>
+
+        <!-- Contabilidad Card -->
+        <a href="/compras#contabilidad" class="horizon-card group relative p-3.5 rounded-xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-rose-400 rounded-l"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-rose-400 font-semibold">NIIF &bull; ASIENTOS</span>
+              <span class="font-mono text-[10px] text-slate-500 group-hover:text-rose-300">Alt+8</span>
+            </div>
+            <div class="text-sm font-medium text-white mt-1 group-hover:text-rose-300 transition-colors">Contabilidad Central</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Libro Diario y Balance general.</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Floating macOS Glass Dock (Bottom) -->
+    <div class="relative z-20 pb-4">
+      <div class="glass-dock rounded-2xl p-2 flex items-center gap-2 shadow-2xl border border-white/10">
+        
+        <a href="/ventas" class="group relative flex flex-col items-center">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-b from-emerald-500/20 to-emerald-700/30 border border-emerald-500/40 flex items-center justify-center text-lg shadow-lg transform group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-200">⚡</div>
+          <span class="absolute -top-9 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">Facturación POS (Alt+1)</span>
+          <span class="w-1 h-1 rounded-full bg-emerald-400 mt-1 opacity-80"></span>
+        </a>
+
+        <a href="/libro-ventas" class="group relative flex flex-col items-center">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-b from-teal-500/20 to-teal-700/30 border border-teal-500/40 flex items-center justify-center text-lg shadow-lg transform group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-200">📋</div>
+          <span class="absolute -top-9 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">Libro SAR (Alt+2)</span>
+          <span class="w-1 h-1 rounded-full bg-teal-400 mt-1 opacity-80"></span>
+        </a>
+
+        <a href="/cxc" class="group relative flex flex-col items-center">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-b from-cyan-500/20 to-cyan-700/30 border border-cyan-500/40 flex items-center justify-center text-lg shadow-lg transform group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-200">👥</div>
+          <span class="absolute -top-9 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">CxC Clientes (Alt+3)</span>
+          <span class="w-1 h-1 rounded-full bg-cyan-400 mt-1 opacity-80"></span>
+        </a>
+
+        <div class="w-px h-7 bg-slate-700 mx-1"></div>
+
+        <a href="/compras" class="group relative flex flex-col items-center">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-b from-amber-500/20 to-amber-700/30 border border-amber-500/40 flex items-center justify-center text-lg shadow-lg transform group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-200">🛍️</div>
+          <span class="absolute -top-9 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">Compras SAR (Alt+4)</span>
+          <span class="w-1 h-1 rounded-full bg-amber-400 mt-1 opacity-80"></span>
+        </a>
+
+        <a href="/compras#kardex" class="group relative flex flex-col items-center">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-b from-violet-500/20 to-violet-700/30 border border-violet-500/40 flex items-center justify-center text-lg shadow-lg transform group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-200">📦</div>
+          <span class="absolute -top-9 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">Kardex CPP (Alt+5)</span>
+          <span class="w-1 h-1 rounded-full bg-violet-400 mt-1 opacity-80"></span>
+        </a>
+
+        <div class="w-px h-7 bg-slate-700 mx-1"></div>
+
+        <a href="/bancos" class="group relative flex flex-col items-center">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-b from-sky-500/20 to-sky-700/30 border border-sky-500/40 flex items-center justify-center text-lg shadow-lg transform group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-200">🏦</div>
+          <span class="absolute -top-9 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">Bancos IA (Alt+6)</span>
+          <span class="w-1 h-1 rounded-full bg-sky-400 mt-1 opacity-80"></span>
+        </a>
+
+        <a href="/adquirencia" class="group relative flex flex-col items-center">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-b from-indigo-500/20 to-indigo-700/30 border border-indigo-500/40 flex items-center justify-center text-lg shadow-lg transform group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-200">💳</div>
+          <span class="absolute -top-9 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">Adquirencia POS (Alt+7)</span>
+          <span class="w-1 h-1 rounded-full bg-indigo-400 mt-1 opacity-80"></span>
+        </a>
+
+        <a href="/compras#contabilidad" class="group relative flex flex-col items-center">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-b from-rose-500/20 to-rose-700/30 border border-rose-500/40 flex items-center justify-center text-lg shadow-lg transform group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-200">⚖️</div>
+          <span class="absolute -top-9 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">Contabilidad NIIF (Alt+8)</span>
+          <span class="w-1 h-1 rounded-full bg-rose-400 mt-1 opacity-80"></span>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- ========================================================================= -->
+  <!-- PROPUESTA B: HORIZON TERMINAL STATION (MERCURY/FINTECH)                   -->
+  <!-- ========================================================================= -->
+  <main id="view-b" class="hidden relative z-10 flex-grow max-w-6xl mx-auto w-full px-6 py-8 flex flex-col justify-between">
+    
+    <div>
+      <!-- Mercury Style Telemetry Strip -->
+      <div class="p-4 rounded-xl bg-[#0d1520] border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-mono text-xs font-semibold text-white">HORIZON &bull; MERCURY ENGINE</span>
+          </div>
+          <span class="text-slate-700">|</span>
+          <div class="text-xs text-slate-400 font-mono">
+            SAR CAI: <span class="text-emerald-400">3A29B1-7F8812</span> &bull; <span class="text-slate-300">8,450 disp.</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 text-xs font-mono">
+          <div class="text-slate-400">
+            Sincronización Bancaria: <span class="text-sky-400">BAC &bull; FIC &bull; BPAIS (100%)</span>
+          </div>
+          <div class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300" id="clockB">
+            --:--:--
+          </div>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="mb-6">
+        <h2 class="text-2xl font-light text-white tracking-tight">Estación de Mando Financiero</h2>
+        <p class="text-xs text-slate-400 mt-1 font-mono">Terminal operacional para despachos contables y tesorería corporativa.</p>
+      </div>
+
+      <!-- 2-Row Grid with Left Accent Borders -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        
+        <!-- Module 1: POS -->
+        <a href="/ventas" class="p-4 rounded-xl bg-[#0d1520]/80 border border-slate-800 hover:border-emerald-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[145px]">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-emerald-400 uppercase font-bold">01 / Facturación</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-400 group-hover:text-emerald-300">Alt+1</span>
+            </div>
+            <h3 class="text-sm font-medium text-white mt-2 group-hover:text-emerald-300 transition-colors">Facturación POS Fiscal</h3>
+            <p class="text-xs text-slate-400 mt-1">Emisión de facturas SAR con desglose ISV y control de turnos.</p>
+          </div>
+          <div class="pl-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span>Terminal Mostrador</span>
+            <span class="text-emerald-400">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Module 2: Libro SAR -->
+        <a href="/libro-ventas" class="p-4 rounded-xl bg-[#0d1520]/80 border border-slate-800 hover:border-teal-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[145px]">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-teal-400 uppercase font-bold">02 / Fiscal SAR</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-400 group-hover:text-teal-300">Alt+2</span>
+            </div>
+            <h3 class="text-sm font-medium text-white mt-2 group-hover:text-teal-300 transition-colors">Libro de Ventas SAR</h3>
+            <p class="text-xs text-slate-400 mt-1">Conciliación DET Live, bases 15%/18% y exportación fiscal.</p>
+          </div>
+          <div class="pl-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span>Reportes SAR</span>
+            <span class="text-teal-400">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Module 3: CxC -->
+        <a href="/cxc" class="p-4 rounded-xl bg-[#0d1520]/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[145px]">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-cyan-400 uppercase font-bold">03 / Clientes</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-400 group-hover:text-cyan-300">Alt+3</span>
+            </div>
+            <h3 class="text-sm font-medium text-white mt-2 group-hover:text-cyan-300 transition-colors">Cuentas por Cobrar</h3>
+            <p class="text-xs text-slate-400 mt-1">Recaudación, estados de cuenta de clientes y mora.</p>
+          </div>
+          <div class="pl-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span>Gestión Cartera</span>
+            <span class="text-cyan-400">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Module 4: Compras -->
+        <a href="/compras" class="p-4 rounded-xl bg-[#0d1520]/80 border border-slate-800 hover:border-amber-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[145px]">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-amber-400 uppercase font-bold">04 / Proveedores</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-400 group-hover:text-amber-300">Alt+4</span>
+            </div>
+            <h3 class="text-sm font-medium text-white mt-2 group-hover:text-amber-300 transition-colors">Compras &amp; Proveedores</h3>
+            <p class="text-xs text-slate-400 mt-1">Facturas fiscales, retención 1% ISV y pólizas DUA.</p>
+          </div>
+          <div class="pl-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span>Auxiliares Compras</span>
+            <span class="text-amber-400">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Module 5: Kardex -->
+        <a href="/compras#kardex" class="p-4 rounded-xl bg-[#0d1520]/80 border border-slate-800 hover:border-violet-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[145px]">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-400"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-violet-400 uppercase font-bold">05 / Logística</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-400 group-hover:text-violet-300">Alt+5</span>
+            </div>
+            <h3 class="text-sm font-medium text-white mt-2 group-hover:text-violet-300 transition-colors">Inventarios &amp; Kardex</h3>
+            <p class="text-xs text-slate-400 mt-1">Kardex perpetuo CPP, bodegas y transferencias.</p>
+          </div>
+          <div class="pl-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span>Existencias CPP</span>
+            <span class="text-violet-400">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Module 6: Bancos -->
+        <a href="/bancos" class="p-4 rounded-xl bg-[#0d1520]/80 border border-slate-800 hover:border-sky-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[145px]">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-sky-400"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-sky-400 uppercase font-bold">06 / Tesorería</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-400 group-hover:text-sky-300">Alt+6</span>
+            </div>
+            <h3 class="text-sm font-medium text-white mt-2 group-hover:text-sky-300 transition-colors">Bancos &amp; Conciliación IA</h3>
+            <p class="text-xs text-slate-400 mt-1">Matching predictivo 95%, alertas email y lotes ACH.</p>
+          </div>
+          <div class="pl-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span>Conciliación Bancos</span>
+            <span class="text-sky-400">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Module 7: Adquirencia -->
+        <a href="/adquirencia" class="p-4 rounded-xl bg-[#0d1520]/80 border border-slate-800 hover:border-indigo-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[145px]">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-400"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-indigo-400 uppercase font-bold">07 / Adquirencia</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-400 group-hover:text-indigo-300">Alt+7</span>
+            </div>
+            <h3 class="text-sm font-medium text-white mt-2 group-hover:text-indigo-300 transition-colors">Conciliación POS Lotes</h3>
+            <p class="text-xs text-slate-400 mt-1">Cruce vs depósitos BAC, Banpaís, Ficohsa, Atlántida.</p>
+          </div>
+          <div class="pl-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span>Liquidación Lotes</span>
+            <span class="text-indigo-400">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Module 8: Contabilidad -->
+        <a href="/compras#contabilidad" class="p-4 rounded-xl bg-[#0d1520]/80 border border-slate-800 hover:border-rose-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[145px]">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-rose-400"></div>
+          <div class="pl-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono text-rose-400 uppercase font-bold">08 / NIIF</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-400 group-hover:text-rose-300">Alt+8</span>
+            </div>
+            <h3 class="text-sm font-medium text-white mt-2 group-hover:text-rose-300 transition-colors">Contabilidad Central</h3>
+            <p class="text-xs text-slate-400 mt-1">Libro Diario de partida doble, Balance de Comprobación.</p>
+          </div>
+          <div class="pl-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span>Libro Mayor NIIF</span>
+            <span class="text-rose-400">&rarr;</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <div class="pt-6 mt-6 border-t border-slate-850 flex items-center justify-between text-xs text-slate-500 font-mono">
+      <span>HORIZON Terminal Station &bull; Mercury Layout</span>
+      <span>Telemetry Strip &bull; Strict 4px Borders</span>
+    </div>
+
+  </main>
+
+
+  <!-- ========================================================================= -->
+  <!-- PROPUESTA C: HORIZON EXECUTIVE CANVAS (3 SPACIOUS COLUMNS)                 -->
+  <!-- ========================================================================= -->
+  <main id="view-c" class="hidden relative z-10 flex-grow max-w-6xl mx-auto w-full px-6 py-8 flex flex-col justify-between">
+    
+    <div>
+      <!-- Executive Canvas Header -->
+      <div class="flex items-center justify-between pb-6 border-b border-slate-850 mb-8">
+        <div>
+          <div class="flex items-center gap-2 text-sky-400 font-mono text-xs font-semibold uppercase tracking-wider">
+            <span>◆ HORIZON EXECUTIVE CANVAS</span>
+          </div>
+          <h1 class="text-3xl font-extralight text-white tracking-tight mt-1">Centro de Mando Operativo</h1>
+        </div>
+        <div class="text-right font-mono">
+          <div class="text-sm text-sky-300 font-semibold" id="clockC">--:--:--</div>
+          <div class="text-xs text-slate-500">Tegucigalpa &bull; RTN 08011995123456</div>
+        </div>
+      </div>
+
+      <!-- 3 Spacious Columns Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- COLUMN 1: Ventas & Clientes -->
+        <div class="space-y-3.5">
+          <div class="flex items-center gap-2 pb-2 border-b border-slate-850">
+            <span class="w-2 h-2 rounded-sm bg-emerald-400"></span>
+            <h3 class="text-xs font-bold font-mono uppercase tracking-wider text-slate-300">Ventas &amp; Facturación</h3>
+          </div>
+
+          <!-- Ventas POS -->
+          <a href="/ventas" class="p-4 rounded-xl bg-[#0d1520]/90 border border-slate-800 hover:border-emerald-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400"></div>
+            <div class="pl-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-white group-hover:text-emerald-300 transition-colors">Facturación POS Fiscal</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300">Alt+1</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Emisión SAR, facturas con CAI, fast POS y arqueo.</p>
+            </div>
+          </a>
+
+          <!-- Libro SAR -->
+          <a href="/libro-ventas" class="p-4 rounded-xl bg-[#0d1520]/90 border border-slate-800 hover:border-teal-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"></div>
+            <div class="pl-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-white group-hover:text-teal-300 transition-colors">Libro de Ventas SAR</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-teal-300">Alt+2</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Conciliación DET Live y desglose 15%/18%.</p>
+            </div>
+          </a>
+
+          <!-- CxC -->
+          <a href="/cxc" class="p-4 rounded-xl bg-[#0d1520]/90 border border-slate-800 hover:border-cyan-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400"></div>
+            <div class="pl-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-white group-hover:text-cyan-300 transition-colors">Cuentas por Cobrar (CxC)</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-cyan-300">Alt+3</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Recaudación, estados de cuenta y anticipos.</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- COLUMN 2: Cadena de Suministro -->
+        <div class="space-y-3.5">
+          <div class="flex items-center gap-2 pb-2 border-b border-slate-850">
+            <span class="w-2 h-2 rounded-sm bg-amber-400"></span>
+            <h3 class="text-xs font-bold font-mono uppercase tracking-wider text-slate-300">Cadena de Suministro</h3>
+          </div>
+
+          <!-- Compras -->
+          <a href="/compras" class="p-4 rounded-xl bg-[#0d1520]/90 border border-slate-800 hover:border-amber-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+            <div class="pl-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-white group-hover:text-amber-300 transition-colors">Compras &amp; Proveedores</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-amber-300">Alt+4</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Facturas fiscales SAR, retención 1% y DUA.</p>
+            </div>
+          </a>
+
+          <!-- Kardex -->
+          <a href="/compras#kardex" class="p-4 rounded-xl bg-[#0d1520]/90 border border-slate-800 hover:border-violet-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-400"></div>
+            <div class="pl-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-white group-hover:text-violet-300 transition-colors">Control de Inventarios &amp; Kardex</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-violet-300">Alt+5</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Kardex perpetuo CPP, bodegas y valorización.</p>
+            </div>
+          </a>
+
+          <!-- Telemetría de Stock en Columna -->
+          <div class="p-3.5 rounded-xl bg-[#080d14] border border-dashed border-slate-800 flex items-center justify-between text-xs font-mono text-slate-500">
+            <span>Valorización CPP: <span class="text-slate-300">Al Día</span></span>
+            <span class="text-emerald-400">● 0 Descuadres</span>
+          </div>
+        </div>
+
+        <!-- COLUMN 3: Tesorería & Finanzas -->
+        <div class="space-y-3.5">
+          <div class="flex items-center gap-2 pb-2 border-b border-slate-850">
+            <span class="w-2 h-2 rounded-sm bg-sky-400"></span>
+            <h3 class="text-xs font-bold font-mono uppercase tracking-wider text-slate-300">Tesorería &amp; Asientos</h3>
+          </div>
+
+          <!-- Bancos -->
+          <a href="/bancos" class="p-4 rounded-xl bg-[#0d1520]/90 border border-slate-800 hover:border-sky-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-sky-400"></div>
+            <div class="pl-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-white group-hover:text-sky-300 transition-colors">Bancos &amp; Conciliación IA</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-sky-300">Alt+6</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Matching predictivo 95%, alertas y lotes ACH.</p>
+            </div>
+          </a>
+
+          <!-- Adquirencia -->
+          <a href="/adquirencia" class="p-4 rounded-xl bg-[#0d1520]/90 border border-slate-800 hover:border-indigo-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-400"></div>
+            <div class="pl-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-white group-hover:text-indigo-300 transition-colors">Conciliación de Adquirencia</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-indigo-300">Alt+7</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Lotes POS vs depósitos de adquirencia.</p>
+            </div>
+          </a>
+
+          <!-- Contabilidad -->
+          <a href="/compras#contabilidad" class="p-4 rounded-xl bg-[#0d1520]/90 border border-slate-800 hover:border-rose-500/50 hover:bg-[#121d2d] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-rose-400"></div>
+            <div class="pl-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-white group-hover:text-rose-300 transition-colors">Contabilidad Central NIIF</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-rose-300">Alt+8</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Libro Diario de partida doble y Balance.</p>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="pt-6 mt-8 border-t border-slate-850 flex items-center justify-between text-xs text-slate-500 font-mono">
+      <span>HORIZON Executive Canvas &bull; 3 Columns</span>
+      <span>Bento Stripes &bull; Contextual Light Glow</span>
+    </div>
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC                           -->
+  <!-- ========================================== -->
+  <script>
+    // Tab Switcher
+    function showTab(tab) {
+      ['a', 'b', 'c'].forEach(t => {
+        const el = document.getElementById('view-' + t);
+        const btn = document.getElementById('btn-' + t);
+        if (el) {
+          if (t === tab) {
+            el.classList.remove('hidden');
+          } else {
+            el.classList.add('hidden');
+          }
+        }
+        if (btn) {
+          const isSelected = (t === tab);
+          btn.classList.toggle('bg-sky-500/20', isSelected);
+          btn.classList.toggle('text-sky-300', isSelected);
+          btn.classList.toggle('border-sky-500/50', isSelected);
+          btn.classList.toggle('text-slate-400', !isSelected);
+          btn.classList.toggle('border-transparent', !isSelected);
+        }
+      });
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (['input', 'textarea'].includes(document.activeElement?.tagName.toLowerCase())) {
+        if (e.key === 'Escape') document.activeElement.blur();
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+      if (key === 'a' || key === '1') showTab('a');
+      if (key === 'b' || key === '2') showTab('b');
+      if (key === 'c' || key === '3') showTab('c');
+    });
+
+    // Real-time Clocks
+    function updateClocks() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('es-HN', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      ['clockA', 'clockB', 'clockC'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = timeStr;
+      });
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+  </script>
+</body>
+</html>

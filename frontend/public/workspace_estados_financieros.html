@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estados Financieros NIIF & Cierre Contable | Horizon Ledger ERP</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .tab-active {
+      background-color: #ffffff !important;
+      color: #be123c !important;
+      border-color: #f43f5e !important;
+      box-shadow: 0 4px 12px -2px rgba(244, 63, 94, 0.15) !important;
+    }
+
+    @media print {
+      body { background: white !important; padding: 0 !important; color: black !important; }
+      .grid-vignette, .no-print, header, .action-bar, .tab-nav-bar { display: none !important; }
+      .print-only { display: block !important; }
+      .sheet-container { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+      .tab-pane { display: block !important; margin-bottom: 2rem; page-break-after: always; }
+      @page { size: landscape; margin: 12mm; }
+    }
+  </style>
+</head>
+<body class="bg-[#eef2f6] text-slate-900 min-h-screen flex flex-col p-3 sm:p-4 text-xs gap-3 relative selection:bg-rose-500 selection:text-white">
+
+  <!-- Retícula de fondo sutil -->
+  <div class="grid-vignette"></div>
+
+  <!-- 1. HEADER INSTITUCIONAL (HORIZON LEDGER) -->
+  <header class="flex items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.07)] relative z-20 flex-shrink-0">
+    
+    <!-- Lado Izquierdo: Retorno + Marca + Título Conciso -->
+    <div class="flex items-center gap-4">
+      <!-- Retorno al Dashboard -->
+      <a href="/" class="w-8 h-8 rounded-xl bg-slate-950 flex items-center justify-center text-white font-bold text-xs hover:bg-slate-800 transition-all shadow-xs" title="Volver al Dashboard Principal">
+        &larr;
+      </a>
+
+      <!-- Identidad del ERP -->
+      <div class="flex items-center gap-2 border-r border-slate-200 pr-4">
+        <div class="w-6 h-6 rounded-lg bg-slate-950 flex items-center justify-center text-white font-black text-[10px]">
+          HL
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-extrabold text-xs tracking-tight text-slate-950">Horizon Ledger</span>
+          <span class="text-[8.5px] font-mono uppercase text-slate-400 font-bold">ERP</span>
+        </div>
+      </div>
+
+      <!-- Título y Badge Funcional Rose -->
+      <div class="flex items-center gap-2.5">
+        <h1 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">Estados Financieros NIIF & Auditoría Contable</h1>
+        <span class="bg-rose-50 text-rose-700 border border-rose-200 font-mono text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 tracking-wider">
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+          NIIF PYMES SECCIÓN 3
+        </span>
+      </div>
+    </div>
+
+    <!-- Lado Derecho: Selector de Periodo Fiscal + Botones de Exportación + Perfil de Usuario -->
+    <div class="flex items-center gap-3">
+      <!-- Selector de Período -->
+      <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1">
+        <span class="text-[9px] font-mono font-bold text-slate-500 uppercase">EJERCICIO:</span>
+        <select id="period-select" onchange="changePeriod(this.value)" class="bg-transparent font-mono font-bold text-slate-900 text-[11px] focus:outline-none cursor-pointer">
+          <option value="2026-09" selected>ENERO - SEPTIEMBRE 2026</option>
+          <option value="2026-06">I SEMESTRE 2026 (ENE-JUN)</option>
+          <option value="2025-12">EJERCICIO AUDITADO 2025</option>
+        </select>
+      </div>
+
+      <!-- Botones de Acción Global -->
+      <div class="flex items-center gap-2">
+        <button onclick="exportFullPDF()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-sm transition-all">
+          <span>📄</span>
+          <span class="hidden md:inline">Cuadernillo PDF</span>
+        </button>
+        <button onclick="exportExcelEEFF()" class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-sm transition-all">
+          <span>📊</span>
+          <span class="hidden md:inline">Exportar Excel</span>
+        </button>
+      </div>
+
+      <!-- Usuario y Cargo -->
+      <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+        <div class="w-7 h-7 rounded-lg bg-rose-100 border border-rose-300 text-rose-800 flex items-center justify-center font-bold text-xs">
+          CH
+        </div>
+        <div class="hidden lg:flex flex-col text-left leading-none">
+          <span class="font-bold text-[11px] text-slate-900">Carlos Hernández</span>
+          <span class="text-[9px] text-slate-500 font-medium">Auditor General & CPA</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. BARRA SUPERIOR DE PESTAÑAS CONMUTABLES (TAB NAVIGATION) -->
+  <div class="flex items-center gap-1.5 overflow-x-auto bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm relative z-10 flex-shrink-0 tab-nav-bar">
+    <button onclick="switchTab('bbgg')" id="tab-btn-bbgg" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border tab-active whitespace-nowrap">
+      <span>🏛️</span>
+      <span>1. Balance General (BBGG)</span>
+    </button>
+    <button onclick="switchTab('eerr')" id="tab-btn-eerr" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+      <span>📈</span>
+      <span>2. Estado de Resultados (EERR)</span>
+    </button>
+    <button onclick="switchTab('patrimonio')" id="tab-btn-patrimonio" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+      <span>🔄</span>
+      <span>3. Cambios en el Patrimonio</span>
+    </button>
+    <button onclick="switchTab('flujo')" id="tab-btn-flujo" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+      <span>💧</span>
+      <span>4. Flujo de Efectivo (NIIF 7)</span>
+    </button>
+    <button onclick="switchTab('balanza')" id="tab-btn-balanza" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+      <span>⚖️</span>
+      <span>5. Balanza de Comprobación (6 Cols)</span>
+    </button>
+    <button onclick="switchTab('ajustes')" id="tab-btn-ajustes" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+      <span>⚙️</span>
+      <span>6. Ajustes de Cierre & Devengos</span>
+    </button>
+    <button onclick="switchTab('notas')" id="tab-btn-notas" class="flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap">
+      <span>📝</span>
+      <span>7. Notas Explicativas NIIF</span>
+    </button>
+  </div>
+
+  <!-- 3. CONTENEDOR PRINCIPAL: VISTA DE CADA ESTADO FINANCIERO -->
+  <main class="flex-1 flex flex-col min-h-0 relative z-10">
+    
+    <!-- TARJETA CONTENEDORA CON FRANJA ROSE -->
+    <div class="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden border-l-[6px] border-l-rose-500 sheet-container">
+      
+      <!-- ============================================================== -->
+      <!-- TAB 1: BALANCE GENERAL (ESTADO DE SITUACIÓN FINANCIERA)         -->
+      <!-- ============================================================== -->
+      <div id="pane-bbgg" class="tab-pane flex-1 flex flex-col p-5 overflow-auto space-y-4">
+        <!-- Cabecera Formal del Estado -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Estado de Situación Financiera (Balance General Clasificado)</h2>
+            <p class="text-[11px] text-slate-500 font-mono">Al 30 de Septiembre de 2026 • Cifras en Lempiras Hondureños (HNL) • Norma NIIF para PYMES</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[10px] font-bold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              ECUACIÓN CONTABLE CUADRADA (L 0.00 DIFERENCIA)
+            </span>
+          </div>
+        </div>
+
+        <!-- 3 KPIs Resumen del Balance -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="text-[10px] font-bold mono uppercase text-slate-500">TOTAL ACTIVO</span>
+            <div class="text-xl font-black font-mono text-slate-950 mt-0.5">L 3,842,500.00</div>
+            <span class="text-[9.5px] text-emerald-700 font-medium">Corriente: L 2,660,050.00 | No Corriente: L 1,182,450.00</span>
+          </div>
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="text-[10px] font-bold mono uppercase text-slate-500">TOTAL PASIVO</span>
+            <div class="text-xl font-black font-mono text-slate-950 mt-0.5">L 1,420,150.00</div>
+            <span class="text-[9.5px] text-slate-500 font-medium">Corriente: L 995,150.00 | No Corriente: L 425,000.00</span>
+          </div>
+          <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl">
+            <span class="text-[10px] font-bold mono uppercase text-rose-700">PATRIMONIO NETO</span>
+            <div class="text-xl font-black font-mono text-rose-900 mt-0.5">L 2,422,350.00</div>
+            <span class="text-[9.5px] text-rose-700 font-bold">Pasivo + Patrimonio: L 3,842,500.00 (100% Cuadrado)</span>
+          </div>
+        </div>
+
+        <!-- Estructura Clasificada a Dos Columnas (Activo vs Pasivo + Patrimonio) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+          
+          <!-- COLUMNA IZQUIERDA: ACTIVOS -->
+          <div class="space-y-4">
+            <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex justify-between">
+                <span>1. ACTIVO CORRIENTE</span>
+                <span class="font-mono">L 2,660,050.00</span>
+              </div>
+              <div class="divide-y divide-slate-100 font-mono text-[11px] p-2 bg-white">
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">1.1.01 Efectivo y Equivalentes (Caja & Bancos BAC/Ficohsa)</span>
+                  <span class="font-bold text-slate-900">L 745,200.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">1.1.02 Cuentas Comerciales por Cobrar (Clientes Cartera Neta)</span>
+                  <span class="font-bold text-slate-900">L 428,600.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">1.1.04 Inventarios Valuados a CPP (Almacén Central)</span>
+                  <span class="font-bold text-slate-900">L 1,420,850.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">1.1.05 Pagos Anticipados & Pólizas de Seguro</span>
+                  <span class="font-bold text-slate-900">L 65,400.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex justify-between">
+                <span>1.2 ACTIVO NO CORRIENTE</span>
+                <span class="font-mono">L 1,182,450.00</span>
+              </div>
+              <div class="divide-y divide-slate-100 font-mono text-[11px] p-2 bg-white">
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">1.2.01 Propiedad, Planta y Equipo (Servidores, Equipos & Mobiliario)</span>
+                  <span class="font-bold text-slate-900">L 1,350,000.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50 text-rose-600">
+                  <span class="font-sans font-medium">1.2.02 (-) Depreciación Acumulada PPE (NIC 16)</span>
+                  <span class="font-bold">- L 167,550.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3.5 bg-slate-950 text-white rounded-xl flex justify-between items-center font-mono">
+              <span class="font-bold text-xs uppercase">TOTAL DEL ACTIVO</span>
+              <strong class="text-base font-black text-emerald-400">L 3,842,500.00</strong>
+            </div>
+          </div>
+
+          <!-- COLUMNA DERECHA: PASIVOS Y PATRIMONIO -->
+          <div class="space-y-4">
+            <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex justify-between">
+                <span>2.1 PASIVO CORRIENTE</span>
+                <span class="font-mono">L 995,150.00</span>
+              </div>
+              <div class="divide-y divide-slate-100 font-mono text-[11px] p-2 bg-white">
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">2.1.01 Cuentas Comerciales por Pagar (Proveedores CxP)</span>
+                  <span class="font-bold text-slate-900">L 812,450.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">2.1.02 Impuestos por Pagar (Débito Fiscal ISV & Retenciones)</span>
+                  <span class="font-bold text-slate-900">L 58,270.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">2.1.03 Beneficios Sociales & Retenciones por Pagar (IHSS/RAP)</span>
+                  <span class="font-bold text-slate-900">L 124,430.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+              <div class="bg-slate-900 text-white px-4 py-2 font-bold uppercase text-xs flex justify-between">
+                <span>2.2 PASIVO NO CORRIENTE</span>
+                <span class="font-mono">L 425,000.00</span>
+              </div>
+              <div class="divide-y divide-slate-100 font-mono text-[11px] p-2 bg-white">
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">2.2.01 Préstamos Bancarios a Largo Plazo (BAC Credomatic)</span>
+                  <span class="font-bold text-slate-900">L 425,000.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="border border-rose-200 rounded-xl overflow-hidden shadow-2xs bg-rose-50/30">
+              <div class="bg-rose-900 text-white px-4 py-2 font-bold uppercase text-xs flex justify-between">
+                <span>3. PATRIMONIO NETO</span>
+                <span class="font-mono">L 2,422,350.00</span>
+              </div>
+              <div class="divide-y divide-rose-100 font-mono text-[11px] p-2 bg-white">
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">3.1.01 Capital Social Suscrito y Pagado</span>
+                  <span class="font-bold text-slate-900">L 1,500,000.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">3.1.02 Reserva Legal (5% Acumulada Código de Comercio)</span>
+                  <span class="font-bold text-slate-900">L 128,000.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50">
+                  <span class="font-sans font-medium text-slate-700">3.1.03 Resultados Acumulados de Ejercicios Anteriores</span>
+                  <span class="font-bold text-slate-900">L 355,000.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 px-2 hover:bg-slate-50 bg-emerald-50/50">
+                  <span class="font-sans font-bold text-emerald-900">3.1.04 Utilidad Neta del Período (Ene - Sep 2026)</span>
+                  <span class="font-bold text-emerald-700">L 439,350.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3.5 bg-slate-950 text-white rounded-xl flex justify-between items-center font-mono">
+              <span class="font-bold text-xs uppercase">TOTAL PASIVO + PATRIMONIO</span>
+              <strong class="text-base font-black text-rose-400">L 3,842,500.00</strong>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 2: ESTADO DE RESULTADOS INTEGRAL (EERR)                    -->
+      <!-- ============================================================== -->
+      <div id="pane-eerr" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Estado de Resultados Integral (Por Función del Gasto)</h2>
+            <p class="text-[11px] text-slate-500 font-mono">Período del 01 de Enero al 30 de Septiembre de 2026 • Sección 5 NIIF para PYMES</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono text-[10px] font-bold">
+              MARGEN NETO: 17.9% | EBITDA: L 627,900.00
+            </span>
+          </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto w-full border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+          <table class="w-full text-left border-collapse text-xs font-mono">
+            <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider">
+              <tr>
+                <th class="py-3 px-4 text-left font-sans">CONCEPTO / RUBRO CONTABLE</th>
+                <th class="py-3 px-4 text-center w-28 font-sans">NOTA</th>
+                <th class="py-3 px-4 text-right w-44">MONTO (HNL)</th>
+                <th class="py-3 px-4 text-right w-28 font-sans">% S/VENTAS</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-800">
+              <tr class="hover:bg-slate-50 font-bold bg-slate-50/50">
+                <td class="py-3 px-4 font-sans text-slate-950">(+) Ingresos Ordinarios por Ventas (POS & Facturación Fiscal SAR)</td>
+                <td class="py-3 px-4 text-center text-slate-500 text-[10px]">Nota 3.2</td>
+                <td class="py-3 px-4 text-right text-slate-950">L 2,450,800.00</td>
+                <td class="py-3 px-4 text-right text-slate-600">100.0%</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-rose-600">
+                <td class="py-2.5 px-4 font-sans">(-) Costo de Mercaderías Vendidas (CPP Kardex Continuo)</td>
+                <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 3.1</td>
+                <td class="py-2.5 px-4 text-right">- L 1,225,400.00</td>
+                <td class="py-2.5 px-4 text-right">- 50.0%</td>
+              </tr>
+              <tr class="bg-emerald-50 font-black border-y border-emerald-200 text-emerald-950">
+                <td class="py-3 px-4 font-sans">(=) UTILIDAD BRUTA</td>
+                <td class="py-3 px-4 text-center text-emerald-700 text-[10px]">-</td>
+                <td class="py-3 px-4 text-right text-emerald-800">L 1,225,400.00</td>
+                <td class="py-3 px-4 text-right text-emerald-700">50.0%</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-slate-700">
+                <td class="py-2.5 px-4 font-sans pl-8">(-) Gastos Generales de Administración (Sueldos, Servicios & Arrendamiento)</td>
+                <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 4.1</td>
+                <td class="py-2.5 px-4 text-right text-rose-600">- L 412,000.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-500">- 16.8%</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-slate-700">
+                <td class="py-2.5 px-4 font-sans pl-8">(-) Gastos de Venta y Comercialización (Comisiones POS, Publicidad)</td>
+                <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 4.2</td>
+                <td class="py-2.5 px-4 text-right text-rose-600">- L 185,500.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-500">- 7.6%</td>
+              </tr>
+              <tr class="bg-sky-50 font-bold border-y border-sky-200 text-sky-950">
+                <td class="py-3 px-4 font-sans">(=) UTILIDAD DE OPERACIÓN (EBITDA)</td>
+                <td class="py-3 px-4 text-center text-sky-700 text-[10px]">-</td>
+                <td class="py-3 px-4 text-right text-sky-800">L 627,900.00</td>
+                <td class="py-3 px-4 text-right text-sky-700">25.6%</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-slate-700">
+                <td class="py-2.5 px-4 font-sans pl-8">(-) Gastos Financieros y Comisiones Bancarias (Intereses BAC Credomatic)</td>
+                <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 4.3</td>
+                <td class="py-2.5 px-4 text-right text-rose-600">- L 42,100.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-500">- 1.7%</td>
+              </tr>
+              <tr class="bg-slate-100 font-bold border-y border-slate-300 text-slate-900">
+                <td class="py-3 px-4 font-sans">(=) UTILIDAD ANTES DE IMPUESTOS (EBT)</td>
+                <td class="py-3 px-4 text-center text-slate-600 text-[10px]">-</td>
+                <td class="py-3 px-4 text-right text-slate-950">L 585,800.00</td>
+                <td class="py-3 px-4 text-right text-slate-700">23.9%</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-rose-700">
+                <td class="py-2.5 px-4 font-sans pl-8">(-) Estimación Impuesto Sobre la Renta (25% ISR Régimen General SAR)</td>
+                <td class="py-2.5 px-4 text-center text-slate-400 text-[10px]">Nota 4.4</td>
+                <td class="py-2.5 px-4 text-right font-bold">- L 146,450.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-500">- 6.0%</td>
+              </tr>
+              <tr class="bg-slate-950 text-white font-black text-sm">
+                <td class="py-3.5 px-4 font-sans">(=) UTILIDAD NETA DEL EJERCICIO (ENE - SEP 2026)</td>
+                <td class="py-3.5 px-4 text-center text-slate-400 text-[10px] font-normal">NIIF</td>
+                <td class="py-3.5 px-4 text-right text-emerald-400 text-base">L 439,350.00</td>
+                <td class="py-3.5 px-4 text-right text-emerald-300">17.9%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 3: ESTADO DE CAMBIOS EN EL PATRIMONIO NETO                 -->
+      <!-- ============================================================== -->
+      <div id="pane-patrimonio" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Estado de Cambios en el Patrimonio Neto</h2>
+            <p class="text-[11px] text-slate-500 font-mono">Movimientos de Capital, Reservas y Resultados Acumulados • Enero - Septiembre 2026</p>
+          </div>
+        </div>
+
+        <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+          <table class="w-full text-left border-collapse text-xs font-mono">
+            <thead class="bg-slate-900 text-white uppercase text-[10px] tracking-wider">
+              <tr>
+                <th class="py-3 px-4 text-left font-sans">CONCEPTO / MOVIMIENTO</th>
+                <th class="py-3 px-4 text-right">CAPITAL SOCIAL</th>
+                <th class="py-3 px-4 text-right">RESERVA LEGAL (5%)</th>
+                <th class="py-3 px-4 text-right">RES. ACUMULADOS</th>
+                <th class="py-3 px-4 text-right">UTILIDAD PERÍODO</th>
+                <th class="py-3 px-4 text-right font-black text-rose-300">TOTAL PATRIMONIO</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-800">
+              <tr class="hover:bg-slate-50 font-bold bg-slate-50/50">
+                <td class="py-3 px-4 font-sans text-slate-900">Saldo Inicial al 01 de Enero de 2026</td>
+                <td class="py-3 px-4 text-right">L 1,500,000.00</td>
+                <td class="py-3 px-4 text-right">L 106,032.50</td>
+                <td class="py-3 px-4 text-right">L 450,000.00</td>
+                <td class="py-3 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-3 px-4 text-right font-black text-slate-950">L 2,056,032.50</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-rose-600">
+                <td class="py-2.5 px-4 font-sans">(-) Distribución de Dividendos Período 2025 (Asamblea Ordinaria)</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right">- L 95,000.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right font-bold">- L 95,000.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-slate-700">
+                <td class="py-2.5 px-4 font-sans">(+) Apropiación a Reserva Legal (5% Utilidad según Ley)</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right text-emerald-700 font-bold">L 21,967.50</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right font-bold">L 21,967.50</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-emerald-700 bg-emerald-50/40 font-bold">
+                <td class="py-2.5 px-4 font-sans text-emerald-950">(+) Utilidad Neta del Ejercicio (Ene - Sep 2026)</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right text-slate-400">L 0.00</td>
+                <td class="py-2.5 px-4 text-right text-emerald-700">L 439,350.00</td>
+                <td class="py-2.5 px-4 text-right font-black text-emerald-800">L 439,350.00</td>
+              </tr>
+              <tr class="bg-slate-950 text-white font-black text-sm">
+                <td class="py-3.5 px-4 font-sans uppercase">SALDO FINAL AL 30 DE SEPTIEMBRE DE 2026</td>
+                <td class="py-3.5 px-4 text-right">L 1,500,000.00</td>
+                <td class="py-3.5 px-4 text-right text-emerald-300">L 128,000.00</td>
+                <td class="py-3.5 px-4 text-right">L 355,000.00</td>
+                <td class="py-3.5 px-4 text-right text-emerald-300">L 439,350.00</td>
+                <td class="py-3.5 px-4 text-right text-rose-400 text-base">L 2,422,350.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 4: ESTADO DE FLUJOS DE EFECTIVO (SECCIÓN 7 NIIF)           -->
+      <!-- ============================================================== -->
+      <div id="pane-flujo" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Estado de Flujos de Efectivo (Método Indirecto NIIF 7)</h2>
+            <p class="text-[11px] text-slate-500 font-mono">Conciliación de la Utilidad Neta con el Efectivo Operativo, de Inversión y Financiación</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-xl bg-sky-50 text-sky-800 border border-sky-200 font-mono text-[10px] font-bold">
+              SALDO FINAL EN LIBROS: L 745,200.00 (CONCILIADO)
+            </span>
+          </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto w-full border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+          <div class="divide-y divide-slate-100 font-mono text-xs text-slate-800">
+            
+            <!-- 1. ACTIVIDADES DE OPERACIÓN -->
+            <div class="p-3.5 bg-slate-900 text-white font-bold uppercase flex justify-between">
+              <span>1. FLUJOS DE EFECTIVO POR ACTIVIDADES DE OPERACIÓN</span>
+              <span class="text-emerald-400">L 378,600.00</span>
+            </div>
+            <div class="p-3 space-y-2 bg-white text-[11px]">
+              <div class="flex justify-between py-1 px-2 hover:bg-slate-50 font-bold">
+                <span class="font-sans">Utilidad Neta del Ejercicio</span>
+                <span class="text-slate-900">L 439,350.00</span>
+              </div>
+              <div class="flex justify-between py-1 px-2 hover:bg-slate-50 text-emerald-700">
+                <span class="font-sans pl-4">(+) Ajustes por Depreciaciones y Amortizaciones que no requieren efectivo</span>
+                <span>+ L 54,200.00</span>
+              </div>
+              <div class="flex justify-between py-1 px-2 hover:bg-slate-50 text-rose-600">
+                <span class="font-sans pl-4">(-) Aumento en Cuentas Comerciales por Cobrar</span>
+                <span>- L 82,400.00</span>
+              </div>
+              <div class="flex justify-between py-1 px-2 hover:bg-slate-50 text-rose-600">
+                <span class="font-sans pl-4">(-) Aumento en Inventarios de Mercaderías</span>
+                <span>- L 145,200.00</span>
+              </div>
+              <div class="flex justify-between py-1 px-2 hover:bg-slate-50 text-emerald-700">
+                <span class="font-sans pl-4">(+) Aumento en Cuentas por Pagar Comerciales y Fiscales</span>
+                <span>+ L 112,650.00</span>
+              </div>
+            </div>
+
+            <!-- 2. ACTIVIDADES DE INVERSIÓN -->
+            <div class="p-3.5 bg-slate-900 text-white font-bold uppercase flex justify-between">
+              <span>2. FLUJOS DE EFECTIVO POR ACTIVIDADES DE INVERSIÓN</span>
+              <span class="text-rose-400">- L 95,000.00</span>
+            </div>
+            <div class="p-3 space-y-2 bg-white text-[11px]">
+              <div class="flex justify-between py-1 px-2 hover:bg-slate-50 text-rose-600">
+                <span class="font-sans pl-4">(-) Adquisición de Equipos de Servidores y Punto de Venta (PPE)</span>
+                <span>- L 95,000.00</span>
+              </div>
+            </div>
+
+            <!-- 3. ACTIVIDADES DE FINANCIACIÓN -->
+            <div class="p-3.5 bg-slate-900 text-white font-bold uppercase flex justify-between">
+              <span>3. FLUJOS DE EFECTIVO POR ACTIVIDADES DE FINANCIACIÓN</span>
+              <span class="text-rose-400">- L 140,000.00</span>
+            </div>
+            <div class="p-3 space-y-2 bg-white text-[11px]">
+              <div class="flex justify-between py-1 px-2 hover:bg-slate-50 text-rose-600">
+                <span class="font-sans pl-4">(-) Pago de Dividendos a Accionistas</span>
+                <span>- L 95,000.00</span>
+              </div>
+              <div class="flex justify-between py-1 px-2 hover:bg-slate-50 text-rose-600">
+                <span class="font-sans pl-4">(-) Amortización de Principal en Préstamos Bancarios BAC</span>
+                <span>- L 45,000.00</span>
+              </div>
+            </div>
+
+            <!-- CONCILIACIÓN FINAL -->
+            <div class="p-4 bg-slate-950 text-white space-y-2">
+              <div class="flex justify-between font-bold text-xs text-emerald-400">
+                <span class="font-sans">INCREMENTO NETO DE EFECTIVO EN EL PERÍODO</span>
+                <span>L 143,600.00</span>
+              </div>
+              <div class="flex justify-between text-slate-400 text-xs">
+                <span class="font-sans">(+) Saldo Inicial de Efectivo al 01 de Enero de 2026</span>
+                <span>L 601,600.00</span>
+              </div>
+              <div class="flex justify-between font-black text-sm pt-2 border-t border-slate-800 text-white">
+                <span class="font-sans uppercase">(=) SALDO FINAL DE EFECTIVO AL 30 DE SEPTIEMBRE DE 2026</span>
+                <span class="text-rose-400 text-base">L 745,200.00</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 5: BALANZA DE COMPROBACIÓN (SUMAS Y SALDOS A 6 COLUMNAS)   -->
+      <!-- ============================================================== -->
+      <div id="pane-balanza" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Balanza de Comprobación de Sumas y Saldos (6 Columnas)</h2>
+            <p class="text-[11px] text-slate-500 font-mono">Consolidación Analítica de Cuentas de Mayor y Auxiliares • Septiembre 2026</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[10px] font-bold">
+              SUMAS IGUALES VERIFICADAS (DÉBITOS = CRÉDITOS)
+            </span>
+          </div>
+        </div>
+
+        <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+          <table class="w-full text-left border-collapse text-xs font-mono">
+            <thead class="bg-slate-900 text-white uppercase text-[9.5px] tracking-wider sticky top-0">
+              <tr>
+                <th class="py-2.5 px-3 text-left">CÓDIGO NIIF</th>
+                <th class="py-2.5 px-3 text-left font-sans">NOMBRE DE LA CUENTA</th>
+                <th class="py-2.5 px-3 text-right bg-slate-800">SDO INICIAL DEBE</th>
+                <th class="py-2.5 px-3 text-right bg-slate-800">SDO INICIAL HABER</th>
+                <th class="py-2.5 px-3 text-right bg-slate-850">MOV. DÉBITOS</th>
+                <th class="py-2.5 px-3 text-right bg-slate-850">MOV. CRÉDITOS</th>
+                <th class="py-2.5 px-3 text-right bg-slate-900 text-emerald-300">SDO FINAL DEUDOR</th>
+                <th class="py-2.5 px-3 text-right bg-slate-900 text-rose-300">SDO FINAL ACREEDOR</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-800 text-[11px]">
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-bold text-slate-900">1.1.01</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Efectivo y Equivalentes de Efectivo</td>
+                <td class="py-2 px-3 text-right text-slate-600">601,600.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">1,842,500.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">1,698,900.00</td>
+                <td class="py-2 px-3 text-right text-emerald-700 font-bold">745,200.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-bold text-slate-900">1.1.02</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Cuentas Comerciales por Cobrar (Clientes)</td>
+                <td class="py-2 px-3 text-right text-slate-600">346,200.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">608,300.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">525,900.00</td>
+                <td class="py-2 px-3 text-right text-emerald-700 font-bold">428,600.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-bold text-slate-900">1.1.04</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Inventarios de Mercaderías (CPP)</td>
+                <td class="py-2 px-3 text-right text-slate-600">1,275,650.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">1,370,600.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">1,225,400.00</td>
+                <td class="py-2 px-3 text-right text-emerald-700 font-bold">1,420,850.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-bold text-slate-900">1.2.01</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Propiedad, Planta y Equipo</td>
+                <td class="py-2 px-3 text-right text-slate-600">1,255,000.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">95,000.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-emerald-700 font-bold">1,350,000.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50 text-rose-700">
+                <td class="py-2 px-3 font-bold">1.2.02</td>
+                <td class="py-2 px-3 font-sans font-medium">(-) Depreciación Acumulada PPE</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-rose-600">113,350.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-rose-600">54,200.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right font-bold text-rose-700">167,550.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-bold text-slate-900">2.1.01</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Cuentas por Pagar Comerciales (Proveedores)</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-600">699,800.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">1,257,950.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-medium">1,370,600.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right font-bold text-rose-700">812,450.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-bold text-slate-900">3.1.01</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Capital Social Pagado</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-600">1,500,000.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right font-bold text-rose-700">1,500,000.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-bold text-slate-900">4.1.01</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Ingresos por Ventas Gravadas & Exentas</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-bold">2,450,800.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right font-bold text-rose-700">2,450,800.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-bold text-slate-900">5.1.01</td>
+                <td class="py-2 px-3 font-sans font-medium text-slate-800">Costo de Ventas (Salidas Kardex CPP)</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right text-slate-900 font-bold">1,225,400.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+                <td class="py-2 px-3 text-right font-bold text-emerald-700">1,225,400.00</td>
+                <td class="py-2 px-3 text-right text-slate-400">0.00</td>
+              </tr>
+            </tbody>
+            <!-- TFOOT SUMAS IGUALES -->
+            <tfoot class="bg-slate-950 text-white font-black text-[11px] border-t-2 border-slate-400">
+              <tr>
+                <td colspan="2" class="py-3 px-3 font-sans uppercase text-right tracking-wider">SUMAS IGUALES BALANZA (NIIF):</td>
+                <td class="py-3 px-3 text-right text-slate-200">L 3,478,450.00</td>
+                <td class="py-3 px-3 text-right text-slate-200">L 3,478,450.00</td>
+                <td class="py-3 px-3 text-right text-slate-200">L 6,494,300.00</td>
+                <td class="py-3 px-3 text-right text-slate-200">L 6,494,300.00</td>
+                <td class="py-3 px-3 text-right text-emerald-400">L 5,170,050.00</td>
+                <td class="py-3 px-3 text-right text-rose-400">L 5,170,050.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 6: MOTOR & REPORTE DE AJUSTES CONTABLES DEL MES            -->
+      <!-- ============================================================== -->
+      <div id="pane-ajustes" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Motor de Devengos, Amortizaciones & Cierre Mensual</h2>
+            <p class="text-[11px] text-slate-500 font-mono">Generación de Partidas Automáticas de Depreciación, Pólizas Diferidas y Provisiones</p>
+          </div>
+          <button onclick="executeClosingAdjustments()" class="flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-md transition-all">
+            <span>⚡</span>
+            <span>Ejecutar y Asentar Ajustes en el Diario</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Card 1: Depreciación PPE -->
+          <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-900">1. Depreciación de Activos Fijos (NIC 16)</span>
+              <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-mono font-bold">LÍNEA RECTA</span>
+            </div>
+            <p class="text-[11px] text-slate-500 leading-snug">Cálculo mensual sobre Servidores Dell PowerEdge (36 meses), Equipos POS y Mobiliario.</p>
+            <div class="bg-slate-50 p-2.5 rounded-xl font-mono text-[11px] flex justify-between">
+              <span>Cuota Mensual a Asentar:</span>
+              <strong class="text-slate-900">L 12,450.00</strong>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono">Débito: 5.2.01.01 (Gasto Deprec.) | Crédito: 1.2.02.01 (Deprec. Acum.)</div>
+          </div>
+
+          <!-- Card 2: Amortización de Seguros -->
+          <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-900">2. Amortización de Seguros & Pólizas (NIC 38)</span>
+              <span class="bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded text-[9px] font-mono font-bold">DEVENGADO</span>
+            </div>
+            <p class="text-[11px] text-slate-500 leading-snug">Póliza Todo Riesgo FICOHSA Seguros (Contrato 24 meses / L 2,000.00 mensual).</p>
+            <div class="bg-slate-50 p-2.5 rounded-xl font-mono text-[11px] flex justify-between">
+              <span>Cuota Mensual a Asentar:</span>
+              <strong class="text-slate-900">L 2,000.00</strong>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono">Débito: 5.2.01.08 (Gasto Seguro) | Crédito: 1.1.05.01 (Seguros Pag. Anticip.)</div>
+          </div>
+
+          <!-- Card 3: Provisiones Laborales -->
+          <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-900">3. Provisiones Laborales & Pasivo Social</span>
+              <span class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[9px] font-mono font-bold">CÓDIGO TRABAJO</span>
+            </div>
+            <p class="text-[11px] text-slate-500 leading-snug">Provisión de Cesantía, Preaviso, Décimo Tercero y Décimo Cuarto mes de salario.</p>
+            <div class="bg-slate-50 p-2.5 rounded-xl font-mono text-[11px] flex justify-between">
+              <span>Monto Provisión Mensual:</span>
+              <strong class="text-slate-900">L 18,500.00</strong>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono">Débito: 5.2.01.02 (Gasto Prestaciones) | Crédito: 2.1.03.04 (Provisión Laboral)</div>
+          </div>
+
+          <!-- Card 4: Devengo Financiero -->
+          <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-900">4. Devengo de Intereses Financieros</span>
+              <span class="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded text-[9px] font-mono font-bold">BANCARIO</span>
+            </div>
+            <p class="text-[11px] text-slate-500 leading-snug">Intereses devengados por pagar sobre línea de crédito comercial BAC Credomatic.</p>
+            <div class="bg-slate-50 p-2.5 rounded-xl font-mono text-[11px] flex justify-between">
+              <span>Interés Devengado:</span>
+              <strong class="text-slate-900">L 4,200.00</strong>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono">Débito: 5.3.01.01 (Gasto Financiero) | Crédito: 2.1.02.05 (Intereses por Pagar)</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 7: NOTAS EXPLICATIVAS A LOS ESTADOS FINANCIEROS            -->
+      <!-- ============================================================== -->
+      <div id="pane-notas" class="tab-pane hidden flex-1 flex flex-col p-5 overflow-auto space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Notas Explicativas a los Estados Financieros</h2>
+            <p class="text-[11px] text-slate-500 font-mono">Marco Técnico Normativo NIIF para las PYMES • Período Terminado al 30 de Septiembre de 2026</p>
+          </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto w-full space-y-4 text-xs text-slate-700">
+          
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <h3 class="font-bold text-slate-950 text-sm flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs">1</span>
+              NOTA 1: ENTIDAD EMISORA Y OPERACIONES COMERCIALES
+            </h3>
+            <p class="text-slate-600 leading-relaxed">
+              Horizon Ledger S.A. de C.V. es una sociedad mercantil constituida bajo las leyes de la República de Honduras, con domicilio fiscal y centro de operaciones principales en Tegucigalpa, Municipio del Distrito Central. Su actividad económica principal consiste en la comercialización, distribución mayorista y minorista de soluciones tecnológicas, suministros y servicios corporativos.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <h3 class="font-bold text-slate-950 text-sm flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs">2</span>
+              NOTA 2: BASES DE PREPARACIÓN Y DECLARACIÓN DE CUMPLIMIENTO NIIF
+            </h3>
+            <p class="text-slate-600 leading-relaxed">
+              Los presentes estados financieros han sido preparados de conformidad con la <strong>Norma Internacional de Información Financiera para Pequeñas y Medianas Entidades (NIIF para las PYMES)</strong>, adoptada formalmente por el Colegio de Peritos Mercantiles y Contadores Públicos de Honduras y la Comisión Nacional de Bancos y Seguros (CNBS). Los estados financieros han sido preparados sobre la base del costo histórico y del principio de negocio en marcha.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <h3 class="font-bold text-slate-950 text-sm flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs">3</span>
+              NOTA 3: PRINCIPALES POLÍTICAS CONTABLES SIGNIFICATIVAS
+            </h3>
+            <div class="space-y-1.5 text-slate-600 leading-relaxed pl-2 border-l-2 border-slate-300">
+              <p><strong>3.1 Valuación de Inventarios (Sección 13):</strong> Los inventarios se miden al menor entre el costo y el precio de venta estimado menos los costos de terminación y venta. El costo se asigna utilizando el método de <em>Costo Promedio Ponderado (CPP) continuo</em>.</p>
+              <p><strong>3.2 Reconocimiento de Ingresos (Sección 23):</strong> Los ingresos por venta de bienes se reconocen en el momento en que se transfieren los riesgos y ventajas de propiedad al cliente y se emite la factura fiscal debidamente autorizada por el SAR con su respectivo CAI.</p>
+              <p><strong>3.3 Moneda Funcional y de Presentación:</strong> La moneda funcional y de presentación de la entidad es el Lempira (HNL), que es la moneda de curso legal en Honduras.</p>
+              <p><strong>3.4 Propiedad, Planta y Equipo (Sección 17):</strong> Los elementos de PPE se miden al costo menos la depreciación acumulada y cualquier pérdida por deterioro acumulada, utilizando el método lineal.</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <h3 class="font-bold text-slate-950 text-sm flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs">4</span>
+              NOTA 4: DESGLOSE DE CUENTAS RELEVANTES Y COMPROMISOS FISCALES
+            </h3>
+            <p class="text-slate-600 leading-relaxed">
+              Al 30 de septiembre de 2026, la entidad mantiene al día sus obligaciones tributarias correspondientes al régimen de facturación SAR-252, habiendo liquidado el Débito Fiscal generado contra el Crédito Fiscal deducible y aplicando la retención del 1% del ISV conforme a la legislación fiscal vigente.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-950 text-white border border-slate-800 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs font-medium">
+    <span id="toast-icon">✅</span>
+    <span id="toast-message">Notificación del sistema</span>
+  </div>
+
+  <!-- SCRIPT DE INTERACTIVIDAD Y NAVEGACIÓN -->
+  <script>
+    const TABS = ['bbgg', 'eerr', 'patrimonio', 'flujo', 'balanza', 'ajustes', 'notas'];
+
+    function switchTab(tabId) {
+      TABS.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const pane = document.getElementById(`pane-${t}`);
+        if (t === tabId) {
+          if (btn) {
+            btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border tab-active whitespace-nowrap';
+          }
+          if (pane) {
+            pane.classList.remove('hidden');
+          }
+        } else {
+          if (btn) {
+            btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap';
+          }
+          if (pane) {
+            pane.classList.add('hidden');
+          }
+        }
+      });
+
+      window.location.hash = `#${tabId}`;
+    }
+
+    function exportFullPDF() {
+      showToast("📄", "Generando cuadernillo oficial de Estados Financieros NIIF...");
+      setTimeout(() => {
+        window.print();
+      }, 400);
+    }
+
+    function exportExcelEEFF() {
+      showToast("📊", "Exportando Balance General y Estado de Resultados en formato tabular...");
+      
+      const csvContent = "ESTADO DE SITUACION FINANCIERA (NIIF)\r\n" +
+        "RUBRO,MONTO (HNL)\r\n" +
+        "1. ACTIVO CORRIENTE,2660050.00\r\n" +
+        "1.1 Efectivo y Equivalentes,745200.00\r\n" +
+        "1.2 Cuentas por Cobrar Clientes,428600.00\r\n" +
+        "1.3 Inventarios Valuados CPP,1420850.00\r\n" +
+        "1.4 Pagos Anticipados,65400.00\r\n" +
+        "2. ACTIVO NO CORRIENTE,1182450.00\r\n" +
+        "2.1 Propiedad Planta y Equipo,1350000.00\r\n" +
+        "2.2 Depreciacion Acumulada,-167550.00\r\n" +
+        "TOTAL ACTIVO,3842500.00\r\n\r\n" +
+        "PASIVO Y PATRIMONIO,MONTO (HNL)\r\n" +
+        "3. PASIVO CORRIENTE,995150.00\r\n" +
+        "4. PASIVO NO CORRIENTE,425000.00\r\n" +
+        "5. PATRIMONIO NETO,2422350.00\r\n" +
+        "TOTAL PASIVO + PATRIMONIO,3842500.00\r\n";
+
+      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "EEFF_NIIF_HORIZON_LEDGER_SEP2026.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function executeClosingAdjustments() {
+      showToast("⚡", "Asentando 4 partidas de depreciación, pólizas y prestaciones en el Libro Diario...");
+      setTimeout(() => {
+        showToast("✅", "¡4 Asientos de Ajuste Mayorizados con éxito! Balance actualizado.");
+      }, 1200);
+    }
+
+    function changePeriod(val) {
+      showToast("📅", `Cargando estados financieros para el ejercicio ${val}...`);
+    }
+
+    function showToast(icon, message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-message').textContent = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && TABS.includes(hash)) {
+        switchTab(hash);
+      } else {
+        switchTab('bbgg');
+      }
+    });
+  </script>
+</body>
+</html>

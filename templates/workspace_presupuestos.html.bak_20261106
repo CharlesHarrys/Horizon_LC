@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Presupuestario & Simulador Financiero | Horizon ERP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #fcfbf9;
+            color: #171717;
+        }
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4d4d2;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a6;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .print-border {
+                border: 1px solid #e5e5e5 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased p-2.5">
+
+    <!-- TOP INSTITUTIONAL BAR -->
+    <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 mb-2 shrink-0 min-h-16" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);"
+>
+
+<div 
+	class="flex items-center gap-3.5 shrink-0 justify-self-start"
+>       
+    <!-- Botón Regresar -->
+    <button type="button" onclick="if(history.length > 1){ history.back(); } else { window.location.href='workspace_lobby.html'; }" title="Regresar" 
+	class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
+      ←
+    </button>
+    
+    <!-- Logo Horizon LC (Con redirección al Lobby) -->
+    <div 
+	class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal"
+	>
+    <!-- Isotipo: Eclipse / Sol Negro Naciente (LOGO)-->
+      <div
+	class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+          <!-- Corona de Fotones Cian (Arco exterior) -->
+          <path d="M4.5 13.5C4.5 9.35786 7.85786 6 12 6C16.1421 6 19.5 9.35786 19.5 13.5" stroke="#3ba6f1" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Singularidad Central (Semiesfera negra sobre el horizonte) -->
+          <path d="M7 13.5C7 10.7386 9.23858 8.5 12 8.5C14.7614 8.5 17 10.7386 17 13.5H7Z" fill="#0f172a"></path>
+          <!-- Horizonte de Sucesos (Plano ecuatorial) -->
+          <path d="M2 13.5H22" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Destello de Acreción Central en Cian -->
+          <path d="M6 16.5H18" stroke="#3ba6f1" stroke-width="2" stroke-linecap="round"></path>
+          <!-- Eco Gravitacional Inferior -->
+          <path d="M9.5 19H14.5" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <!-- Wordmark tipográfico -->
+      <div class="flex flex-col leading-none" style="font-family: 'Inter', sans-serif;">
+        <div class="flex items-center gap-1">
+          <span class="text-[16px] font-extrabold tracking-tight text-slate-900 uppercase">HORIZON</span>
+          <span class="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#3ba6f1]/15 text-[#0284c7] tracking-wider">LC</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 tracking-wider uppercase mt-0.5">SYSTEM ANALYTICS</span>
+      </div>
+    </div>
+
+
+    <!-- Bloque Detalle de Módulo con Línea Divisoria Vertical -->
+	<div class="flex items-center select-none pl-4 ml-1 border-l border-slate-200">
+  	<div class="flex flex-col text-left leading-tight" style="font-family: 'Inter', sans-serif;">
+    		<span class="text-[9px] font-semibold text-slate-700 tracking-wider uppercase"> MÓDULO:
+    		</span>
+    		<span class="text-[9px] font-extrabold text-slate-700 tracking-tight uppercase max-w-[120px] leading-3 mt-0.5" id="hdr-module-name"> CONTROL PRESUPUESTARIO
+    		</span>
+  	</div>
+	</div>
+</div>
+
+
+	
+<!-- Zona Central: Logotipo Corporativo + Identidad Institucional Dinámica -->
+
+<div
+ 	class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;"
+>
+  
+  	<!-- Contenedor del Logotipo Vectorial / SVG de la Empresa (w-10 h-10 y gap-2.5) -->
+  	<div class="flex items-center gap-2.5">
+    	<div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800" id="hdr-company-logo-container">
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+	</svg>
+    	</div>
+
+    	<!-- Bloque de Texto (Nombre destacado + RTN centrado) -->
+    	<div class="flex flex-col min-w-0 leading-none items-center text-center">
+      	<!-- Nombre de la Empresa -->
+      	<div class="w-full min-w-0">
+        <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="Empresa Activa">
+          SOLUTIONS &amp; APPLIANCES
+        </span>
+      	</div>
+
+      	<!-- RTN Centrado -->
+      	<div class="mt-1 select-none">
+        <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">
+          RTN: 08011990123456
+        </span>
+      	</div>
+    </div>
+  </div>
+</div>
+
+<div class="flex items-center gap-3.5 shrink-0 justify-self-end">
+        
+    <!-- Badge de Periodo Minimalista (Limpio y corporativo) -->
+    <div id="hdr-period-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 border border-slate-200/80 rounded-xl text-[11px] font-bold text-slate-700 tracking-wide select-none" style="font-family: 'Inter', sans-serif; cursor: default;">
+      <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+      <span id="hdr-period-text">OCTUBRE 2026</span>
+    </div>
+
+    <!-- Bloque de Usuario (Avatar y Perfil) -->
+    <div class="flex items-center gap-2.5 border-l border-slate-200 pl-3.5" style="font-family: 'Inter', sans-serif;">
+      <!-- Avatar con diseño limpio y tono neutro/ejecutivo -->
+      <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs">
+        CH
+      </div>
+      <!-- Nombre y Cargo -->
+      <div class="text-left hidden sm:flex flex-col leading-tight">
+        <span class="text-xs font-extrabold text-slate-900">Carlos Hernández</span>
+        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Contador General</span>
+      </div>
+    </div>
+
+</div>
+</header>
+<script id="horizon-header-sync-engine">
+(function() {
+  function sincronizarHeaderHorizonGlobal() {
+    try {
+      const raw = localStorage.getItem('horizon_system_config');
+      if (!raw) return;
+      const config = JSON.parse(raw);
+
+      // 1. Nombre de la Empresa
+      const compName = config.empresa_nombre || (config.company && config.company.name);
+      if (compName) {
+        const elName = document.getElementById('hdr-company-name');
+        if (elName) {
+          elName.textContent = compName.toUpperCase();
+          elName.setAttribute('title', compName.toUpperCase());
+        }
+      }
+
+      // 2. RTN de la Empresa
+      const compRtn = config.empresa_rtn || (config.company && config.company.rtn);
+      if (compRtn) {
+        const elRtn = document.getElementById('hdr-company-rtn');
+        if (elRtn) {
+          const rtnClean = compRtn.replace(/^RTN:\s*/i, '').trim();
+          elRtn.textContent = 'RTN: ' + rtnClean;
+        }
+      }
+
+      // 3. Periodo Contable
+      const perVal = config.periodo_activo || (config.period && config.period.label);
+      if (perVal) {
+        const elPerText = document.getElementById('hdr-period-text');
+        if (elPerText) {
+          elPerText.textContent = perVal.toUpperCase();
+        } else {
+          const elPer = document.getElementById('hdr-period-badge');
+          if (elPer) {
+            elPer.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span><span id="hdr-period-text">' + perVal.toUpperCase() + '</span>';
+          }
+        }
+      }
+
+      // 4. Logo Vectorial o Imagen de la Empresa
+      if (config.company_logo || (config.company && config.company.logo)) {
+        const logoData = config.company_logo || config.company.logo;
+        const logoContainer = document.getElementById('hdr-company-logo-container');
+        if (logoContainer && logoData) {
+          if (logoData.startsWith('<svg') || logoData.startsWith('data:image')) {
+            logoContainer.innerHTML = logoData.startsWith('<svg') ? logoData : '<img src="' + logoData + '" alt="Logo" class="w-full h-full object-contain rounded-lg">';
+          }
+        }
+      }
+    } catch(err) {
+      console.warn('Error sincronizando header con horizon_system_config:', err);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', sincronizarHeaderHorizonGlobal);
+  } else {
+    sincronizarHeaderHorizonGlobal();
+  }
+  window.addEventListener('pageshow', sincronizarHeaderHorizonGlobal);
+  window.addEventListener('storage', function(e) {
+    if (!e.key || e.key === 'horizon_system_config') {
+      sincronizarHeaderHorizonGlobal();
+    }
+  });
+
+  window.sincronizarHeaderHorizonGlobal = sincronizarHeaderHorizonGlobal;
+})();
+</script>
+
+    <!-- MAIN BODY -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- HEADER SUBTITLE & TAB SWITCHER -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 pb-4 border-b border-[#e8e6e5] gap-4 no-print">
+            <div>
+                <p class="text-xs text-neutral-500 uppercase tracking-wider font-semibold">Módulo de Planificación Financiera & Control Operativo</p>
+                <h2 class="text-xl font-extrabold text-neutral-900 tracking-tight">Presupuesto Maestro & Sensibilidad de Escenarios</h2>
+            </div>
+            <!-- Tabs Switcher -->
+            <div class="flex items-center space-x-2 bg-neutral-200/70 p-1 rounded-full text-xs font-semibold">
+                <button id="tab-btn-matriz" onclick="cambiarTab('matriz')" class="px-5 py-2 rounded-full bg-white text-neutral-900 shadow-xs transition">
+                    1. Matriz de Control Presupuestario
+                </button>
+                <button id="tab-btn-whatif" onclick="cambiarTab('whatif')" class="px-5 py-2 rounded-full text-neutral-600 hover:text-black transition">
+                    2. Simulador "What-If" & Sensibilidad
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 1: MATRIZ DE CONTROL PRESUPUESTARIO MAESTRO -->
+        <!-- ========================================================================= -->
+        <section id="pane-matriz" class="space-y-6">
+
+            <!-- 4 KPI SUMMARY CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- KPI 1: Presupuesto Aprobado -->
+                <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-neutral-500 uppercase tracking-wider">Presupuesto Aprobado</span>
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-neutral-900 tabular-nums" id="kpi-total-presupuesto">L. 0.00</div>
+                    <p class="text-[11px] text-neutral-500 mt-1">Techo anual asignado por dirección</p>
+                </div>
+
+                <!-- KPI 2: Ejecutado Real -->
+                <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-neutral-500 uppercase tracking-wider">Ejecutado Real Acumulado</span>
+                        <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-neutral-900 tabular-nums" id="kpi-total-ejecutado">L. 0.00</div>
+                    <p class="text-[11px] text-neutral-500 mt-1">Gasto contable devengado Q1-Q4</p>
+                </div>
+
+                <!-- KPI 3: Saldo Disponible -->
+                <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-neutral-500 uppercase tracking-wider">Remanente / Saldo Libre</span>
+                        <div class="w-8 h-8 rounded-full bg-neutral-100 text-neutral-800 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-neutral-900 tabular-nums" id="kpi-total-disponible">L. 0.00</div>
+                    <p class="text-[11px] text-neutral-500 mt-1">Margen disponible no comprometido</p>
+                </div>
+
+                <!-- KPI 4: % Eficiencia Global -->
+                <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-neutral-500 uppercase tracking-wider">% Ejecución Global</span>
+                        <div id="kpi-badge-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-800">
+                            En Rango
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-neutral-900 tabular-nums" id="kpi-pct-ejecucion">0.0%</div>
+                    <!-- Progress bar -->
+                    <div class="w-full bg-neutral-100 rounded-full h-2 mt-2 overflow-hidden">
+                        <div id="kpi-progress-bar" class="bg-neutral-900 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTERS & TOOLBAR -->
+            <div class="bg-white rounded-3xl p-4 sm:p-5 border border-[#e8e6e5] shadow-xs flex flex-col md:flex-row items-center justify-between gap-3 no-print">
+                <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                    <!-- Centro de Costos -->
+                    <div class="flex items-center space-x-1.5 text-xs">
+                        <label for="filtro-cc" class="text-neutral-500 font-semibold">C. Costos:</label>
+                        <select id="filtro-cc" onchange="renderMatriz()" class="bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-3 py-1.5 text-xs font-semibold text-neutral-900 focus:outline-none focus:ring-1 focus:ring-black">
+                            <option value="ALL">Todos los Centros (5)</option>
+                            <option value="Comercial">Comercial & Ventas</option>
+                            <option value="Logística & Almacén">Logística & Almacén</option>
+                            <option value="Administración">Administración & Operaciones</option>
+                            <option value="Tecnología">Tecnología / TI</option>
+                            <option value="Finanzas">Finanzas & Legal</option>
+                        </select>
+                    </div>
+
+                    <!-- Categoría NIIF -->
+                    <div class="flex items-center space-x-1.5 text-xs">
+                        <label for="filtro-niif" class="text-neutral-500 font-semibold">Rubro NIIF:</label>
+                        <select id="filtro-niif" onchange="renderMatriz()" class="bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-3 py-1.5 text-xs font-semibold text-neutral-900 focus:outline-none focus:ring-1 focus:ring-black">
+                            <option value="ALL">Todas las Categorías</option>
+                            <option value="4.1">4.1 Ingresos Operativos</option>
+                            <option value="5.1">5.1 Costo de Ventas</option>
+                            <option value="5.2">5.2 Gastos Operativos (Opex)</option>
+                            <option value="5.3">5.3 Gastos Financieros</option>
+                            <option value="1.2">1.2 Inversiones de Capital (CAPEX)</option>
+                        </select>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative flex-1 sm:w-56">
+                        <input type="text" id="filtro-search" oninput="renderMatriz()" placeholder="Buscar partida o código..." class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl pl-8 pr-3 py-1.5 text-xs text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-black">
+                        <svg class="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                </div>
+
+                <!-- Export & Print Actions -->
+                <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                    <button onclick="exportarCSV()" title="Exportar tabla actual a CSV" class="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-full font-bold text-xs transition flex items-center space-x-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <span>Exportar CSV</span>
+                    </button>
+                    <button onclick="window.print()" title="Imprimir o guardar como PDF" class="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-full font-bold text-xs transition flex items-center space-x-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <span>Imprimir / PDF</span>
+                    </button>
+                    <button onclick="restaurarDatosDefault()" title="Restablecer dataset inicial" class="p-2 text-neutral-400 hover:text-neutral-700 rounded-full hover:bg-neutral-100 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABLE CONTAINER -->
+            <div class="bg-white rounded-3xl border border-[#e8e6e5] shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-[#faf9f8] border-b border-[#e8e6e5] text-neutral-600 font-semibold uppercase tracking-wider">
+                                <th class="py-3.5 px-4">Código</th>
+                                <th class="py-3.5 px-4 min-w-[200px]">Partida / Rubro Presupuestario</th>
+                                <th class="py-3.5 px-4">Centro Costo</th>
+                                <th class="py-3.5 px-4 text-right">Presupuesto Anual</th>
+                                <th class="py-3.5 px-3 text-right">Q1 Real</th>
+                                <th class="py-3.5 px-3 text-right">Q2 Real</th>
+                                <th class="py-3.5 px-3 text-right">Q3 Real</th>
+                                <th class="py-3.5 px-3 text-right">Q4 Proy.</th>
+                                <th class="py-3.5 px-4 text-right">Total Ejecutado</th>
+                                <th class="py-3.5 px-4 text-right">Desviación (L.)</th>
+                                <th class="py-3.5 px-4 text-center">% Ejec.</th>
+                                <th class="py-3.5 px-3 text-center">Estado</th>
+                                <th class="py-3.5 px-4 text-center no-print">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-matriz" class="divide-y divide-[#f0edea]">
+                            <!-- Rows injected dynamically by JS -->
+                        </tbody>
+                        <tfoot id="tfoot-matriz" class="bg-[#faf9f8] font-bold border-t-2 border-[#e8e6e5]">
+                            <!-- Totals row injected dynamically -->
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 2: SIMULADOR FINANCIERO WHAT-IF & SENSIBILIDAD -->
+        <!-- ========================================================================= -->
+        <section id="pane-whatif" class="hidden space-y-6">
+
+            <!-- INTRO CARD -->
+            <div class="bg-white rounded-3xl p-6 border border-[#e8e6e5] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-neutral-900 text-white uppercase tracking-wider">Motor Dinámico What-If</span>
+                    <h3 class="text-lg font-bold text-neutral-900 mt-1">Simulación de Sensibilidad en Margen Operativo & Utilidad Neta</h3>
+                    <p class="text-xs text-neutral-500 mt-0.5">Ajusta los factores de mercado o selecciona un escenario predeterminado para proyectar el P&L al instante.</p>
+                </div>
+                <!-- Quick Preset Scenarios -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="aplicarEscenario('pesimista')" class="px-3.5 py-1.5 rounded-full border border-red-300 bg-red-50 text-red-800 text-xs font-bold hover:bg-red-100 transition shadow-xs">
+                        Escenario Pesimista
+                    </button>
+                    <button onclick="aplicarEscenario('base')" class="px-3.5 py-1.5 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-800 text-xs font-bold hover:bg-neutral-200 transition shadow-xs">
+                        Escenario Base (0%)
+                    </button>
+                    <button onclick="aplicarEscenario('optimista')" class="px-3.5 py-1.5 rounded-full border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition shadow-xs">
+                        Escenario Optimista
+                    </button>
+                </div>
+            </div>
+
+            <!-- SLIDERS CONTROLS (4 VARIABLES) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Slider 1: Ventas -->
+                <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label for="slider-ventas" class="text-xs font-bold text-neutral-700">1. Crecimiento Ventas</label>
+                        <span id="val-slider-ventas" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-neutral-100 text-neutral-900 tabular-nums">0%</span>
+                    </div>
+                    <input type="range" id="slider-ventas" min="-30" max="50" step="1" value="0" oninput="actualizarSimulacion()" class="w-full accent-black cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-neutral-400 font-semibold">
+                        <span>-30%</span>
+                        <span>0%</span>
+                        <span>+50%</span>
+                    </div>
+                </div>
+
+                <!-- Slider 2: Costos -->
+                <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label for="slider-costos" class="text-xs font-bold text-neutral-700">2. Costo de Ventas</label>
+                        <span id="val-slider-costos" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-neutral-100 text-neutral-900 tabular-nums">0%</span>
+                    </div>
+                    <input type="range" id="slider-costos" min="-20" max="30" step="1" value="0" oninput="actualizarSimulacion()" class="w-full accent-black cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-neutral-400 font-semibold">
+                        <span>-20%</span>
+                        <span>0%</span>
+                        <span>+30%</span>
+                    </div>
+                </div>
+
+                <!-- Slider 3: Gastos Opex -->
+                <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label for="slider-opex" class="text-xs font-bold text-neutral-700">3. Gastos Opex / Nómina</label>
+                        <span id="val-slider-opex" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-neutral-100 text-neutral-900 tabular-nums">0%</span>
+                    </div>
+                    <input type="range" id="slider-opex" min="-25" max="25" step="1" value="0" oninput="actualizarSimulacion()" class="w-full accent-black cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-neutral-400 font-semibold">
+                        <span>-25%</span>
+                        <span>0%</span>
+                        <span>+25%</span>
+                    </div>
+                </div>
+
+                <!-- Slider 4: Carga Financiera -->
+                <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label for="slider-finan" class="text-xs font-bold text-neutral-700">4. Intereses Financieros</label>
+                        <span id="val-slider-finan" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-neutral-100 text-neutral-900 tabular-nums">0%</span>
+                    </div>
+                    <input type="range" id="slider-finan" min="-15" max="25" step="1" value="0" oninput="actualizarSimulacion()" class="w-full accent-black cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-neutral-400 font-semibold">
+                        <span>-15%</span>
+                        <span>0%</span>
+                        <span>+25%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPARATIVE RESULTS: TABLE & CHART -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- COMPARISON TABLE (7 Cols) -->
+                <div class="lg:col-span-7 bg-white rounded-3xl p-6 border border-[#e8e6e5] shadow-xs">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-sm font-bold text-neutral-900">Estado de Resultados Proyectado (P&L)</h4>
+                        <span class="text-[11px] font-semibold text-neutral-500">Impuesto Sobre la Renta (ISR): 25%</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-[#faf9f8] border-b border-[#e8e6e5] text-neutral-600 font-semibold uppercase tracking-wider text-left">
+                                    <th class="py-2.5 px-3">Rubro</th>
+                                    <th class="py-2.5 px-3 text-right">Escenario Base</th>
+                                    <th class="py-2.5 px-3 text-right">Simulado</th>
+                                    <th class="py-2.5 px-3 text-right">Variación (Δ)</th>
+                                    <th class="py-2.5 px-3 text-right">% Var.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-whatif" class="divide-y divide-[#f0edea]">
+                                <!-- Injected dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CHART & SUMMARY CARDS (5 Cols) -->
+                <div class="lg:col-span-5 space-y-4">
+                    <!-- Chart Card -->
+                    <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs">
+                        <h4 class="text-xs font-bold text-neutral-900 uppercase tracking-wider mb-3">Comparativa Gráfica de Márgenes</h4>
+                        <div class="h-64 relative">
+                            <canvas id="chart-whatif"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Executive Summary Badge -->
+                    <div class="bg-white rounded-3xl p-5 border border-[#e8e6e5] shadow-xs">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-neutral-500 uppercase tracking-wider">Impacto en Utilidad Neta</span>
+                            <span id="badge-impacto-neta" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 text-neutral-800">Neutro</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span id="txt-impacto-delta" class="text-2xl font-extrabold text-neutral-900 tabular-nums">L. 0.00</span>
+                            <span id="txt-impacto-pct" class="text-xs font-semibold text-neutral-500 tabular-nums">(0.0%)</span>
+                        </div>
+                        <p class="text-[11px] text-neutral-500 mt-2" id="txt-impacto-desc">
+                            El modelo proyecta la capacidad neta de reinversión o reparto de dividendos tras deducir impuestos del 25%.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-[#e8e6e5] py-4 mt-8 no-print text-center text-xs text-neutral-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>Horizon Ledger System &bull; Control Presupuestario &amp; Simulador NIIF</span>
+            <span>Versión 2.8.5 &bull; Conectado al Core Contable</span>
+        </div>
+    </footer>
+
+    <!-- MODAL: AGREGAR / EDITAR PARTIDA -->
+    <div id="modal-partida" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-[#e8e6e5] space-y-4">
+            <div class="flex justify-between items-center border-b border-[#e8e6e5] pb-3">
+                <h3 id="modal-titulo" class="text-base font-bold text-neutral-900">Nueva Partida Presupuestaria</h3>
+                <button onclick="cerrarModalPartida()" class="w-8 h-8 rounded-full bg-neutral-100 text-neutral-600 hover:text-black flex items-center justify-center font-bold">
+                    &times;
+                </button>
+            </div>
+
+            <form id="form-partida" onsubmit="guardarPartida(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="edit-id">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-neutral-700 mb-1">Código Contable NIIF</label>
+                        <input type="text" id="partida-codigo" required placeholder="p.ej. 5.2.06" class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-black">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-neutral-700 mb-1">Centro de Costo</label>
+                        <select id="partida-cc" required class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-black">
+                            <option value="Comercial">Comercial & Ventas</option>
+                            <option value="Logística & Almacén">Logística & Almacén</option>
+                            <option value="Administración">Administración & Operaciones</option>
+                            <option value="Tecnología">Tecnología / TI</option>
+                            <option value="Finanzas">Finanzas & Legal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-neutral-700 mb-1">Descripción de la Partida / Rubro</label>
+                    <input type="text" id="partida-nombre" required placeholder="p.ej. Mantenimiento Preventivo de Servidores" class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-black">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-neutral-700 mb-1">Categoría NIIF</label>
+                        <select id="partida-niif" required class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-black">
+                            <option value="4.1">4.1 Ingresos Operativos</option>
+                            <option value="5.1">5.1 Costo de Ventas</option>
+                            <option value="5.2">5.2 Gastos Operativos (Opex)</option>
+                            <option value="5.3">5.3 Gastos Financieros</option>
+                            <option value="1.2">1.2 Inversiones de Capital (CAPEX)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-neutral-700 mb-1">Presupuesto Anual (L.)</label>
+                        <input type="number" step="0.01" min="0" id="partida-presupuesto" required placeholder="0.00" class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-3 py-2 text-xs font-semibold tabular-nums focus:outline-none focus:ring-1 focus:ring-black">
+                    </div>
+                </div>
+
+                <div class="border-t border-[#e8e6e5] pt-3">
+                    <p class="font-semibold text-neutral-700 mb-2">Desglose de Ejecución Real / Proyectada Trimestral (L.)</p>
+                    <div class="grid grid-cols-4 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-neutral-500 font-semibold mb-0.5">Q1 Real</label>
+                            <input type="number" step="0.01" min="0" id="partida-q1" value="0" class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-2 py-1.5 text-xs tabular-nums text-right focus:outline-none focus:ring-1 focus:ring-black">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-neutral-500 font-semibold mb-0.5">Q2 Real</label>
+                            <input type="number" step="0.01" min="0" id="partida-q2" value="0" class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-2 py-1.5 text-xs tabular-nums text-right focus:outline-none focus:ring-1 focus:ring-black">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-neutral-500 font-semibold mb-0.5">Q3 Real</label>
+                            <input type="number" step="0.01" min="0" id="partida-q3" value="0" class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-2 py-1.5 text-xs tabular-nums text-right focus:outline-none focus:ring-1 focus:ring-black">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-neutral-500 font-semibold mb-0.5">Q4 Proy.</label>
+                            <input type="number" step="0.01" min="0" id="partida-q4" value="0" class="w-full bg-[#f4f2f0] border border-[#e8e6e5] rounded-xl px-2 py-1.5 text-xs tabular-nums text-right focus:outline-none focus:ring-1 focus:ring-black">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4 border-t border-[#e8e6e5]">
+                    <button type="button" onclick="cerrarModalPartida()" class="px-4 py-2 rounded-full border border-neutral-300 text-neutral-700 font-bold hover:bg-neutral-100 transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition">
+                        Guardar Partida
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT ENGINE -->
+    <script>
+    // =========================================================================
+    // 1. CONFIGURACION INSTITUCIONAL & NAVEGACION HORIZON
+    // =========================================================================
+    function navegarHorizon(archivo, ruta) {
+        if (window.location.protocol === 'file:') {
+            window.location.href = archivo;
+        } else {
+            window.location.href = ruta;
+        }
+    }
+
+    function sincronizarHorizonConfig() {
+        try {
+            const raw = localStorage.getItem('horizon_system_config');
+            if (!raw) return;
+            const c = JSON.parse(raw);
+            const comp = c.empresa_nombre || (c.company && c.company.name) || 'EMPRESA DEMO S.A.';
+            const rtn = c.empresa_rtn || (c.company && c.company.rtn) || '08011990123456';
+            const per = c.periodo_activo || (c.period && c.period.label) || '2026';
+
+            document.querySelectorAll('[data-hz="empresa"]').forEach(el => el.textContent = comp);
+            document.querySelectorAll('[data-hz="rtn"]').forEach(el => el.textContent = rtn);
+            document.querySelectorAll('[data-hz="periodo"]').forEach(el => el.textContent = per);
+        } catch(e) {
+            console.error('Error sincronizando config Horizon:', e);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', sincronizarHorizonConfig);
+    window.addEventListener('pageshow', sincronizarHorizonConfig);
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'horizon_system_config') sincronizarHorizonConfig();
+        if (e.key === 'horizon_budget_data') {
+            cargarPresupuestos();
+            renderMatriz();
+            actualizarSimulacion();
+        }
+    });
+
+    // =========================================================================
+    // 2. DATASET PRESUPUESTARIO MAESTRO (LOCALSTORAGE)
+    // =========================================================================
+    const DEFAULT_BUDGET_ITEMS = [
+        { id: 1, codigo: "4.1.01", nombre: "Ingresos por Ventas Retail & Corporativas", cc: "Comercial", niif: "4.1", presupuestado: 38500000.00, q1: 8900000.00, q2: 9800000.00, q3: 10100000.00, q4: 10200000.00 },
+        { id: 2, codigo: "5.1.01", nombre: "Costo de Mercadería Vendida (CMV)", cc: "Logística & Almacén", niif: "5.1", presupuestado: 19200000.00, q1: 4450000.00, q2: 4900000.00, q3: 5020000.00, q4: 5100000.00 },
+        { id: 3, codigo: "5.1.02", nombre: "Fletes Marítimos & Distribución Logística", cc: "Logística & Almacén", niif: "5.1", presupuestado: 1800000.00, q1: 420000.00, q2: 435000.00, q3: 450000.00, q4: 460000.00 },
+        { id: 4, codigo: "5.2.01", nombre: "Sueldos, Salarios y Cargas Administrativas", cc: "Administración", niif: "5.2", presupuestado: 4500000.00, q1: 1100000.00, q2: 1125000.00, q3: 1125000.00, q4: 1150000.00 },
+        { id: 5, codigo: "5.2.02", nombre: "Arrendamiento de Oficinas y Centro Logístico", cc: "Administración", niif: "5.2", presupuestado: 1200000.00, q1: 300000.00, q2: 300000.00, q3: 300000.00, q4: 300000.00 },
+        { id: 6, codigo: "5.2.03", nombre: "Servicios Cloud AWS, Licencias y Ciberseguridad", cc: "Tecnología", niif: "5.2", presupuestado: 850000.00, q1: 200000.00, q2: 215000.00, q3: 210000.00, q4: 210000.00 },
+        { id: 7, codigo: "5.2.04", nombre: "Marketing Digital, Campañas y Pauta Publicitaria", cc: "Comercial", niif: "5.2", presupuestado: 1400000.00, q1: 320000.00, q2: 350000.00, q3: 380000.00, q4: 390000.00 },
+        { id: 8, codigo: "5.2.05", nombre: "Auditoría Externa, Legal y Asesoría Contable", cc: "Finanzas", niif: "5.2", presupuestado: 600000.00, q1: 150000.00, q2: 150000.00, q3: 150000.00, q4: 150000.00 },
+        { id: 9, codigo: "5.3.01", nombre: "Intereses Bancarios & Comisiones de Líneas de Crédito", cc: "Finanzas", niif: "5.3", presupuestado: 950000.00, q1: 235000.00, q2: 240000.00, q3: 238000.00, q4: 230000.00 },
+        { id: 10, codigo: "1.2.01", nombre: "Equipamiento Tecnológico y Servidores (CAPEX)", cc: "Tecnología", niif: "1.2", presupuestado: 1500000.00, q1: 350000.00, q2: 400000.00, q3: 350000.00, q4: 300000.00 },
+        { id: 11, codigo: "1.2.02", nombre: "Mejoras en Instalaciones & Almacén (CAPEX)", cc: "Logística & Almacén", niif: "1.2", presupuestado: 900000.00, q1: 200000.00, q2: 250000.00, q3: 220000.00, q4: 200000.00 }
+    ];
+
+    let budgetItems = [];
+
+    function cargarPresupuestos() {
+        try {
+            const raw = localStorage.getItem('horizon_budget_data');
+            if (raw) {
+                budgetItems = JSON.parse(raw);
+            } else {
+                budgetItems = JSON.parse(JSON.stringify(DEFAULT_BUDGET_ITEMS));
+                guardarEnStorage();
+            }
+        } catch(e) {
+            console.error('Error cargando presupuestos:', e);
+            budgetItems = JSON.parse(JSON.stringify(DEFAULT_BUDGET_ITEMS));
+        }
+    }
+
+    function guardarEnStorage() {
+        localStorage.setItem('horizon_budget_data', JSON.stringify(budgetItems));
+        // Disparar evento para que otros módulos como workspace_proyecciones se enteren
+        window.dispatchEvent(new Event('storage'));
+    }
+
+    function restaurarDatosDefault() {
+        if (confirm('¿Deseas restablecer las partidas presupuestarias a los valores por defecto?')) {
+            budgetItems = JSON.parse(JSON.stringify(DEFAULT_BUDGET_ITEMS));
+            guardarEnStorage();
+            renderMatriz();
+            actualizarSimulacion();
+        }
+    }
+
+    function formatLempiras(num) {
+        return 'L. ' + (Number(num) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatPct(num) {
+        return (Number(num) || 0).toFixed(1) + '%';
+    }
+
+    // =========================================================================
+    // 3. RENDER MATRIZ DE CONTROL PRESUPUESTARIO
+    // =========================================================================
+    function renderMatriz() {
+        const tbody = document.getElementById('tbody-matriz');
+        const tfoot = document.getElementById('tfoot-matriz');
+        if (!tbody) return;
+
+        const filtroCC = document.getElementById('filtro-cc').value;
+        const filtroNiif = document.getElementById('filtro-niif').value;
+        const search = document.getElementById('filtro-search').value.toLowerCase().trim();
+
+        let totalPresupuesto = 0;
+        let totalEjecutado = 0;
+        let totalQ1 = 0, totalQ2 = 0, totalQ3 = 0, totalQ4 = 0;
+
+        tbody.innerHTML = '';
+
+        const filtrados = budgetItems.filter(item => {
+            const matchCC = filtroCC === 'ALL' || item.cc === filtroCC;
+            const matchNiif = filtroNiif === 'ALL' || item.niif === filtroNiif;
+            const matchSearch = !search || item.codigo.toLowerCase().includes(search) || item.nombre.toLowerCase().includes(search) || item.cc.toLowerCase().includes(search);
+            return matchCC && matchNiif && matchSearch;
+        });
+
+        filtrados.forEach(item => {
+            const ejecutado = (item.q1 || 0) + (item.q2 || 0) + (item.q3 || 0) + (item.q4 || 0);
+            const desviacion = (item.presupuestado || 0) - ejecutado;
+            const pct = item.presupuestado > 0 ? (ejecutado / item.presupuestado) * 100 : 0;
+
+            totalPresupuesto += (item.presupuestado || 0);
+            totalEjecutado += ejecutado;
+            totalQ1 += (item.q1 || 0);
+            totalQ2 += (item.q2 || 0);
+            totalQ3 += (item.q3 || 0);
+            totalQ4 += (item.q4 || 0);
+
+            let semaforoClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+            let semaforoText = "Óptimo";
+            if (pct > 100) {
+                semaforoClass = "bg-red-50 text-red-700 border-red-200";
+                semaforoText = "Excedido";
+            } else if (pct >= 85) {
+                semaforoClass = "bg-amber-50 text-amber-700 border-amber-200";
+                semaforoText = "Alerta";
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-[#fbfaf9] transition";
+            tr.innerHTML = `
+                <td class="py-3 px-4 font-bold text-neutral-800">${item.codigo}</td>
+                <td class="py-3 px-4 font-medium text-neutral-900">${item.nombre}</td>
+                <td class="py-3 px-4 text-neutral-600"><span class="px-2 py-0.5 rounded-full bg-neutral-100 text-[10px] font-semibold">${item.cc}</span></td>
+                <td class="py-3 px-4 text-right tabular-nums font-semibold">${formatLempiras(item.presupuestado)}</td>
+                <td class="py-3 px-3 text-right tabular-nums text-neutral-600">${formatLempiras(item.q1)}</td>
+                <td class="py-3 px-3 text-right tabular-nums text-neutral-600">${formatLempiras(item.q2)}</td>
+                <td class="py-3 px-3 text-right tabular-nums text-neutral-600">${formatLempiras(item.q3)}</td>
+                <td class="py-3 px-3 text-right tabular-nums text-neutral-600">${formatLempiras(item.q4)}</td>
+                <td class="py-3 px-4 text-right tabular-nums font-bold text-neutral-900">${formatLempiras(ejecutado)}</td>
+                <td class="py-3 px-4 text-right tabular-nums font-semibold ${desviacion < 0 ? 'text-red-600' : 'text-neutral-700'}">${formatLempiras(desviacion)}</td>
+                <td class="py-3 px-4 text-center tabular-nums font-bold">${formatPct(pct)}</td>
+                <td class="py-3 px-3 text-center">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${semaforoClass}">${semaforoText}</span>
+                </td>
+                <td class="py-3 px-4 text-center no-print">
+                    <div class="flex items-center justify-center space-x-1">
+                        <button onclick="editarPartida(${item.id})" title="Editar partida" class="p-1 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-lg transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </button>
+                        <button onclick="eliminarPartida(${item.id})" title="Eliminar partida" class="p-1 text-neutral-400 hover:text-red-600 hover:bg-neutral-100 rounded-lg transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        const totalDesviacion = totalPresupuesto - totalEjecutado;
+        const totalPct = totalPresupuesto > 0 ? (totalEjecutado / totalPresupuesto) * 100 : 0;
+
+        tfoot.innerHTML = `
+            <tr class="text-neutral-900">
+                <td colspan="3" class="py-3.5 px-4 uppercase text-[11px] tracking-wider font-extrabold">Total General Consolidado</td>
+                <td class="py-3.5 px-4 text-right tabular-nums font-extrabold">${formatLempiras(totalPresupuesto)}</td>
+                <td class="py-3.5 px-3 text-right tabular-nums font-bold text-neutral-700">${formatLempiras(totalQ1)}</td>
+                <td class="py-3.5 px-3 text-right tabular-nums font-bold text-neutral-700">${formatLempiras(totalQ2)}</td>
+                <td class="py-3.5 px-3 text-right tabular-nums font-bold text-neutral-700">${formatLempiras(totalQ3)}</td>
+                <td class="py-3.5 px-3 text-right tabular-nums font-bold text-neutral-700">${formatLempiras(totalQ4)}</td>
+                <td class="py-3.5 px-4 text-right tabular-nums font-extrabold text-neutral-900">${formatLempiras(totalEjecutado)}</td>
+                <td class="py-3.5 px-4 text-right tabular-nums font-extrabold ${totalDesviacion < 0 ? 'text-red-600' : 'text-neutral-900'}">${formatLempiras(totalDesviacion)}</td>
+                <td class="py-3.5 px-4 text-center tabular-nums font-extrabold">${formatPct(totalPct)}</td>
+                <td colspan="2" class="py-3.5 px-4"></td>
+            </tr>
+        `;
+
+        // Update 4 Top KPI Cards
+        document.getElementById('kpi-total-presupuesto').textContent = formatLempiras(totalPresupuesto);
+        document.getElementById('kpi-total-ejecutado').textContent = formatLempiras(totalEjecutado);
+        document.getElementById('kpi-total-disponible').textContent = formatLempiras(totalDesviacion);
+        document.getElementById('kpi-pct-ejecucion').textContent = formatPct(totalPct);
+
+        const progressBar = document.getElementById('kpi-progress-bar');
+        const badgeStatus = document.getElementById('kpi-badge-status');
+        if (progressBar) {
+            progressBar.style.width = Math.min(totalPct, 100) + '%';
+            if (totalPct > 100) {
+                progressBar.className = "bg-red-600 h-2 rounded-full transition-all duration-500";
+                badgeStatus.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800";
+                badgeStatus.textContent = "Sobreejecutado";
+            } else if (totalPct >= 85) {
+                progressBar.className = "bg-amber-500 h-2 rounded-full transition-all duration-500";
+                badgeStatus.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800";
+                badgeStatus.textContent = "Alerta 85%";
+            } else {
+                progressBar.className = "bg-neutral-900 h-2 rounded-full transition-all duration-500";
+                badgeStatus.className = "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800";
+                badgeStatus.textContent = "En Rango";
+            }
+        }
+    }
+
+    // =========================================================================
+    // 4. MODAL & CRUD ACTIONS
+    // =========================================================================
+    function abrirModalNuevaPartida() {
+        document.getElementById('modal-titulo').textContent = 'Nueva Partida Presupuestaria';
+        document.getElementById('edit-id').value = '';
+        document.getElementById('form-partida').reset();
+        document.getElementById('partida-q1').value = '0';
+        document.getElementById('partida-q2').value = '0';
+        document.getElementById('partida-q3').value = '0';
+        document.getElementById('partida-q4').value = '0';
+        document.getElementById('modal-partida').classList.remove('hidden');
+    }
+
+    function cerrarModalPartida() {
+        document.getElementById('modal-partida').classList.add('hidden');
+    }
+
+    function editarPartida(id) {
+        const item = budgetItems.find(x => x.id === id);
+        if (!item) return;
+
+        document.getElementById('modal-titulo').textContent = 'Editar Partida Presupuestaria';
+        document.getElementById('edit-id').value = item.id;
+        document.getElementById('partida-codigo').value = item.codigo;
+        document.getElementById('partida-nombre').value = item.nombre;
+        document.getElementById('partida-cc').value = item.cc;
+        document.getElementById('partida-niif').value = item.niif;
+        document.getElementById('partida-presupuesto').value = item.presupuestado;
+        document.getElementById('partida-q1').value = item.q1;
+        document.getElementById('partida-q2').value = item.q2;
+        document.getElementById('partida-q3').value = item.q3;
+        document.getElementById('partida-q4').value = item.q4;
+
+        document.getElementById('modal-partida').classList.remove('hidden');
+    }
+
+    function guardarPartida(e) {
+        e.preventDefault();
+        const editId = document.getElementById('edit-id').value;
+        const codigo = document.getElementById('partida-codigo').value.trim();
+        const nombre = document.getElementById('partida-nombre').value.trim();
+        const cc = document.getElementById('partida-cc').value;
+        const niif = document.getElementById('partida-niif').value;
+        const presupuestado = parseFloat(document.getElementById('partida-presupuesto').value) || 0;
+        const q1 = parseFloat(document.getElementById('partida-q1').value) || 0;
+        const q2 = parseFloat(document.getElementById('partida-q2').value) || 0;
+        const q3 = parseFloat(document.getElementById('partida-q3').value) || 0;
+        const q4 = parseFloat(document.getElementById('partida-q4').value) || 0;
+
+        if (editId) {
+            const idx = budgetItems.findIndex(x => x.id === parseInt(editId));
+            if (idx !== -1) {
+                budgetItems[idx] = { id: parseInt(editId), codigo, nombre, cc, niif, presupuestado, q1, q2, q3, q4 };
+            }
+        } else {
+            const newId = budgetItems.length > 0 ? Math.max(...budgetItems.map(x => x.id)) + 1 : 1;
+            budgetItems.push({ id: newId, codigo, nombre, cc, niif, presupuestado, q1, q2, q3, q4 });
+        }
+
+        guardarEnStorage();
+        cerrarModalPartida();
+        renderMatriz();
+        actualizarSimulacion();
+    }
+
+    function eliminarPartida(id) {
+        const item = budgetItems.find(x => x.id === id);
+        if (!item) return;
+        if (confirm(`¿Eliminar la partida ${item.codigo} - ${item.nombre}?`)) {
+            budgetItems = budgetItems.filter(x => x.id !== id);
+            guardarEnStorage();
+            renderMatriz();
+            actualizarSimulacion();
+        }
+    }
+
+    function exportarCSV() {
+        const headers = ["Codigo", "Partida", "Centro_Costo", "Categoria_NIIF", "Presupuesto_Anual", "Q1_Real", "Q2_Real", "Q3_Real", "Q4_Proy", "Total_Ejecutado", "Desviacion_Lempiras", "Pct_Ejecucion"];
+        const rows = budgetItems.map(i => {
+            const total = (i.q1 || 0) + (i.q2 || 0) + (i.q3 || 0) + (i.q4 || 0);
+            const desv = (i.presupuestado || 0) - total;
+            const pct = i.presupuestado > 0 ? ((total / i.presupuestado) * 100).toFixed(2) : "0.00";
+            return [
+                `"${i.codigo}"`,
+                `"${i.nombre.replace(/"/g, '""')}"`,
+                `"${i.cc}"`,
+                `"${i.niif}"`,
+                i.presupuestado.toFixed(2),
+                (i.q1 || 0).toFixed(2),
+                (i.q2 || 0).toFixed(2),
+                (i.q3 || 0).toFixed(2),
+                (i.q4 || 0).toFixed(2),
+                total.toFixed(2),
+                desv.toFixed(2),
+                pct
+            ].join(",");
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `presupuesto_maestro_horizon_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // =========================================================================
+    // 5. SIMULADOR WHAT-IF & SENSIBILIDAD
+    // =========================================================================
+    let whatIfChartInstance = null;
+
+    function aplicarEscenario(tipo) {
+        if (tipo === 'pesimista') {
+            document.getElementById('slider-ventas').value = -15;
+            document.getElementById('slider-costos').value = 8;
+            document.getElementById('slider-opex').value = 5;
+            document.getElementById('slider-finan').value = 10;
+        } else if (tipo === 'optimista') {
+            document.getElementById('slider-ventas').value = 18;
+            document.getElementById('slider-costos').value = -4;
+            document.getElementById('slider-opex').value = 2;
+            document.getElementById('slider-finan').value = -5;
+        } else {
+            // base
+            document.getElementById('slider-ventas').value = 0;
+            document.getElementById('slider-costos').value = 0;
+            document.getElementById('slider-opex').value = 0;
+            document.getElementById('slider-finan').value = 0;
+        }
+        actualizarSimulacion();
+    }
+
+    function actualizarSimulacion() {
+        const dVentas = parseFloat(document.getElementById('slider-ventas').value) || 0;
+        const dCostos = parseFloat(document.getElementById('slider-costos').value) || 0;
+        const dOpex = parseFloat(document.getElementById('slider-opex').value) || 0;
+        const dFinan = parseFloat(document.getElementById('slider-finan').value) || 0;
+
+        document.getElementById('val-slider-ventas').textContent = (dVentas >= 0 ? '+' : '') + dVentas + '%';
+        document.getElementById('val-slider-costos').textContent = (dCostos >= 0 ? '+' : '') + dCostos + '%';
+        document.getElementById('val-slider-opex').textContent = (dOpex >= 0 ? '+' : '') + dOpex + '%';
+        document.getElementById('val-slider-finan').textContent = (dFinan >= 0 ? '+' : '') + dFinan + '%';
+
+        // Calcular base a partir del dataset actual
+        let baseVentas = 0;
+        let baseCostos = 0;
+        let baseOpex = 0;
+        let baseFinan = 0;
+
+        budgetItems.forEach(item => {
+            const monto = item.presupuestado || 0;
+            if (item.niif === '4.1') baseVentas += monto;
+            else if (item.niif === '5.1') baseCostos += monto;
+            else if (item.niif === '5.2') baseOpex += monto;
+            else if (item.niif === '5.3') baseFinan += monto;
+        });
+
+        // Si la base de ventas es 0, usamos default de referencia
+        if (baseVentas <= 0) baseVentas = 38500000;
+        if (baseCostos <= 0) baseCostos = 21000000;
+        if (baseOpex <= 0) baseOpex = 8550000;
+        if (baseFinan <= 0) baseFinan = 950000;
+
+        // Cálculos Base
+        const baseUtilBruta = baseVentas - baseCostos;
+        const baseEbitda = baseUtilBruta - baseOpex;
+        const baseEbt = baseEbitda - baseFinan;
+        const baseIsr = Math.max(0, baseEbt * 0.25);
+        const baseUtilNeta = baseEbt - baseIsr;
+
+        // Cálculos Simulado
+        const simVentas = baseVentas * (1 + dVentas / 100);
+        const simCostos = baseCostos * (1 + dCostos / 100);
+        const simUtilBruta = simVentas - simCostos;
+        const simOpex = baseOpex * (1 + dOpex / 100);
+        const simEbitda = simUtilBruta - simOpex;
+        const simFinan = baseFinan * (1 + dFinan / 100);
+        const simEbt = simEbitda - simFinan;
+        const simIsr = Math.max(0, simEbt * 0.25);
+        const simUtilNeta = simEbt - simIsr;
+
+        // Tabla What-If
+        const tbody = document.getElementById('tbody-whatif');
+        if (!tbody) return;
+
+        const lineas = [
+            { nombre: "Ventas Netas", base: baseVentas, sim: simVentas, isHeader: true },
+            { nombre: "(-) Costo de Ventas", base: baseCostos, sim: simCostos },
+            { nombre: "(=) Utilidad Bruta", base: baseUtilBruta, sim: simUtilBruta, isSubtotal: true, pctBase: (baseUtilBruta/baseVentas)*100, pctSim: (simUtilBruta/simVentas)*100 },
+            { nombre: "(-) Gastos Operativos (Opex)", base: baseOpex, sim: simOpex },
+            { nombre: "(=) EBITDA Operativo", base: baseEbitda, sim: simEbitda, isSubtotal: true, pctBase: (baseEbitda/baseVentas)*100, pctSim: (simEbitda/simVentas)*100 },
+            { nombre: "(-) Gastos Financieros (Intereses)", base: baseFinan, sim: simFinan },
+            { nombre: "(=) Utilidad Antes de ISR (EBT)", base: baseEbt, sim: simEbt, isSubtotal: true },
+            { nombre: "(-) ISR Estimado (25%)", base: baseIsr, sim: simIsr },
+            { nombre: "(=) Utilidad Neta del Ejercicio", base: baseUtilNeta, sim: simUtilNeta, isTotal: true, pctBase: (baseUtilNeta/baseVentas)*100, pctSim: (simUtilNeta/simVentas)*100 }
+        ];
+
+        tbody.innerHTML = '';
+        lineas.forEach(l => {
+            const delta = l.sim - l.base;
+            const pctVar = l.base !== 0 ? (delta / Math.abs(l.base)) * 100 : 0;
+            const tr = document.createElement('tr');
+
+            let rowClass = "hover:bg-[#fbfaf9] transition";
+            if (l.isTotal) rowClass = "bg-[#faf9f8] font-extrabold text-neutral-900 border-t-2 border-neutral-900";
+            else if (l.isSubtotal) rowClass = "bg-[#fcfbf9] font-bold text-neutral-800";
+            else if (l.isHeader) rowClass = "font-bold text-neutral-900";
+            else rowClass = "text-neutral-600";
+
+            tr.className = rowClass;
+            tr.innerHTML = `
+                <td class="py-2.5 px-3">
+                    <div class="flex items-center space-x-1">
+                        <span>${l.nombre}</span>
+                        ${l.pctBase !== undefined ? `<span class="text-[10px] text-neutral-400">(${formatPct(l.pctSim)})</span>` : ''}
+                    </div>
+                </td>
+                <td class="py-2.5 px-3 text-right tabular-nums">${formatLempiras(l.base)}</td>
+                <td class="py-2.5 px-3 text-right tabular-nums font-bold ${l.isTotal ? 'text-neutral-900' : ''}">${formatLempiras(l.sim)}</td>
+                <td class="py-2.5 px-3 text-right tabular-nums font-semibold ${delta > 0 ? (l.nombre.includes('(-)') ? 'text-red-600' : 'text-emerald-700') : (delta < 0 ? (l.nombre.includes('(-)') ? 'text-emerald-700' : 'text-red-600') : 'text-neutral-500')}">
+                    ${(delta >= 0 ? '+' : '') + formatLempiras(delta)}
+                </td>
+                <td class="py-2.5 px-3 text-right tabular-nums font-bold">${(pctVar >= 0 ? '+' : '') + formatPct(pctVar)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Summary Impact Badge
+        const deltaNeta = simUtilNeta - baseUtilNeta;
+        const pctNeta = baseUtilNeta !== 0 ? (deltaNeta / Math.abs(baseUtilNeta)) * 100 : 0;
+        const txtDelta = document.getElementById('txt-impacto-delta');
+        const txtPct = document.getElementById('txt-impacto-pct');
+        const badge = document.getElementById('badge-impacto-neta');
+        const desc = document.getElementById('txt-impacto-desc');
+
+        txtDelta.textContent = (deltaNeta >= 0 ? '+' : '') + formatLempiras(deltaNeta);
+        txtPct.textContent = `(${(pctNeta >= 0 ? '+' : '') + formatPct(pctNeta)})`;
+
+        if (deltaNeta > 0) {
+            badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
+            badge.textContent = "Favorable";
+            txtDelta.className = "text-2xl font-extrabold text-emerald-700 tabular-nums";
+            desc.textContent = "El escenario simulado genera una expansión en el flujo neto disponible de la compañía.";
+        } else if (deltaNeta < 0) {
+            badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800";
+            badge.textContent = "Desfavorable";
+            txtDelta.className = "text-2xl font-extrabold text-red-600 tabular-nums";
+            desc.textContent = "Se detecta contracción en la rentabilidad neta; requiere medidas de control de costos u optimización comercial.";
+        } else {
+            badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 text-neutral-800";
+            badge.textContent = "Neutro (Base)";
+            txtDelta.className = "text-2xl font-extrabold text-neutral-900 tabular-nums";
+            desc.textContent = "Parámetros alineados al presupuesto inicial aprobado por el consejo directivo.";
+        }
+
+        // Render Chart.js
+        renderChartWhatIf(baseVentas, simVentas, baseUtilBruta, simUtilBruta, baseEbitda, simEbitda, baseUtilNeta, simUtilNeta);
+    }
+
+    function renderChartWhatIf(bV, sV, bUB, sUB, bEb, sEb, bUN, sUN) {
+        const ctx = document.getElementById('chart-whatif');
+        if (!ctx) return;
+
+        if (window.Chart) {
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        }
+
+        const dataLabels = ['Ventas', 'Utilidad Bruta', 'EBITDA', 'Utilidad Neta'];
+        const baseValues = [bV, bUB, bEb, bUN];
+        const simValues = [sV, sUB, sEb, sUN];
+
+        if (whatIfChartInstance) {
+            whatIfChartInstance.data.datasets[0].data = baseValues;
+            whatIfChartInstance.data.datasets[1].data = simValues;
+            whatIfChartInstance.update();
+            return;
+        }
+
+        whatIfChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dataLabels,
+                datasets: [
+                    {
+                        label: 'Escenario Base',
+                        data: baseValues,
+                        backgroundColor: '#d4d4d2',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Simulado',
+                        data: simValues,
+                        backgroundColor: '#171717',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600', size: 11 },
+                            usePointStyle: true,
+                            boxWidth: 8
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': L. ' + Number(context.raw || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600', size: 10 } }
+                    },
+                    y: {
+                        grid: { color: '#f0edea' },
+                        ticks: {
+                            font: { family: "'Plus Jakarta Sans', sans-serif", size: 10 },
+                            callback: function(val) {
+                                return 'L. ' + (val / 1000000).toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // =========================================================================
+    // 6. TABS NAVIGATION CONTROLLER
+    // =========================================================================
+    function cambiarTab(tab) {
+        const paneMatriz = document.getElementById('pane-matriz');
+        const paneWhatif = document.getElementById('pane-whatif');
+        const btnMatriz = document.getElementById('tab-btn-matriz');
+        const btnWhatif = document.getElementById('tab-btn-whatif');
+
+        if (tab === 'matriz') {
+            paneMatriz.classList.remove('hidden');
+            paneWhatif.classList.add('hidden');
+            btnMatriz.className = "px-5 py-2 rounded-full bg-white text-neutral-900 shadow-xs transition";
+            btnWhatif.className = "px-5 py-2 rounded-full text-neutral-600 hover:text-black transition";
+            renderMatriz();
+        } else {
+            paneMatriz.classList.add('hidden');
+            paneWhatif.classList.remove('hidden');
+            btnWhatif.className = "px-5 py-2 rounded-full bg-white text-neutral-900 shadow-xs transition";
+            btnMatriz.className = "px-5 py-2 rounded-full text-neutral-600 hover:text-black transition";
+            actualizarSimulacion();
+        }
+    }
+
+    // Inicialización al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+        cargarPresupuestos();
+        renderMatriz();
+        actualizarSimulacion();
+    });
+    </script>
+</body>
+</html>

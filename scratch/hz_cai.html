@@ -1,0 +1,82 @@
+  <!-- ============================================================== -->
+  <!-- HZ: MODAL NUEVO CAI VINCULADO A PROVEEDOR (con OCR de captura SAR) -->
+  <!-- ============================================================== -->
+  <div id="modalNuevoCAI" class="fixed inset-0 z-[70] hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-xl bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 flex flex-col max-h-[92vh] overflow-hidden font-sans">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-sm">🛡️</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 leading-tight">Nuevo CAI del Proveedor</h3>
+            <p class="text-[11px] text-slate-500">Autorización de impresión SAR vinculada al proveedor seleccionado</p>
+          </div>
+        </div>
+        <button type="button" onclick="hzCaiCerrar()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 text-lg leading-none transition" title="Cerrar">✕</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/40">
+        <div class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Se vinculará a</div>
+            <div id="hzc-sup-name" class="text-sm font-bold text-slate-900 truncate">—</div>
+          </div>
+          <span id="hzc-sup-rtn" class="shrink-0 text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg">RTN —</span>
+        </div>
+
+        <div id="hzc-error" class="hidden rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs px-3 py-2"></div>
+
+        <!-- Zona inteligente de captura SAR -->
+        <div id="hzc-drop" tabindex="0" onclick="document.getElementById('hzc-file').click()"
+             ondragover="event.preventDefault();this.classList.add('border-amber-500','bg-amber-50')"
+             ondragleave="this.classList.remove('border-amber-500','bg-amber-50')"
+             ondrop="hzCaiDrop(event)"
+             class="rounded-xl border-2 border-dashed border-slate-300 hover:border-amber-400 bg-white hover:bg-amber-50/40 px-4 py-4 text-center cursor-pointer transition outline-none focus:ring-2 focus:ring-amber-300">
+          <input type="file" id="hzc-file" accept="image/*,.pdf,.txt" class="hidden" onchange="hzCaiArchivo(this.files[0]); this.value=''">
+          <div id="hzc-drop-idle">
+            <div class="text-2xl">📸</div>
+            <div class="text-xs font-bold text-slate-700">Captura de validación del SAR</div>
+            <div class="text-[11px] text-slate-500">Arrastre una imagen, <strong>pegue con Ctrl + V</strong> o haga clic para subir archivo</div>
+          </div>
+          <div id="hzc-drop-busy" class="hidden text-xs font-semibold text-amber-700 flex items-center justify-center gap-2"><span class="inline-block animate-spin">⏳</span><span>Leyendo captura del SAR...</span></div>
+          <img id="hzc-preview" class="hidden mx-auto mt-2 max-h-28 rounded-lg border border-slate-200 shadow-sm" alt="Vista previa de la captura">
+        </div>
+        <div id="hzc-ocr-status" class="hidden"></div>
+
+        <div class="hz-card p-4 space-y-3">
+          <div>
+            <div class="flex items-center justify-between"><label class="hz-lbl" for="hzc-cai">Código CAI *</label><span id="hzc-cai-badge" class="text-[10px] font-mono text-slate-400 mb-1">0/32</span></div>
+            <input id="hzc-cai" type="text" maxlength="40" oninput="hzCaiMascaraCai(this)" placeholder="XXXXXX-XXXXXX-XXXXXX-XXXXXX-XXXXXX-XX" class="hz-inp font-mono font-bold tracking-wider uppercase">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="hz-lbl" for="hzc-doctype">Tipo de documento fiscal *</label>
+              <select id="hzc-doctype" class="hz-inp">
+                <option value="01">01 · Factura</option>
+                <option value="02">02 · Recibo por Honorarios</option>
+                <option value="06">06 · Nota de Crédito</option>
+                <option value="07">07 · Nota de Débito</option>
+              </select>
+            </div>
+            <div>
+              <label class="hz-lbl" for="hzc-deadline">Fecha límite de emisión *</label>
+              <input id="hzc-deadline" type="date" class="hz-inp font-mono">
+            </div>
+            <div>
+              <label class="hz-lbl" for="hzc-from">Correlativo inicial *</label>
+              <input id="hzc-from" type="text" maxlength="19" oninput="hzCaiMascaraCorrelativo(this)" placeholder="000-001-01-00000001" class="hz-inp font-mono">
+            </div>
+            <div>
+              <label class="hz-lbl" for="hzc-to">Correlativo final *</label>
+              <input id="hzc-to" type="text" maxlength="19" oninput="hzCaiMascaraCorrelativo(this)" placeholder="000-001-01-00005000" class="hz-inp font-mono">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
+        <button type="button" onclick="hzCaiCerrar()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancelar</button>
+        <button type="button" id="hzc-btn-guardar" onclick="hzCaiGuardar()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition flex items-center gap-1.5"><span>💾</span><span>Guardar CAI y Vincular</span></button>
+      </div>
+    </div>
+  </div>
+

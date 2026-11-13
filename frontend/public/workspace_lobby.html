@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon Ledger Cockpit | Centro de Control ERP</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              500: '#0f172a',
+              600: '#020617',
+              700: '#000000',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: #eef2f6;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+    }
+
+    #ambient-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+    .quadrant-btn {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.07);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      cursor: pointer;
+      overflow: hidden;
+      width: 100%;
+      text-align: left;
+    }
+    .quadrant-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.12);
+      border-color: #cbd5e1;
+    }
+    .quadrant-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .stripe-emerald { border-left: 6px solid #10b981 !important; }
+    .stripe-amber   { border-left: 6px solid #f59e0b !important; }
+    .stripe-sky     { border-left: 6px solid #0ea5e9 !important; }
+    .stripe-rose    { border-left: 6px solid #f43f5e !important; }
+
+    .sidebar-left {
+      position: fixed;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 8px 6px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+    }
+
+    .tool-slot {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-decoration: none;
+    }
+    .tool-slot:hover {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      transform: scale(1.08);
+    }
+
+    .bell-floating-tab {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 48px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-right: none;
+      border-radius: 12px 0 0 12px;
+      box-shadow: -4px 0 16px rgba(15, 23, 42, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 50;
+      transition: all 0.2s ease;
+    }
+    .bell-floating-tab:hover {
+      width: 50px;
+      background: #f8fafc;
+      box-shadow: -6px 0 20px rgba(15, 23, 42, 0.12);
+    }
+
+    .alerts-drawer-overlay {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 380px;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      border-left: 1px solid #e2e8f0;
+      box-shadow: -10px 0 35px rgba(15, 23, 42, 0.12);
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+    }
+    .alerts-drawer-overlay.open { transform: translateX(0%); }
+
+    .alert-card {
+      border-left: 3px solid;
+      background: #ffffff;
+      padding: 0.65rem 0.75rem;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+      border-right: 1px solid #f1f5f9;
+      transition: all 0.2s ease;
+    }
+    .alert-card:hover {
+      background: #f8fafc;
+      transform: translateX(-2px);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-container {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.5rem;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+      transform: scale(0.96) translateY(8px);
+      transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+    .modal-overlay.open .modal-container { transform: scale(1) translateY(0); }
+
+    .process-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border-radius: 1rem;
+      border: 1px solid #f1f5f9;
+      background: #ffffff;
+      transition: all 0.16s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .process-option:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      transform: translateX(3px);
+    }
+    .process-option.selected {
+      background: #f1f5f9;
+      border-color: #0f172a;
+    }
+
+    .profile-dropdown-card {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 260px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.25rem;
+      box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15);
+      z-index: 50;
+      display: none;
+      overflow: hidden;
+      animation: fadeInDropdown 0.15s ease-out forwards;
+    }
+    .profile-dropdown-card.show { display: block; }
+
+    @keyframes fadeInDropdown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .sleep-overlay {
+      position: fixed;
+      inset: 0;
+      background: #020617;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .sleep-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #sleep-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .marquee-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid #e2e8f0;
+      padding: 0.65rem 0;
+      z-index: 30;
+      overflow: hidden;
+    }
+    .marquee-track {
+      display: flex;
+      gap: 3.5rem;
+      width: max-content;
+      animation: tickerContinuous 45s linear infinite;
+    }
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes tickerContinuous {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .ticker-block {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+      opacity: 0.95;
+    }
+
+    .hl-kbd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      color: #64748b;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 2px 5px;
+      border-radius: 4px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body class="min-h-screen relative selection:bg-slate-900 selection:text-white pb-20 flex flex-col justify-between">
+
+  <div class="grid-vignette"></div>
+  <canvas id="ambient-canvas"></canvas>
+
+  <!-- Barra de Utilería Izquierda -->
+  <aside class="sidebar-left">
+    <div class="text-[9px] mono font-bold uppercase tracking-wider text-slate-400 mb-0.5 text-center">Tools</div>
+
+    <button onclick="openUtilityModal('calc')" class="tool-slot group" title="Calculadora Fiscal & ISV [F2]">
+      <span class="text-base group-hover:scale-110 transition-transform">🧮</span>
+      <span class="mono text-[8px] font-bold text-slate-400 group-hover:text-white">CALC</span>
+    </button>
+
+    <button onclick="openUtilityModal('fx')" class="tool-slot group" title="Tipo de Cambio Oficial BCH [F3]">
+      <span class="text-base group-hover:scale-110 transition-transform">💱</span>
+      <span class="mono text-[8px] font-bold text-slate-400 group-hover:text-white">USD</span>
+    </button>
+
+    <button onclick="openUtilityModal('shortcuts')" class="tool-slot group" title="Atajos de Teclado del Cockpit [?]">
+      <span class="text-base group-hover:scale-110 transition-transform">⌨️</span>
+      <span class="mono text-[8px] font-bold text-slate-400 group-hover:text-white">KEYS</span>
+    </button>
+
+    <button onclick="openUtilityModal('export')" class="tool-slot group" title="Exportación Rápida a Excel / PDF">
+      <span class="text-base group-hover:scale-110 transition-transform">📑</span>
+      <span class="mono text-[8px] font-bold text-slate-400 group-hover:text-white">EXP</span>
+    </button>
+
+    <button type="button" onclick="window.location.href='entorno_config.html'" class="tool-slot group mt-auto cursor-pointer" title="Configuración y Gobierno Corporativo">
+      <span class="text-base group-hover:scale-110 transition-transform">⚙️</span>
+      <span class="mono text-[8px] font-bold text-slate-400 group-hover:text-white">CFG</span>
+    </button>
+  </aside>
+
+  <!-- Campanita Alertas Derecha -->
+  <button id="btn-open-alerts" class="bell-floating-tab" title="Abrir panel de alertas operativas" onclick="toggleAlertsDrawer(true)">
+    <div class="relative">
+      <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+      <span class="absolute -top-1.5 -right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-ping"></span>
+      <span class="absolute -top-1.5 -right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white"></span>
+    </div>
+  </button>
+
+  <div id="drawer-backdrop" class="modal-overlay" onclick="toggleAlertsDrawer(false)"></div>
+
+  <!-- Drawer Lateral de Alertas -->
+  <aside id="alerts-drawer" class="alerts-drawer-overlay">
+    <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xs font-bold text-slate-900 uppercase tracking-tight">Centro de Alertas</h3>
+          <p class="text-[10px] text-slate-400 mono">Supervisión en tiempo real</p>
+        </div>
+      </div>
+
+      <button onclick="toggleAlertsDrawer(false)" class="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors" title="Cerrar panel">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4 space-y-3">
+      <!-- Alerta 1: Descuadre en Factura POS -> /ventas -->
+      <div class="alert-card border-l-rose-500 rounded-lg">
+        <div class="flex items-center justify-between text-[10px] mb-1">
+          <span class="mono font-bold text-rose-600 uppercase">Descuadre en Factura POS</span>
+          <span class="mono text-slate-400">16:12</span>
+        </div>
+        <p class="text-xs font-semibold text-slate-800 leading-tight">Fac. 001-002-01-0004921</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">Cajero: <strong class="text-slate-700">chernandez</strong> • Diferencia de L. 120.00 en arqueo.</p>
+        <div class="mt-2.5 flex items-center justify-between pt-1.5 border-t border-slate-100 text-[11px]">
+          <span class="mono text-slate-400 text-[10px]">Turno #3</span>
+          <a href="/ventas" class="text-rose-600 font-bold hover:underline">Revisar Partida &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Alerta 2: Liquidación Pendiente POS BAC -> /bancos -->
+      <div class="alert-card border-l-amber-500 rounded-lg">
+        <div class="flex items-center justify-between text-[10px] mb-1">
+          <span class="mono font-bold text-amber-600 uppercase">Liquidación Pendiente POS</span>
+          <span class="mono text-slate-400">15:45</span>
+        </div>
+        <p class="text-xs font-semibold text-slate-800 leading-tight">Lote BAC Credomatic Pendiente</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">32 vouchers sin conciliar contra extracto bancario.</p>
+        <div class="mt-2.5 flex items-center justify-between pt-1.5 border-t border-slate-100 text-[11px]">
+          <span class="mono text-slate-400 text-[10px]">Total: L. 45,820.00</span>
+          <a href="/bancos" class="text-amber-600 font-bold hover:underline">Liquidar &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Alerta 3: Asientos sin Mayorizar / Cierre Diario -> /contabilidad -->
+      <div class="alert-card border-l-sky-500 rounded-lg">
+        <div class="flex items-center justify-between text-[10px] mb-1">
+          <span class="mono font-bold text-sky-600 uppercase">Cierre Diario</span>
+          <span class="mono text-slate-400">14:00</span>
+        </div>
+        <p class="text-xs font-semibold text-slate-800 leading-tight">Partidas de Cierre sin Mayorizar</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">2 asientos automáticos de inventario requieren aprobación contable.</p>
+        <div class="mt-2.5 flex items-center justify-between pt-1.5 border-t border-slate-100 text-[11px]">
+          <span class="mono text-slate-400 text-[10px]">Kardex CPP</span>
+          <a href="workspace_logistica_general.html" class="text-sky-600 font-bold hover:underline">Revisar Kardex &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-slate-200">
+      <a href="/contabilidad" class="block w-full py-2 text-center text-xs mono font-bold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors">
+        Ver Historial Completo de Auditoría &rarr;
+      </a>
+    </div>
+  </aside>
+
+  <!-- 1. BARRA SUPERIOR (TOP NAVBAR) -->
+  <header class="w-full pt-4 px-6 relative z-20">
+    <div class="max-w-6xl mx-auto">
+      <nav class="w-full bg-white/90 backdrop-blur-md border border-slate-200 rounded-full px-4 py-2 shadow-sm flex items-center justify-between gap-4">
+        
+        <!-- Logo / Isotipo "Horizon Ledger" con enlace a / -->
+        <a href="/" class="flex items-center gap-2.5 pl-1 shrink-0 hover:opacity-85 transition-opacity" title="Horizon Ledger ERP - Dashboard Principal">
+          <div class="w-8 h-8 rounded-xl bg-slate-950 flex items-center justify-center text-white font-black text-xs shadow-xs">
+            HL
+          </div>
+          <div class="flex flex-col">
+            <div class="flex items-center gap-1.5 leading-none">
+              <span id="lobby-company-name" class="font-extrabold text-sm tracking-tight text-slate-950">Horizon Ledger</span>
+              <span class="text-[8.5px] mono uppercase text-slate-400 font-bold">ERP</span>
+            </div>
+            <span id="lobby-company-rtn" class="text-[10px] text-slate-400 mono mt-0.5">Sucursal Tegucigalpa</span>
+          </div>
+        </a>
+
+        <!-- Buscador Rápido (Ctrl + K) -->
+        <div class="flex-1 max-w-lg mx-2">
+          <div class="relative group cursor-pointer" onclick="openGlobalSearchModal()">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-hover:text-slate-600 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+            <input type="text" 
+                   placeholder="Buscar módulos, cuentas o reportes (Ctrl + K)..." 
+                   class="w-full pl-8 pr-16 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-800 placeholder-slate-400 cursor-pointer focus:outline-none focus:bg-white focus:border-slate-800 transition-all"
+                   readonly>
+            <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+              <kbd class="mono text-[9px] font-bold text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">Ctrl K</kbd>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <button type="button" onclick="window.location.href='entorno_config.html'" class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-full text-[11px] mono transition-colors cursor-pointer" title="Configurar periodo contable en Gobierno Corporativo">
+            <span class="text-slate-400 text-[10px]">PERIODO:</span>
+            <strong id="lobby-period-badge" class="text-slate-800 font-bold">OCTUBRE 2026</strong>
+            <span class="text-slate-400 text-[9px]">▾</span>
+          </button>
+
+          <!-- Perfil de Usuario -->
+          <div class="relative">
+            <button id="user-profile-btn" onclick="toggleProfileDropdown(event)" class="flex items-center gap-2 pl-2 border-l border-slate-200 focus:outline-none group">
+              <div class="w-7 h-7 rounded-full bg-sky-100 border border-sky-300/80 text-sky-700 flex items-center justify-center font-bold text-xs group-hover:ring-2 group-hover:ring-sky-200 transition-all">
+                CH
+              </div>
+              <div class="hidden md:flex flex-col text-left leading-tight">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-bold text-slate-900 group-hover:text-slate-950">C. Hernández</span>
+                  <span class="text-[9px] text-slate-400">▾</span>
+                </div>
+                <span class="text-[9.5px] text-slate-400 font-medium">Supervisor Auditor</span>
+              </div>
+            </button>
+
+            <div id="profile-dropdown" class="profile-dropdown-card">
+              <div class="p-3.5 bg-slate-50/80 border-b border-slate-100">
+                <div class="text-[10px] mono uppercase font-bold text-slate-400">Sesión Activa</div>
+                <div class="text-xs font-extrabold text-slate-900 mt-0.5">Carlos Hernández</div>
+                <div class="text-[10.5px] text-slate-500">c.hernandez@horizon.hn</div>
+                <div class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-[9.5px] mono font-bold text-emerald-700">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Rol: Auditor General
+                </div>
+              </div>
+
+              <div class="p-1.5 space-y-0.5 text-xs font-medium">
+                <button onclick="activateSleepMode()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors text-left group">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-sm">🌙</span>
+                    <span>Suspender Pantalla</span>
+                  </div>
+                  <span class="mono text-[9px] font-bold text-slate-400 bg-slate-200/60 px-1.5 py-0.5 rounded">Sleep</span>
+                </button>
+
+                <button type="button" onclick="window.location.href='entorno_config.html'" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors text-left cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-sm">⚙️</span>
+                    <span>Configuración y Gobierno Corporativo</span>
+                  </div>
+                </button>
+
+                <div class="my-1 border-t border-slate-100"></div>
+
+                <button onclick="confirmLogout()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 transition-colors text-left font-semibold">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-sm">🚪</span>
+                    <span>Cerrar Sesión</span>
+                  </div>
+                  <span class="mono text-[9px] text-rose-400">Salir</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón POS Rápido (F12) -> /ventas -->
+          <a href="/ventas" class="bg-slate-950 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all flex items-center gap-2 shadow-xs" title="Facturación POS Express (F12)">
+            <span>POS Rápido</span>
+            <span class="text-[9px] mono text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded-full font-bold">F12</span>
+          </a>
+        </div>
+
+      </nav>
+    </div>
+  </header>
+
+  <!-- 2. CUADRANTES PRINCIPALES (ALT + 1..4) -->
+  <main class="w-full max-w-6xl mx-auto px-6 py-6 relative z-10 flex-1 flex flex-col justify-center">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+
+      <!-- ALA IZQUIERDA -->
+      <div class="lg:col-span-4 space-y-4">
+        <!-- BLOQUE 01: INGRESOS & VENTAS (Esmeralda - Alt + 1) -->
+        <button onclick="openQuadrantModal('ingresos')" class="quadrant-btn stripe-emerald group">
+          <div class="flex items-start justify-between w-full">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">
+              ⚡
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="mono text-[9.5px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">3 SUBPROCESOS</span>
+              <span class="mono text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Alt+1</span>
+            </div>
+          </div>
+          <div class="w-full mt-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight group-hover:text-emerald-700 transition-colors">Ingresos & Ventas</h2>
+              <span class="text-xs text-slate-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium mt-0.5">Facturación SAR, Libro Fiscal y Cobros CxC</p>
+          </div>
+        </button>
+
+        <!-- BLOQUE 03: TESORERÍA & BANCOS (Sky - Alt + 3) -->
+        <button onclick="openQuadrantModal('tesoreria')" class="quadrant-btn stripe-sky group">
+          <div class="flex items-start justify-between w-full">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">
+              🏦
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="mono text-[9.5px] font-bold px-2 py-0.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-md">3 SUBPROCESOS</span>
+              <span class="mono text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Alt+3</span>
+            </div>
+          </div>
+          <div class="w-full mt-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight group-hover:text-sky-700 transition-colors">Tesorería & Bancos</h2>
+              <span class="text-xs text-slate-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium mt-0.5">Conciliación Predictiva y Dispersión ACH</p>
+          </div>
+        </button>
+      </div>
+
+      <!-- NÚCLEO CENTRAL HORIZON CORE -->
+      <div class="lg:col-span-4 flex flex-col items-center justify-center p-2">
+        <div class="w-full bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-3xl p-6 shadow-xl shadow-slate-200/50 text-center relative overflow-hidden">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] mono font-bold text-emerald-700 uppercase tracking-wide mb-4">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Sistema en Línea
+          </div>
+          <div id="live-clock" class="text-4xl md:text-5xl font-black mono text-slate-950 tracking-tighter">
+            14:30:00
+          </div>
+          <div id="lobby-core-period" class="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider mono">
+            Octubre 2026
+          </div>
+          <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-center gap-1.5 text-xs text-slate-600 font-medium">
+            <svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            </svg>
+            <span id="lobby-core-company">Inversiones Globales de Honduras S.A. de C.V.</span>
+          </div>
+          <div id="lobby-core-rtn" class="mt-1 text-[10px] mono font-bold text-slate-400 uppercase tracking-widest">
+            RTN: 08011999123456 • Horizon Ledger Ecosystem
+          </div>
+        </div>
+      </div>
+
+      <!-- ALA DERECHA -->
+      <div class="lg:col-span-4 space-y-4">
+        <!-- BLOQUE 02: EGRESOS & STOCK (Ámbar - Alt + 2) -->
+        <button onclick="openQuadrantModal('egresos')" class="quadrant-btn stripe-amber group">
+          <div class="flex items-start justify-between w-full">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">
+              🛒
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="mono text-[9.5px] font-bold px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-md">6 SUBPROCESOS</span>
+              <span class="mono text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Alt+2</span>
+            </div>
+          </div>
+          <div class="w-full mt-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight group-hover:text-amber-700 transition-colors">Egresos, Logística &amp; Stock</h2>
+              <span class="text-xs text-slate-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium mt-0.5">Compras, Inventario CPP, Landed Cost, Producción y Control</p>
+          </div>
+        </button>
+
+        <!-- BLOQUE 04: CONTABILIDAD & CIERRE (Rose - Alt + 4) -->
+        <button onclick="openQuadrantModal('contabilidad')" class="quadrant-btn stripe-rose group">
+          <div class="flex items-start justify-between w-full">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">
+              ⚖️
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="mono text-[9.5px] font-bold px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-md">3 SUBPROCESOS</span>
+              <span class="mono text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Alt+4</span>
+            </div>
+          </div>
+          <div class="w-full mt-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight group-hover:text-rose-700 transition-colors">Contabilidad & Cierre</h2>
+              <span class="text-xs text-slate-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium mt-0.5">Libro Diario, Balances NIIF y SAR</p>
+          </div>
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL: POP-UP DE SUBPROCESOS POR CUADRANTE (Alt + 1..4) -->
+  <div id="quadrant-modal-overlay" class="modal-overlay" onclick="handleModalBackdropClick(event)">
+    <div class="modal-container">
+      <div id="modal-header-banner" class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+        <div class="flex items-center gap-3">
+          <div id="modal-icon-box" class="w-9 h-9 rounded-xl flex items-center justify-center text-lg font-bold">⚡</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="modal-title" class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">Ingresos & Ventas</h3>
+              <span id="modal-tag" class="mono text-[9px] font-bold px-1.5 py-0.5 rounded">BLOQUE 01</span>
+            </div>
+            <p id="modal-subtitle" class="text-[11px] text-slate-400 mt-0.5">Selecciona el subproceso o presiona su número [1, 2, 3]</p>
+          </div>
+        </div>
+
+        <button onclick="closeQuadrantModal()" class="w-8 h-8 rounded-lg hover:bg-slate-200/60 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors" title="Cerrar (Esc)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 border-b border-slate-100 bg-white">
+        <div class="relative">
+          <input id="modal-search-input" 
+                 type="text" 
+                 placeholder="Filtrar acciones de este módulo..." 
+                 onkeyup="filterModalOptions()"
+                 class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-slate-800 transition-all">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal-options-list" class="p-5 space-y-2.5 max-h-[380px] overflow-y-auto bg-white"></div>
+
+      <div class="px-6 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-[10px] mono text-slate-400">
+        <span>Navegación rápida: <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-bold">1</kbd> <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-bold">2</kbd> <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-bold">3</kbd></span>
+        <span>Cerrar: <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-bold">Esc</kbd></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BUSCADOR GLOBAL / COMMAND PALETTE (Ctrl + K) -->
+  <div id="global-search-modal-overlay" class="modal-overlay" onclick="handleGlobalSearchBackdropClick(event)">
+    <div class="modal-container">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white">
+        <div class="flex items-center gap-2.5">
+          <span class="text-base">⚡</span>
+          <div>
+            <h3 class="text-sm font-extrabold uppercase tracking-tight">Buscador Rápido & Navegación Global</h3>
+            <p class="text-[10px] text-slate-400 mono">Ecosistema Horizon Ledger ERP</p>
+          </div>
+        </div>
+        <button onclick="closeGlobalSearchModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-4 border-b border-slate-100 bg-slate-50">
+        <div class="relative">
+          <input id="global-search-input" 
+                 type="text" 
+                 placeholder="Escribe el nombre del módulo o subproceso (ej. Ventas, Inventario, Bancos)..." 
+                 oninput="filterGlobalSearchResults()"
+                 class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-950 focus:ring-1 focus:ring-slate-950 transition-all font-sans">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div id="global-search-results" class="p-4 space-y-2 max-h-[360px] overflow-y-auto bg-white">
+        <!-- Renderizado por JS -->
+      </div>
+
+      <div class="px-6 py-2.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-[10px] mono text-slate-400">
+        <span>Selecciona con clic o presiona <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-bold">Enter</kbd></span>
+        <span>Cerrar: <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-bold">Esc</kbd></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Utilería y Herramientas (F2, F3, etc.) -->
+  <div id="utility-modal-overlay" class="modal-overlay" onclick="handleUtilityBackdropClick(event)">
+    <div class="modal-container">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-3">
+          <div id="utility-icon-box" class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg font-bold">🧮</div>
+          <div>
+            <h3 id="utility-title" class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">Calculadora Fiscal SAR</h3>
+            <p id="utility-subtitle" class="text-[11px] text-slate-400 mt-0.5">Herramienta Operativa Rápida</p>
+          </div>
+        </div>
+        <button onclick="closeUtilityModal()" class="w-8 h-8 rounded-lg hover:bg-slate-200/60 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="utility-body-content" class="p-6 bg-white max-h-[420px] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- Pantalla Sleep / Lock Screen -->
+  <div id="sleep-overlay" class="sleep-overlay">
+    <canvas id="sleep-canvas"></canvas>
+    <div class="relative z-10 text-center max-w-sm w-full px-6">
+      <div class="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 text-white flex items-center justify-center text-2xl font-black mx-auto mb-4 backdrop-blur-md shadow-lg">🌙</div>
+      <div id="sleep-clock" class="text-5xl font-black mono text-white tracking-tight mb-1 drop-shadow-md">14:30:00</div>
+      <div class="text-xs mono text-slate-300 uppercase tracking-widest mb-6 font-semibold">Estación Bloqueada • Horizon Ledger</div>
+
+      <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 shadow-2xl">
+        <div class="flex items-center gap-3 justify-center mb-4">
+          <div class="w-8 h-8 rounded-full bg-sky-400/30 border border-sky-400/50 text-sky-200 flex items-center justify-center font-bold text-xs">CH</div>
+          <div class="text-left">
+            <div class="text-xs font-bold text-white">Carlos Hernández</div>
+            <div class="text-[10px] text-slate-300">Auditor General</div>
+          </div>
+        </div>
+
+        <form onsubmit="resumeFromSleep(event)" class="space-y-3">
+          <input id="sleep-pin-input" 
+                 type="password" 
+                 placeholder="Ingresa tu PIN de desbloqueo..." 
+                 class="w-full px-4 py-2.5 bg-white/20 border border-white/30 rounded-xl text-white placeholder-slate-300 text-center mono text-sm outline-none focus:bg-white/30 focus:border-white transition-all">
+          <button type="submit" class="w-full py-2.5 bg-white text-slate-950 font-bold text-xs rounded-xl hover:bg-slate-100 transition-colors shadow-lg">
+            Reanudar Sesión ERP
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARQUEE INFERIOR DE KPIS EN VIVO -->
+  <footer class="marquee-wrapper">
+    <div class="marquee-track">
+      <div class="ticker-block">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-950 mono">98%</span>
+        <div class="text-[9.5px] text-slate-500 uppercase tracking-tight leading-tight">
+          <div>Auto-matching Bancario</div>
+          <strong class="text-slate-800 font-bold">BAC & FICOHSA</strong>
+        </div>
+      </div>
+
+      <div class="ticker-block">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-950 mono">8,450</span>
+        <div class="text-[9.5px] text-slate-500 uppercase tracking-tight leading-tight">
+          <div>Facturas SAR Disponibles</div>
+          <strong class="text-slate-800 font-bold">RANGO CAI VIGENTE</strong>
+        </div>
+      </div>
+
+      <div class="ticker-block">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-950 mono">0.00</span>
+        <div class="text-[9.5px] text-slate-500 uppercase tracking-tight leading-tight">
+          <div>Descuadre en Kardex</div>
+          <strong class="text-slate-800 font-bold">COSTEO CPP NIIF</strong>
+        </div>
+      </div>
+
+      <div class="ticker-block">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-950 mono">100%</span>
+        <div class="text-[9.5px] text-slate-500 uppercase tracking-tight leading-tight">
+          <div>Cumplimiento Fiscal</div>
+          <strong class="text-slate-800 font-bold">DET LIVE SAR-252</strong>
+        </div>
+      </div>
+
+      <div class="ticker-block">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-950 mono">12 días</span>
+        <div class="text-[9.5px] text-slate-500 uppercase tracking-tight leading-tight">
+          <div>Plazo Promedio Cobro</div>
+          <strong class="text-slate-800 font-bold">ROTACIÓN CxC</strong>
+        </div>
+      </div>
+
+      <!-- Duplicación continua para infinite loop -->
+      <div class="ticker-block">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-950 mono">98%</span>
+        <div class="text-[9.5px] text-slate-500 uppercase tracking-tight leading-tight">
+          <div>Auto-matching Bancario</div>
+          <strong class="text-slate-800 font-bold">BAC & FICOHSA</strong>
+        </div>
+      </div>
+
+      <div class="ticker-block">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-950 mono">8,450</span>
+        <div class="text-[9.5px] text-slate-500 uppercase tracking-tight leading-tight">
+          <div>Facturas SAR Disponibles</div>
+          <strong class="text-slate-800 font-bold">RANGO CAI VIGENTE</strong>
+        </div>
+      </div>
+
+      <div class="ticker-block">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-950 mono">0.00</span>
+        <div class="text-[9.5px] text-slate-500 uppercase tracking-tight leading-tight">
+          <div>Descuadre en Kardex</div>
+          <strong class="text-slate-800 font-bold">COSTEO CPP NIIF</strong>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT INTEGRADO DIRECTO: ZERO EXTERNAL DEPENDENCY -->
+  <script>
+    // ==============================================================
+    // 1. DEFINICIÓN OFICIAL DE SUBPROCESOS POR CUADRANTE (ALT + 1..4)
+    // ==============================================================
+    window.QUADRANT_DATA = {
+      ingresos: {
+        title: "Ingresos & Ventas",
+        tag: "BLOQUE 01",
+        icon: "⚡",
+        colorClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        options: [
+          { key: "1", title: "Punto de Venta POS & Facturación SAR", desc: "Emisión de facturas fiscales con CAI, arqueo ciego y ticket térmico.", link: "/ventas", badge: "En Línea" },
+          { key: "2", title: "Libro Fiscal de Ventas & DET Live", desc: "Registro de facturas exentas, gravadas 15% y 18% para declaración mensual.", link: "/libro-ventas", badge: "SAR OK" },
+          { key: "3", title: "Cuentas por Cobrar (CxC) & Cartera", desc: "Antigüedad de saldos de clientes, recibos de caja y límite de crédito.", link: "/cxc", badge: "Aging NIIF" }
+        ]
+      },
+      egresos: {
+        title: "Egresos, Logística & Stock",
+        tag: "BLOQUE 02",
+        icon: "🛒",
+        colorClass: "bg-amber-50 text-amber-700 border-amber-200",
+        badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
+        options: [
+          { key: "1", title: "Registro de Compras & Proveedores CxP", desc: "Validación de CAI de compra, retención del 1% y fechas de vencimiento.", link: "/compras", badge: "Crédito Fiscal" },
+          { key: "2", title: "Logística General & Cadena de Suministro", desc: "Portal unificado: Landed Cost, Inventarios CPP, Producción y Control.", link: "workspace_logistica_general.html", badge: "Logística" },
+          { key: "3", title: "Logística Internacional & Landed Cost", desc: "Pólizas DUA, fletes, seguro marítimo y prorrateo multimodal.", link: "workspace_logistica_general.html?panel=logistica", badge: "Landed Cost" },
+          { key: "4", title: "Producción & Órdenes de Fabricación", desc: "Recetas maestras (BOM), órdenes en planta (WIP) y liquidación NIIF.", link: "workspace_logistica_general.html?panel=produccion", badge: "BOM / WIP" },
+          { key: "5", title: "Control de Stock, Conteos & Mermas", desc: "Toma física cíclica, conciliación y actas de avería Art. 11 LISR.", link: "workspace_logistica_general.html?panel=control", badge: "SAR Art. 11" },
+          { key: "6", title: "Cuentas por Pagar (CxP) & Proveedores", desc: "Gestión de cartera de proveedores, vencimientos y órdenes de pago.", link: "/cxp", badge: "Proveedores" }
+        ]
+      },
+      tesoreria: {
+        title: "Tesorería & Bancos",
+        tag: "BLOQUE 03",
+        icon: "🏦",
+        colorClass: "bg-sky-50 text-sky-700 border-sky-200",
+        badgeColor: "bg-sky-50 text-sky-700 border-sky-200",
+        options: [
+          { key: "1", title: "Conciliación Bancaria (Doble Carril)", desc: "Cruce inteligente entre extracto bancario y libro mayor auxiliar.", link: "/bancos", badge: "98% Match" },
+          { key: "2", title: "Proyecciones Financieras & BI Studio", desc: "Dashboard interactivo con distribución dinámica de cuadrícula financiera.", link: "/bancos/proyecciones", badge: "BI Studio" },
+          { key: "3", title: "Liquidación de Lotes POS / Adquirencia", desc: "Liquidación de lotes de tarjeta Visa/Mastercard (BAC, Ficohsa, Banpaís).", link: "/bancos#pos-liquidation", badge: "Vouchers" }
+        ]
+      },
+      contabilidad: {
+        title: "Contabilidad Central & Cierre",
+        tag: "BLOQUE 04",
+        icon: "⚖️",
+        colorClass: "bg-rose-50 text-rose-700 border-rose-200",
+        badgeColor: "bg-rose-50 text-rose-700 border-rose-200",
+        options: [
+          { key: "1", title: "Contabilidad Central & Libro Diario", desc: "Registro de asientos manuales y automáticos con validación estricta de partida doble.", link: "/contabilidad", badge: "Cuadrado" },
+          { key: "2", title: "Estados Financieros NIIF & Balances", desc: "Balance General, Estado de Resultados, Flujo de Efectivo y Notas NIIF.", link: "/estados-financieros", badge: "NIIF PyMES" },
+          { key: "3", title: "Declaración Mensual SAR-252", desc: "Mapeo fiscal consolidado listo para exportación al módulo DET de la administración.", link: "/libros-fiscales", badge: "DET Live" }
+        ]
+      }
+    };
+
+    // ==============================================================
+    // 2. CATÁLOGO GLOBAL DE MÓDULOS PARA COMMAND PALETTE (CTRL + K)
+    // ==============================================================
+    window.GLOBAL_MODULES_CATALOG = [
+      {
+        id: "ventas-pos",
+        title: "Facturación POS / Ventas",
+        desc: "Emisión de facturas comerciales, ticket térmico y control de caja",
+        link: "/ventas",
+        block: "BLOQUE 01 • INGRESOS",
+        icon: "⚡",
+        badge: "POS F12"
+      },
+      {
+        id: "libro-ventas",
+        title: "Libro de Ventas Fiscales",
+        desc: "Registro fiscal SAR, desglose 15%/18% y conciliación DET Live",
+        link: "/libro-ventas",
+        block: "BLOQUE 01 • SAR",
+        icon: "📊",
+        badge: "SAR-252"
+      },
+      {
+        id: "cxc-clientes",
+        title: "Cuentas por Cobrar (CxC) & Cartera",
+        desc: "Antigüedad de saldos de clientes, recibos de caja y límite de crédito",
+        link: "/cxc",
+        block: "BLOQUE 01 • CRÉDITOS",
+        icon: "👥",
+        badge: "Cartera CxC"
+      },
+      {
+        id: "compras-cxp",
+        title: "Registro de Compras CxP",
+        desc: "Ingreso de facturas de proveedores, retenciones y control de egresos",
+        link: "/compras",
+        block: "BLOQUE 02 • EGRESOS",
+        icon: "🛒",
+        badge: "Crédito Fiscal"
+      },
+      {
+        id: "inventario-kardex",
+        title: "Inventario Multi-Bodega & Kardex CPP",
+        desc: "Control de 5 bodegas continuo bajo Costo Promedio Ponderado NIIF",
+        link: "workspace_logistica_general.html",
+        block: "BLOQUE 02 • STOCK",
+        icon: "📦",
+        badge: "KARDEX CPP"
+      },
+      {
+        id: "logistica-landed",
+        title: "Logística de Importaciones & Landed Cost",
+        desc: "Pólizas DUA, fletes, seguro y prorrateo de costos de importación",
+        link: "workspace_logistica_general.html?panel=logistica",
+        block: "BLOQUE 02 • LOGÍSTICA",
+        icon: "🚢",
+        badge: "DUA / Landed"
+      },
+      {
+        id: "produccion-recetas",
+        title: "Producción & Órdenes de Fabricación",
+        desc: "Recetas maestras / escandallos (BOM), explosión de materiales y costeo NIIF",
+        link: "workspace_logistica_general.html?panel=produccion",
+        block: "BLOQUE 02 • PRODUCCIÓN",
+        icon: "⚙️",
+        badge: "BOM / Costeo"
+      },
+      {
+        id: "control-inventarios",
+        title: "Control de Stock, Conteos & Mermas",
+        desc: "Conteos cíclicos ciegos, actas de merma deducible SAR y requisiciones",
+        link: "workspace_logistica_general.html?panel=control",
+        block: "BLOQUE 02 • AUDITORÍA",
+        icon: "📋",
+        badge: "Art. 11 SAR"
+      },
+      {
+        id: "cxp-operativa",
+        title: "Gestión Operativa de Pagos & CxP",
+        desc: "Mesa de facturas por pagar, pagos varios/servicios directos y lotes ACH",
+        link: "/cxp",
+        block: "BLOQUE 02 • PAGOS",
+        icon: "💳",
+        badge: "Pagos & CxP"
+      },
+      {
+        id: "proveedores-estados-cuenta",
+        title: "Estados de Cuenta de Proveedores",
+        desc: "Directorio de proveedores, análisis de aging NIIF y extracto histórico",
+        link: "/proveedores/estados-de-cuenta",
+        block: "BLOQUE 02 • AUDITORÍA",
+        icon: "📑",
+        badge: "Aging NIIF"
+      },
+      {
+        id: "libro-compras",
+        title: "Libro de Compras Fiscales",
+        desc: "Registro de compras con crédito fiscal deducible para el SAR",
+        link: "/libro-compras",
+        block: "BLOQUE 02 • SAR",
+        icon: "📑",
+        badge: "Crédito Fiscal"
+      },
+      {
+        id: "bancos-conciliacion",
+        title: "Conciliación Bancaria",
+        desc: "Doble carril de conciliación predictiva con extracto bancario",
+        link: "/bancos",
+        block: "BLOQUE 03 • TESORERÍA",
+        icon: "🏦",
+        badge: "Auto-Match"
+      },
+      {
+        id: "proyecciones-bi",
+        title: "Proyecciones & BI Studio",
+        desc: "Estudio de gráficos financieros y distribución configurable",
+        link: "/bancos/proyecciones",
+        block: "BLOQUE 03 • BI",
+        icon: "📈",
+        badge: "Studio BI"
+      },
+      {
+        id: "contabilidad-diario",
+        title: "Contabilidad Central & Libro Diario",
+        desc: "Registro de asientos contables con partida doble balanceada NIIF",
+        link: "/contabilidad",
+        block: "BLOQUE 04 • CONTABILIDAD",
+        icon: "⚖️",
+        badge: "Partida Doble"
+      },
+      {
+        id: "estados-financieros-niif",
+        title: "Estados Financieros NIIF & Cierre",
+        desc: "Balance General, Estado de Resultados, Flujo de Efectivo y Notas NIIF",
+        link: "/estados-financieros",
+        block: "BLOQUE 04 • AUDITORÍA",
+        icon: "🏛️",
+        badge: "NIIF PyMES"
+      },
+      {
+        id: "libros-fiscales-sar",
+        title: "Libros Fiscales SAR & DET Live",
+        desc: "Consolidación de compras y ventas para declaración mensual SAR-252",
+        link: "/libros-fiscales",
+        block: "BLOQUE 04 • FISCAL",
+        icon: "📝",
+        badge: "SAR-252"
+      }
+    ];
+
+    window.currentOpenModule = null;
+
+    // ==============================================================
+    // 3. CONTROL DE MODALES DE CUADRANTES
+    // ==============================================================
+    window.openQuadrantModal = function(moduleId) {
+      window.closeGlobalSearchModal();
+      window.closeUtilityModal();
+      const data = window.QUADRANT_DATA[moduleId];
+      if (!data) return;
+      window.currentOpenModule = moduleId;
+
+      const titleEl = document.getElementById('modal-title');
+      const tagEl = document.getElementById('modal-tag');
+      const iconEl = document.getElementById('modal-icon-box');
+      const listContainer = document.getElementById('modal-options-list');
+      const searchInput = document.getElementById('modal-search-input');
+      const overlay = document.getElementById('quadrant-modal-overlay');
+
+      if (titleEl) titleEl.textContent = data.title;
+      if (tagEl) {
+        tagEl.textContent = data.tag;
+        tagEl.className = `mono text-[9px] font-bold px-1.5 py-0.5 rounded border ${data.badgeColor}`;
+      }
+      if (iconEl) {
+        iconEl.textContent = data.icon;
+        iconEl.className = `w-9 h-9 rounded-xl flex items-center justify-center text-lg font-bold border ${data.colorClass}`;
+      }
+
+      if (listContainer) {
+        listContainer.innerHTML = '';
+        data.options.forEach(opt => {
+          const item = document.createElement('a');
+          
+          let targetUrl = opt.link;
+          if (targetUrl === '/inventario') targetUrl = 'workspace_logistica_general.html';
+          else if (targetUrl === '/produccion') targetUrl = 'workspace_logistica_general.html?panel=produccion';
+          else if (targetUrl === '/logistica') targetUrl = 'workspace_logistica_general.html?panel=logistica';
+          else if (targetUrl === '/control') targetUrl = 'workspace_logistica_general.html?panel=control';
+          
+          item.href = targetUrl;
+          item.className = 'process-option group block cursor-pointer';
+          item.setAttribute('onclick', `window.location.href='${targetUrl}'; return false;`);
+          item.innerHTML = `
+            <div class="flex items-center gap-3">
+              <span class="mono text-xs font-bold text-slate-400 group-hover:text-slate-900 group-hover:border-slate-400 bg-slate-50 border border-slate-200 w-6 h-6 rounded-lg flex items-center justify-center">${opt.key}</span>
+              <div>
+                <h4 class="text-xs font-bold text-slate-900 group-hover:text-slate-950 transition-colors">${opt.title}</h4>
+                <p class="text-[10.5px] text-slate-400 mt-0.5 leading-snug">${opt.desc}</p>
+              </div>
+            </div>
+            <span class="mono text-[9.5px] font-bold px-2 py-0.5 rounded border ${data.badgeColor} shrink-0 ml-3">${opt.badge}</span>
+          `;
+          listContainer.appendChild(item);
+        });
+      }
+
+      if (searchInput) searchInput.value = '';
+      if (overlay) {
+        overlay.classList.add('open');
+        setTimeout(() => { if (searchInput) searchInput.focus(); }, 100);
+      }
+    };
+
+    window.closeQuadrantModal = function() {
+      const overlay = document.getElementById('quadrant-modal-overlay');
+      if (overlay) overlay.classList.remove('open');
+      window.currentOpenModule = null;
+    };
+
+    window.handleModalBackdropClick = function(e) {
+      if (e.target.id === 'quadrant-modal-overlay') window.closeQuadrantModal();
+    };
+
+    window.filterModalOptions = function() {
+      const input = document.getElementById('modal-search-input');
+      if (!input) return;
+      const query = input.value.toLowerCase();
+      const options = document.querySelectorAll('#modal-options-list .process-option');
+      options.forEach(opt => {
+        const text = opt.innerText.toLowerCase();
+        opt.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    };
+
+    // ==============================================================
+    // 4. CONTROL DEL BUSCADOR GLOBAL / COMMAND PALETTE (CTRL + K)
+    // ==============================================================
+    window.openGlobalSearchModal = function() {
+      window.closeQuadrantModal();
+      window.closeUtilityModal();
+      const overlay = document.getElementById('global-search-modal-overlay');
+      const input = document.getElementById('global-search-input');
+      if (overlay) {
+        overlay.classList.add('open');
+        renderGlobalSearchResults('');
+        setTimeout(() => { if (input) { input.value = ''; input.focus(); } }, 100);
+      }
+    };
+
+    window.closeGlobalSearchModal = function() {
+      const overlay = document.getElementById('global-search-modal-overlay');
+      if (overlay) overlay.classList.remove('open');
+    };
+
+    window.handleGlobalSearchBackdropClick = function(e) {
+      if (e.target.id === 'global-search-modal-overlay') window.closeGlobalSearchModal();
+    };
+
+    async function renderGlobalSearchResults(query) {
+      const container = document.getElementById('global-search-results');
+      if (!container) return;
+      const q = query.toLowerCase().trim();
+
+      const filtered = window.GLOBAL_MODULES_CATALOG.filter(m => {
+        return !q || m.title.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q) || m.block.toLowerCase().includes(q);
+      });
+
+      let modulesHtml = filtered.map((m, idx) => {
+        let targetUrl = m.link;
+        if (targetUrl === '/inventario') targetUrl = 'workspace_logistica_general.html';
+        else if (targetUrl === '/produccion') targetUrl = 'workspace_logistica_general.html?panel=produccion';
+        else if (targetUrl === '/logistica') targetUrl = 'workspace_logistica_general.html?panel=logistica';
+        else if (targetUrl === '/control') targetUrl = 'workspace_logistica_general.html?panel=control';
+
+        return `
+        <a href="${targetUrl}" onclick="window.location.href='${targetUrl}'; return false;" class="process-option group flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-slate-800 hover:bg-slate-50 transition-all ${idx === 0 ? 'bg-slate-50/50' : ''}">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-sm font-bold group-hover:scale-105 transition-transform">
+              ${m.icon}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs font-bold text-slate-900 group-hover:text-slate-950">${m.title}</h4>
+                <span class="text-[9px] mono font-bold text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded">${m.block}</span>
+              </div>
+              <p class="text-[10.5px] text-slate-400 mt-0.5">${m.desc}</p>
+            </div>
+          </div>
+          <span class="mono text-[9.5px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 group-hover:bg-slate-950 group-hover:text-white transition-colors">
+            ${m.badge} &rarr;
+          </span>
+        </a>
+        `;
+      }).join('');
+
+      let docsHtml = '';
+      if (q.length >= 2) {
+        try {
+          const resp = await fetch(`/api/v1/documents/search?limit=8&query=${encodeURIComponent(q)}`);
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.items && data.items.length > 0) {
+              docsHtml = `
+                <div class="pt-3 border-t border-slate-200">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] mono uppercase font-bold text-slate-500">Expedientes &amp; Documentos 360° (${data.items.length})</span>
+                    <span class="text-[9px] mono text-amber-700 font-bold bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded">Trazabilidad por Hilo</span>
+                  </div>
+                  <div class="space-y-1.5">
+                    ${data.items.map(doc => `
+                      <a href="${doc.workspace_url}" class="flex items-center justify-between p-2 rounded-lg border border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 transition-all text-xs font-mono">
+                        <div class="flex items-center gap-2">
+                          <span class="px-1.5 py-0.2 text-[9px] rounded font-bold bg-slate-100 text-slate-700">${doc.doc_type}</span>
+                          <span class="font-bold text-slate-900">${doc.doc_number}</span>
+                          <span class="text-slate-400 text-[10px] truncate max-w-[150px]">${doc.partner_name || ''}</span>
+                        </div>
+                        <div class="text-right">
+                          <span class="font-black text-slate-900">${doc.currency_code} ${Number(doc.total_amount_origin).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                        </div>
+                      </a>
+                    `).join('')}
+                  </div>
+                </div>
+              `;
+            }
+          }
+        } catch (e) {
+          console.warn("Error en búsqueda federada lobby:", e);
+        }
+      }
+
+      if (!modulesHtml && !docsHtml) {
+        container.innerHTML = `
+          <div class="py-8 text-center text-slate-400 text-xs">
+            No se encontraron módulos o documentos coincidentes con "<strong>${q}</strong>".
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = modulesHtml + docsHtml;
+    }
+
+    window.filterGlobalSearchResults = function() {
+      const input = document.getElementById('global-search-input');
+      if (input) renderGlobalSearchResults(input.value);
+    };
+
+    // ==============================================================
+    // 5. LIVE CLOCK & AMBIENT CANVAS
+    // ==============================================================
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      const clockEl = document.getElementById('live-clock');
+      const sleepClockEl = document.getElementById('sleep-clock');
+      if (clockEl) clockEl.textContent = timeStr;
+      if (sleepClockEl) sleepClockEl.textContent = timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function initAmbientCanvas() {
+      const canvas = document.getElementById('ambient-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width, height, particles = [];
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      const count = Math.min(30, Math.floor(window.innerWidth / 40));
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          radius: Math.random() * 2 + 1,
+          alpha: Math.random() * 0.35 + 0.15
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+        for (let i = 0; i < particles.length; i++) {
+          let p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(15, 23, 42, ${p.alpha * 0.4})`;
+          ctx.fill();
+
+          for (let j = i + 1; j < particles.length; j++) {
+            let p2 = particles[j];
+            let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+            if (dist < 140) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = `rgba(15, 23, 42, ${(1 - dist / 140) * 0.05})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+    initAmbientCanvas();
+
+    // ==============================================================
+    // 6. MODALES DE UTILERÍA Y ATAJOS
+    // ==============================================================
+    window.openUtilityModal = function(type) {
+      window.closeQuadrantModal();
+      window.closeGlobalSearchModal();
+      const modal = document.getElementById('utility-modal-overlay');
+      const title = document.getElementById('utility-title');
+      const subtitle = document.getElementById('utility-subtitle');
+      const iconBox = document.getElementById('utility-icon-box');
+      const content = document.getElementById('utility-body-content');
+
+      if (type === 'calc') {
+        title.textContent = 'Calculadora Fiscal SAR & ISV';
+        subtitle.textContent = 'Cálculo rápido de bases gravadas, exentas y retención del 1%';
+        iconBox.textContent = '🧮';
+        content.innerHTML = `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] font-bold uppercase mono text-slate-400 mb-1">Monto Base / Total (HNL)</label>
+              <input id="calc-input-amount" type="number" step="0.01" placeholder="Ej. 1000.00" oninput="calculateISV()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-800">
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <span class="text-[10px] mono text-slate-400 block">BASE 15%</span>
+                <span id="calc-base-15" class="font-mono font-bold text-slate-900 text-sm">L 0.00</span>
+              </div>
+              <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <span class="text-[10px] mono text-slate-400 block">ISV 15%</span>
+                <span id="calc-isv-15" class="font-mono font-bold text-emerald-600 text-sm">L 0.00</span>
+              </div>
+              <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <span class="text-[10px] mono text-slate-400 block">RETENCIÓN 1%</span>
+                <span id="calc-ret-1" class="font-mono font-bold text-rose-600 text-sm">- L 0.00</span>
+              </div>
+              <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <span class="text-[10px] mono text-slate-400 block">TOTAL NETO</span>
+                <span id="calc-total-net" class="font-mono font-bold text-slate-950 text-sm">L 0.00</span>
+              </div>
+            </div>
+            <button onclick="copyCalcResult()" class="w-full py-2.5 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors">
+              Copiar Desglose al Portapapeles
+            </button>
+          </div>
+        `;
+      } else if (type === 'fx') {
+        title.textContent = 'Tipo de Cambio Oficial BCH';
+        subtitle.textContent = 'Dólar Estadounidense (USD) vs Lempira Hondureño (HNL)';
+        iconBox.textContent = '💱';
+        content.innerHTML = `
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3 text-center">
+              <div class="p-3.5 bg-sky-50 border border-sky-200 rounded-xl">
+                <span class="text-[10px] mono font-bold text-sky-700 uppercase">COMPRA BCH</span>
+                <strong class="block font-mono text-xl font-black text-slate-900 mt-1">L 24.9580</strong>
+                <span class="text-[9px] mono text-slate-400">Banco Central HND</span>
+              </div>
+              <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                <span class="text-[10px] mono font-bold text-slate-600 uppercase">VENTA BCH</span>
+                <strong class="block font-mono text-xl font-black text-slate-900 mt-1">L 25.0828</strong>
+                <span class="text-[9px] mono text-slate-400">Tasa Mercado Interbancario</span>
+              </div>
+            </div>
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <label class="block text-[10px] font-bold uppercase mono text-slate-400">Conversor Rápido USD ⇄ HNL</label>
+              <div class="flex items-center gap-2">
+                <input id="fx-usd-input" type="number" placeholder="USD" value="100" oninput="convertFx()" class="w-1/2 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-slate-900 outline-none">
+                <span class="text-xs font-bold text-slate-400">=</span>
+                <span id="fx-hnl-result" class="w-1/2 font-mono font-black text-sm text-slate-950 text-right pr-2">L 2,495.80</span>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'shortcuts') {
+        title.textContent = 'Atajos de Teclado del Cockpit';
+        subtitle.textContent = 'Navegación ultra rápida para operadores y auditores';
+        iconBox.textContent = '⌨️';
+        content.innerHTML = `
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Facturación POS / Ventas Express</span>
+              <kbd class="hl-kbd">F12 / F10</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Buscar módulos / Command Palette</span>
+              <kbd class="hl-kbd">Ctrl + K</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Bloque 01: Ingresos & Ventas</span>
+              <kbd class="hl-kbd">Alt + 1</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Bloque 02: Egresos & Compras</span>
+              <kbd class="hl-kbd">Alt + 2</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Bloque 03: Tesorería & Bancos</span>
+              <kbd class="hl-kbd">Alt + 3</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Bloque 04: Contabilidad & Cierre</span>
+              <kbd class="hl-kbd">Alt + 4</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Acceso Rápido Ventas / Inventario / Bancos / Contab</span>
+              <kbd class="hl-kbd">1 / 2 / 3 / 4</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Calculadora Fiscal SAR</span>
+              <kbd class="hl-kbd">F2</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+              <span class="text-slate-600 font-medium">Tipo de Cambio Oficial BCH</span>
+              <kbd class="hl-kbd">F3</kbd>
+            </div>
+            <div class="flex justify-between items-center py-1.5">
+              <span class="text-slate-600 font-medium">Cerrar Modales / Pantallas Emergentes</span>
+              <kbd class="hl-kbd">Esc</kbd>
+            </div>
+          </div>
+        `;
+      } else if (type === 'export') {
+        title.textContent = 'Exportación Rápida de Datos ERP';
+        subtitle.textContent = 'Generación de informes consolidados para auditoría';
+        iconBox.textContent = '📑';
+        content.innerHTML = `
+          <div class="space-y-3 text-xs">
+            <a href="/libro-compras" class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors group">
+              <div class="flex items-center gap-2.5">
+                <span class="text-lg">📊</span>
+                <div>
+                  <strong class="block text-slate-900">Libro de Compras Fiscales SAR</strong>
+                  <span class="text-[10px] text-slate-400 mono">Exportación CSV para DET Live</span>
+                </div>
+              </div>
+              <span class="mono text-xs font-bold text-slate-500 group-hover:text-slate-900">&rarr; Abrir Libro</span>
+            </a>
+            <a href="/libro-ventas" class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors group">
+              <div class="flex items-center gap-2.5">
+                <span class="text-lg">📈</span>
+                <div>
+                  <strong class="block text-slate-900">Libro de Ventas Fiscales SAR</strong>
+                  <span class="text-[10px] text-slate-400 mono">Exportación CSV para DET Live</span>
+                </div>
+              </div>
+              <span class="mono text-xs font-bold text-slate-500 group-hover:text-slate-900">&rarr; Abrir Libro</span>
+            </a>
+            <a href="/libros-fiscales" class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors group">
+              <div class="flex items-center gap-2.5">
+                <span class="text-lg">🏛️</span>
+                <div>
+                  <strong class="block text-slate-900">Libros Fiscales SAR & Auditoría Consolidada</strong>
+                  <span class="text-[10px] text-slate-400 mono">Declaración Jurada SAR-252</span>
+                </div>
+              </div>
+              <span class="mono text-xs font-bold text-slate-500 group-hover:text-slate-900">&rarr; Consolidar</span>
+            </a>
+          </div>
+        `;
+      } else if (type === 'config') {
+        title.textContent = 'Configuración de Estación de Trabajo';
+        subtitle.textContent = 'Ajustes locales de periféricos y emisión fiscal';
+        iconBox.textContent = '⚙️';
+        content.innerHTML = `
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block text-[10px] font-bold uppercase mono text-slate-400 mb-1">Impresora Térmica Predeterminada</label>
+              <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 outline-none">
+                <option>Epson TM-T20III (USB / 80mm ESC/POS)</option>
+                <option>Bixolon SRP-330II (Ethernet / Red)</option>
+                <option>Impresión a PDF / Archivo Digital</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase mono text-slate-400 mb-1">Punto de Emisión SAR</label>
+              <input type="text" value="001-001-01 (Caja Principal)" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-700 outline-none">
+            </div>
+            <div class="pt-2">
+              <button onclick="closeUtilityModal(); alert('Configuración guardada en memoria local.');" class="w-full py-2.5 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors">
+                Guardar Preferencias
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      modal.classList.add('open');
+    };
+
+    window.calculateISV = function() {
+      const val = parseFloat(document.getElementById('calc-input-amount').value) || 0;
+      const isv15 = val * 0.15;
+      const ret1 = val * 0.01;
+      const total = val + isv15;
+
+      document.getElementById('calc-base-15').textContent = `L ${val.toFixed(2)}`;
+      document.getElementById('calc-isv-15').textContent = `L ${isv15.toFixed(2)}`;
+      document.getElementById('calc-ret-1').textContent = `- L ${ret1.toFixed(2)}`;
+      document.getElementById('calc-total-net').textContent = `L ${(total - ret1).toFixed(2)}`;
+    };
+
+    window.convertFx = function() {
+      const usd = parseFloat(document.getElementById('fx-usd-input').value) || 0;
+      const hnl = usd * 24.9580;
+      document.getElementById('fx-hnl-result').textContent = `L ${hnl.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+
+    window.copyCalcResult = function() {
+      const b = document.getElementById('calc-base-15').textContent;
+      const i = document.getElementById('calc-isv-15').textContent;
+      const t = document.getElementById('calc-total-net').textContent;
+      navigator.clipboard.writeText(`Base: ${b} | ISV 15%: ${i} | Total Neto: ${t}`);
+      alert('Cálculo copiado al portapapeles.');
+    };
+
+    window.closeUtilityModal = function() {
+      const modal = document.getElementById('utility-modal-overlay');
+      if (modal) modal.classList.remove('open');
+    };
+
+    window.handleUtilityBackdropClick = function(event) {
+      if (event.target.id === 'utility-modal-overlay') {
+        window.closeUtilityModal();
+      }
+    };
+
+    // ==============================================================
+    // 7. ALERTAS Y SESIÓN
+    // ==============================================================
+    window.toggleAlertsDrawer = function(open) {
+      const drawer = document.getElementById('alerts-drawer');
+      const backdrop = document.getElementById('drawer-backdrop');
+      if (open) {
+        if (drawer) drawer.classList.add('open');
+        if (backdrop) backdrop.classList.add('open');
+      } else {
+        if (drawer) drawer.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('open');
+      }
+    };
+
+    window.toggleProfileDropdown = function(event) {
+      if (event) event.stopPropagation();
+      const dropdown = document.getElementById('profile-dropdown');
+      if (dropdown) dropdown.classList.toggle('show');
+    };
+
+    window.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('profile-dropdown');
+      if (dropdown && !e.target.closest('#user-profile-btn') && !e.target.closest('#profile-dropdown')) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    window.activateSleepMode = function() {
+      const overlay = document.getElementById('sleep-overlay');
+      if (overlay) {
+        overlay.classList.add('active');
+        const pin = document.getElementById('sleep-pin-input');
+        if (pin) {
+          pin.value = '';
+          setTimeout(() => pin.focus(), 100);
+        }
+      }
+    };
+
+    window.resumeFromSleep = function(event) {
+      if (event) event.preventDefault();
+      const overlay = document.getElementById('sleep-overlay');
+      if (overlay) overlay.classList.remove('active');
+    };
+
+    window.confirmLogout = function() {
+      if (confirm('¿Deseas cerrar la sesión activa del Horizon Ledger Cockpit?')) {
+        window.location.href = '/';
+      }
+    };
+
+    // ==============================================================
+    // 8. SHORTCUTS GLOBALES Y CONTROL DE TECLADO
+    // ==============================================================
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.closeQuadrantModal();
+        window.closeGlobalSearchModal();
+        window.closeUtilityModal();
+        window.toggleAlertsDrawer(false);
+        window.resumeFromSleep();
+        return;
+      }
+
+      const activeEl = document.activeElement;
+      const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
+
+      // Command Palette: Ctrl + K o Cmd + K
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        window.openGlobalSearchModal();
+        return;
+      }
+
+      // Enter en Command Palette cuando hay un primer resultado
+      if (e.key === 'Enter' && document.getElementById('global-search-modal-overlay')?.classList.contains('open')) {
+        const firstLink = document.querySelector('#global-search-results a');
+        if (firstLink) {
+          e.preventDefault();
+          window.location.href = firstLink.href;
+          return;
+        }
+      }
+
+      // F12 o F10 -> POS / Ventas
+      if (e.key === 'F12' || e.key === 'F10') {
+        e.preventDefault();
+        window.location.href = '/ventas';
+        return;
+      }
+
+      // F2 -> Calculadora Fiscal
+      if (e.key === 'F2') {
+        e.preventDefault();
+        window.openUtilityModal('calc');
+        return;
+      }
+
+      // F3 -> Tipo de Cambio BCH
+      if (e.key === 'F3') {
+        e.preventDefault();
+        window.openUtilityModal('fx');
+        return;
+      }
+
+      if (!isInput) {
+        // Alt + 1..4 abre modales de cuadrantes
+        if (e.altKey && e.key === '1') { e.preventDefault(); window.openQuadrantModal('ingresos'); return; }
+        if (e.altKey && e.key === '2') { e.preventDefault(); window.openQuadrantModal('egresos'); return; }
+        if (e.altKey && e.key === '3') { e.preventDefault(); window.openQuadrantModal('tesoreria'); return; }
+        if (e.altKey && e.key === '4') { e.preventDefault(); window.openQuadrantModal('contabilidad'); return; }
+
+        // Si hay un modal de cuadrante abierto, 1, 2, 3 ejecutan la opción correspondiente
+        if (window.currentOpenModule) {
+          const mod = window.QUADRANT_DATA[window.currentOpenModule];
+          if (mod) {
+            const opt = mod.options.find(o => o.key === e.key);
+            if (opt) {
+              e.preventDefault();
+              let targetUrl = opt.link;
+              if (targetUrl === '/inventario') targetUrl = 'workspace_logistica_general.html';
+              else if (targetUrl === '/produccion') targetUrl = 'workspace_logistica_general.html?panel=produccion';
+              else if (targetUrl === '/logistica') targetUrl = 'workspace_logistica_general.html?panel=logistica';
+              else if (targetUrl === '/control') targetUrl = 'workspace_logistica_general.html?panel=control';
+              window.location.href = targetUrl;
+              return;
+            }
+          }
+        }
+
+        // Si no hay modal abierto, acceso numérico directo a los 4 módulos principales:
+        // 1 -> Ventas (/ventas)
+        // 2 -> Inventario (/inventario)
+        // 3 -> Bancos (/bancos)
+        // 4 -> Contabilidad (/contabilidad)
+        if (e.key === '1') { window.location.href = '/ventas'; }
+        else if (e.key === '2') { window.location.href = 'workspace_logistica_general.html'; }
+        else if (e.key === '3') { window.location.href = '/bancos'; }
+        else if (e.key === '4') { window.location.href = '/contabilidad'; }
+      }
+    });
+  </script>
+
+<!-- ============================================================== -->
+<!-- HORIZON AI CFO COPILOT - FLOATING LAUNCHER & DRAWER WIDGET      -->
+<!-- ============================================================== -->
+<button id="horizon-ai-fab" type="button" onclick="window.toggleHorizonAICopilot()"
+  class="fixed bottom-5 right-5 z-40 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2.5 transition-all transform hover:scale-105 cursor-pointer border border-amber-300/60 select-none group"
+  title="Horizon AI CFO Copilot (Ctrl + J)">
+  <span class="w-7 h-7 rounded-full bg-slate-950 text-amber-400 flex items-center justify-center text-sm shadow-inner group-hover:rotate-12 transition-transform">
+    ✨
+  </span>
+  <div class="flex flex-col text-left leading-tight">
+    <span class="text-xs font-black tracking-tight text-slate-950 uppercase">CFO Copilot</span>
+    <span class="text-[9px] font-mono text-amber-950 font-bold opacity-90">Ctrl + J</span>
+  </div>
+  <span id="ai-fab-indicator" class="w-2.5 h-2.5 rounded-full bg-rose-500 border border-white animate-pulse hidden" title="Nuevas Alertas"></span>
+</button>
+
+<div id="horizon-ai-drawer-overlay" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs hidden transition-opacity duration-200 select-none" onclick="if(event.target===this) window.toggleHorizonAICopilot(false)">
+  <div id="horizon-ai-drawer" class="fixed right-0 top-0 bottom-0 w-full max-w-xl bg-white shadow-2xl border-l border-slate-200 flex flex-col z-50 transform translate-x-full transition-transform duration-300 ease-out select-text">
+    <!-- Header -->
+    <div class="p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center text-sm shadow-md">
+          ✨
+        </span>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="font-extrabold text-sm tracking-wide text-white">Horizon AI CFO Copilot</h3>
+            <span class="text-[9px] font-mono bg-amber-500/20 text-amber-300 border border-amber-400/40 px-1.5 py-0.2 rounded font-bold">CQRS Core</span>
+          </div>
+          <p class="text-[10px] text-slate-400 font-mono">Consultas en lenguaje natural &amp; Auditoría SAR en dev_erp.db</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <kbd class="text-[9px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">ESC</kbd>
+        <button type="button" onclick="window.toggleHorizonAICopilot(false)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer text-base font-bold">
+          &times;
+        </button>
+      </div>
+    </div>
+
+    <!-- Sub-bar Tabs -->
+    <div class="bg-slate-100 border-b border-slate-200 p-1 flex items-center gap-1 shrink-0 text-xs font-mono">
+      <button id="ai-tab-btn-chat" onclick="window.switchAITab('chat')" class="flex-1 py-1.5 px-3 rounded-lg font-bold transition text-center bg-white text-slate-900 shadow-xs border border-slate-200">
+        💬 Chat Copilot
+      </button>
+      <button id="ai-tab-btn-insights" onclick="window.switchAITab('insights')" class="flex-1 py-1.5 px-3 rounded-lg font-bold transition text-center text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5">
+        <span>⚡ Alertas Proactivas</span>
+        <span id="ai-insights-count-badge" class="bg-amber-500 text-slate-950 text-[9px] font-black px-1.5 rounded-full">...</span>
+      </button>
+      <button id="ai-tab-btn-fx" onclick="window.switchAITab('fx')" class="flex-1 py-1.5 px-3 rounded-lg font-bold transition text-center text-slate-600 hover:text-slate-900">
+        💱 Simulador FX
+      </button>
+    </div>
+
+    <!-- PANEL 1: CHAT COPILOT -->
+    <div id="ai-panel-chat" class="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-50">
+      <!-- Quick Chips -->
+      <div class="p-2 bg-white border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto custom-scrollbar shrink-0">
+        <span class="text-[9px] font-mono text-slate-400 font-bold uppercase shrink-0">Sugerencias:</span>
+        <button type="button" onclick="window.enviarPromptSugerido('Simular devaluación BCH a L 26.50 por USD')" class="shrink-0 text-[10px] font-mono bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 px-2 py-0.5 rounded-full transition cursor-pointer">
+          💱 Devaluación BCH 26.50
+        </button>
+        <button type="button" onclick="window.enviarPromptSugerido('Top 5 facturas vencidas en USD con riesgo de tipo de cambio')" class="shrink-0 text-[10px] font-mono bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 px-2 py-0.5 rounded-full transition cursor-pointer">
+          💵 CxP Vencidas USD
+        </button>
+        <button type="button" onclick="window.enviarPromptSugerido('Reportar variaciones de costo y merma en órdenes de producción')" class="shrink-0 text-[10px] font-mono bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 px-2 py-0.5 rounded-full transition cursor-pointer">
+          🏭 Mermas Producción
+        </button>
+        <button type="button" onclick="window.enviarPromptSugerido('Auditar retenciones fiscales SAR e ISV del periodo')" class="shrink-0 text-[10px] font-mono bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 px-2 py-0.5 rounded-full transition cursor-pointer">
+          📋 Auditoría SAR / ISV
+        </button>
+        <button type="button" onclick="window.enviarPromptSugerido('Nivel de stock crítico y recepciones pendientes en muelle')" class="shrink-0 text-[10px] font-mono bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 px-2 py-0.5 rounded-full transition cursor-pointer">
+          📦 Stock Crítico &amp; Muelle
+        </button>
+      </div>
+
+      <!-- Messages Stream -->
+      <div id="ai-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+        <!-- Assistant Welcome Message -->
+        <div class="flex items-start gap-2 max-w-[92%]">
+          <div class="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+            ✨
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-3 shadow-2xs text-xs text-slate-800 space-y-1.5 leading-relaxed">
+            <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span class="font-bold text-amber-700">HORIZON AI COPILOT</span>
+              <span>En vivo &bull; dev_erp.db</span>
+            </div>
+            <p>Hola Carlos. Como Copiloto Financiero de Horizon LC, tengo acceso en tiempo real a las tablas contables de <strong>dev_erp.db</strong> (CxP en USD, tipo de cambio BCH, órdenes de producción, inventario y retenciones SAR). ¿Qué consulta o simulación financiera deseas ejecutar?</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="p-2.5 bg-white border-t border-slate-200 shrink-0">
+        <form id="ai-chat-form" onsubmit="window.enviarMensajeAIChat(event)" class="space-y-2">
+          <div class="relative">
+            <textarea id="ai-chat-input" rows="2" 
+              placeholder="Pregunta sobre saldos en USD, costos, mermas, stock o escribe una consulta fiscal..." 
+              class="w-full pl-3 pr-20 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-200 resize-none transition custom-scrollbar"></textarea>
+            <div class="absolute right-2 bottom-2 flex items-center gap-1">
+              <button id="ai-chat-submit-btn" type="submit" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition flex items-center gap-1 shadow-xs cursor-pointer">
+                <span>Enviar</span>
+                <span>➤</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 px-1">
+            <span>Presiona <kbd class="bg-slate-100 px-1 py-0.5 rounded border text-[9px] text-slate-600">Enter</kbd> para enviar</span>
+            <span class="flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Cálculos exactos sobre CQRS</span>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- PANEL 2: ALERTAS PROACTIVAS -->
+    <div id="ai-panel-insights" class="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-50 hidden">
+      <div class="p-3 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
+        <div>
+          <h4 class="font-bold text-xs text-slate-900">Hallazgos &amp; Alertas Proactivas del CFO</h4>
+          <p class="text-[10px] text-slate-400 font-mono">Detección continua de riesgos cambiarios, mermas e inventario</p>
+        </div>
+        <button type="button" onclick="window.cargarAlertasProactivas(true)" class="px-2.5 py-1 bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 font-mono text-[10px] font-bold rounded-lg border border-slate-200 hover:border-amber-300 transition flex items-center gap-1 cursor-pointer">
+          <span>🔄</span>
+          <span>Actualizar</span>
+        </button>
+      </div>
+
+      <div class="p-2.5 grid grid-cols-4 gap-2 bg-slate-100/70 border-b border-slate-200 shrink-0 text-center text-xs font-mono">
+        <div class="p-2 bg-white rounded-xl border border-rose-200 shadow-2xs">
+          <div class="text-[9px] font-bold text-rose-600 uppercase">Críticas</div>
+          <div id="badge-count-critical" class="text-sm font-black text-rose-700">0</div>
+        </div>
+        <div class="p-2 bg-white rounded-xl border border-amber-200 shadow-2xs">
+          <div class="text-[9px] font-bold text-amber-600 uppercase">Advertencias</div>
+          <div id="badge-count-warning" class="text-sm font-black text-amber-700">0</div>
+        </div>
+        <div class="p-2 bg-white rounded-xl border border-sky-200 shadow-2xs">
+          <div class="text-[9px] font-bold text-sky-600 uppercase">Informativas</div>
+          <div id="badge-count-info" class="text-sm font-black text-sky-700">0</div>
+        </div>
+        <div class="p-2 bg-white rounded-xl border border-emerald-200 shadow-2xs">
+          <div class="text-[9px] font-bold text-emerald-600 uppercase">Oportunidades</div>
+          <div id="badge-count-opportunity" class="text-sm font-black text-emerald-700">0</div>
+        </div>
+      </div>
+
+      <div id="ai-insights-list" class="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scrollbar">
+        <div class="text-center py-10 text-slate-400 font-mono text-xs">
+          Cargando alertas del Copiloto CFO...
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 3: SIMULADOR FX BCH -->
+    <div id="ai-panel-fx" class="flex-1 flex flex-col min-h-0 overflow-y-auto p-4 bg-slate-50 space-y-4 custom-scrollbar hidden">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h4 class="font-extrabold text-xs text-slate-900 uppercase tracking-wide">Simulador de Riesgo Cambiario BCH</h4>
+          <span class="text-[10px] font-mono bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded-full font-bold">USD / HNL</span>
+        </div>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Simula de forma determinística la exposición financiera de las facturas vigentes en USD ante fluctuaciones en la tasa de cambio de referencia del Banco Central de Honduras.
+        </p>
+
+        <div class="space-y-2 pt-1 font-mono text-xs">
+          <label class="block text-slate-600 font-bold text-[11px]">Tasa de Cambio a Simular (Lempiras por 1 USD):</label>
+          <div class="flex items-center gap-2">
+            <input type="number" id="fx-sim-rate-input" step="0.01" min="20.00" max="40.00" value="26.50" 
+              class="w-36 px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white text-sm" />
+            <button type="button" onclick="window.ejecutarSimulacionFXRapida()" class="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl transition cursor-pointer text-xs">
+              Calcular Impacto
+            </button>
+          </div>
+          <div class="flex gap-2 text-[10px] text-slate-400">
+            <button type="button" onclick="document.getElementById('fx-sim-rate-input').value='25.50'; window.ejecutarSimulacionFXRapida();" class="hover:underline">L 25.50 (+3%)</button> &bull;
+            <button type="button" onclick="document.getElementById('fx-sim-rate-input').value='26.00'; window.ejecutarSimulacionFXRapida();" class="hover:underline">L 26.00 (+5%)</button> &bull;
+            <button type="button" onclick="document.getElementById('fx-sim-rate-input').value='26.50'; window.ejecutarSimulacionFXRapida();" class="hover:underline">L 26.50 (+7%)</button> &bull;
+            <button type="button" onclick="document.getElementById('fx-sim-rate-input').value='27.50'; window.ejecutarSimulacionFXRapida();" class="hover:underline">L 27.50 (+11%)</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="fx-sim-result-card" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2 hidden">
+        <div class="text-[10px] font-mono uppercase font-bold text-slate-400">Resultado de la Simulación</div>
+        <div id="fx-sim-result-content" class="text-xs font-mono text-slate-800"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-2.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-[11px] font-mono text-slate-500 shrink-0">
+      <div>Horizon LC &bull; Copiloto Financiero IA</div>
+      <button type="button" onclick="window.toggleHorizonAICopilot(false)" class="px-3 py-1 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg transition cursor-pointer text-[10px]">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==============================================================
+  // HORIZON AI CFO COPILOT CONTROLLER (CQRS & DEV_ERP.DB)
+  // ==============================================================
+  (function() {
+    const COMPANY_ID = "08011995-1234-5678-90ab-cdef12345678";
+    let isCopilotOpen = false;
+    let insightsLoaded = false;
+
+    window.toggleHorizonAICopilot = function(forceState) {
+      const overlay = document.getElementById('horizon-ai-drawer-overlay');
+      const drawer = document.getElementById('horizon-ai-drawer');
+      if (!overlay || !drawer) return;
+
+      if (typeof forceState === 'boolean') {
+        isCopilotOpen = forceState;
+      } else {
+        isCopilotOpen = !isCopilotOpen;
+      }
+
+      if (isCopilotOpen) {
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+          drawer.classList.remove('translate-x-full');
+          const input = document.getElementById('ai-chat-input');
+          if (input) input.focus();
+        }, 10);
+        if (!insightsLoaded) {
+          window.cargarAlertasProactivas(false);
+        }
+      } else {
+        drawer.classList.add('translate-x-full');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 300);
+      }
+    };
+
+    window.switchAITab = function(tabName) {
+      const tabs = ['chat', 'insights', 'fx'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`ai-tab-btn-${t}`);
+        const panel = document.getElementById(`ai-panel-${t}`);
+        if (btn && panel) {
+          if (t === tabName) {
+            btn.className = "flex-1 py-1.5 px-3 rounded-lg font-bold transition text-center bg-white text-slate-900 shadow-xs border border-slate-200";
+            panel.classList.remove('hidden');
+          } else {
+            btn.className = "flex-1 py-1.5 px-3 rounded-lg font-bold transition text-center text-slate-600 hover:text-slate-900";
+            panel.classList.add('hidden');
+          }
+        }
+      });
+      if (tabName === 'insights') {
+        window.cargarAlertasProactivas(false);
+      }
+    };
+
+    function formatAIMarkdown(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code class="bg-slate-100 text-amber-800 px-1 py-0.5 rounded text-[11px] font-mono">$1</code>')
+        .replace(/^### (.*$)/gim, '<h4 class="font-bold text-xs text-slate-900 mt-2 mb-1">$1</h4>')
+        .replace(/^## (.*$)/gim, '<h3 class="font-black text-xs text-amber-900 mt-2 mb-1 uppercase tracking-wider">$1</h3>')
+        .replace(/^\s*[-•]\s+(.*$)/gim, '<li class="ml-4 list-disc text-slate-700">$1</li>')
+        .replace(/\n\n/g, '<div class="h-1.5"></div>')
+        .replace(/\n/g, '<br/>');
+    }
+
+    window.enviarPromptSugerido = function(promptText) {
+      const input = document.getElementById('ai-chat-input');
+      if (input) {
+        input.value = promptText;
+        window.enviarMensajeAIChat(new Event('submit'));
+      }
+    };
+
+    window.enviarMensajeAIChat = async function(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('ai-chat-input');
+      const messagesContainer = document.getElementById('ai-chat-messages');
+      const submitBtn = document.getElementById('ai-chat-submit-btn');
+      if (!input || !messagesContainer) return;
+
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      // Render User Message
+      const userDiv = document.createElement('div');
+      userDiv.className = "flex items-start justify-end gap-2 max-w-[90%] ml-auto";
+      userDiv.innerHTML = `
+        <div class="bg-slate-900 text-white rounded-2xl rounded-tr-none p-3 shadow-xs text-xs font-mono">
+          <div class="text-[9px] text-amber-300 font-bold mb-1">TÚ (SUPERVISOR AUDITOR)</div>
+          <div>${userText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+        </div>
+        <div class="w-6 h-6 rounded-lg bg-slate-800 text-white font-bold text-xs flex items-center justify-center shrink-0">
+          CH
+        </div>
+      `;
+      messagesContainer.appendChild(userDiv);
+      input.value = '';
+
+      // Typing indicator
+      const typingDiv = document.createElement('div');
+      typingDiv.id = 'ai-typing-indicator';
+      typingDiv.className = "flex items-start gap-2 max-w-[90%]";
+      typingDiv.innerHTML = `
+        <div class="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 animate-pulse">
+          ✨
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-2.5 shadow-2xs text-xs text-slate-500 font-mono flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+          <span>Consultando tablas en dev_erp.db...</span>
+        </div>
+      `;
+      messagesContainer.appendChild(typingDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const payload = {
+          company_id: COMPANY_ID,
+          prompt: userText,
+          context_workspace: window.location.pathname || "workspace"
+        };
+
+        const resp = await fetch('/api/v1/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const typingEl = document.getElementById('ai-typing-indicator');
+        if (typingEl) typingEl.remove();
+
+        if (!resp.ok) {
+          const errData = await resp.json().catch(() => ({}));
+          throw new Error(errData.detail || `Error HTTP ${resp.status}`);
+        }
+
+        const data = await resp.json();
+
+        // Render AI Response
+        const aiDiv = document.createElement('div');
+        aiDiv.className = "flex items-start gap-2 max-w-[94%]";
+        
+        let actionsHtml = '';
+        if (data.suggested_actions && data.suggested_actions.length > 0) {
+          actionsHtml = `
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex flex-wrap gap-1.5">
+              <span class="text-[9px] font-mono text-slate-400 uppercase font-bold shrink-0 self-center">Acciones:</span>
+              ${data.suggested_actions.map(act => `
+                <button type="button" onclick="window.enviarPromptSugerido('${act.replace(/'/g, "\\'")}')" class="text-[10px] font-mono bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-md transition cursor-pointer">
+                  ${act}
+                </button>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        aiDiv.innerHTML = `
+          <div class="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+            ✨
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-3 shadow-2xs text-xs text-slate-800 space-y-1.5 leading-relaxed flex-1">
+            <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span class="font-bold text-amber-700 uppercase">${data.query_domain || 'CFO_COPILOT'}</span>
+              <span class="bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded">${new Date().toLocaleTimeString()}</span>
+            </div>
+            <div class="font-bold text-slate-950 text-xs">${data.summary || ''}</div>
+            <div class="text-slate-700 text-xs">${formatAIMarkdown(data.detailed_analysis || '')}</div>
+            ${actionsHtml}
+          </div>
+        `;
+        messagesContainer.appendChild(aiDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      } catch (err) {
+        const typingEl = document.getElementById('ai-typing-indicator');
+        if (typingEl) typingEl.remove();
+
+        const errDiv = document.createElement('div');
+        errDiv.className = "flex items-start gap-2 max-w-[90%]";
+        errDiv.innerHTML = `
+          <div class="w-6 h-6 rounded-lg bg-rose-500 text-white font-black text-xs flex items-center justify-center shrink-0">
+            ⚠️
+          </div>
+          <div class="bg-rose-50 border border-rose-200 rounded-2xl rounded-tl-none p-3 text-xs text-rose-800 font-mono">
+            <strong>Error del Copiloto:</strong> ${err.message}. Verifica que el backend FastAPI esté ejecutándose en http://localhost:8000.
+          </div>
+        `;
+        messagesContainer.appendChild(errDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    };
+
+    window.cargarAlertasProactivas = async function(isManualRefresh) {
+      const container = document.getElementById('ai-insights-list');
+      const badge = document.getElementById('ai-insights-count-badge');
+      const fabDot = document.getElementById('ai-fab-indicator');
+      if (!container) return;
+
+      if (isManualRefresh) {
+        container.innerHTML = '<div class="text-center py-8 text-slate-400 font-mono text-xs animate-pulse">Sincronizando hallazgos con dev_erp.db...</div>';
+      }
+
+      try {
+        const resp = await fetch(`/api/v1/ai/insights?company_id=${COMPANY_ID}`);
+        if (!resp.ok) throw new Error("No se pudieron cargar las alertas");
+        const data = await resp.json();
+
+        insightsLoaded = true;
+        const items = data.insights || [];
+        if (badge) badge.textContent = items.length;
+
+        // Count categories
+        let crit = 0, warn = 0, inf = 0, opp = 0;
+        items.forEach(it => {
+          if (it.category === 'CRITICAL') crit++;
+          else if (it.category === 'WARNING') warn++;
+          else if (it.category === 'INFO') inf++;
+          else if (it.category === 'OPPORTUNITY') opp++;
+        });
+
+        const bCrit = document.getElementById('badge-count-critical');
+        const bWarn = document.getElementById('badge-count-warning');
+        const bInfo = document.getElementById('badge-count-info');
+        const bOpp = document.getElementById('badge-count-opportunity');
+        if (bCrit) bCrit.textContent = crit;
+        if (bWarn) bWarn.textContent = warn;
+        if (bInfo) bInfo.textContent = inf;
+        if (bOpp) bOpp.textContent = opp;
+
+        if (fabDot) {
+          if (crit > 0) fabDot.classList.remove('hidden');
+          else fabDot.classList.add('hidden');
+        }
+
+        if (items.length === 0) {
+          container.innerHTML = '<div class="text-center py-10 text-slate-400 font-mono text-xs">No hay alertas financieras pendientes. El sistema opera dentro de parámetros normales.</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        items.forEach(it => {
+          const card = document.createElement('div');
+          let borderCol = "border-slate-200 bg-white";
+          let badgeCol = "bg-slate-100 text-slate-700";
+          if (it.category === 'CRITICAL') {
+            borderCol = "border-rose-200 bg-rose-50/30";
+            badgeCol = "bg-rose-100 text-rose-800 border-rose-300";
+          } else if (it.category === 'WARNING') {
+            borderCol = "border-amber-200 bg-amber-50/30";
+            badgeCol = "bg-amber-100 text-amber-800 border-amber-300";
+          } else if (it.category === 'OPPORTUNITY') {
+            borderCol = "border-emerald-200 bg-emerald-50/30";
+            badgeCol = "bg-emerald-100 text-emerald-800 border-emerald-300";
+          } else {
+            borderCol = "border-sky-200 bg-sky-50/30";
+            badgeCol = "bg-sky-100 text-sky-800 border-sky-300";
+          }
+
+          card.className = `p-3 rounded-2xl border ${borderCol} shadow-2xs space-y-1.5 transition-all hover:shadow-xs`;
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border ${badgeCol}">
+                ${it.category}
+              </span>
+              <span class="text-[10px] font-mono text-slate-400">${it.query_domain || ''}</span>
+            </div>
+            <div class="font-bold text-xs text-slate-900">${it.title}</div>
+            <p class="text-xs text-slate-600 leading-relaxed">${it.description}</p>
+            <div class="pt-1 flex items-center justify-between text-[10px] font-mono">
+              <span class="text-slate-400">${new Date(it.created_at).toLocaleDateString()}</span>
+              <button type="button" onclick="window.enviarPromptSugerido('Detallar análisis para: ${it.title.replace(/'/g, "\\'")}')" class="text-amber-700 hover:text-amber-900 font-bold hover:underline cursor-pointer">
+                Profundizar &rarr;
+              </button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+      } catch (e) {
+        container.innerHTML = `<div class="text-center py-8 text-rose-500 font-mono text-xs">Error cargando alertas: ${e.message}</div>`;
+      }
+    };
+
+    window.ejecutarSimulacionFXRapida = async function() {
+      const rateInput = document.getElementById('fx-sim-rate-input');
+      const card = document.getElementById('fx-sim-result-card');
+      const content = document.getElementById('fx-sim-result-content');
+      if (!rateInput || !card || !content) return;
+
+      const rateVal = parseFloat(rateInput.value) || 26.50;
+      card.classList.remove('hidden');
+      content.innerHTML = '<div class="text-slate-400 py-2">Calculando impacto en deuda USD...</div>';
+
+      try {
+        const resp = await fetch('/api/v1/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            company_id: COMPANY_ID,
+            prompt: `Simular tipo de cambio BCH a L ${rateVal} por USD`,
+            usd_exchange_rate_override: rateVal
+          })
+        });
+
+        if (!resp.ok) throw new Error("Error en simulación");
+        const data = await resp.json();
+
+        content.innerHTML = `
+          <div class="p-2 bg-amber-50 rounded-xl border border-amber-200 text-amber-950 font-bold mb-2">
+            ${data.summary}
+          </div>
+          <div class="text-xs text-slate-700 space-y-1">
+            ${formatAIMarkdown(data.detailed_analysis)}
+          </div>
+        `;
+      } catch (err) {
+        content.innerHTML = `<div class="text-rose-600">Error: ${err.message}</div>`;
+      }
+    };
+
+    // Global Keydown Handler: Ctrl + J / Cmd + J and Escape
+    window.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+        window.toggleHorizonAICopilot();
+      }
+      if (e.key === 'Escape' && isCopilotOpen) {
+        window.toggleHorizonAICopilot(false);
+      }
+    });
+
+    // Enter to submit in textarea (Shift+Enter for newline)
+    document.addEventListener('DOMContentLoaded', function() {
+      const tx = document.getElementById('ai-chat-input');
+      if (tx) {
+        tx.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            window.enviarMensajeAIChat(new Event('submit'));
+          }
+        });
+      }
+    });
+
+    // =========================================================================
+    // SINCRONIZACIÓN DE IDENTIDAD CORPORATIVA DESDE ENTORNO_CONFIG (HDS)
+    // =========================================================================
+    window.sincronizarLobbyDesdeConfig = function() {
+      try {
+        const raw = localStorage.getItem('horizon_system_config');
+        if (!raw) return;
+        const config = JSON.parse(raw);
+        if (config && config.company) {
+          const nameEl = document.getElementById('lobby-company-name');
+          const rtnEl = document.getElementById('lobby-company-rtn');
+          const coreCompEl = document.getElementById('lobby-core-company');
+          const coreRtnEl = document.getElementById('lobby-core-rtn');
+          if (config.company.name) {
+            if (nameEl) nameEl.textContent = config.company.name;
+            if (coreCompEl) coreCompEl.textContent = config.company.name;
+          }
+          if (config.company.rtn) {
+            if (rtnEl) rtnEl.textContent = `RTN: ${config.company.rtn}`;
+            if (coreRtnEl) coreRtnEl.textContent = `RTN: ${config.company.rtn} • Horizon Ledger Ecosystem`;
+          }
+        }
+        if (config && config.period && config.period.label) {
+          const perBadge = document.getElementById('lobby-period-badge');
+          const corePer = document.getElementById('lobby-core-period');
+          if (perBadge) perBadge.textContent = config.period.label;
+          if (corePer) corePer.textContent = config.period.label;
+        }
+      } catch (err) {
+        console.warn('Error sincronizando Lobby desde horizon_system_config:', err);
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', window.sincronizarLobbyDesdeConfig);
+    window.addEventListener('storage', function(e) {
+      if (!e.key || e.key === 'horizon_system_config') {
+        window.sincronizarLobbyDesdeConfig();
+      }
+    });
+
+    // Enrutamiento híbrido para aperturas locales directas (.html / file://)
+    document.addEventListener('click', function(e) {
+      const anchor = e.target.closest('a[href]');
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (href === '/compras' && (window.location.protocol === 'file:' || window.location.pathname.endsWith('.html'))) {
+        e.preventDefault();
+        window.location.href = 'compras.html';
+      } else if (href === '/inventario') {
+        e.preventDefault();
+        window.location.href = 'workspace_logistica_general.html';
+      } else if (href === '/produccion') {
+        e.preventDefault();
+        window.location.href = 'workspace_logistica_general.html?panel=produccion';
+      } else if (href === '/logistica') {
+        e.preventDefault();
+        window.location.href = 'workspace_logistica_general.html?panel=logistica';
+      } else if (href === '/control') {
+        e.preventDefault();
+        window.location.href = 'workspace_logistica_general.html?panel=control';
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

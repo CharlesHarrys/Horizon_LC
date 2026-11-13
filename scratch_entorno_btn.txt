@@ -1,0 +1,81 @@
+Total occurrences: 6
+
+=== OCCURRENCE 1 AT 10844 ===
+
+      <span class="text-base group-hover:scale-110 transition-transform">📑</span>
+      <span class="mono text-[8px] font-bold text-slate-400 group-hover:text-white">EXP</span>
+    </button>
+
+    <button type="button" onclick="window.location.href='entorno_config.html'" class="tool-slot group mt-auto cursor-pointer" title="Configuración y Gobierno Corporativo">
+      <span class="text-base group-hover:scale-110 transition-transform">⚙️</span>
+      <span class="mono text-[8px] font-bold text-slate-400 group-hover:text-white">CFG</span>
+    </button>
+  </aside>
+
+  <!-- Campanita Alertas Derech
+
+=== OCCURRENCE 2 AT 20656 ===
+bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">Ctrl K</kbd>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <button type="button" onclick="window.location.href='entorno_config.html'" class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-full text-[11px] mono transition-colors cursor-pointer" title="Configurar periodo contable en Gobierno Corporativo">
+            <span class="text-slate-400 text-[10px]">PERIODO:</span>
+            <strong i
+
+=== OCCURRENCE 3 AT 23561 ===
+pan>
+                  </div>
+                  <span class="mono text-[9px] font-bold text-slate-400 bg-slate-200/60 px-1.5 py-0.5 rounded">Sleep</span>
+                </button>
+
+                <button type="button" onclick="window.location.href='entorno_config.html'" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors text-left cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-sm">⚙️</span>
+                    <span>Configuración y Gobierno Corporativo</span>
+
+
+=== OCCURRENCE 4 AT 54547 ===
+function generarCardPlaceholder(slotNum) {
+      const nombresSlot = {
+        1: "Sup. Izquierda",
+        2: "Sup. Derecha",
+        3: "Inf. Izquierda",
+        4: "Inf. Derecha"
+      };
+      return `
+        <div onclick="window.location.href='entorno_config.html'" class="quadrant-btn border-dashed border-[#e8e6e5] bg-white/70 backdrop-blur-xs p-6 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-slate-400 hover:bg-white/90 transition-all min-h-[145px]" title="Cuadrante #${slotNum} (${nombresSlot[slotNum] || ''}) - Clic para configurar en Entorno">
+ 
+
+=== OCCURRENCE 5 AT 63075 ===
+function generarCardPlaceholder(slotNum) {
+      const nombresSlot = {
+        1: "Sup. Izquierda",
+        2: "Sup. Derecha",
+        3: "Inf. Izquierda",
+        4: "Inf. Derecha"
+      };
+      return `
+        <div onclick="window.location.href='entorno_config.html'" class="quadrant-btn border-dashed border-[#e8e6e5] bg-white/70 backdrop-blur-xs p-6 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-slate-400 hover:bg-white/90 transition-all min-h-[145px]" title="Cuadrante #${slotNum} (${nombresSlot[slotNum] || ''}) - Clic para configurar en Entorno">
+ 
+
+=== OCCURRENCE 6 AT 97350 ===
+ut = window._currentLobbyLayout || [];
+        const activeMod = layout.find(m => m.activo && Number(m.orden) === slotNum);
+        if (activeMod) {
+          window.openQuadrantModal(activeMod.id);
+        } else {
+          window.location.href = 'entorno_config.html';
+        }
+        return;
+      }
+
+        // Si hay un modal de cuadrante abierto, 1, 2, 3 ejecutan la opción correspondiente
+        if (window.currentOpenModule) {
+          const mod = window.QUADRANT_DATA[window.currentOpenModule];
+          if (mod) {
+            const opt = mod.options.find(o => o.key === e.key);
+      
+

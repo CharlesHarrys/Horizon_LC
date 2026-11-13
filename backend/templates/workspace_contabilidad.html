@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contabilidad Central & Libro Diario | Horizon Ledger ERP</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .active-entry-item {
+      background-color: rgba(244, 63, 94, 0.07) !important;
+      border-color: #f43f5e !important;
+      box-shadow: 0 0 0 1px #f43f5e;
+    }
+  </style>
+</head>
+<body class="bg-[#eef2f6] text-slate-900 min-h-screen flex flex-col text-xs gap-3 relative selection:bg-rose-500 selection:text-white p-2.5">
+
+  <!-- Retícula de fondo sutil -->
+  <div class="grid-vignette"></div>
+
+  <!-- 1. HEADER INSTITUCIONAL (HORIZON LEDGER) -->
+  <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 mb-2 shrink-0 min-h-16" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);"
+>
+
+<div 
+	class="flex items-center gap-3.5 shrink-0 justify-self-start"
+>       
+    <!-- Botón Regresar -->
+    <button type="button" onclick="if(history.length > 1){ history.back(); } else { window.location.href='workspace_lobby.html'; }" title="Regresar" 
+	class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
+      ←
+    </button>
+    
+    <!-- Logo Horizon LC (Con redirección al Lobby) -->
+    <div 
+	class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal"
+	>
+    <!-- Isotipo: Eclipse / Sol Negro Naciente (LOGO)-->
+      <div
+	class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+          <!-- Corona de Fotones Cian (Arco exterior) -->
+          <path d="M4.5 13.5C4.5 9.35786 7.85786 6 12 6C16.1421 6 19.5 9.35786 19.5 13.5" stroke="#3ba6f1" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Singularidad Central (Semiesfera negra sobre el horizonte) -->
+          <path d="M7 13.5C7 10.7386 9.23858 8.5 12 8.5C14.7614 8.5 17 10.7386 17 13.5H7Z" fill="#0f172a"></path>
+          <!-- Horizonte de Sucesos (Plano ecuatorial) -->
+          <path d="M2 13.5H22" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Destello de Acreción Central en Cian -->
+          <path d="M6 16.5H18" stroke="#3ba6f1" stroke-width="2" stroke-linecap="round"></path>
+          <!-- Eco Gravitacional Inferior -->
+          <path d="M9.5 19H14.5" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <!-- Wordmark tipográfico -->
+      <div class="flex flex-col leading-none" style="font-family: 'Inter', sans-serif;">
+        <div class="flex items-center gap-1">
+          <span class="text-[16px] font-extrabold tracking-tight text-slate-900 uppercase">HORIZON</span>
+          <span class="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#3ba6f1]/15 text-[#0284c7] tracking-wider">LC</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 tracking-wider uppercase mt-0.5">SYSTEM ANALYTICS</span>
+      </div>
+    </div>
+
+
+    <!-- Bloque Detalle de Módulo con Línea Divisoria Vertical -->
+	<div class="flex items-center select-none pl-4 ml-1 border-l border-slate-200">
+  	<div class="flex flex-col text-left leading-tight" style="font-family: 'Inter', sans-serif;">
+    		<span class="text-[9px] font-semibold text-slate-700 tracking-wider uppercase"> MÓDULO:
+    		</span>
+    		<span class="text-[9px] font-extrabold text-slate-700 tracking-tight uppercase max-w-[120px] leading-3 mt-0.5" id="hdr-module-name"> CONTABILIDAD CENTRAL
+    		</span>
+  	</div>
+	</div>
+</div>
+
+
+	
+<!-- Zona Central: Logotipo Corporativo + Identidad Institucional Dinámica -->
+
+<div
+ 	class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;"
+>
+  
+  	<!-- Contenedor del Logotipo Vectorial / SVG de la Empresa (w-10 h-10 y gap-2.5) -->
+  	<div class="flex items-center gap-2.5">
+    	<div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800" id="hdr-company-logo-container">
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+	</svg>
+    	</div>
+
+    	<!-- Bloque de Texto (Nombre destacado + RTN centrado) -->
+    	<div class="flex flex-col min-w-0 leading-none items-center text-center">
+      	<!-- Nombre de la Empresa -->
+      	<div class="w-full min-w-0">
+        <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="Empresa Activa">
+          SOLUTIONS &amp; APPLIANCES
+        </span>
+      	</div>
+
+      	<!-- RTN Centrado -->
+      	<div class="mt-1 select-none">
+        <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">
+          RTN: 08011990123456
+        </span>
+      	</div>
+    </div>
+  </div>
+</div>
+
+<div class="flex items-center gap-3.5 shrink-0 justify-self-end">
+        
+    <!-- Badge de Periodo Minimalista (Limpio y corporativo) -->
+    <div id="hdr-period-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 border border-slate-200/80 rounded-xl text-[11px] font-bold text-slate-700 tracking-wide select-none" style="font-family: 'Inter', sans-serif; cursor: default;">
+      <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+      <span id="hdr-period-text">OCTUBRE 2026</span>
+    </div>
+
+    <!-- Bloque de Usuario (Avatar y Perfil) -->
+    <div class="flex items-center gap-2.5 border-l border-slate-200 pl-3.5" style="font-family: 'Inter', sans-serif;">
+      <!-- Avatar con diseño limpio y tono neutro/ejecutivo -->
+      <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs">
+        CH
+      </div>
+      <!-- Nombre y Cargo -->
+      <div class="text-left hidden sm:flex flex-col leading-tight">
+        <span class="text-xs font-extrabold text-slate-900">Carlos Hernández</span>
+        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Contador General</span>
+      </div>
+    </div>
+
+</div>
+</header>
+<script id="horizon-header-sync-engine">
+(function() {
+  function sincronizarHeaderHorizonGlobal() {
+    try {
+      const raw = localStorage.getItem('horizon_system_config');
+      if (!raw) return;
+      const config = JSON.parse(raw);
+
+      // 1. Nombre de la Empresa
+      const compName = config.empresa_nombre || (config.company && config.company.name);
+      if (compName) {
+        const elName = document.getElementById('hdr-company-name');
+        if (elName) {
+          elName.textContent = compName.toUpperCase();
+          elName.setAttribute('title', compName.toUpperCase());
+        }
+      }
+
+      // 2. RTN de la Empresa
+      const compRtn = config.empresa_rtn || (config.company && config.company.rtn);
+      if (compRtn) {
+        const elRtn = document.getElementById('hdr-company-rtn');
+        if (elRtn) {
+          const rtnClean = compRtn.replace(/^RTN:\s*/i, '').trim();
+          elRtn.textContent = 'RTN: ' + rtnClean;
+        }
+      }
+
+      // 3. Periodo Contable
+      const perVal = config.periodo_activo || (config.period && config.period.label);
+      if (perVal) {
+        const elPerText = document.getElementById('hdr-period-text');
+        if (elPerText) {
+          elPerText.textContent = perVal.toUpperCase();
+        } else {
+          const elPer = document.getElementById('hdr-period-badge');
+          if (elPer) {
+            elPer.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span><span id="hdr-period-text">' + perVal.toUpperCase() + '</span>';
+          }
+        }
+      }
+
+      // 4. Logo Vectorial o Imagen de la Empresa
+      if (config.company_logo || (config.company && config.company.logo)) {
+        const logoData = config.company_logo || config.company.logo;
+        const logoContainer = document.getElementById('hdr-company-logo-container');
+        if (logoContainer && logoData) {
+          if (logoData.startsWith('<svg') || logoData.startsWith('data:image')) {
+            logoContainer.innerHTML = logoData.startsWith('<svg') ? logoData : '<img src="' + logoData + '" alt="Logo" class="w-full h-full object-contain rounded-lg">';
+          }
+        }
+      }
+    } catch(err) {
+      console.warn('Error sincronizando header con horizon_system_config:', err);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', sincronizarHeaderHorizonGlobal);
+  } else {
+    sincronizarHeaderHorizonGlobal();
+  }
+  window.addEventListener('pageshow', sincronizarHeaderHorizonGlobal);
+  window.addEventListener('storage', function(e) {
+    if (!e.key || e.key === 'horizon_system_config') {
+      sincronizarHeaderHorizonGlobal();
+    }
+  });
+
+  window.sincronizarHeaderHorizonGlobal = sincronizarHeaderHorizonGlobal;
+})();
+</script>
+
+  <!-- 2. BARRA SUPERIOR DE CONTROL Y KPIS CONTABLES (4 TARJETAS + HERRAMIENTAS) -->
+  <section class="space-y-2.5 relative z-10 flex-shrink-0">
+    
+    <!-- Botonera de Herramientas Rápidas -->
+    <div class="flex items-center justify-between gap-2 flex-wrap">
+      <div class="flex items-center gap-2">
+        <!-- + Nuevo Asiento Manual (F7) -->
+        <button onclick="openNewEntryModal()" class="px-3 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold flex items-center gap-2 text-xs transition-all shadow-xs" title="Crear asiento de diario manual (F7)">
+          <span>＋</span>
+          <span>Nuevo Asiento Manual (F7)</span>
+        </button>
+
+        <!-- 📊 Ver Balance de Comprobación -->
+        <button onclick="openTrialBalanceModal()" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold border border-slate-200 flex items-center gap-2 text-xs transition-all shadow-xs" title="Ver Balance de Comprobación de Sumas y Saldos a 6 Columnas">
+          <span>📊</span>
+          <span>Ver Balance de Comprobación</span>
+        </button>
+
+        <!-- 📄 Exportar Libro Diario SAR -->
+        <button onclick="exportJournalSAR()" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold border border-slate-200 flex items-center gap-2 text-xs transition-all shadow-xs" title="Exportar Libro Diario en formato oficial para fiscalización SAR">
+          <span>📄</span>
+          <span>Exportar Libro Diario SAR</span>
+        </button>
+      </div>
+
+      <!-- Acciones de Filtrado y Recarga -->
+      <div class="flex items-center gap-2 text-[11px] font-mono text-slate-500">
+        <button onclick="resetData()" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-600 font-bold border border-slate-200 transition-all shadow-xs" title="Actualizar asientos">
+          ↺ Recargar Diario
+        </button>
+      </div>
+    </div>
+
+    <!-- 4 Tarjetas de Métricas en JetBrains Mono -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      
+      <!-- KPI 1: Total Débitos del Periodo -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm font-mono flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-sans">Total Débitos (Debe)</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-bold">CARGOS</span>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <div id="kpi-total-debe" class="text-slate-900 font-extrabold text-base tracking-tight">L 1,842,500.00</div>
+          <span class="text-[9.5px] text-slate-400 font-sans">Mensual</span>
+        </div>
+      </div>
+
+      <!-- KPI 2: Total Créditos del Periodo -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm font-mono flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-sans">Total Créditos (Haber)</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold">ABONOS</span>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <div id="kpi-total-haber" class="text-slate-900 font-extrabold text-base tracking-tight">L 1,842,500.00</div>
+          <span class="text-[9.5px] text-slate-400 font-sans">Mensual</span>
+        </div>
+      </div>
+
+      <!-- KPI 3: Descuadre Contable -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm font-mono flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-sans">Descuadre / Diferencia</span>
+          <span class="text-[9px] text-slate-400 font-sans">Validación</span>
+        </div>
+        <div class="mt-2 flex items-center justify-between">
+          <div id="kpi-diff-badge" class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-2 py-1 rounded-lg text-xs flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>DIFERENCIA: L 0.00 [ BALANCE CUADRADO ]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 4: Asientos Mayorizados -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm font-mono flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-sans">Asientos Mayorizados</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">AL DÍA</span>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <div id="kpi-asientos-count" class="text-slate-700 font-bold text-base tracking-tight">38 Asientos</div>
+          <span class="text-[9.5px] text-slate-400 font-sans">0 Pendientes</span>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- 3. MESA DE TRABAJO: REGISTRO DE ASIENTOS Y VISOR DETALLADO (SPLIT VIEW) -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 my-1 relative z-10 min-h-[520px]">
+    
+    <!-- PANEL IZQUIERDO: ÍNDICE CRONOLÓGICO DE ASIENTOS (4 Columnas en Desktop) -->
+    <div class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between gap-3 overflow-hidden">
+      
+      <!-- Cabecera del Panel Izquierdo & Filtros -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h2 class="font-extrabold text-slate-900 text-xs uppercase tracking-tight flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            Índice de Comprobantes
+          </h2>
+          <span id="label-entries-count" class="font-mono text-[10px] text-slate-500">5 Comprobantes</span>
+        </div>
+
+        <!-- Buscador Rápido -->
+        <div class="relative">
+          <input type="text" id="search-entry" oninput="filterJournalEntries()" placeholder="Buscar por N° partida, cuenta o glosa..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-slate-800">
+          <span class="absolute left-2.5 top-2 text-slate-400">🔍</span>
+        </div>
+
+        <!-- Selector de Origen -->
+        <select id="select-origin" onchange="filterJournalEntries()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:bg-white focus:border-slate-800 cursor-pointer">
+          <option value="ALL">Todos los Orígenes</option>
+          <option value="VENTAS">Ventas & Facturación (POS)</option>
+          <option value="COMPRAS">Compras & Proveedores (CxP)</option>
+          <option value="BANCOS">Bancos & Tesorería</option>
+          <option value="MANUAL">Ajustes Manuales NIIF</option>
+        </select>
+      </div>
+
+      <!-- Lista Interactiva de Asientos con Scroll -->
+      <div class="flex-1 max-h-[480px] overflow-y-auto space-y-2 pr-1" id="entries-list-container">
+        <!-- Renderizado dinámico vía renderEntriesList() -->
+      </div>
+
+      <!-- Pie Informativo de Auditoría -->
+      <div class="pt-2 border-t border-slate-100 text-[10.5px] text-slate-500 flex justify-between items-center font-mono">
+        <span>Inmutabilidad SHA-256</span>
+        <span class="text-rose-700 font-bold">100% Auditado</span>
+      </div>
+
+    </div>
+
+    <!-- PANEL DERECHO: VISOR DE PARTIDA DOBLE (8 Columnas en Desktop) -->
+    <div class="lg:col-span-8 bg-white border border-slate-200 border-l-[6px] border-l-rose-500 rounded-2xl p-4 shadow-sm flex flex-col justify-between gap-3 overflow-hidden">
+      
+      <!-- Cabecera del Comprobante Seleccionado -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+        <div>
+          <div class="flex items-center gap-2 mb-0.5">
+            <span id="entry-active-number" class="font-mono text-[10.5px] font-extrabold px-2 py-0.5 rounded bg-rose-100 text-rose-800">AS-2026-00142</span>
+            <span id="entry-active-date" class="font-mono text-[10px] text-slate-500">2026-09-11</span>
+            <span class="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">MAYORIZADO</span>
+          </div>
+          <p id="entry-active-glosa" class="font-bold text-slate-900 text-xs leading-snug">Registro devengo de ventas POS, débito fiscal ISV 15% y costo de ventas según comprobante #000-001-01-00045231</p>
+        </div>
+
+        <!-- Referencia Cruzada de Origen -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="p-1.5 rounded-xl bg-slate-50 border border-slate-200 text-[10.5px] font-mono text-slate-600 flex items-center gap-1.5">
+            <span class="text-slate-400">DOC:</span>
+            <strong id="entry-active-doc" class="text-slate-900">FAC-45231</strong>
+            <button onclick="viewTraceability()" class="text-sky-600 hover:underline font-bold text-[10px]">Trazabilidad</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla Formal de Cuentas Contables NIIF -->
+      <div class="flex-1 max-h-[420px] overflow-y-auto">
+        <table class="w-full text-left border-collapse">
+          <thead class="sticky top-0 bg-slate-50/95 backdrop-blur text-slate-400 font-mono text-[9px] uppercase font-bold border-b border-slate-200 z-10">
+            <tr>
+              <th class="py-2.5 px-3 w-28">Código Cuenta</th>
+              <th class="py-2.5 px-2">Nombre de la Cuenta</th>
+              <th class="py-2.5 px-2 w-28 text-center">Centro Costo</th>
+              <th class="py-2.5 px-3 text-right w-28">Debe (L)</th>
+              <th class="py-2.5 px-3 text-right w-28">Haber (L)</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-entry-lines" class="divide-y divide-slate-100 font-mono text-[11px]">
+            <!-- Renderizado dinámico vía renderActiveEntryDetails() -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Fila Inferior de Sumas Iguales & Acciones de Auditoría -->
+      <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <!-- Sumas Iguales -->
+        <div class="flex items-center gap-4 font-mono">
+          <span class="text-xs font-extrabold text-slate-500 uppercase">SUMAS IGUALES:</span>
+          <div class="flex items-center gap-3">
+            <div class="text-xs font-bold text-slate-700">Debe: <strong id="entry-sum-debe" class="text-sm font-black text-slate-950">L 42,571.67</strong></div>
+            <div class="text-xs font-bold text-slate-700">Haber: <strong id="entry-sum-haber" class="text-sm font-black text-slate-950">L 42,571.67</strong></div>
+          </div>
+        </div>
+
+        <!-- Botones de Auditoría -->
+        <div class="flex items-center gap-2">
+          <button onclick="printJournalVoucher()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5 transition-all">
+            <span>🖨️</span>
+            <span>Imprimir Comprobante</span>
+          </button>
+          <button onclick="viewTraceability()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5 transition-all">
+            <span>🔍</span>
+            <span>Trazabilidad</span>
+          </button>
+          <button onclick="reverseActiveEntry()" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs flex items-center gap-1.5 transition-all">
+            <span>↩</span>
+            <span>Reversar Asiento</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL 1: NUEVO ASIENTO MANUAL DE DIARIO -->
+  <div id="modal-nuevo-asiento" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-rose-100 border border-rose-300 text-rose-700 flex items-center justify-center font-bold text-sm">
+            ＋
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Registrar Nuevo Asiento Contable Manual</h3>
+            <p class="text-[11px] text-slate-400">Validación continua de partida doble y catálogo NIIF</p>
+          </div>
+        </div>
+        <button onclick="closeNewEntryModal()" class="text-slate-400 hover:text-slate-700 text-base font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-3 text-xs flex-1 overflow-y-auto pr-1">
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Fecha Contable</label>
+            <input type="date" id="new-entry-date" value="2026-09-14" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono outline-none focus:bg-white focus:border-slate-800">
+          </div>
+          <div class="col-span-2">
+            <label class="block font-bold text-slate-700 mb-1">Glosa / Concepto General</label>
+            <input type="text" id="new-entry-glosa" placeholder="Ej. Provisión de honorarios legales del mes" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-slate-800">
+          </div>
+        </div>
+
+        <!-- Renglones Contables -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="font-bold text-slate-700 uppercase font-mono text-[10px]">Líneas de Partida Doble</label>
+            <button onclick="addManualEntryRow()" class="text-rose-600 hover:underline font-bold text-[11px]">+ Añadir Línea</button>
+          </div>
+          
+          <table class="w-full text-left border-collapse border border-slate-200 rounded-xl overflow-hidden">
+            <thead class="bg-slate-100 text-slate-500 font-mono text-[9px] uppercase font-bold">
+              <tr>
+                <th class="py-2 px-2 w-36">Cuenta</th>
+                <th class="py-2 px-2">Descripción</th>
+                <th class="py-2 px-2 text-right w-24">Debe (L)</th>
+                <th class="py-2 px-2 text-right w-24">Haber (L)</th>
+                <th class="py-2 px-2 text-center w-8"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-new-entry-rows" class="divide-y divide-slate-100 font-mono text-xs">
+              <!-- Renglones dinámicos -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Cuadre en Vivo -->
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between font-mono text-xs">
+          <div>Diferencia: <strong id="modal-diff-label" class="text-emerald-700 font-bold">L 0.00 (Cuadrado)</strong></div>
+          <div class="flex items-center gap-3">
+            <span>Total Debe: <strong id="modal-sum-debe" class="text-slate-900">L 0.00</strong></span>
+            <span>Total Haber: <strong id="modal-sum-haber" class="text-slate-900">L 0.00</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="closeNewEntryModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs">Cancelar</button>
+        <button onclick="saveManualJournalEntry()" class="px-5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs shadow-xs">Postear Asiento Inmutable</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: BALANCE DE COMPROBACIÓN (SUMAS Y SALDOS) -->
+  <div id="modal-balance-comprobacion" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-4xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-indigo-100 border border-indigo-300 text-indigo-700 flex items-center justify-center font-bold text-sm">
+            📊
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Balance de Comprobación de Sumas y Saldos</h3>
+            <p class="text-[11px] text-slate-400">Corte al 30 de Septiembre de 2026 | NIIF para las PYMES</p>
+          </div>
+        </div>
+        <button onclick="closeTrialBalanceModal()" class="text-slate-400 hover:text-slate-700 text-base font-bold">&times;</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto pr-1">
+        <table class="w-full text-left border-collapse text-xs font-mono">
+          <thead class="sticky top-0 bg-slate-100 text-slate-500 text-[9px] uppercase font-bold border-b border-slate-200">
+            <tr>
+              <th class="py-2 px-2">Código</th>
+              <th class="py-2 px-2 font-sans">Nombre de la Cuenta</th>
+              <th class="py-2 px-2 text-right">Sumas Debe</th>
+              <th class="py-2 px-2 text-right">Sumas Haber</th>
+              <th class="py-2 px-2 text-right">Saldo Deudor</th>
+              <th class="py-2 px-2 text-right">Saldo Acreedor</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-trial-balance" class="divide-y divide-slate-100 text-[11px]">
+            <!-- Renglones de balance -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="closeTrialBalanceModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-3 bg-white text-slate-900 border-slate-200 text-xs font-bold">
+    <span id="toast-icon">⚡</span>
+    <span id="toast-message">Notificación del sistema</span>
+  </div>
+
+  <!-- MOTOR JAVASCRIPT: PARTIDA DOBLE INMUTABLE NIIF -->
+  <script>
+    // =======================================================
+    // 1. BASE DE DATOS LOCAL DE ASIENTOS Y TRAZABILIDAD
+    // =======================================================
+    window.journalEntries = [
+      {
+        id: 'AS-2026-00142',
+        fecha: '2026-09-11',
+        origen: 'VENTAS',
+        origenLabel: 'Ventas (POS)',
+        origenColor: 'bg-emerald-100 text-emerald-800',
+        glosa: 'Registro devengo de ventas POS, débito fiscal ISV 15% y costo de ventas según comprobante #000-001-01-00045231',
+        docRef: 'FAC-45231',
+        lines: [
+          { code: '1.1.01.01', name: 'Caja General / POS Principal', cc: 'CC-POS', debe: 28405.00, haber: 0.00 },
+          { code: '4.1.01.01', name: 'Ingresos por Ventas Retail Gravadas', cc: 'CC-VENTAS', debe: 0.00, haber: 24700.00 },
+          { code: '2.1.04.01', name: 'Débito Fiscal ISV 15% (SAR)', cc: 'N/A', debe: 0.00, haber: 3705.00 },
+          { code: '5.1.01.01', name: 'Costo de Mercaderías Vendidas', cc: 'CC-COSTOS', debe: 14166.67, haber: 0.00 },
+          { code: '1.1.05.01', name: 'Inventario de Mercaderías (Kardex)', cc: 'BOD-CENTRAL', debe: 0.00, haber: 14166.67 }
+        ]
+      },
+      {
+        id: 'AS-2026-00141',
+        fecha: '2026-09-05',
+        origen: 'COMPRAS',
+        origenLabel: 'Compras (CxP)',
+        origenColor: 'bg-amber-100 text-amber-800',
+        glosa: 'Recepción de mercaderías e imputación de crédito fiscal según factura #001-003-01-00034821',
+        docRef: 'COM-34821',
+        lines: [
+          { code: '1.1.05.01', name: 'Inventario de Mercaderías', cc: 'BOD-CENTRAL', debe: 72500.00, haber: 0.00 },
+          { code: '1.1.06.01', name: 'Crédito Fiscal ISV 15% (SAR)', cc: 'N/A', debe: 10875.00, haber: 0.00 },
+          { code: '2.1.03.01', name: 'Retención por Pagar 1% ISV (SAR)', cc: 'N/A', debe: 0.00, haber: 725.00 },
+          { code: '2.1.01.01', name: 'Proveedores Nacionales CxP', cc: 'N/A', debe: 0.00, haber: 82650.00 }
+        ]
+      },
+      {
+        id: 'AS-2026-00140',
+        fecha: '2026-09-14',
+        origen: 'BANCOS',
+        origenLabel: 'Bancos & Tesorería',
+        origenColor: 'bg-sky-100 text-sky-800',
+        glosa: 'Acreditación bancaria neta de lote POS BAC Credomatic, comisiones financieras y retención 1% ISV',
+        docRef: 'POS-DEP-0042',
+        lines: [
+          { code: '1.1.02.01', name: 'Banco BAC Credomatic HNL ••••4821', cc: 'TESORERIA', debe: 28552.94, haber: 0.00 },
+          { code: '5.2.03.04', name: 'Comisiones Bancarias / Adquirencia POS', cc: 'CC-ADM', debe: 739.71, haber: 0.00 },
+          { code: '1.1.06.03', name: 'Anticipo Retención 1% ISV en Tarjetas (SAR)', cc: 'N/A', debe: 295.89, haber: 0.00 },
+          { code: '1.1.01.02', name: 'Fondos en Tránsito POS / Cobranza', cc: 'N/A', debe: 0.00, haber: 29588.54 }
+        ]
+      },
+      {
+        id: 'AS-2026-00139',
+        fecha: '2026-09-14',
+        origen: 'MANUAL',
+        origenLabel: 'Ajuste Manual',
+        origenColor: 'bg-slate-200 text-slate-800',
+        glosa: 'Amortización de póliza de seguro contra incendios de bodega central período Sep-2026',
+        docRef: 'POL-SEG-2026',
+        lines: [
+          { code: '5.2.01.10', name: 'Gasto por Seguros Devengados', cc: 'CC-ADM', debe: 3500.00, haber: 0.00 },
+          { code: '1.1.07.01', name: 'Seguros Pagados por Adelantado', cc: 'N/A', debe: 0.00, haber: 3500.00 }
+        ]
+      },
+      {
+        id: 'AS-2026-00138',
+        fecha: '2026-09-15',
+        origen: 'MANUAL',
+        origenLabel: 'Planillas',
+        origenColor: 'bg-slate-200 text-slate-800',
+        glosa: 'Provisión contable de sueldos y salarios primera quincena de septiembre',
+        docRef: 'PLAN-2026-09-1',
+        lines: [
+          { code: '5.2.01.01', name: 'Sueldos y Salarios Ordinarios', cc: 'CC-OPER', debe: 125000.00, haber: 0.00 },
+          { code: '2.1.02.01', name: 'Sueldos por Pagar Planilla', cc: 'N/A', debe: 0.00, haber: 114375.00 },
+          { code: '2.1.03.05', name: 'Retenciones IHSS / RAP por Pagar', cc: 'N/A', debe: 0.00, haber: 10625.00 }
+        ]
+      }
+    ];
+
+    window.activeEntryId = 'AS-2026-00142';
+
+    // =======================================================
+    // 2. RENDERIZADO DEL PANEL IZQUIERDO: LISTA DE ASIENTOS
+    // =======================================================
+    function renderEntriesList() {
+      const container = document.getElementById('entries-list-container');
+      if (!container) return;
+
+      const query = (document.getElementById('search-entry')?.value || '').toLowerCase();
+      const origin = document.getElementById('select-origin')?.value || 'ALL';
+
+      container.innerHTML = '';
+
+      const filtered = window.journalEntries.filter(entry => {
+        const matchesOrigin = origin === 'ALL' || entry.origen === origin;
+        const matchesQuery = entry.id.toLowerCase().includes(query) || entry.glosa.toLowerCase().includes(query) || entry.docRef.toLowerCase().includes(query);
+        return matchesOrigin && matchesQuery;
+      });
+
+      document.getElementById('label-entries-count').textContent = `${filtered.length} Comprobantes`;
+
+      filtered.forEach(entry => {
+        let totalDebe = 0;
+        entry.lines.forEach(l => totalDebe += l.debe);
+
+        const isSelected = entry.id === window.activeEntryId;
+
+        const div = document.createElement('div');
+        div.className = `p-3 rounded-xl border border-slate-200 hover:border-rose-400 bg-white cursor-pointer transition-all ${isSelected ? 'active-entry-item' : 'hover:bg-slate-50'}`;
+        div.onclick = () => selectEntry(entry.id);
+
+        div.innerHTML = `
+          <div class="flex items-center justify-between gap-1 mb-1">
+            <span class="font-mono text-[10px] font-extrabold text-slate-800">${entry.id}</span>
+            <span class="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded ${entry.origenColor}">${entry.origenLabel}</span>
+          </div>
+          <p class="text-[11px] font-medium text-slate-700 line-clamp-2 leading-snug mb-1.5" title="${entry.glosa}">${entry.glosa}</p>
+          <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 border-t border-slate-100 pt-1">
+            <span>${entry.fecha}</span>
+            <strong class="text-slate-900 font-bold">L ${totalDebe.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong>
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    // =======================================================
+    // 3. RENDERIZADO DEL PANEL DERECHO: VISOR DETALLADO
+    // =======================================================
+    function renderActiveEntryDetails() {
+      const entry = window.journalEntries.find(e => e.id === window.activeEntryId) || window.journalEntries[0];
+      if (!entry) return;
+
+      document.getElementById('entry-active-number').textContent = entry.id;
+      document.getElementById('entry-active-date').textContent = entry.fecha;
+      document.getElementById('entry-active-glosa').textContent = entry.glosa;
+      document.getElementById('entry-active-doc').textContent = entry.docRef;
+
+      const tbody = document.getElementById('tbody-entry-lines');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      let sumDebe = 0;
+      let sumHaber = 0;
+
+      entry.lines.forEach(l => {
+        sumDebe += l.debe;
+        sumHaber += l.haber;
+
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100 hover:bg-slate-50/70 transition-colors";
+
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-bold text-slate-800">${l.code}</td>
+          <td class="py-2.5 px-2 font-sans font-medium text-slate-900">${l.name}</td>
+          <td class="py-2.5 px-2 text-center text-slate-500 font-sans text-[10px]">${l.cc}</td>
+          <td class="py-2.5 px-3 text-right font-bold ${l.debe > 0 ? 'text-slate-950' : 'text-slate-300'}">
+            ${l.debe > 0 ? 'L ' + l.debe.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '-'}
+          </td>
+          <td class="py-2.5 px-3 text-right font-bold ${l.haber > 0 ? 'text-slate-950' : 'text-slate-300'}">
+            ${l.haber > 0 ? 'L ' + l.haber.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '-'}
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('entry-sum-debe').textContent = `L ${sumDebe.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      document.getElementById('entry-sum-haber').textContent = `L ${sumHaber.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    }
+
+    function selectEntry(id) {
+      window.activeEntryId = id;
+      renderEntriesList();
+      renderActiveEntryDetails();
+    }
+
+    function filterJournalEntries() {
+      renderEntriesList();
+    }
+
+    // =======================================================
+    // 4. NUEVO ASIENTO MANUAL & VALIDACIÓN DE PARTIDA DOBLE
+    // =======================================================
+    window.modalNewRows = [
+      { code: '5.2.01.03', name: 'Honorarios Profesionales Legales', cc: 'CC-ADM', debe: 15000.00, haber: 0.00 },
+      { code: '2.1.03.02', name: 'Retención 12.5% Honorarios Profesionales', cc: 'N/A', debe: 0.00, haber: 1875.00 },
+      { code: '2.1.01.01', name: 'Cuentas por Pagar Proveedores', cc: 'N/A', debe: 0.00, haber: 13125.00 }
+    ];
+
+    function openNewEntryModal() {
+      document.getElementById('modal-nuevo-asiento').classList.remove('hidden');
+      renderModalRows();
+    }
+
+    function closeNewEntryModal() {
+      document.getElementById('modal-nuevo-asiento').classList.add('hidden');
+    }
+
+    function renderModalRows() {
+      const tbody = document.getElementById('tbody-new-entry-rows');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      let sumDebe = 0;
+      let sumHaber = 0;
+
+      window.modalNewRows.forEach((r, idx) => {
+        sumDebe += r.debe;
+        sumHaber += r.haber;
+
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="p-1.5"><input type="text" value="${r.code}" onchange="updateModalRow(${idx}, 'code', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs"></td>
+          <td class="p-1.5"><input type="text" value="${r.name}" onchange="updateModalRow(${idx}, 'name', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs font-sans"></td>
+          <td class="p-1.5"><input type="number" step="0.01" value="${r.debe}" oninput="updateModalRow(${idx}, 'debe', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs text-right font-bold"></td>
+          <td class="p-1.5"><input type="number" step="0.01" value="${r.haber}" oninput="updateModalRow(${idx}, 'haber', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs text-right font-bold"></td>
+          <td class="p-1.5 text-center"><button onclick="removeModalRow(${idx})" class="text-rose-500 font-bold hover:text-rose-700">&times;</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const diff = Math.abs(sumDebe - sumHaber);
+      document.getElementById('modal-sum-debe').textContent = `L ${sumDebe.toFixed(2)}`;
+      document.getElementById('modal-sum-haber').textContent = `L ${sumHaber.toFixed(2)}`;
+
+      const diffLabel = document.getElementById('modal-diff-label');
+      if (diff < 0.01) {
+        diffLabel.textContent = 'L 0.00 (Balance Cuadrado)';
+        diffLabel.className = 'text-emerald-700 font-bold';
+      } else {
+        diffLabel.textContent = `Descuadre L ${diff.toFixed(2)}`;
+        diffLabel.className = 'text-rose-600 font-bold';
+      }
+    }
+
+    function updateModalRow(idx, field, val) {
+      if (window.modalNewRows[idx]) {
+        window.modalNewRows[idx][field] = val;
+        renderModalRows();
+      }
+    }
+
+    function addManualEntryRow() {
+      window.modalNewRows.push({ code: '5.2.01.99', name: 'Otros Gastos Operativos', cc: 'CC-ADM', debe: 0.00, haber: 0.00 });
+      renderModalRows();
+    }
+
+    function removeModalRow(idx) {
+      if (window.modalNewRows.length > 2) {
+        window.modalNewRows.splice(idx, 1);
+        renderModalRows();
+      } else {
+        showToast('Un asiento requiere al menos 2 cuentas para partida doble.', 'warning');
+      }
+    }
+
+    function saveManualJournalEntry() {
+      let sumDebe = 0;
+      let sumHaber = 0;
+      window.modalNewRows.forEach(r => { sumDebe += r.debe; sumHaber += r.haber; });
+
+      if (Math.abs(sumDebe - sumHaber) >= 0.01) {
+        showToast('Descuadre contable: El total Debe no coincide con el total Haber.', 'warning');
+        return;
+      }
+
+      const date = document.getElementById('new-entry-date').value;
+      const glosa = document.getElementById('new-entry-glosa').value || 'Asiento de ajuste manual NIIF';
+
+      const newId = 'AS-2026-' + (143 + window.journalEntries.length).toString().padStart(5, '0');
+      
+      window.journalEntries.unshift({
+        id: newId,
+        fecha: date,
+        origen: 'MANUAL',
+        origenLabel: 'Ajuste Manual',
+        origenColor: 'bg-slate-200 text-slate-800',
+        glosa: glosa,
+        docRef: 'AJUSTE-MANUAL',
+        lines: JSON.parse(JSON.stringify(window.modalNewRows))
+      });
+
+      closeNewEntryModal();
+      selectEntry(newId);
+      showToast(`Asiento ${newId} mayorizado exitosamente con partida doble balanceada.`, 'success');
+    }
+
+    // =======================================================
+    // 5. BALANCE DE COMPROBACIÓN & ACCIONES DE AUDITORÍA
+    // =======================================================
+    function openTrialBalanceModal() {
+      document.getElementById('modal-balance-comprobacion').classList.remove('hidden');
+      renderTrialBalance();
+    }
+
+    function closeTrialBalanceModal() {
+      document.getElementById('modal-balance-comprobacion').classList.add('hidden');
+    }
+
+    function renderTrialBalance() {
+      const tbody = document.getElementById('tbody-trial-balance');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      const sampleAccounts = [
+        { code: '1.1.01.01', name: 'Caja General / POS Principal', debe: 145000.00, haber: 98000.00, deudor: 47000.00, acreedor: 0.00 },
+        { code: '1.1.02.01', name: 'Bancos Nacionales Moneda Local', debe: 620000.00, haber: 134790.00, deudor: 485210.00, acreedor: 0.00 },
+        { code: '1.1.05.01', name: 'Inventario de Mercaderías', debe: 212500.00, haber: 14166.67, deudor: 198333.33, acreedor: 0.00 },
+        { code: '1.1.06.01', name: 'Crédito Fiscal ISV 15% (SAR)', debe: 28400.00, haber: 0.00, deudor: 28400.00, acreedor: 0.00 },
+        { code: '2.1.01.01', name: 'Proveedores Nacionales CxP', debe: 50000.00, haber: 182650.00, deudor: 0.00, acreedor: 132650.00 },
+        { code: '2.1.04.01', name: 'Débito Fiscal ISV 15% (SAR)', debe: 0.00, haber: 42100.00, deudor: 0.00, acreedor: 42100.00 },
+        { code: '4.1.01.01', name: 'Ingresos por Ventas Gravadas', debe: 0.00, haber: 584193.33, deudor: 0.00, acreedor: 584193.33 },
+        { code: '5.1.01.01', name: 'Costo de Ventas Mercaderías', debe: 220000.00, haber: 0.00, deudor: 220000.00, acreedor: 0.00 }
+      ];
+
+      sampleAccounts.forEach(acc => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100 hover:bg-slate-50";
+        tr.innerHTML = `
+          <td class="py-2 px-2 font-bold">${acc.code}</td>
+          <td class="py-2 px-2 font-sans font-medium text-slate-800">${acc.name}</td>
+          <td class="py-2 px-2 text-right">L ${acc.debe.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+          <td class="py-2 px-2 text-right">L ${acc.haber.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+          <td class="py-2 px-2 text-right font-bold text-slate-900">${acc.deudor > 0 ? 'L ' + acc.deudor.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '-'}</td>
+          <td class="py-2 px-2 text-right font-bold text-slate-900">${acc.acreedor > 0 ? 'L ' + acc.acreedor.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function viewTraceability() {
+      const entry = window.journalEntries.find(e => e.id === window.activeEntryId);
+      if (entry) {
+        showToast(`Trazabilidad: Asiento ${entry.id} vinculado al documento origen ${entry.docRef} (${entry.origenLabel}).`, 'info');
+      }
+    }
+
+    function printJournalVoucher() {
+      showToast(`Generando comprobante de diario para ${window.activeEntryId}...`, 'info');
+      setTimeout(() => window.print(), 300);
+    }
+
+    function reverseActiveEntry() {
+      if (confirm(`¿Confirma que desea reversar el asiento ${window.activeEntryId}? Se generará un comprobante de contrapartida inverso.`)) {
+        const entry = window.journalEntries.find(e => e.id === window.activeEntryId);
+        if (!entry) return;
+
+        const revId = 'AS-REV-' + entry.id.slice(3);
+        const reversedLines = entry.lines.map(l => ({
+          code: l.code,
+          name: l.name + ' (Reversión)',
+          cc: l.cc,
+          debe: l.haber,
+          haber: l.debe
+        }));
+
+        window.journalEntries.unshift({
+          id: revId,
+          fecha: new Date().toISOString().slice(0, 10),
+          origen: 'MANUAL',
+          origenLabel: 'Reversión',
+          origenColor: 'bg-rose-100 text-rose-800',
+          glosa: `Reversión contable del comprobante ${entry.id}`,
+          docRef: `REV-${entry.docRef}`,
+          lines: reversedLines
+        });
+
+        selectEntry(revId);
+        showToast(`Asiento de reversión ${revId} asentado exitosamente.`, 'success');
+      }
+    }
+
+    function exportJournalSAR() {
+      let csv = '﻿ASIENTO,FECHA,ORIGEN,GLOSA,DOC_REF,CODIGO_CUENTA,NOMBRE_CUENTA,DEBE,HABER\n';
+      window.journalEntries.forEach(e => {
+        e.lines.forEach(l => {
+          csv += `"${e.id}","${e.fecha}","${e.origen}","${e.glosa.replace(/"/g, '""')}","${e.docRef}","${l.code}","${l.name}",${l.debe},${l.haber}\n`;
+        });
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Libro_Diario_SAR_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      showToast('Libro Diario Fiscal SAR exportado exitosamente a CSV.', 'success');
+    }
+
+    function resetData() {
+      location.reload();
+    }
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toast-icon');
+      const text = document.getElementById('toast-message');
+
+      text.textContent = msg;
+      if (type === 'success') {
+        icon.textContent = '✓';
+        toast.className = 'fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-3 bg-emerald-900 text-white border-emerald-700 text-xs font-bold';
+      } else if (type === 'warning') {
+        icon.textContent = '⚠️';
+        toast.className = 'fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-3 bg-amber-900 text-white border-amber-700 text-xs font-bold';
+      } else {
+        icon.textContent = 'ℹ️';
+        toast.className = 'fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-3 bg-slate-900 text-white border-slate-700 text-xs font-bold';
+      }
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    // =======================================================
+    // 6. ATAJOS DE TECLADO GLOBALES (F7: Nuevo Asiento)
+    // =======================================================
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F7') {
+        e.preventDefault();
+        openNewEntryModal();
+      }
+    });
+
+    // =======================================================
+    // 7. INICIALIZACIÓN
+    // =======================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEntriesList();
+      renderActiveEntryDetails();
+    });
+  </script>
+</body>
+</html>

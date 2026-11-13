@@ -1,0 +1,192 @@
+  <!-- ============================================================== -->
+  <!-- HZ: POP-UP 1 - DIRECTORIO DE PROVEEDORES Y CONSULTA DE RTN      -->
+  <!-- ============================================================== -->
+  <style>
+    @keyframes hzSlideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .hz-anim { animation: hzSlideDown .22s ease-out; }
+    .hz-inp { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: .75rem; padding: .5rem .75rem; font-size: .8125rem; color: #0f172a; outline: none; transition: all .15s; }
+    .hz-inp:focus { background: #fff; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+    .hz-lbl { display: block; font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #64748b; margin-bottom: .25rem; }
+    .hz-card { border: 1px solid #e2e8f0; border-radius: 1rem; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05); }
+  </style>
+
+  <div id="modalBuscarProveedor" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this) hzSupCerrarBuscador()">
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 flex flex-col max-h-[88vh] overflow-hidden font-sans">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-sm">🏢</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 leading-tight">Directorio de Proveedores y Consulta de RTN</h3>
+            <p class="text-[11px] text-slate-500">Busque por RTN, razón social o giro. Clic en una fila para seleccionar.</p>
+          </div>
+        </div>
+        <button type="button" onclick="hzSupCerrarBuscador()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 text-lg leading-none transition" title="Cerrar">✕</button>
+      </div>
+
+      <div class="px-5 py-3 bg-slate-50/70 border-b border-slate-100 shrink-0">
+        <div class="relative">
+          <input id="hz-sup-search" type="text" autocomplete="off" placeholder="Buscar por RTN, razón social, nombre comercial o giro..."
+                 oninput="hzSupFiltrar()" onkeydown="if(event.key==='Enter'){event.preventDefault();hzSupFiltrar();}"
+                 class="hz-inp pr-12 py-2.5 text-sm">
+          <button type="button" onclick="hzSupFiltrar();document.getElementById('hz-sup-search').focus();" title="Buscar"
+                  class="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-sm transition">🔍</button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto min-h-[180px]">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 bg-slate-100/95 backdrop-blur text-[10px] uppercase tracking-wider text-slate-500">
+            <tr>
+              <th class="text-left font-semibold px-4 py-2">RTN</th>
+              <th class="text-left font-semibold px-3 py-2">Razón Social</th>
+              <th class="text-left font-semibold px-3 py-2">Giro</th>
+              <th class="text-left font-semibold px-3 py-2">Cuenta Contable</th>
+              <th class="text-center font-semibold px-3 py-2">Moneda</th>
+            </tr>
+          </thead>
+          <tbody id="hz-sup-tbody" class="divide-y divide-slate-100"></tbody>
+        </table>
+        <div id="hz-sup-empty" class="hidden px-6 py-10 text-center">
+          <div class="text-3xl mb-1">🔎</div>
+          <p class="text-sm font-semibold text-slate-700">No se encontraron proveedores con ese criterio</p>
+          <p class="text-xs text-slate-500 mt-0.5">Puede registrarlo ahora: el texto escrito se trasladará a la ficha.</p>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-200 bg-white flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <span id="hz-sup-count" class="text-[11px] font-mono text-slate-400">0 proveedores</span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="hzSupLimpiarFiltro()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Limpiar filtro</button>
+          <button type="button" id="hz-sup-btn-nuevo" onclick="hzSupIrARegistro()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+            <span>➕</span><span>El RTN buscado no existe — Registrar Nuevo Proveedor</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- HZ: POP-UP 2 - REGISTRO PROFESIONAL DE PROVEEDOR (3 NIVELES)    -->
+  <!-- ============================================================== -->
+  <div id="modalRegistroProveedor" class="fixed inset-0 z-[60] hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 flex flex-col max-h-[92vh] overflow-hidden font-sans">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg shadow-sm">🏭</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 leading-tight">Registro de Proveedor</h3>
+            <p class="text-[11px] text-slate-500">Alta maestra con trazabilidad contable NIIF y perfil fiscal SAR</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="hzSupVolverABuscador()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition">← Volver al Buscador de RTN</button>
+          <button type="button" onclick="hzSupCerrarRegistro()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 text-lg leading-none transition" title="Cerrar">✕</button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/40">
+        <div id="hzs-error" class="hidden rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs px-3 py-2"></div>
+        <div id="hzs-dup" class="hidden rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs px-3 py-2 flex items-center justify-between gap-2"></div>
+
+        <!-- NIVEL 1 -->
+        <div class="hz-card p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">1</span>
+              <span class="text-sm font-bold text-slate-800">Identificación fiscal y giro</span>
+            </div>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">Esencial</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <div class="flex items-center justify-between"><label class="hz-lbl" for="hzs-rtn">RTN / ID fiscal *</label><span id="hzs-rtn-badge" class="text-[10px] font-mono text-slate-400 mb-1">0/14 dígitos</span></div>
+              <input id="hzs-rtn" type="text" maxlength="14" inputmode="numeric" oninput="hzSupValidarRTN(this.value)" placeholder="08011995123456" class="hz-inp font-mono font-semibold tracking-wide">
+            </div>
+            <div>
+              <label class="hz-lbl" for="hzs-name">Razón social *</label>
+              <input id="hzs-name" type="text" placeholder="Nombre legal o fiscal" class="hz-inp font-semibold">
+            </div>
+            <div>
+              <label class="hz-lbl" for="hzs-trade">Nombre comercial</label>
+              <input id="hzs-trade" type="text" placeholder="Marca o rótulo" class="hz-inp">
+            </div>
+            <div>
+              <label class="hz-lbl" for="hzs-category">Giro / tipo de comercio *</label>
+              <select id="hzs-category" onchange="hzSupPreimputacion(this.value)" class="hz-inp font-semibold">
+                <option value="MERCADERIA_INVENTARIO" selected>📦 Mercadería / Inventario</option>
+                <option value="MANTENIMIENTO_HERRAMIENTAS">🔧 Mantenimiento y Herramientas</option>
+                <option value="SERVICIOS_PROFESIONALES">⚖️ Servicios Profesionales</option>
+                <option value="ALQUILERES_LOCALES">🏬 Alquileres de Locales</option>
+                <option value="SERVICIOS_PUBLICOS">💡 Servicios Públicos</option>
+                <option value="LOGISTICA_ADUANAS">🚢 Logística y Aduanas</option>
+              </select>
+            </div>
+            <div>
+              <label class="hz-lbl" for="hzs-currency">Moneda habitual</label>
+              <select id="hzs-currency" class="hz-inp"><option value="HNL" selected>Lempiras (HNL)</option><option value="USD">Dólares (USD)</option></select>
+            </div>
+            <div>
+              <label class="hz-lbl" for="hzs-scope">Alcance</label>
+              <select id="hzs-scope" class="hz-inp"><option value="LOCAL_HONDURAS" selected>🇭🇳 Local Honduras</option><option value="EXTRANJERO_IMPORTACION">🚢 Extranjero / Importación</option></select>
+            </div>
+          </div>
+          <div class="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2.5 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-blue-700">⚡ Pre-imputación contable NIIF</div>
+              <div id="hzs-pre-cuenta" class="text-xs font-mono font-bold text-slate-800 truncate">1.1.03.01.0001 · Inventario de Mercaderías</div>
+            </div>
+            <span id="hzs-pre-ret" class="shrink-0 text-[10px] font-semibold text-blue-800 bg-white/80 border border-blue-200 px-2 py-1 rounded-full">Sin retenciones especiales</span>
+          </div>
+        </div>
+
+        <!-- BARRA NIVEL 2 -->
+        <button type="button" onclick="hzSupToggle(2)" class="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-dashed border-slate-300 bg-white hover:border-blue-400 hover:bg-blue-50/40 text-left transition group">
+          <span class="text-xs font-semibold text-slate-700 group-hover:text-blue-800">➕ Desplegar Nivel 2: Datos de Contacto, Crédito y Cuenta Bancaria (Opcional)</span>
+          <span id="hzs-chev-2" class="text-slate-400 text-sm transition-transform duration-300">▼</span>
+        </button>
+        <div id="hzs-n2" class="hidden hz-card p-4 space-y-3">
+          <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-slate-700 text-white text-[11px] font-bold flex items-center justify-center">2</span><span class="text-sm font-bold text-slate-800">Contacto, crédito y bancos ACH</span></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div><label class="hz-lbl" for="hzs-email">Correo electrónico</label><input id="hzs-email" type="email" placeholder="cobros@proveedor.hn" class="hz-inp"></div>
+            <div><label class="hz-lbl" for="hzs-phone">Teléfono</label><input id="hzs-phone" type="text" placeholder="2233-4455" class="hz-inp"></div>
+            <div class="sm:col-span-2"><label class="hz-lbl" for="hzs-address">Dirección física</label><input id="hzs-address" type="text" placeholder="Col. Palmira, Tegucigalpa M.D.C." class="hz-inp"></div>
+            <div><label class="hz-lbl" for="hzs-credit-days">Días de crédito</label><input id="hzs-credit-days" type="number" min="0" value="0" class="hz-inp font-mono"></div>
+            <div><label class="hz-lbl" for="hzs-credit-limit">Límite de crédito</label><input id="hzs-credit-limit" type="number" min="0" step="1000" value="0" class="hz-inp font-mono"></div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div><label class="hz-lbl" for="hzs-bank">Banco (ACH)</label>
+              <select id="hzs-bank" class="hz-inp"><option value="">— Sin banco —</option><option>Banco Ficohsa</option><option>Banco Atlántida</option><option>BAC Credomatic</option><option>Banpaís</option><option>Banco de Occidente</option><option>Davivienda</option></select></div>
+            <div><label class="hz-lbl" for="hzs-bank-type">Tipo de cuenta</label>
+              <select id="hzs-bank-type" class="hz-inp"><option value="CHEQUES">Cheques</option><option value="AHORRO">Ahorro</option></select></div>
+            <div><label class="hz-lbl" for="hzs-bank-acc">Número de cuenta</label><input id="hzs-bank-acc" type="text" placeholder="200012345678" class="hz-inp font-mono"></div>
+          </div>
+        </div>
+
+        <!-- BARRA NIVEL 3 -->
+        <button type="button" onclick="hzSupToggle(3)" class="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-dashed border-slate-300 bg-white hover:border-blue-400 hover:bg-blue-50/40 text-left transition group">
+          <span class="text-xs font-semibold text-slate-700 group-hover:text-blue-800">➕ Desplegar Nivel 3: Información Complementaria y Regímenes Especiales SAR (Opcional)</span>
+          <span id="hzs-chev-3" class="text-slate-400 text-sm transition-transform duration-300">▼</span>
+        </button>
+        <div id="hzs-n3" class="hidden hz-card p-4 space-y-3">
+          <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-slate-700 text-white text-[11px] font-bold flex items-center justify-center">3</span><span class="text-sm font-bold text-slate-800">Complementario y retenciones SAR</span></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div><label class="hz-lbl" for="hzs-contact">Ejecutivo de contacto</label><input id="hzs-contact" type="text" placeholder="Lic. Nombre Apellido" class="hz-inp"></div>
+            <div><label class="hz-lbl" for="hzs-web">Sitio web</label><input id="hzs-web" type="text" placeholder="https://proveedor.hn" class="hz-inp"></div>
+            <div class="sm:col-span-2"><label class="hz-lbl" for="hzs-notes">Notas internas</label><textarea id="hzs-notes" rows="2" placeholder="Condiciones especiales, observaciones de auditoría..." class="hz-inp resize-none"></textarea></div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <label class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50/50 cursor-pointer text-xs font-medium text-slate-700 transition"><input type="checkbox" id="hzs-ret-isr" class="rounded text-amber-600 focus:ring-0"><span>Retención 1% ISR</span></label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50/50 cursor-pointer text-xs font-medium text-slate-700 transition"><input type="checkbox" id="hzs-ret-hon" class="rounded text-amber-600 focus:ring-0"><span>Retención 12.5% Honorarios</span></label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50/50 cursor-pointer text-xs font-medium text-slate-700 transition"><input type="checkbox" id="hzs-ret-rent" class="rounded text-amber-600 focus:ring-0"><span>Retención 10% Alquileres</span></label>
+            <label class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50/50 cursor-pointer text-xs font-medium text-slate-700 transition"><input type="checkbox" id="hzs-ret-isv" class="rounded text-amber-600 focus:ring-0"><span>Agente retenedor de ISV</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
+        <button type="button" onclick="hzSupCerrarRegistro()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Cancelar</button>
+        <button type="button" id="hzs-btn-guardar" onclick="hzSupGuardar()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition flex items-center gap-1.5"><span>💾</span><span>Guardar Proveedor y Seleccionar</span></button>
+      </div>
+    </div>
+  </div>
+

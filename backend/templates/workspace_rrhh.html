@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planillas, Nómina & Activos Fijos NIIF | Horizon Ledger ERP</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#faf5ff',
+              100: '#f3e8ff',
+              500: '#a855f7',
+              600: '#9333ea',
+              700: '#7e22ce',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Inter"', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; background-color: #faf9f8; color: #1c1917; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#faf9f8] p-2.5">
+
+  <!-- HEADER CORPORATIVO SINCRONIZADO -->
+  <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 mb-2 shrink-0 min-h-16" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);"
+>
+
+<div 
+	class="flex items-center gap-3.5 shrink-0 justify-self-start"
+>       
+    <!-- Botón Regresar -->
+    <button type="button" onclick="if(history.length > 1){ history.back(); } else { window.location.href='workspace_lobby.html'; }" title="Regresar" 
+	class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
+      ←
+    </button>
+    
+    <!-- Logo Horizon LC (Con redirección al Lobby) -->
+    <div 
+	class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal"
+	>
+    <!-- Isotipo: Eclipse / Sol Negro Naciente (LOGO)-->
+      <div
+	class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+          <!-- Corona de Fotones Cian (Arco exterior) -->
+          <path d="M4.5 13.5C4.5 9.35786 7.85786 6 12 6C16.1421 6 19.5 9.35786 19.5 13.5" stroke="#3ba6f1" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Singularidad Central (Semiesfera negra sobre el horizonte) -->
+          <path d="M7 13.5C7 10.7386 9.23858 8.5 12 8.5C14.7614 8.5 17 10.7386 17 13.5H7Z" fill="#0f172a"></path>
+          <!-- Horizonte de Sucesos (Plano ecuatorial) -->
+          <path d="M2 13.5H22" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Destello de Acreción Central en Cian -->
+          <path d="M6 16.5H18" stroke="#3ba6f1" stroke-width="2" stroke-linecap="round"></path>
+          <!-- Eco Gravitacional Inferior -->
+          <path d="M9.5 19H14.5" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <!-- Wordmark tipográfico -->
+      <div class="flex flex-col leading-none" style="font-family: 'Inter', sans-serif;">
+        <div class="flex items-center gap-1">
+          <span class="text-[16px] font-extrabold tracking-tight text-slate-900 uppercase">HORIZON</span>
+          <span class="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#3ba6f1]/15 text-[#0284c7] tracking-wider">LC</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 tracking-wider uppercase mt-0.5">SYSTEM ANALYTICS</span>
+      </div>
+    </div>
+
+
+    <!-- Bloque Detalle de Módulo con Línea Divisoria Vertical -->
+	<div class="flex items-center select-none pl-4 ml-1 border-l border-slate-200">
+  	<div class="flex flex-col text-left leading-tight" style="font-family: 'Inter', sans-serif;">
+    		<span class="text-[9px] font-semibold text-slate-700 tracking-wider uppercase"> MÓDULO:
+    		</span>
+    		<span class="text-[9px] font-extrabold text-slate-700 tracking-tight uppercase max-w-[120px] leading-3 mt-0.5" id="hdr-module-name"> PLANILLAS Y ACTIVOS
+    		</span>
+  	</div>
+	</div>
+</div>
+
+
+	
+<!-- Zona Central: Logotipo Corporativo + Identidad Institucional Dinámica -->
+
+<div
+ 	class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;"
+>
+  
+  	<!-- Contenedor del Logotipo Vectorial / SVG de la Empresa (w-10 h-10 y gap-2.5) -->
+  	<div class="flex items-center gap-2.5">
+    	<div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800" id="hdr-company-logo-container">
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+	</svg>
+    	</div>
+
+    	<!-- Bloque de Texto (Nombre destacado + RTN centrado) -->
+    	<div class="flex flex-col min-w-0 leading-none items-center text-center">
+      	<!-- Nombre de la Empresa -->
+      	<div class="w-full min-w-0">
+        <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="Empresa Activa">
+          SOLUTIONS &amp; APPLIANCES
+        </span>
+      	</div>
+
+      	<!-- RTN Centrado -->
+      	<div class="mt-1 select-none">
+        <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">
+          RTN: 08011990123456
+        </span>
+      	</div>
+    </div>
+  </div>
+</div>
+
+<div class="flex items-center gap-3.5 shrink-0 justify-self-end">
+        
+    <!-- Badge de Periodo Minimalista (Limpio y corporativo) -->
+    <div id="hdr-period-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 border border-slate-200/80 rounded-xl text-[11px] font-bold text-slate-700 tracking-wide select-none" style="font-family: 'Inter', sans-serif; cursor: default;">
+      <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+      <span id="hdr-period-text">OCTUBRE 2026</span>
+    </div>
+
+    <!-- Bloque de Usuario (Avatar y Perfil) -->
+    <div class="flex items-center gap-2.5 border-l border-slate-200 pl-3.5" style="font-family: 'Inter', sans-serif;">
+      <!-- Avatar con diseño limpio y tono neutro/ejecutivo -->
+      <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs">
+        CH
+      </div>
+      <!-- Nombre y Cargo -->
+      <div class="text-left hidden sm:flex flex-col leading-tight">
+        <span class="text-xs font-extrabold text-slate-900">Carlos Hernández</span>
+        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Contador General</span>
+      </div>
+    </div>
+
+</div>
+</header>
+<script id="horizon-header-sync-engine">
+(function() {
+  function sincronizarHeaderHorizonGlobal() {
+    try {
+      const raw = localStorage.getItem('horizon_system_config');
+      if (!raw) return;
+      const config = JSON.parse(raw);
+
+      // 1. Nombre de la Empresa
+      const compName = config.empresa_nombre || (config.company && config.company.name);
+      if (compName) {
+        const elName = document.getElementById('hdr-company-name');
+        if (elName) {
+          elName.textContent = compName.toUpperCase();
+          elName.setAttribute('title', compName.toUpperCase());
+        }
+      }
+
+      // 2. RTN de la Empresa
+      const compRtn = config.empresa_rtn || (config.company && config.company.rtn);
+      if (compRtn) {
+        const elRtn = document.getElementById('hdr-company-rtn');
+        if (elRtn) {
+          const rtnClean = compRtn.replace(/^RTN:\s*/i, '').trim();
+          elRtn.textContent = 'RTN: ' + rtnClean;
+        }
+      }
+
+      // 3. Periodo Contable
+      const perVal = config.periodo_activo || (config.period && config.period.label);
+      if (perVal) {
+        const elPerText = document.getElementById('hdr-period-text');
+        if (elPerText) {
+          elPerText.textContent = perVal.toUpperCase();
+        } else {
+          const elPer = document.getElementById('hdr-period-badge');
+          if (elPer) {
+            elPer.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span><span id="hdr-period-text">' + perVal.toUpperCase() + '</span>';
+          }
+        }
+      }
+
+      // 4. Logo Vectorial o Imagen de la Empresa
+      if (config.company_logo || (config.company && config.company.logo)) {
+        const logoData = config.company_logo || config.company.logo;
+        const logoContainer = document.getElementById('hdr-company-logo-container');
+        if (logoContainer && logoData) {
+          if (logoData.startsWith('<svg') || logoData.startsWith('data:image')) {
+            logoContainer.innerHTML = logoData.startsWith('<svg') ? logoData : '<img src="' + logoData + '" alt="Logo" class="w-full h-full object-contain rounded-lg">';
+          }
+        }
+      }
+    } catch(err) {
+      console.warn('Error sincronizando header con horizon_system_config:', err);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', sincronizarHeaderHorizonGlobal);
+  } else {
+    sincronizarHeaderHorizonGlobal();
+  }
+  window.addEventListener('pageshow', sincronizarHeaderHorizonGlobal);
+  window.addEventListener('storage', function(e) {
+    if (!e.key || e.key === 'horizon_system_config') {
+      sincronizarHeaderHorizonGlobal();
+    }
+  });
+
+  window.sincronizarHeaderHorizonGlobal = sincronizarHeaderHorizonGlobal;
+})();
+</script>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+
+    <!-- KPI CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-[#e8e6e5] shadow-xs">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Planilla Quincenal Bruta</span>
+          <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center font-bold text-xs">L</span>
+        </div>
+        <div class="text-2xl font-black text-slate-900 tabular-nums">L 485,250.00</div>
+        <div class="text-[11px] text-emerald-600 font-semibold mt-1">● 32 Colaboradores Activos</div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-[#e8e6e5] shadow-xs">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Deducciones IHSS / RAP</span>
+          <span class="w-7 h-7 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center font-bold text-xs">SAR</span>
+        </div>
+        <div class="text-2xl font-black text-slate-900 tabular-nums">L 38,420.00</div>
+        <div class="text-[11px] text-slate-500 mt-1">IHSS: L 26,120 • RAP: L 12,300</div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-[#e8e6e5] shadow-xs">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Retención ISR Art. 50</span>
+          <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-xs">ISR</span>
+        </div>
+        <div class="text-2xl font-black text-slate-900 tabular-nums">L 42,180.00</div>
+        <div class="text-[11px] text-slate-500 mt-1">Listo para Declaración SAR-252</div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-[#e8e6e5] shadow-xs">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Activos Fijos NIIF</span>
+          <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center font-bold text-xs">AF</span>
+        </div>
+        <div class="text-2xl font-black text-slate-900 tabular-nums">L 3,240,000.00</div>
+        <div class="text-[11px] text-purple-700 font-semibold mt-1">Deprec. Mensual: L 28,400.00</div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DE NÓMINA -->
+    <div class="bg-white rounded-2xl border border-[#e8e6e5] shadow-xs overflow-hidden">
+      <div class="p-5 border-b border-[#e8e6e5] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-slate-900">Planilla Quincenal de Sueldos & Salarios</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Cálculo de deducciones de ley bajo techo IHSS 2026 y retención mensual de ISR.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition">
+            + Nuevo Colaborador
+          </button>
+          <button class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition">
+            Generar Póliza Contable
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase font-semibold">
+            <tr>
+              <th class="p-3.5">Código / Empleado</th>
+              <th class="p-3.5">Cargo / Depto</th>
+              <th class="p-3.5 text-right">Sueldo Base</th>
+              <th class="p-3.5 text-right">IHSS</th>
+              <th class="p-3.5 text-right">RAP</th>
+              <th class="p-3.5 text-right">Ret. ISR</th>
+              <th class="p-3.5 text-right font-bold text-slate-900">Neto a Pagar</th>
+              <th class="p-3.5 text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-800">
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-semibold">EMP-0101 • Carlos Hernández<div class="text-[10px] text-slate-400 tabular-nums">0801-1995-12345</div></td>
+              <td class="p-3.5">Gerente de Tecnología<div class="text-[10px] text-slate-400">Dirección TI</div></td>
+              <td class="p-3.5 text-right tabular-nums font-semibold">L 35,000.00</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 850.00</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 525.00</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 2,450.00</td>
+              <td class="p-3.5 text-right tabular-nums font-bold text-purple-700">L 31,175.00</td>
+              <td class="p-3.5 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Aprobado</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-semibold">EMP-0102 • María López<div class="text-[10px] text-slate-400 tabular-nums">0801-1992-09876</div></td>
+              <td class="p-3.5">Contadora General<div class="text-[10px] text-slate-400">Finanzas & Fiscal</div></td>
+              <td class="p-3.5 text-right tabular-nums font-semibold">L 28,000.00</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 850.00</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 420.00</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 1,650.00</td>
+              <td class="p-3.5 text-right tabular-nums font-bold text-purple-700">L 25,080.00</td>
+              <td class="p-3.5 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Aprobado</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-semibold">EMP-0103 • Juan Flores<div class="text-[10px] text-slate-400 tabular-nums">0501-1996-33445</div></td>
+              <td class="p-3.5">Encargado de Logística<div class="text-[10px] text-slate-400">Operaciones & Bodega</div></td>
+              <td class="p-3.5 text-right tabular-nums font-semibold">L 18,500.00</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 720.00</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 277.50</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 450.00</td>
+              <td class="p-3.5 text-right tabular-nums font-bold text-purple-700">L 17,052.50</td>
+              <td class="p-3.5 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Aprobado</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DE ACTIVOS FIJOS -->
+    <div class="bg-white rounded-2xl border border-[#e8e6e5] shadow-xs overflow-hidden">
+      <div class="p-5 border-b border-[#e8e6e5] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-slate-900">Control de Activos Fijos & Depreciación Lineal NIIF NIC-16</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Inventario de propiedad, planta y equipo con registro de valor residual y corrida contable.</p>
+        </div>
+        <button class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition">
+          + Registrar Activo Fijo
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase font-semibold">
+            <tr>
+              <th class="p-3.5">Código / Activo</th>
+              <th class="p-3.5">Categoría</th>
+              <th class="p-3.5 text-right">Costo Histórico</th>
+              <th class="p-3.5 text-center">Vida Útil</th>
+              <th class="p-3.5 text-right">Deprec. Mensual</th>
+              <th class="p-3.5 text-right font-bold text-slate-900">Valor en Libros</th>
+              <th class="p-3.5 text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-800">
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-semibold">AF-2026-001 • Servidor Central Dell PowerEdge<div class="text-[10px] text-slate-400 tabular-nums">Serie: DELL-99412-SRV</div></td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold">Equipo de Cómputo</span></td>
+              <td class="p-3.5 text-right tabular-nums font-semibold">L 125,000.00</td>
+              <td class="p-3.5 text-center tabular-nums">5 Años</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 2,083.33</td>
+              <td class="p-3.5 text-right tabular-nums font-bold text-purple-700">L 108,333.36</td>
+              <td class="p-3.5 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Operativo</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-semibold">AF-2026-002 • Montacargas Eléctrico Toyota 2.5T<div class="text-[10px] text-slate-400 tabular-nums">Serie: TOY-MC-8821</div></td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold">Maquinaria & Equipo</span></td>
+              <td class="p-3.5 text-right tabular-nums font-semibold">L 450,000.00</td>
+              <td class="p-3.5 text-center tabular-nums">10 Años</td>
+              <td class="p-3.5 text-right tabular-nums text-slate-600">L 3,750.00</td>
+              <td class="p-3.5 text-right tabular-nums font-bold text-purple-700">L 412,500.00</td>
+              <td class="p-3.5 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Operativo</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    window.volverAlLobby = function() {
+      if (window.location.protocol === 'file:' || window.location.pathname.endsWith('.html')) {
+        window.location.href = 'workspace_lobby.html';
+      } else {
+        window.location.href = '/lobby';
+      }
+    };
+
+    window.irAConfiguracion = function(boveda = 'N3') {
+      const q = boveda ? ('?boveda=' + boveda) : '';
+      if (window.location.protocol === 'file:' || window.location.pathname.endsWith('.html')) {
+        window.location.href = 'entorno_config.html' + q;
+      } else {
+        window.location.href = '/configuracion' + q;
+      }
+    };
+
+    // Sincronizar datos corporativos desde horizon_system_config
+    function sincronizarDatosHeader() {
+      try {
+        const raw = localStorage.getItem('horizon_system_config');
+        if (!raw) return;
+        const config = JSON.parse(raw);
+        const name = config.empresa_nombre || (config.company && config.company.name);
+        const period = config.periodo_activo || (config.period && config.period.label);
+        if (name) {
+          const el = document.getElementById('hdr-company-name');
+          if (el) el.textContent = name;
+        }
+        if (period) {
+          const el = document.getElementById('hdr-period-badge');
+          if (el) el.textContent = period;
+        }
+      } catch (e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', sincronizarDatosHeader);
+    window.addEventListener('pageshow', sincronizarDatosHeader);
+    window.addEventListener('storage', sincronizarDatosHeader);
+  </script>
+</body>
+</html>

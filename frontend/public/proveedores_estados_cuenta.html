@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estados de Cuenta & Antigüedad de Proveedores | Horizon Ledger ERP</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            amber: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .supplier-card.selected {
+      background-color: rgba(245, 158, 11, 0.08) !important;
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 1.5px #f59e0b !important;
+    }
+
+    @media print {
+      body { background: white !important; padding: 0 !important; color: black !important; }
+      .grid-vignette, .no-print, header, .nav-action-bar, .left-panel { display: none !important; }
+      .print-only { display: block !important; }
+      .statement-container { width: 100% !important; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
+      @page { size: portrait; margin: 10mm; }
+    }
+  </style>
+</head>
+<body class="bg-[#eef2f6] text-slate-900 min-h-screen flex flex-col p-3 sm:p-4 text-xs gap-3 relative selection:bg-amber-500 selection:text-white">
+
+  <!-- Retícula de fondo sutil -->
+  <div class="grid-vignette"></div>
+
+  <!-- 1. HEADER INSTITUCIONAL (HORIZON LEDGER) -->
+  <header class="flex items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.07)] relative z-20 flex-shrink-0 border-l-[6px] border-l-amber-500 no-print">
+    
+    <!-- Lado Izquierdo: Retorno a CxP + Marca + Título -->
+    <div class="flex items-center gap-4">
+      <!-- Retorno a Pagos CxP -->
+      <a href="/cxp" class="bg-slate-950 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all" title="Volver a la Mesa de Pagos CxP">
+        <span>&larr;</span>
+        <span>Volver a Pagos & CxP</span>
+      </a>
+
+      <!-- Identidad del ERP -->
+      <div class="flex items-center gap-2 border-r border-slate-200 pr-4">
+        <div class="w-6 h-6 rounded-lg bg-slate-950 flex items-center justify-center text-white font-black text-[10px]">
+          HL
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-extrabold text-xs tracking-tight text-slate-950">Horizon Ledger</span>
+          <span class="text-[8.5px] font-mono uppercase text-slate-400 font-bold">ERP</span>
+        </div>
+      </div>
+
+      <!-- Título y Badge Funcional -->
+      <div class="flex items-center gap-2.5">
+        <h1 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">Estados de Cuenta & Antigüedad de Proveedores</h1>
+        <span class="bg-amber-50 text-amber-700 border border-amber-200 font-mono text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 tracking-wider">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          AUDITORÍA DE SALDOS CxP
+        </span>
+      </div>
+    </div>
+
+    <!-- Centro / Derecha: Selector de Fecha + Perfil -->
+    <div class="flex items-center gap-3">
+      <!-- Selector de Fecha de Corte -->
+      <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Fecha Corte:</span>
+        <input type="date" id="fecha-corte-ec" value="2026-09-14" 
+               class="bg-transparent text-xs font-mono font-bold text-slate-800 outline-none cursor-pointer">
+      </div>
+
+      <div class="h-6 w-px bg-slate-200"></div>
+
+      <!-- Perfil de Usuario -->
+      <div class="flex items-center gap-2 pl-1">
+        <div class="w-7 h-7 rounded-full bg-slate-950 text-white font-bold text-xs flex items-center justify-center ring-2 ring-slate-100 shadow-xs">
+          CH
+        </div>
+        <div class="hidden xl:flex flex-col leading-tight text-right">
+          <span class="font-bold text-[11px] text-slate-900">Carlos Hernández</span>
+          <span class="text-[9px] text-slate-400 font-mono">Control de Proveedores</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. LAYOUT MASTER-DETAIL SPLIT VIEW (4 COLS / 8 COLS) -->
+  <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 z-10">
+    
+    <!-- ======================================================================= -->
+    <!-- PANEL IZQUIERDO (4 COLS): DIRECTORIO DE PROVEEDORES                     -->
+    <!-- ======================================================================= -->
+    <div class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col gap-3 left-panel">
+      
+      <!-- Buscador y Filtros Rápidos -->
+      <div class="flex flex-col gap-2">
+        <div class="relative">
+          <input type="text" id="busqueda-proveedor" oninput="filtrarDirectorioProveedores()" 
+                 placeholder="Buscar por Proveedor o RTN..." 
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs font-mono text-slate-800 focus:bg-white focus:border-amber-500 outline-none transition-all">
+          <span class="absolute left-2.5 top-2 text-slate-400">🔍</span>
+        </div>
+
+        <div class="flex items-center gap-1 overflow-x-auto pb-1">
+          <button onclick="filtrarEstadoDirectorio('todos')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-slate-900 text-white shadow-xs">
+            Todos (5)
+          </button>
+          <button onclick="filtrarEstadoDirectorio('al_dia')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">
+            🟢 Al Día (3)
+          </button>
+          <button onclick="filtrarEstadoDirectorio('alerta')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+            🟡 Alerta (1)
+          </button>
+          <button onclick="filtrarEstadoDirectorio('mora')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-rose-50 text-rose-800 border border-rose-200">
+            🔴 Mora (1)
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumen General del Pasivo Comercial -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex items-center justify-between text-xs">
+        <span class="text-[10px] font-bold text-slate-500 uppercase">Pasivo Total Seleccionable:</span>
+        <span class="font-mono font-black text-slate-950 text-sm" id="resumen-total-directorio">L 517,400.00</span>
+      </div>
+
+      <!-- Lista de Tarjetas de Proveedores -->
+      <div class="flex-1 overflow-y-auto space-y-2 pr-1" id="lista-proveedores-directorio">
+        <!-- Renderizado dinámico vía JavaScript -->
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- PANEL DERECHO (8 COLS): EXPEDIENTE Y ESTADO DE CUENTA CRONOLÓGICO       -->
+    <!-- ======================================================================= -->
+    <div class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-4 statement-container">
+      
+      <!-- Ficha Superior del Proveedor Seleccionado -->
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-3">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 font-black text-base flex items-center justify-center shadow-xs flex-shrink-0" id="sup-avatar">
+            DI
+          </div>
+          <div class="flex flex-col">
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-extrabold text-slate-950" id="sup-nombre-legal">Distribuidora Industrial del Norte S.A.</h2>
+              <span class="font-mono text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded" id="sup-badge-condicion">
+                CRÉDITO 30 DÍAS
+              </span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-500 text-[11px] font-mono mt-0.5">
+              <span>RTN: <strong class="text-slate-800" id="sup-rtn">08011995123456</strong></span>
+              <span>•</span>
+              <span id="sup-contacto">Contacto: Lic. Elena Valladares</span>
+              <span>•</span>
+              <span id="sup-telefono">Tel: +504 2235-8899</span>
+            </div>
+            <p class="text-[10.5px] text-slate-400 mt-0.5" id="sup-direccion">
+              Dirección: Parque Industrial Las Américas, Nave 4, Tegucigalpa, M.D.C.
+            </p>
+          </div>
+        </div>
+
+        <!-- Botonera de Reporte -->
+        <div class="flex items-center gap-2 no-print">
+          <button onclick="imprimirEstadoCuentaPDF()" 
+                  class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all">
+            <span>📄</span>
+            <span>Imprimir PDF</span>
+          </button>
+          <button onclick="exportarHistorialExcel()" 
+                  class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all">
+            <span>📊</span>
+            <span>Excel / CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Métricas de Exposición Crediticia (3 Tarjetas) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+          <span class="text-[10px] font-bold uppercase text-slate-400">Límite Otorgado:</span>
+          <div class="text-base font-black font-mono text-slate-900 mt-0.5" id="sup-limite-credito">L 500,000.00</div>
+          <span class="text-[10px] text-slate-500">Cupo Comercial Máximo</span>
+        </div>
+
+        <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-3">
+          <span class="text-[10px] font-bold uppercase text-amber-700">Saldo Actual Adeudado:</span>
+          <div class="text-base font-black font-mono text-slate-950 mt-0.5" id="sup-saldo-actual">L 215,800.00</div>
+          <span class="text-[10px] font-bold text-amber-600" id="sup-porcentaje-uso">43.2% del límite ocupado</span>
+        </div>
+
+        <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3">
+          <span class="text-[10px] font-bold uppercase text-emerald-700">Crédito Disponible:</span>
+          <div class="text-base font-black font-mono text-emerald-700 mt-0.5" id="sup-credito-disponible">L 284,200.00</div>
+          <span class="text-[10px] text-emerald-600">Margen para Nuevas Compras</span>
+        </div>
+      </div>
+
+      <!-- Banner de Antigüedad de Saldos (Aging NIIF del Proveedor) -->
+      <div class="bg-slate-900 text-white rounded-2xl p-3 shadow-sm border border-slate-800 flex flex-col gap-2">
+        <div class="flex items-center justify-between text-[10px] font-bold font-mono uppercase tracking-wider text-slate-400">
+          <span>ANTIGÜEDAD DE SALDOS DEL PROVEEDOR (AGING NIIF)</span>
+          <span class="text-amber-400">CORTE AL: 14-SEP-2026</span>
+        </div>
+        <div class="grid grid-cols-4 gap-2 text-center text-xs font-mono">
+          <div class="bg-slate-800/80 rounded-xl p-2 border border-slate-700">
+            <span class="text-[9.5px] text-emerald-400 uppercase font-bold block">0 - 30 Días (Corriente)</span>
+            <span class="font-black text-white text-xs block mt-0.5" id="aging-0-30">L 182,300.00</span>
+            <span class="text-[9px] text-slate-400" id="aging-pct-0-30">84.5%</span>
+          </div>
+          <div class="bg-slate-800/80 rounded-xl p-2 border border-slate-700">
+            <span class="text-[9.5px] text-amber-400 uppercase font-bold block">31 - 60 Días</span>
+            <span class="font-black text-white text-xs block mt-0.5" id="aging-31-60">L 33,500.00</span>
+            <span class="text-[9px] text-slate-400" id="aging-pct-31-60">15.5%</span>
+          </div>
+          <div class="bg-slate-800/80 rounded-xl p-2 border border-slate-700">
+            <span class="text-[9.5px] text-orange-400 uppercase font-bold block">61 - 90 Días</span>
+            <span class="font-black text-white text-xs block mt-0.5" id="aging-61-90">L 0.00</span>
+            <span class="text-[9px] text-slate-400" id="aging-pct-61-90">0.0%</span>
+          </div>
+          <div class="bg-slate-800/80 rounded-xl p-2 border border-slate-700">
+            <span class="text-[9.5px] text-rose-400 uppercase font-bold block">+90 Días (Mora)</span>
+            <span class="font-black text-white text-xs block mt-0.5" id="aging-90-plus">L 0.00</span>
+            <span class="text-[9px] text-slate-400" id="aging-pct-90-plus">0.0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Extracto Cronológico Auditable (Tabla de Movimientos) -->
+      <div class="flex-1 flex flex-col bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+        <div class="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
+          <h3 class="font-extrabold text-xs text-slate-900 uppercase tracking-tight">Extracto Cronológico de Cargos, Abonos y Retenciones</h3>
+          <span class="text-[10px] font-mono text-slate-500">Moneda: HNL (Lempiras)</span>
+        </div>
+
+        <div class="overflow-x-auto flex-1">
+          <table class="w-full text-left border-collapse" id="tabla-estado-cuenta-proveedor">
+            <thead>
+              <tr class="bg-slate-50/60 border-b border-slate-200 text-[10px] font-bold font-mono uppercase text-slate-500 tracking-wider">
+                <th class="py-2 px-3 text-center">Fecha</th>
+                <th class="py-2 px-3">Tipo Movimiento</th>
+                <th class="py-2 px-3">Documento / Referencia SAR</th>
+                <th class="py-2 px-3">Detalle / Concepto</th>
+                <th class="py-2 px-3 text-right">Cargos (Compras)</th>
+                <th class="py-2 px-3 text-right">Abonos / Pagos</th>
+                <th class="py-2 px-3 text-right">Saldo Acumulado</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-xs font-sans" id="tbody-movimientos-proveedor">
+              <!-- Renderizado dinámico vía JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Totales del Estado de Cuenta -->
+        <div class="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex items-center justify-between text-xs font-mono font-bold">
+          <span class="text-slate-500 uppercase">Totales Conciliados:</span>
+          <div class="flex items-center gap-6">
+            <span class="text-slate-700">Total Cargos: <strong class="text-slate-950" id="total-cargos-ec">L 161,200.00</strong></span>
+            <span class="text-slate-700">Total Abonos/Ret: <strong class="text-emerald-700" id="total-abonos-ec">L 70,400.00</strong></span>
+            <span class="text-amber-700 font-black text-sm">Saldo Final: <strong class="text-slate-950" id="saldo-final-ec">L 215,800.00</strong></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT: DATASET Y CONTROLADOR -->
+  <script>
+    const PROVEEDORES_DATA = [
+      {
+        id: "SUP-01",
+        nombre_legal: "Distribuidora Industrial del Norte S.A.",
+        nombre_comercial: "DINSA",
+        rtn: "08011995123456",
+        avatar: "DI",
+        condicion: "CRÉDITO 30 DÍAS",
+        contacto: "Lic. Elena Valladares",
+        telefono: "+504 2235-8899",
+        correo: "cobros@dinsa.hn",
+        direccion: "Parque Industrial Las Américas, Nave 4, Tegucigalpa, M.D.C.",
+        limite: 500000.00,
+        saldo: 215800.00,
+        estado: "al_dia",
+        estado_label: "🟢 Al Día",
+        facturas_count: 3,
+        aging: {
+          corriente: 182300.00,
+          pct_corriente: "84.5%",
+          dias_31_60: 33500.00,
+          pct_31_60: "15.5%",
+          dias_61_90: 0.00,
+          pct_61_90: "0.0%",
+          dias_90_plus: 0.00,
+          pct_90_plus: "0.0%"
+        },
+        movimientos: [
+          { fecha: "2026-08-01", tipo: "SALDO INICIAL", doc: "APERTURA-2026-08", detalle: "Saldo arrastrado mes anterior", cargo: 0, abono: 0, saldo: 125000.00 },
+          { fecha: "2026-08-12", tipo: "FACTURA COMPRA", doc: "001-001-01-00044120", detalle: "Compra Materiales Eléctricos e Insumos", cargo: 65400.00, abono: 0, saldo: 190400.00 },
+          { fecha: "2026-08-25", tipo: "TRANSFERENCIA ACH", doc: "BAC-ACH-889912", detalle: "Pago Factura 44120 con BAC Credomatic", cargo: 0, abono: 64746.00, saldo: 125654.00 },
+          { fecha: "2026-08-25", tipo: "RETENCIÓN SAR", doc: "000-001-05-0000123", detalle: "Retención 1% ISV SAR Decreto 17-2010", cargo: 0, abono: 654.00, saldo: 125000.00 },
+          { fecha: "2026-09-01", tipo: "FACTURA COMPRA", doc: "001-001-01-00045001", detalle: "Compra Repuestos y Filtros Industriales", cargo: 58300.00, abono: 0, saldo: 183300.00 },
+          { fecha: "2026-09-05", tipo: "NOTA CRÉDITO", doc: "001-001-04-0000889", detalle: "Devolución Repuesto Defectuoso", cargo: 0, abono: 5000.00, saldo: 178300.00 },
+          { fecha: "2026-09-10", tipo: "FACTURA COMPRA", doc: "001-001-01-00045180", detalle: "Compra Cables de Alta Tensión", cargo: 37500.00, abono: 0, saldo: 215800.00 }
+        ]
+      },
+      {
+        id: "SUP-02",
+        nombre_legal: "Papelería & Suministros Copiadora S. de R.L.",
+        nombre_comercial: "Copiadora Central",
+        rtn: "08011988998877",
+        avatar: "PS",
+        condicion: "CRÉDITO 15 DÍAS",
+        contacto: "Ing. Roberto Midence",
+        telefono: "+504 2239-1122",
+        correo: "ventas@copiadorahn.com",
+        direccion: "Blvd. Morazán, Edificio Torre Alfa, Nivel 2",
+        limite: 150000.00,
+        saldo: 45600.00,
+        estado: "alerta",
+        estado_label: "🟡 Vence Hoy",
+        facturas_count: 2,
+        aging: {
+          corriente: 23200.00,
+          pct_corriente: "50.9%",
+          dias_31_60: 22400.00,
+          pct_31_60: "49.1%",
+          dias_61_90: 0.00,
+          pct_61_90: "0.0%",
+          dias_90_plus: 0.00,
+          pct_90_plus: "0.0%"
+        },
+        movimientos: [
+          { fecha: "2026-08-15", tipo: "FACTURA COMPRA", doc: "000-001-01-00033445", detalle: "Papel Bond, Toners y Útiles Oficina", cargo: 22400.00, abono: 0, saldo: 22400.00 },
+          { fecha: "2026-09-05", tipo: "FACTURA COMPRA", doc: "000-001-01-00033910", detalle: "Archivadores y Carpetas Fiscales", cargo: 23200.00, abono: 0, saldo: 45600.00 }
+        ]
+      },
+      {
+        id: "SUP-03",
+        nombre_legal: "Hondu-Tech Hardware & Soluciones S.A.",
+        nombre_comercial: "HonduTech",
+        rtn: "05011990334455",
+        avatar: "HT",
+        condicion: "CRÉDITO 30 DÍAS",
+        contacto: "Ing. Laura Fajardo",
+        telefono: "+504 2556-9900",
+        correo: "cobranzas@hondutech.com",
+        direccion: "San Pedro Sula, Barrio Guamilito, 7ma Calle",
+        limite: 200000.00,
+        saldo: 142300.00,
+        estado: "mora",
+        estado_label: "🔴 Mora Crítica (+25d)",
+        facturas_count: 2,
+        aging: {
+          corriente: 74300.00,
+          pct_corriente: "52.2%",
+          dias_31_60: 0.00,
+          pct_31_60: "0.0%",
+          dias_61_90: 68000.00,
+          pct_61_90: "47.8%",
+          dias_90_plus: 0.00,
+          pct_90_plus: "0.0%"
+        },
+        movimientos: [
+          { fecha: "2026-07-20", tipo: "FACTURA COMPRA", doc: "001-002-01-00099412", detalle: "Servidor Rack Dell PowerEdge R750", cargo: 68000.00, abono: 0, saldo: 68000.00 },
+          { fecha: "2026-09-02", tipo: "FACTURA COMPRA", doc: "001-002-01-00100450", detalle: "Laptops Ejecutivas y Switches Cisco", cargo: 74300.00, abono: 0, saldo: 142300.00 }
+        ]
+      },
+      {
+        id: "SUP-04",
+        nombre_legal: "Seguridad Privada & Monitoreo Hondu-Guard",
+        nombre_comercial: "HonduGuard",
+        rtn: "08011977221133",
+        avatar: "HG",
+        condicion: "CRÉDITO 30 DÍAS",
+        contacto: "Cap. Mario Barahona",
+        telefono: "+504 2231-4455",
+        correo: "servicios@honduguard.hn",
+        direccion: "Col. Palmira, Ave. Juan Lindo #304",
+        limite: 50000.00,
+        saldo: 28500.00,
+        estado: "al_dia",
+        estado_label: "🟢 Al Día (Vence en 2d)",
+        facturas_count: 1,
+        aging: {
+          corriente: 28500.00,
+          pct_corriente: "100.0%",
+          dias_31_60: 0.00,
+          pct_31_60: "0.0%",
+          dias_61_90: 0.00,
+          pct_61_90: "0.0%",
+          dias_90_plus: 0.00,
+          pct_90_plus: "0.0%"
+        },
+        movimientos: [
+          { fecha: "2026-08-16", tipo: "FACTURA COMPRA", doc: "000-001-01-00012890", detalle: "Servicio de Vigilancia 24/7 y Monitoreo", cargo: 28500.00, abono: 0, saldo: 28500.00 }
+        ]
+      },
+      {
+        id: "SUP-05",
+        nombre_legal: "Transportes Rápido de Carga Terrestre S.A.",
+        nombre_comercial: "Rápido Carga",
+        rtn: "08011966443322",
+        avatar: "TR",
+        condicion: "CRÉDITO 30 DÍAS",
+        contacto: "Don Carlos Espinoza",
+        telefono: "+504 2228-7788",
+        correo: "fletes@rapidocarga.hn",
+        direccion: "Salida al Sur, Km 5, Frente a Gasolinera Uno",
+        limite: 250000.00,
+        saldo: 85200.00,
+        estado: "al_dia",
+        estado_label: "🟢 Al Día",
+        facturas_count: 2,
+        aging: {
+          corriente: 85200.00,
+          pct_corriente: "100.0%",
+          dias_31_60: 0.00,
+          pct_31_60: "0.0%",
+          dias_61_90: 0.00,
+          pct_61_90: "0.0%",
+          dias_90_plus: 0.00,
+          pct_90_plus: "0.0%"
+        },
+        movimientos: [
+          { fecha: "2026-08-25", tipo: "FACTURA COMPRA", doc: "001-001-01-00088912", detalle: "Fletes y Acarreo de Mercadería Puerto Cortés", cargo: 85200.00, abono: 0, saldo: 85200.00 }
+        ]
+      }
+    ];
+
+    let proveedorActualId = "SUP-01";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderizarDirectorioProveedores();
+      cargarExpedienteProveedor("SUP-01");
+    });
+
+    function formatLempiras(monto) {
+      return 'L ' + Number(monto).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function renderizarDirectorioProveedores(filtroEstado = 'todos') {
+      const container = document.getElementById("lista-proveedores-directorio");
+      const query = (document.getElementById("busqueda-proveedor")?.value || "").toLowerCase();
+
+      let filtered = PROVEEDORES_DATA.filter(p => {
+        const matchesQuery = p.nombre_legal.toLowerCase().includes(query) || 
+                             p.nombre_comercial.toLowerCase().includes(query) || 
+                             p.rtn.includes(query);
+        const matchesEstado = (filtroEstado === 'todos') || (p.estado === filtroEstado);
+        return matchesQuery && matchesEstado;
+      });
+
+      container.innerHTML = filtered.map(p => {
+        let borderClass = 'border-l-4 border-l-emerald-500';
+        if (p.estado === 'alerta') borderClass = 'border-l-4 border-l-amber-500';
+        if (p.estado === 'mora') borderClass = 'border-l-4 border-l-rose-500';
+
+        const isSelected = p.id === proveedorActualId;
+
+        return `
+          <div onclick="cargarExpedienteProveedor('${p.id}')" 
+               class="supplier-card ${isSelected ? 'selected' : 'bg-white'} border border-slate-200 rounded-xl p-3 cursor-pointer hover:border-amber-400 transition-all ${borderClass}">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-lg bg-slate-900 text-white font-bold text-[10px] flex items-center justify-center">
+                  ${p.avatar}
+                </div>
+                <div class="font-bold text-xs text-slate-900 leading-tight truncate max-w-[180px]">${p.nombre_legal}</div>
+              </div>
+              <span class="font-mono text-[9px] font-bold text-slate-500">${p.estado_label}</span>
+            </div>
+            
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[10.5px]">
+              <span class="font-mono text-slate-400">${p.facturas_count} Facturas Abiertas</span>
+              <span class="font-mono font-black text-slate-950">${formatLempiras(p.saldo)}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function filtrarDirectorioProveedores() {
+      renderizarDirectorioProveedores();
+    }
+
+    function filtrarEstadoDirectorio(estado) {
+      renderizarDirectorioProveedores(estado);
+    }
+
+    function cargarExpedienteProveedor(id) {
+      proveedorActualId = id;
+      const p = PROVEEDORES_DATA.find(x => x.id === id);
+      if (!p) return;
+
+      renderizarDirectorioProveedores();
+
+      // Actualizar Ficha
+      document.getElementById("sup-avatar").innerText = p.avatar;
+      document.getElementById("sup-nombre-legal").innerText = p.nombre_legal;
+      document.getElementById("sup-badge-condicion").innerText = p.condicion;
+      document.getElementById("sup-rtn").innerText = p.rtn;
+      document.getElementById("sup-contacto").innerText = `Contacto: ${p.contacto}`;
+      document.getElementById("sup-telefono").innerText = `Tel: ${p.telefono}`;
+      document.getElementById("sup-direccion").innerText = `Dirección: ${p.direccion}`;
+
+      // Actualizar Métricas
+      document.getElementById("sup-limite-credito").innerText = formatLempiras(p.limite);
+      document.getElementById("sup-saldo-actual").innerText = formatLempiras(p.saldo);
+      const disp = p.limite - p.saldo;
+      document.getElementById("sup-credito-disponible").innerText = formatLempiras(disp);
+      const pctUso = ((p.saldo / p.limite) * 100).toFixed(1);
+      document.getElementById("sup-porcentaje-uso").innerText = `${pctUso}% del límite ocupado`;
+
+      // Actualizar Aging
+      document.getElementById("aging-0-30").innerText = formatLempiras(p.aging.corriente);
+      document.getElementById("aging-pct-0-30").innerText = p.aging.pct_corriente;
+      document.getElementById("aging-31-60").innerText = formatLempiras(p.aging.dias_31_60);
+      document.getElementById("aging-pct-31-60").innerText = p.aging.pct_31_60;
+      document.getElementById("aging-61-90").innerText = formatLempiras(p.aging.dias_61_90);
+      document.getElementById("aging-pct-61-90").innerText = p.aging.pct_61_90;
+      document.getElementById("aging-90-plus").innerText = formatLempiras(p.aging.dias_90_plus);
+      document.getElementById("aging-pct-90-plus").innerText = p.aging.pct_90_plus;
+
+      // Actualizar Movimientos
+      const tbody = document.getElementById("tbody-movimientos-proveedor");
+      let totalCargos = 0;
+      let totalAbonos = 0;
+
+      tbody.innerHTML = p.movimientos.map(m => {
+        totalCargos += m.cargo;
+        totalAbonos += m.abono;
+
+        let badgeTipo = `<span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold">${m.tipo}</span>`;
+        if (m.tipo.includes('FACTURA')) badgeTipo = `<span class="bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold">FACTURA COMPRA</span>`;
+        if (m.tipo.includes('ACH') || m.tipo.includes('RETENCIÓN')) badgeTipo = `<span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold">${m.tipo}</span>`;
+        if (m.tipo.includes('CRÉDITO')) badgeTipo = `<span class="bg-blue-50 text-blue-800 border border-blue-200 px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold">NOTA CRÉDITO</span>`;
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="py-2.5 px-3 text-center font-mono text-slate-700 font-semibold">${m.fecha}</td>
+            <td class="py-2.5 px-3">${badgeTipo}</td>
+            <td class="py-2.5 px-3 font-mono text-slate-900 font-bold">${m.doc}</td>
+            <td class="py-2.5 px-3 text-slate-600 font-medium">${m.detalle}</td>
+            <td class="py-2.5 px-3 text-right font-mono text-slate-900 font-bold">${m.cargo > 0 ? formatLempiras(m.cargo) : '-'}</td>
+            <td class="py-2.5 px-3 text-right font-mono text-emerald-700 font-bold">${m.abono > 0 ? formatLempiras(m.abono) : '-'}</td>
+            <td class="py-2.5 px-3 text-right font-mono text-slate-950 font-black text-[12.5px]">${formatLempiras(m.saldo)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("total-cargos-ec").innerText = formatLempiras(totalCargos);
+      document.getElementById("total-abonos-ec").innerText = formatLempiras(totalAbonos);
+      document.getElementById("saldo-final-ec").innerText = formatLempiras(p.saldo);
+    }
+
+    function imprimirEstadoCuentaPDF() {
+      window.print();
+    }
+
+    function exportarHistorialExcel() {
+      const p = PROVEEDORES_DATA.find(x => x.id === proveedorActualId);
+      if (!p) return;
+
+      let csv = "﻿Fecha,Tipo,Documento_SAR,Detalle,Cargos_HNL,Abonos_HNL,Saldo_HNL
+";
+      p.movimientos.forEach(m => {
+        csv += `"${m.fecha}","${m.tipo}","${m.doc}","${m.detalle}",${m.cargo},${m.abono},${m.saldo}
+`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Estado_Cuenta_${p.nombre_comercial}_${p.rtn}_20260914.csv`;
+      link.click();
+    }
+  </script>
+</body>
+</html>

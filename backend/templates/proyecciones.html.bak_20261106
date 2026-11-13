@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyecciones Financieras & BI | Horizon Ledger ERP</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+    }
+    body { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .card-hover-fx {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card-hover-fx:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+    }
+  </style>
+</head>
+<body class="bg-[#eef2f6] text-slate-900 min-h-screen flex flex-col text-xs gap-3 relative selection:bg-sky-500 selection:text-white p-2.5">
+
+  <!-- Retícula de fondo sutil -->
+  <div class="grid-vignette"></div>
+
+  <!-- HEADER INSTITUCIONAL HORIZON LEDGER -->
+  <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 mb-2 shrink-0 min-h-16" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);"
+>
+
+<div 
+	class="flex items-center gap-3.5 shrink-0 justify-self-start"
+>       
+    <!-- Botón Regresar -->
+    <button type="button" onclick="if(history.length > 1){ history.back(); } else { window.location.href='workspace_lobby.html'; }" title="Regresar" 
+	class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
+      ←
+    </button>
+    
+    <!-- Logo Horizon LC (Con redirección al Lobby) -->
+    <div 
+	class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal"
+	>
+    <!-- Isotipo: Eclipse / Sol Negro Naciente (LOGO)-->
+      <div
+	class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+          <!-- Corona de Fotones Cian (Arco exterior) -->
+          <path d="M4.5 13.5C4.5 9.35786 7.85786 6 12 6C16.1421 6 19.5 9.35786 19.5 13.5" stroke="#3ba6f1" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Singularidad Central (Semiesfera negra sobre el horizonte) -->
+          <path d="M7 13.5C7 10.7386 9.23858 8.5 12 8.5C14.7614 8.5 17 10.7386 17 13.5H7Z" fill="#0f172a"></path>
+          <!-- Horizonte de Sucesos (Plano ecuatorial) -->
+          <path d="M2 13.5H22" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"></path>
+          <!-- Destello de Acreción Central en Cian -->
+          <path d="M6 16.5H18" stroke="#3ba6f1" stroke-width="2" stroke-linecap="round"></path>
+          <!-- Eco Gravitacional Inferior -->
+          <path d="M9.5 19H14.5" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <!-- Wordmark tipográfico -->
+      <div class="flex flex-col leading-none" style="font-family: 'Inter', sans-serif;">
+        <div class="flex items-center gap-1">
+          <span class="text-[16px] font-extrabold tracking-tight text-slate-900 uppercase">HORIZON</span>
+          <span class="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#3ba6f1]/15 text-[#0284c7] tracking-wider">LC</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 tracking-wider uppercase mt-0.5">SYSTEM ANALYTICS</span>
+      </div>
+    </div>
+
+
+    <!-- Bloque Detalle de Módulo con Línea Divisoria Vertical -->
+	<div class="flex items-center select-none pl-4 ml-1 border-l border-slate-200">
+  	<div class="flex flex-col text-left leading-tight" style="font-family: 'Inter', sans-serif;">
+    		<span class="text-[9px] font-semibold text-slate-700 tracking-wider uppercase"> MÓDULO:
+    		</span>
+    		<span class="text-[9px] font-extrabold text-slate-700 tracking-tight uppercase max-w-[120px] leading-3 mt-0.5" id="hdr-module-name"> PROYECCIONES BI
+    		</span>
+  	</div>
+	</div>
+</div>
+
+
+	
+<!-- Zona Central: Logotipo Corporativo + Identidad Institucional Dinámica -->
+
+<div
+ 	class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;"
+>
+  
+  	<!-- Contenedor del Logotipo Vectorial / SVG de la Empresa (w-10 h-10 y gap-2.5) -->
+  	<div class="flex items-center gap-2.5">
+    	<div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800" id="hdr-company-logo-container">
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+	</svg>
+    	</div>
+
+    	<!-- Bloque de Texto (Nombre destacado + RTN centrado) -->
+    	<div class="flex flex-col min-w-0 leading-none items-center text-center">
+      	<!-- Nombre de la Empresa -->
+      	<div class="w-full min-w-0">
+        <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="Empresa Activa">
+          SOLUTIONS &amp; APPLIANCES
+        </span>
+      	</div>
+
+      	<!-- RTN Centrado -->
+      	<div class="mt-1 select-none">
+        <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">
+          RTN: 08011990123456
+        </span>
+      	</div>
+    </div>
+  </div>
+</div>
+
+<div class="flex items-center gap-3.5 shrink-0 justify-self-end">
+        
+    <!-- Badge de Periodo Minimalista (Limpio y corporativo) -->
+    <div id="hdr-period-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 border border-slate-200/80 rounded-xl text-[11px] font-bold text-slate-700 tracking-wide select-none" style="font-family: 'Inter', sans-serif; cursor: default;">
+      <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+      <span id="hdr-period-text">OCTUBRE 2026</span>
+    </div>
+
+    <!-- Bloque de Usuario (Avatar y Perfil) -->
+    <div class="flex items-center gap-2.5 border-l border-slate-200 pl-3.5" style="font-family: 'Inter', sans-serif;">
+      <!-- Avatar con diseño limpio y tono neutro/ejecutivo -->
+      <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs">
+        CH
+      </div>
+      <!-- Nombre y Cargo -->
+      <div class="text-left hidden sm:flex flex-col leading-tight">
+        <span class="text-xs font-extrabold text-slate-900">Carlos Hernández</span>
+        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Contador General</span>
+      </div>
+    </div>
+
+</div>
+</header>
+<script id="horizon-header-sync-engine">
+(function() {
+  function sincronizarHeaderHorizonGlobal() {
+    try {
+      const raw = localStorage.getItem('horizon_system_config');
+      if (!raw) return;
+      const config = JSON.parse(raw);
+
+      // 1. Nombre de la Empresa
+      const compName = config.empresa_nombre || (config.company && config.company.name);
+      if (compName) {
+        const elName = document.getElementById('hdr-company-name');
+        if (elName) {
+          elName.textContent = compName.toUpperCase();
+          elName.setAttribute('title', compName.toUpperCase());
+        }
+      }
+
+      // 2. RTN de la Empresa
+      const compRtn = config.empresa_rtn || (config.company && config.company.rtn);
+      if (compRtn) {
+        const elRtn = document.getElementById('hdr-company-rtn');
+        if (elRtn) {
+          const rtnClean = compRtn.replace(/^RTN:\s*/i, '').trim();
+          elRtn.textContent = 'RTN: ' + rtnClean;
+        }
+      }
+
+      // 3. Periodo Contable
+      const perVal = config.periodo_activo || (config.period && config.period.label);
+      if (perVal) {
+        const elPerText = document.getElementById('hdr-period-text');
+        if (elPerText) {
+          elPerText.textContent = perVal.toUpperCase();
+        } else {
+          const elPer = document.getElementById('hdr-period-badge');
+          if (elPer) {
+            elPer.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span><span id="hdr-period-text">' + perVal.toUpperCase() + '</span>';
+          }
+        }
+      }
+
+      // 4. Logo Vectorial o Imagen de la Empresa
+      if (config.company_logo || (config.company && config.company.logo)) {
+        const logoData = config.company_logo || config.company.logo;
+        const logoContainer = document.getElementById('hdr-company-logo-container');
+        if (logoContainer && logoData) {
+          if (logoData.startsWith('<svg') || logoData.startsWith('data:image')) {
+            logoContainer.innerHTML = logoData.startsWith('<svg') ? logoData : '<img src="' + logoData + '" alt="Logo" class="w-full h-full object-contain rounded-lg">';
+          }
+        }
+      }
+    } catch(err) {
+      console.warn('Error sincronizando header con horizon_system_config:', err);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', sincronizarHeaderHorizonGlobal);
+  } else {
+    sincronizarHeaderHorizonGlobal();
+  }
+  window.addEventListener('pageshow', sincronizarHeaderHorizonGlobal);
+  window.addEventListener('storage', function(e) {
+    if (!e.key || e.key === 'horizon_system_config') {
+      sincronizarHeaderHorizonGlobal();
+    }
+  });
+
+  window.sincronizarHeaderHorizonGlobal = sincronizarHeaderHorizonGlobal;
+})();
+</script>
+
+  <!-- 1. BARRA DE CONTROL DE FORMATO Y HERRAMIENTAS DE ESTUDIO (GRID LAYOUT) -->
+  <section class="bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.07)] flex flex-col md:flex-row items-center justify-between gap-3 relative z-10 flex-shrink-0">
+    
+    <!-- Selector de Distribución del Lienzo (Grid Formats) -->
+    <div class="flex items-center gap-2.5 flex-wrap">
+      <span class="text-[11px] font-extrabold text-slate-700 uppercase tabular-nums tracking-wider flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+        DISTRIBUCIÓN DEL LIENZO:
+      </span>
+
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1" id="grid-layout-buttons">
+        <button onclick="setGridLayout('2x2')" id="btn-grid-2x2" class="px-3 py-1.5 rounded-lg font-bold tabular-nums text-[11px] transition-all bg-white text-slate-950 shadow-xs border border-slate-200/80">
+          2x2 (4 Gráficos)
+        </button>
+        <button onclick="setGridLayout('3x2')" id="btn-grid-3x2" class="px-3 py-1.5 rounded-lg font-semibold tabular-nums text-[11px] text-slate-600 hover:text-slate-950 hover:bg-slate-200/60 transition-all">
+          3x2 (6 Gráficos)
+        </button>
+        <button onclick="setGridLayout('4x2')" id="btn-grid-4x2" class="px-3 py-1.5 rounded-lg font-semibold tabular-nums text-[11px] text-slate-600 hover:text-slate-950 hover:bg-slate-200/60 transition-all">
+          4x2 (8 Gráficos)
+        </button>
+        <button onclick="setGridLayout('5x2')" id="btn-grid-5x2" class="px-3 py-1.5 rounded-lg font-semibold tabular-nums text-[11px] text-slate-600 hover:text-slate-950 hover:bg-slate-200/60 transition-all">
+          5x2 (10 Gráficos)
+        </button>
+      </div>
+    </div>
+
+    <!-- Botonera de Acciones del Estudio BI -->
+    <div class="flex items-center gap-2">
+      <!-- Botón de Actualizar / Refrescar -->
+      <button onclick="refreshAllWidgets()" class="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold border border-slate-200 flex items-center gap-1.5 transition-all text-[11px] shadow-xs" title="Actualizar datos de indicadores">
+        <span>🔄</span>
+        <span class="hidden sm:inline">Refrescar</span>
+      </button>
+
+      <!-- Guardar Plantilla -->
+      <button onclick="saveDashboardLayout()" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition" title="Guardar personalización del lienzo">
+        <span class="mr-1.5">💾</span>
+        <span class="hidden sm:inline">Guardar</span>
+      </button>
+
+      <!-- Restablecer Predeterminado -->
+      <button onclick="resetDefaultLayout()" class="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 font-bold border border-slate-200 flex items-center gap-1 transition-all text-[11px]" title="Restablecer plantilla inicial">
+        <span>↺</span>
+      </button>
+
+      <!-- Exportar Reporte BI -->
+      <button onclick="exportBiReport()" class="bg-black text-white rounded-full font-bold px-5 py-2 text-xs hover:bg-neutral-800 transition">
+        <span class="mr-1.5">📑</span>
+        <span>Exportar Reporte</span>
+      </button>
+    </div>
+
+  </section>
+
+  <!-- 2. LIENZO DINÁMICO DE RANURAS (DASHBOARD GRID) -->
+  <main class="flex-1 relative z-10">
+    <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 transition-all">
+      <!-- Las ranuras (Slots) se renderizan dinámicamente vía renderSlots() -->
+    </div>
+  </main>
+
+  <!-- 3. MODAL CATÁLOGO DE MÉTRICAS Y WIDGETS -->
+  <div id="modal-widget-catalog" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+      
+      <!-- Cabecera del Modal -->
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-sky-100 border border-sky-300 text-sky-700 flex items-center justify-center font-bold text-base">
+            📊
+          </div>
+          <div>
+            <h3 class="font-extrabold text-slate-900 text-sm tracking-tight">Catálogo de Indicadores & Métricas BI</h3>
+            <p class="text-[11px] text-slate-400">Seleccione el gráfico que desea anclar a la ranura <strong id="catalog-target-slot-label" class="tabular-nums text-slate-700">#1</strong></p>
+          </div>
+        </div>
+        <button onclick="closeWidgetCatalog()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center transition-colors">
+          &times;
+        </button>
+      </div>
+
+      <!-- Filtro y Categorías -->
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <!-- Buscador -->
+        <div class="relative flex-1 min-w-[200px]">
+          <input type="text" id="catalog-search" oninput="filterCatalogItems()" placeholder="Buscar métrica por nombre o concepto..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-slate-800">
+          <span class="absolute left-2.5 top-2 text-slate-400">🔍</span>
+        </div>
+
+        <!-- Pestañas de Categoría -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1 text-[11px]">
+          <button onclick="filterCatalogCategory('ALL')" id="cat-btn-ALL" class="px-2.5 py-1 rounded-lg font-bold bg-white text-slate-900 shadow-xs">Todos</button>
+          <button onclick="filterCatalogCategory('FIN')" id="cat-btn-FIN" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900">Finanzas</button>
+          <button onclick="filterCatalogCategory('LOG')" id="cat-btn-LOG" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900">Logística & Stock</button>
+          <button onclick="filterCatalogCategory('SALES')" id="cat-btn-SALES" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900">Ventas & Margen</button>
+        </div>
+      </div>
+
+      <!-- Lista de Métricas Disponibles -->
+      <div class="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[440px]" id="catalog-items-container">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="flex justify-end pt-2 border-t border-slate-100">
+        <button onclick="closeWidgetCatalog()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-3 bg-white text-slate-900 border-slate-200 text-xs font-bold">
+    <span id="toast-icon">⚡</span>
+    <span id="toast-message">Notificación del sistema</span>
+  </div>
+
+  <!-- MOTOR JAVASCRIPT: STUDIO DE PROYECCIONES Y CHART.JS -->
+  <script>
+    if (window.Chart) { Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif"; }
+
+    // =======================================================
+    // MOTOR HORIZON: sincronización con horizon_system_config
+    // =======================================================
+    window.HZ_DEFAULTS = { empresa: 'Inversiones Globales de Honduras S.A. de C.V.', rtn: '08011999123456', periodo: 'OCTUBRE 2026' };
+    window.HZ_CONTEXT = Object.assign({}, window.HZ_DEFAULTS);
+
+    window.aplicarConfiguracionHorizon = function () {
+      try {
+        var raw = localStorage.getItem('horizon_system_config');
+        var config = raw ? JSON.parse(raw) : {};
+        var empresa = config.empresa_nombre || (config.company && config.company.name) || window.HZ_DEFAULTS.empresa;
+        var rtn = config.empresa_rtn || (config.company && config.company.rtn) || window.HZ_DEFAULTS.rtn;
+        var periodo = config.periodo_activo || (config.period && config.period.label) || window.HZ_DEFAULTS.periodo;
+        window.HZ_CONTEXT = { empresa: empresa, rtn: rtn, periodo: periodo };
+        [['empresa', empresa], ['rtn', rtn], ['periodo', periodo]].forEach(function (par) {
+          document.querySelectorAll('[data-hz="' + par[0] + '"]').forEach(function (el) { el.textContent = par[1]; });
+        });
+        window.dispatchEvent(new CustomEvent('hz:config', { detail: window.HZ_CONTEXT }));
+      } catch (err) {
+        console.error('Error sincronizando configuración Horizon:', err);
+      }
+    };
+
+    // Navegación válida tanto desde file:// como desde FastAPI (http://)
+    window.navegarHorizon = function (archivo, ruta) {
+      var local = window.location.protocol === 'file:' || window.location.pathname.slice(-5) === '.html';
+      window.location.href = local ? archivo : ruta;
+    };
+
+    document.addEventListener('DOMContentLoaded', window.aplicarConfiguracionHorizon);
+    window.addEventListener('pageshow', window.aplicarConfiguracionHorizon);
+    window.addEventListener('storage', function (e) {
+      if (!e.key || e.key === 'horizon_system_config') window.aplicarConfiguracionHorizon();
+    });
+
+    // =======================================================
+    // DATOS BASE PARA INDICADORES FINANCIEROS (EERR Ene-Sep 2026)
+    // =======================================================
+    window.HZ_BASE_FINANCIERO = { ventas: 2450800, cogs: 1225400, gastosAdm: 412000, gastosVenta: 185500, gastosFin: 42100 };
+
+    // Punto de equilibrio operativo: variables = costo de ventas + gastos de venta; fijos = administración + financieros
+    window.calcBreakeven = function () {
+      var b = window.HZ_BASE_FINANCIERO;
+      var cv = b.cogs + b.gastosVenta;
+      var cf = b.gastosAdm + b.gastosFin;
+      var cvRatio = cv / b.ventas;
+      var mc = 1 - cvRatio;
+      var pe = cf / mc;
+      return { ventas: b.ventas, cv: cv, cf: cf, cvRatio: cvRatio, mc: mc, pe: pe, ms: (b.ventas - pe) / b.ventas };
+    };
+
+    // Ejecución presupuestaria por rubro: lee horizon_budget_data (módulo Presupuestos) o usa la base por defecto
+    window.HZ_BUDGET_CATS = [
+      { id: '4.1', label: 'Ingresos 4.1', egreso: false },
+      { id: '5.1', label: 'Costo de Ventas 5.1', egreso: true },
+      { id: '5.2', label: 'Gastos Operativos 5.2', egreso: true },
+      { id: '5.3', label: 'Gastos Financieros 5.3', egreso: true },
+      { id: '1.2', label: 'CAPEX 1.2', egreso: true }
+    ];
+    window.HZ_BUDGET_FALLBACK = { '4.1': [2300000, 2450800], '5.1': [1155000, 1225400], '5.2': [590000, 597500], '5.3': [48000, 42100], '1.2': [155000, 153800] };
+    window.getBudgetRubros = function () {
+      var partidas = null;
+      try {
+        var raw = localStorage.getItem('horizon_budget_data');
+        if (raw) { var d = JSON.parse(raw); if (d && Array.isArray(d.partidas) && d.partidas.length) partidas = d.partidas; }
+      } catch (e) { console.warn('horizon_budget_data ilegible:', e); }
+      return window.HZ_BUDGET_CATS.map(function (c) {
+        var p, x;
+        if (partidas) {
+          var rows = partidas.filter(function (r) { return r.categoria === c.id; });
+          p = rows.reduce(function (s, r) { return s + (Number(r.presupuesto) || 0); }, 0);
+          x = rows.reduce(function (s, r) { return s + (Number(r.ejecutado) || 0); }, 0);
+        } else {
+          p = window.HZ_BUDGET_FALLBACK[c.id][0]; x = window.HZ_BUDGET_FALLBACK[c.id][1];
+        }
+        return { id: c.id, label: c.label, egreso: c.egreso, presupuesto: p, ejecutado: x };
+      });
+    };
+
+    // Re-renderizar los indicadores presupuestarios cuando cambie horizon_budget_data
+    window.addEventListener('storage', function (e) {
+      if (e.key === 'horizon_budget_data' && typeof window.renderSlots === 'function') window.renderSlots();
+    });
+
+    // =======================================================
+    // 1. CATÁLOGO GLOBAL DE WIDGETS Y DEFINICIÓN DE MÉTRICAS
+    // =======================================================
+    window.WIDGET_CATALOG = [
+      {
+        id: 'WIDGET_CASH_FLOW',
+        category: 'FIN',
+        categoryLabel: 'Tesorería & Liquidez',
+        badgeColor: 'sky',
+        title: 'Flujo de Caja Proyectado a 12 Meses',
+        description: 'Ingresos operativos proyectados vs. Egresos y Saldo de caja neto acumulado.',
+        kpiHighlight: '+ L 2.45M Neto',
+        kpiSubtext: 'Superávit proyectado Q4',
+        defaultType: 'bar',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: type === 'line' ? 'line' : 'bar',
+            data: {
+              labels: ['Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep'],
+              datasets: [
+                { label: 'Ingresos Proyectados (L)', data: [420, 460, 580, 390, 410, 440, 470, 490, 510, 530, 560, 610], backgroundColor: 'rgba(14, 165, 233, 0.75)', borderRadius: 4 },
+                { label: 'Egresos Comprometidos (L)', data: [310, 340, 410, 320, 330, 350, 360, 370, 380, 390, 400, 420], backgroundColor: 'rgba(244, 63, 94, 0.75)', borderRadius: 4 }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 10 } } } },
+              scales: { y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => 'L ' + v + 'k' }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 } }, grid: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_BANK_AVAILABILITY',
+        category: 'FIN',
+        categoryLabel: 'Bancos & Tesorería',
+        badgeColor: 'indigo',
+        title: 'Disponibilidad Bancaria Multi-Cuenta',
+        description: 'Distribución de saldos disponibles por entidad bancaria nacional.',
+        kpiHighlight: 'L 1,485,210.00',
+        kpiSubtext: '4 Cuentas activas HNL',
+        defaultType: 'doughnut',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['BAC Credomatic (42%)', 'Banco Ficohsa (28%)', 'Banpaís (18%)', 'Banco Atlántida (12%)'],
+              datasets: [{
+                data: [623788, 415858, 267337, 178225],
+                backgroundColor: ['#e11d48', '#7c3aed', '#059669', '#2563eb'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 10 } } } },
+              cutout: '65%'
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_COLLECTIONS_VS_PAYMENTS',
+        category: 'FIN',
+        categoryLabel: 'Cobranzas & Pagos',
+        badgeColor: 'emerald',
+        title: 'Recaudación CxC vs. Desembolsos CxP',
+        description: 'Comportamiento de cobranzas de clientes frente al pago de facturas a proveedores.',
+        kpiHighlight: 'Gap +L 182,500',
+        kpiSubtext: 'Cobertura de pasivos 1.4x',
+        defaultType: 'line',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7', 'Sem 8'],
+              datasets: [
+                { label: 'Recaudación CxC (L)', data: [110, 145, 130, 190, 160, 210, 180, 240], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', tension: 0.35, fill: true },
+                { label: 'Desembolsos CxP (L)', data: [85, 105, 115, 130, 120, 140, 135, 150], borderColor: '#f59e0b', borderDash: [4, 4], tension: 0.35 }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 10 } } } },
+              scales: { y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => 'L ' + v + 'k' }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 } }, grid: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_INVENTORY_ROTATION',
+        category: 'LOG',
+        categoryLabel: 'Logística & Inventario',
+        badgeColor: 'amber',
+        title: 'Rotación de Inventario & Días de Stock',
+        description: 'Días promedio de inventario en bodega por categoría comercial de producto.',
+        kpiHighlight: '34 Días Promedio',
+        kpiSubtext: 'Rotación óptima NIIF',
+        defaultType: 'bar',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Hardware & PC', 'Monitores', 'Accesorios', 'Redes & Serv.', 'Papelería'],
+              datasets: [{
+                label: 'Días de Stock',
+                data: [28, 35, 42, 22, 50],
+                backgroundColor: ['#0ea5e9', '#6366f1', '#10b981', '#f59e0b', '#ec4899'],
+                borderRadius: 6
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: { x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => v + ' d' }, grid: { color: '#f1f5f9' } }, y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } }, grid: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_OTIF_DELIVERY',
+        category: 'LOG',
+        categoryLabel: 'Operaciones & Logística',
+        badgeColor: 'sky',
+        title: 'Nivel de Servicio Logístico (OTIF)',
+        description: 'Cumplimiento de despachos a tiempo y completos (% On-Time In-Full).',
+        kpiHighlight: '98.4% OTIF',
+        kpiSubtext: '+2.1% vs mes anterior',
+        defaultType: 'line',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ['May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct (Est.)'],
+              datasets: [{
+                label: 'OTIF %',
+                data: [94.2, 95.8, 96.5, 97.1, 98.4, 98.9],
+                borderColor: '#0284c7',
+                backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                pointBackgroundColor: '#0284c7',
+                pointRadius: 4,
+                fill: true,
+                tension: 0.3
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: { y: { min: 90, max: 100, ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => v + '%' }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 } }, grid: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_SALES_VS_BUDGET',
+        category: 'SALES',
+        categoryLabel: 'Ventas & Metas',
+        badgeColor: 'emerald',
+        title: 'Ventas Diarias vs. Meta Presupuestaria',
+        description: 'Seguimiento de facturación diaria acumulada comparada con la cuota fiscal SAR.',
+        kpiHighlight: '108% Meta Cumplida',
+        kpiSubtext: 'L 3.82M Facturado',
+        defaultType: 'line',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ['D1', 'D5', 'D10', 'D15', 'D20', 'D25', 'D30'],
+              datasets: [
+                { label: 'Facturación Real (L)', data: [120, 540, 1150, 1890, 2600, 3350, 3820], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', tension: 0.25, fill: true },
+                { label: 'Meta Presupuesto (L)', data: [115, 500, 1050, 1700, 2350, 3000, 3500], borderColor: '#64748b', borderDash: [5, 5], tension: 0.1 }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 10 } } } },
+              scales: { y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => 'L ' + v + 'k' }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 } }, grid: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_EXPENSE_STRUCTURE',
+        category: 'FIN',
+        categoryLabel: 'Costos & Gastos NIIF',
+        badgeColor: 'rose',
+        title: 'Estructura de Gastos Operativos NIIF',
+        description: 'Desglose porcentual de gastos por rubro de cuentas 5.2.01 del catálogo contable.',
+        kpiHighlight: 'L 620,400 / Mes',
+        kpiSubtext: 'Planillas 45%, Serv. 18%',
+        defaultType: 'polarArea',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+              labels: ['Planilla y Sueldos', 'Servicios Públicos', 'Alquileres Bodega', 'Comisiones Bancarias', 'Mantenimiento'],
+              datasets: [{
+                data: [45, 18, 15, 12, 10],
+                backgroundColor: ['rgba(14, 165, 233, 0.7)', 'rgba(99, 102, 241, 0.7)', 'rgba(245, 158, 11, 0.7)', 'rgba(244, 63, 94, 0.7)', 'rgba(16, 185, 129, 0.7)']
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 9 } } } },
+              scales: { r: { ticks: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_GROSS_MARGIN',
+        category: 'SALES',
+        categoryLabel: 'Rentabilidad & Margen',
+        badgeColor: 'amber',
+        title: 'Margen Bruto por Familia de Productos',
+        description: 'Margen de contribución real tras descontar costo de venta (CPP).',
+        kpiHighlight: '38.6% Margen Global',
+        kpiSubtext: 'Línea Serv: 62% Margen',
+        defaultType: 'bar',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Laptops', 'Periféricos', 'Servicios TI', 'Licencias', 'Redes'],
+              datasets: [{
+                label: 'Margen Bruto (%)',
+                data: [24, 38, 62, 45, 32],
+                backgroundColor: '#f59e0b',
+                borderRadius: 5
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: { y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => v + '%' }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } }, grid: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_ACH_PAYMENTS_FORECAST',
+        category: 'FIN',
+        categoryLabel: 'Tesorería ACH',
+        badgeColor: 'sky',
+        title: 'Cronograma Semanal de Desembolsos ACH',
+        description: 'Calendario de vencimientos de lotes de pago bancario a proveedores.',
+        kpiHighlight: 'L 380,000 Próx. Semana',
+        kpiSubtext: '12 Facturas programadas',
+        defaultType: 'bar',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Sem 38', 'Sem 39', 'Sem 40', 'Sem 41', 'Sem 42'],
+              datasets: [{
+                label: 'Desembolsos Programados (L)',
+                data: [380000, 240000, 490000, 180000, 310000],
+                backgroundColor: '#0284c7',
+                borderRadius: 4
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: { y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => 'L ' + (v/1000) + 'k' }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 } }, grid: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_IMPORT_LEAD_TIME',
+        category: 'LOG',
+        categoryLabel: 'Comercio Exterior DUA',
+        badgeColor: 'indigo',
+        title: 'Lead Time de Importaciones & Aduana',
+        description: 'Tiempo transcurrido desde embarque FOB hasta ingreso al Kardex central.',
+        kpiHighlight: '18 Días Promedio',
+        kpiSubtext: 'Aduana Cortés: 3.2 días',
+        defaultType: 'line',
+        generateChart: (ctx, type) => {
+          return new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ['Lote 88', 'Lote 89', 'Lote 90', 'Lote 91', 'Lote 92', 'Lote 93'],
+              datasets: [{
+                label: 'Días Tránsito Total',
+                data: [24, 21, 19, 18, 17, 18],
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                tension: 0.3,
+                fill: true
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: { y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => v + ' d' }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 } }, grid: { display: false } } }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_BREAKEVEN',
+        category: 'FIN',
+        categoryLabel: 'Rentabilidad & Equilibrio',
+        badgeColor: 'rose',
+        title: 'Punto de Equilibrio Operativo (Ventas vs. Costos Fijos y Variables)',
+        description: 'Ventas mínimas que cubren costos fijos y variables, con el margen de seguridad frente a la facturación real Ene-Sep 2026.',
+        get kpiHighlight() { return 'PE: L ' + (window.calcBreakeven().pe / 1e6).toFixed(2) + 'M'; },
+        get kpiSubtext() { return 'Margen de seguridad ' + (window.calcBreakeven().ms * 100).toFixed(1) + '%'; },
+        defaultType: 'line',
+        generateChart: (ctx, type) => {
+          const b = window.calcBreakeven();
+          const maxK = Math.ceil((b.ventas * 1.25) / 250000) * 250;
+          const xs = [];
+          for (let x = 0; x <= maxK; x += 125) xs.push(x);
+          const serie = (fn) => xs.map(x => ({ x: x, y: Math.round(fn(x * 1000) / 1000) }));
+          const linea = (label, data, color, dash) => ({ label: label, data: data, showLine: true, borderColor: color, backgroundColor: color, borderWidth: 2, borderDash: dash || [], pointRadius: 0, tension: 0 });
+          return new Chart(ctx, {
+            type: 'scatter',
+            data: {
+              datasets: [
+                linea('Ingresos por Ventas', serie(v => v), '#0ea5e9'),
+                linea('Costos Totales (Fijos + Variables)', serie(v => b.cf + b.cvRatio * v), '#f43f5e'),
+                linea('Costos Fijos', serie(v => b.cf), '#64748b', [5, 5]),
+                { label: 'Punto de Equilibrio', data: [{ x: Math.round(b.pe / 1000), y: Math.round(b.pe / 1000) }], showLine: false, pointRadius: 6, backgroundColor: '#0f172a' },
+                { label: 'Ventas Reales', data: [{ x: Math.round(b.ventas / 1000), y: Math.round(b.ventas / 1000) }], showLine: false, pointRadius: 6, backgroundColor: '#10b981' }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 9 } } } },
+              scales: {
+                y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => 'L ' + v + 'k' }, grid: { color: '#f1f5f9' } },
+                x: { type: 'linear', title: { display: true, text: 'Volumen de ventas (L miles)', font: { family: 'Plus Jakarta Sans', size: 9 } }, ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => 'L ' + v + 'k' }, grid: { display: false } }
+              }
+            }
+          });
+        }
+      },
+      {
+        id: 'WIDGET_BUDGET_EXEC',
+        category: 'FIN',
+        categoryLabel: 'Control Presupuestario',
+        badgeColor: 'indigo',
+        title: 'Resumen de Ejecución Presupuestaria por Rubro',
+        description: 'Presupuesto asignado vs. ejecutado real por rubro NIIF, alimentado por el módulo Presupuestos & Simulador.',
+        get kpiHighlight() {
+          const r = window.getBudgetRubros().filter(x => x.egreso);
+          const p = r.reduce((s, x) => s + x.presupuesto, 0), e = r.reduce((s, x) => s + x.ejecutado, 0);
+          return (p ? (e / p * 100) : 0).toFixed(1) + '% Egresos Ejecutado';
+        },
+        get kpiSubtext() { return 'Costos, gastos y CAPEX'; },
+        defaultType: 'bar',
+        generateChart: (ctx, type) => {
+          const r = window.getBudgetRubros();
+          const colorEj = (x) => {
+            const pct = x.presupuesto ? x.ejecutado / x.presupuesto : 0;
+            if (x.egreso) return pct > 1 ? 'rgba(244, 63, 94, 0.8)' : pct > 0.9 ? 'rgba(245, 158, 11, 0.8)' : 'rgba(16, 185, 129, 0.8)';
+            return pct >= 1 ? 'rgba(16, 185, 129, 0.8)' : pct >= 0.9 ? 'rgba(245, 158, 11, 0.8)' : 'rgba(244, 63, 94, 0.8)';
+          };
+          return new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: r.map(x => x.label),
+              datasets: [
+                { label: 'Presupuesto (L)', data: r.map(x => x.presupuesto), backgroundColor: 'rgba(148, 163, 184, 0.6)', borderRadius: 4 },
+                { label: 'Ejecutado Real (L)', data: r.map(x => x.ejecutado), backgroundColor: r.map(colorEj), borderRadius: 4 }
+              ]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 9 } } } },
+              scales: {
+                x: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 }, callback: v => 'L ' + (v / 1000) + 'k' }, grid: { color: '#f1f5f9' } },
+                y: { ticks: { font: { family: 'Plus Jakarta Sans', size: 9 } }, grid: { display: false } }
+              }
+            }
+          });
+        }
+      }
+    ];
+
+    // =======================================================
+    // 2. ESTADO DEL LIENZO Y GESTIÓN DE RANURAS (SLOTS)
+    // =======================================================
+    window.currentGridConfig = '2x2'; // '2x2', '3x2', '4x2', '5x2'
+    window.totalSlots = 4;
+    window.activeSlots = [
+      'WIDGET_CASH_FLOW',
+      'WIDGET_BANK_AVAILABILITY',
+      'WIDGET_COLLECTIONS_VS_PAYMENTS',
+      'WIDGET_INVENTORY_ROTATION'
+    ];
+    
+    // Instancias de Chart.js activas
+    window.chartInstances = {};
+    window.targetSlotForCatalog = null;
+    window.activeCategoryFilter = 'ALL';
+
+    // =======================================================
+    // 3. CAMBIO DE DISTRIBUCIÓN DEL LIENZO (GRID FORMAT)
+    // =======================================================
+    window.setGridLayout = function(format) {
+      window.currentGridConfig = format;
+      const gridElem = document.getElementById('dashboard-grid');
+      const buttons = document.querySelectorAll('#grid-layout-buttons button');
+
+      buttons.forEach(btn => {
+        btn.className = "px-3 py-1.5 rounded-lg font-semibold tabular-nums text-[11px] text-slate-600 hover:text-slate-950 hover:bg-slate-200/60 transition-all";
+      });
+
+      const activeBtn = document.getElementById(`btn-grid-${format}`);
+      if (activeBtn) {
+        activeBtn.className = "px-3 py-1.5 rounded-lg font-bold tabular-nums text-[11px] transition-all bg-white text-slate-950 shadow-xs border border-slate-200/80";
+      }
+
+      // Configurar columnas según el formato
+      if (format === '2x2') {
+        window.totalSlots = 4;
+        gridElem.className = "grid grid-cols-1 md:grid-cols-2 gap-3.5 transition-all";
+      } else if (format === '3x2') {
+        window.totalSlots = 6;
+        gridElem.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 transition-all";
+      } else if (format === '4x2') {
+        window.totalSlots = 8;
+        gridElem.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 transition-all";
+      } else if (format === '5x2') {
+        window.totalSlots = 10;
+        gridElem.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 transition-all";
+      }
+
+      // Ajustar arreglo de ranuras
+      while (window.activeSlots.length < window.totalSlots) {
+        window.activeSlots.push(null);
+      }
+      if (window.activeSlots.length > window.totalSlots) {
+        window.activeSlots = window.activeSlots.slice(0, window.totalSlots);
+      }
+
+      window.renderSlots();
+      showToast(`Lienzo ajustado a formato ${format} (${window.totalSlots} ranuras).`, 'info');
+    };
+
+    // =======================================================
+    // 4. RENDERIZADO REACTIVO DE RANURAS (SLOTS)
+    // =======================================================
+    window.renderSlots = function() {
+      const gridElem = document.getElementById('dashboard-grid');
+      if (!gridElem) return;
+
+      // Destruir instancias previas de Chart.js
+      Object.keys(window.chartInstances).forEach(key => {
+        if (window.chartInstances[key]) {
+          window.chartInstances[key].destroy();
+        }
+      });
+      window.chartInstances = {};
+
+      gridElem.innerHTML = '';
+
+      for (let i = 0; i < window.totalSlots; i++) {
+        const widgetId = window.activeSlots[i];
+
+        if (!widgetId) {
+          // ESTADO DE RANURA VACÍA (EXACTO SEGÚN ESPECIFICACIÓN)
+          const emptySlotDiv = document.createElement('div');
+          emptySlotDiv.className = "h-80 bg-white/60 hover:bg-white border-2 border-dashed border-slate-200 hover:border-sky-500 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group p-6 text-center shadow-xs";
+          emptySlotDiv.onclick = () => window.openWidgetCatalog(i);
+          emptySlotDiv.innerHTML = `
+            <div class="w-12 h-12 rounded-2xl bg-slate-50 group-hover:bg-sky-50 text-slate-400 group-hover:text-sky-700 flex items-center justify-center tabular-nums font-black text-2xl transition-colors border border-slate-200/80">
+              +
+            </div>
+            <p class="text-xs font-extrabold text-slate-700 group-hover:text-sky-900 tabular-nums tracking-wider uppercase">Añadir Métrica / Gráfico</p>
+            <span class="text-[11px] text-slate-400">Seleccionar indicador de Finanzas o Logística (Ranura #${i + 1})</span>
+          `;
+          gridElem.appendChild(emptySlotDiv);
+        } else {
+          // ESTADO DE RANURA CON WIDGET ASIGNADO
+          const widgetDef = window.WIDGET_CATALOG.find(w => w.id === widgetId);
+          if (!widgetDef) continue;
+
+          const widgetCard = document.createElement('div');
+          widgetCard.className = "h-80 bg-white border border-slate-200 rounded-2xl p-4 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.07)] flex flex-col justify-between card-hover-fx relative overflow-hidden";
+          
+          widgetCard.innerHTML = `
+            <!-- Header de la tarjeta del widget -->
+            <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+              <div>
+                <div class="flex items-center gap-1.5 mb-0.5">
+                  <span class="text-[9px] tabular-nums font-bold px-1.5 py-0.2 rounded uppercase bg-slate-100 text-slate-600">${widgetDef.categoryLabel}</span>
+                  <span class="text-[9px] tabular-nums text-slate-400">Slot #${i + 1}</span>
+                </div>
+                <h3 class="font-extrabold text-slate-900 text-xs truncate max-w-[210px]" title="${widgetDef.title}">${widgetDef.title}</h3>
+              </div>
+
+              <!-- Controles del Widget -->
+              <div class="flex items-center gap-1">
+                <!-- Selector de Tipo -->
+                <button onclick="changeWidgetChartType(${i})" class="w-6 h-6 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center text-[10px] transition-colors border border-slate-200" title="Cambiar tipo de gráfico">
+                  📈
+                </button>
+                <!-- Cambiar Métrica -->
+                <button onclick="window.openWidgetCatalog(${i})" class="w-6 h-6 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center text-[10px] transition-colors border border-slate-200" title="Reemplazar métrica">
+                  🔄
+                </button>
+                <!-- Quitar Ranura -->
+                <button onclick="clearSlot(${i})" class="w-6 h-6 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center text-[11px] font-bold transition-colors border border-slate-200" title="Liberar ranura">
+                  &times;
+                </button>
+              </div>
+            </div>
+
+            <!-- Resumen KPI Rápido -->
+            <div class="flex items-baseline justify-between pt-1">
+              <span class="tabular-nums font-bold text-slate-900 text-sm tracking-tight">${widgetDef.kpiHighlight}</span>
+              <span class="text-[10px] text-slate-500 font-medium">${widgetDef.kpiSubtext}</span>
+            </div>
+
+            <!-- Canvas de Chart.js -->
+            <div class="flex-1 relative w-full min-h-[160px] max-h-[175px] my-1">
+              <canvas id="chart-canvas-${i}"></canvas>
+            </div>
+          `;
+
+          gridElem.appendChild(widgetCard);
+
+          // Inicializar Chart.js en el siguiente tick
+          setTimeout(() => {
+            const canvas = document.getElementById(`chart-canvas-${i}`);
+            if (canvas) {
+              const ctx = canvas.getContext('2d');
+              window.chartInstances[i] = widgetDef.generateChart(ctx, widgetDef.defaultType);
+            }
+          }, 0);
+        }
+      }
+    };
+
+    // =======================================================
+    // 5. CATÁLOGO MODAL Y SELECCIÓN DE MÉTRICAS
+    // =======================================================
+    window.openWidgetCatalog = function(slotIndex) {
+      window.targetSlotForCatalog = slotIndex;
+      document.getElementById('catalog-target-slot-label').textContent = `#${slotIndex + 1}`;
+      document.getElementById('modal-widget-catalog').classList.remove('hidden');
+      renderCatalogList();
+    };
+
+    window.closeWidgetCatalog = function() {
+      document.getElementById('modal-widget-catalog').classList.add('hidden');
+      window.targetSlotForCatalog = null;
+    };
+
+    function renderCatalogList() {
+      const container = document.getElementById('catalog-items-container');
+      const searchQuery = (document.getElementById('catalog-search').value || '').toLowerCase();
+      
+      container.innerHTML = '';
+
+      const filtered = window.WIDGET_CATALOG.filter(w => {
+        const matchesCategory = window.activeCategoryFilter === 'ALL' || w.category === window.activeCategoryFilter;
+        const matchesSearch = w.title.toLowerCase().includes(searchQuery) || w.description.toLowerCase().includes(searchQuery) || w.categoryLabel.toLowerCase().includes(searchQuery);
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 tabular-nums text-xs">No se encontraron métricas con ese criterio.</div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const isAssigned = window.activeSlots.includes(item.id);
+        const div = document.createElement('div');
+        div.className = "p-3 rounded-2xl border border-slate-200 hover:border-sky-400 bg-slate-50/50 hover:bg-white transition-all flex items-center justify-between gap-3 shadow-2xs";
+
+        div.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-800 flex items-center justify-center font-bold text-sm shadow-xs flex-shrink-0">
+              📊
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="tabular-nums text-[9px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800">${item.categoryLabel}</span>
+                <span class="font-extrabold text-slate-900 text-xs">${item.title}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5">${item.description}</p>
+              <div class="mt-1 flex items-center gap-2 text-[10px] tabular-nums">
+                <strong class="text-slate-800">${item.kpiHighlight}</strong>
+                <span class="text-slate-400">• ${item.kpiSubtext}</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="selectWidgetForSlot('${item.id}')" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex-shrink-0 ${isAssigned ? 'bg-slate-200 text-slate-700 hover:bg-sky-600 hover:text-white' : 'bg-slate-950 hover:bg-slate-800 text-white shadow-xs'}">
+            ${isAssigned ? 'Reasignar' : 'Seleccionar'}
+          </button>
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    window.selectWidgetForSlot = function(widgetId) {
+      if (window.targetSlotForCatalog !== null) {
+        window.activeSlots[window.targetSlotForCatalog] = widgetId;
+        window.closeWidgetCatalog();
+        window.renderSlots();
+        showToast(`Métrica anclada en la ranura #${window.targetSlotForCatalog + 1}.`, 'success');
+      }
+    };
+
+    window.clearSlot = function(slotIndex) {
+      window.activeSlots[slotIndex] = null;
+      window.renderSlots();
+      showToast(`Ranura #${slotIndex + 1} liberada.`, 'info');
+    };
+
+    window.changeWidgetChartType = function(slotIndex) {
+      const widgetId = window.activeSlots[slotIndex];
+      const widgetDef = window.WIDGET_CATALOG.find(w => w.id === widgetId);
+      if (!widgetDef) return;
+
+      const types = ['bar', 'line', 'doughnut'];
+      const currentIdx = types.indexOf(widgetDef.defaultType);
+      widgetDef.defaultType = types[(currentIdx + 1) % types.length];
+
+      window.renderSlots();
+      showToast(`Tipo de gráfico cambiado a: ${widgetDef.defaultType.toUpperCase()}`, 'info');
+    };
+
+    window.filterCatalogCategory = function(cat) {
+      window.activeCategoryFilter = cat;
+      const btns = ['ALL', 'FIN', 'LOG', 'SALES'];
+      btns.forEach(b => {
+        const el = document.getElementById(`cat-btn-${b}`);
+        if (el) {
+          el.className = b === cat 
+            ? "px-2.5 py-1 rounded-lg font-bold bg-white text-slate-900 shadow-xs" 
+            : "px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900";
+        }
+      });
+      renderCatalogList();
+    };
+
+    window.filterCatalogItems = function() {
+      renderCatalogList();
+    };
+
+    // =======================================================
+    // 6. ACCIONES GLOBALES Y PERSISTENCIA
+    // =======================================================
+    window.refreshAllWidgets = function() {
+      window.renderSlots();
+      showToast('Indicadores actualizados con datos en tiempo real.', 'success');
+    };
+
+    window.saveDashboardLayout = function() {
+      const state = {
+        gridConfig: window.currentGridConfig,
+        activeSlots: window.activeSlots
+      };
+      localStorage.setItem('hl_bi_dashboard_studio', JSON.stringify(state));
+      showToast('Plantilla personalizada guardada en memoria local.', 'success');
+    };
+
+    window.resetDefaultLayout = function() {
+      localStorage.removeItem('hl_bi_dashboard_studio');
+      window.activeSlots = [
+        'WIDGET_CASH_FLOW',
+        'WIDGET_BANK_AVAILABILITY',
+        'WIDGET_COLLECTIONS_VS_PAYMENTS',
+        'WIDGET_INVENTORY_ROTATION'
+      ];
+      window.setGridLayout('2x2');
+      showToast('Lienzo restablecido a la configuración ejecutiva por defecto.', 'info');
+    };
+
+    window.updateGlobalPeriod = function(period) {
+      showToast(`Horizonte temporal ajustado a: ${period}`, 'info');
+      window.refreshAllWidgets();
+    };
+
+    window.exportBiReport = function() {
+      showToast('Generando reporte consolidado de Business Intelligence...', 'info');
+      setTimeout(() => {
+        showToast('Reporte BI exportado exitosamente a PDF.', 'success');
+      }, 1000);
+    };
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toast-icon');
+      const text = document.getElementById('toast-message');
+
+      text.textContent = msg;
+      if (type === 'success') {
+        icon.textContent = '✓';
+        toast.className = 'fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-3 bg-emerald-900 text-white border-emerald-700 text-xs font-bold';
+      } else if (type === 'warning') {
+        icon.textContent = '⚠️';
+        toast.className = 'fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-3 bg-amber-900 text-white border-amber-700 text-xs font-bold';
+      } else {
+        icon.textContent = 'ℹ️';
+        toast.className = 'fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-3 bg-slate-900 text-white border-slate-700 text-xs font-bold';
+      }
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    // =======================================================
+    // 7. INICIALIZACIÓN
+    // =======================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Cargar configuración guardada si existe
+      try {
+        const saved = localStorage.getItem('hl_bi_dashboard_studio');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.gridConfig && parsed.activeSlots) {
+            window.activeSlots = parsed.activeSlots;
+            window.setGridLayout(parsed.gridConfig);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Error reading saved layout:', e);
+      }
+
+      window.setGridLayout('2x2');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Producción, Recetas & Órdenes de Fabricación | Horizon Ledger ERP</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            amber: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .tab-prod-active {
+      background-color: #ffffff !important;
+      color: #92400e !important;
+      border-color: #f59e0b !important;
+      box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.15) !important;
+      font-weight: 700 !important;
+    }
+
+    @media print {
+      body { background: white !important; padding: 0 !important; }
+      .grid-vignette, .no-print, header, .nav-action-bar, .modal-backdrop { display: none !important; }
+      .print-only { display: block !important; }
+      @page { size: portrait; margin: 10mm; }
+    }
+  </style>
+</head>
+<body class="bg-[#eef2f6] text-slate-900 min-h-screen flex flex-col p-3 sm:p-4 text-xs gap-3 relative selection:bg-amber-500 selection:text-white">
+
+  <!-- Retícula de fondo sutil -->
+  <div class="grid-vignette"></div>
+
+  <!-- 1. HEADER INSTITUCIONAL (HORIZON LEDGER) -->
+  <header class="flex items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.07)] relative z-20 flex-shrink-0 border-l-[6px] border-l-amber-500 no-print">
+    
+    <!-- Lado Izquierdo: Retorno + Marca + Título Conciso -->
+    <div class="flex items-center gap-4">
+      <!-- Retorno al Dashboard -->
+      <a href="/" class="w-8 h-8 rounded-xl bg-slate-950 flex items-center justify-center text-white font-bold text-xs hover:bg-slate-800 transition-all shadow-xs" title="Volver al Dashboard">
+        &larr;
+      </a>
+
+      <!-- Identidad del ERP -->
+      <div class="flex items-center gap-2 border-r border-slate-200 pr-4">
+        <div class="w-6 h-6 rounded-lg bg-slate-950 flex items-center justify-center text-white font-black text-[10px]">
+          HL
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-extrabold text-xs tracking-tight text-slate-950">Horizon Ledger</span>
+          <span class="text-[8.5px] font-mono uppercase text-slate-400 font-bold">ERP</span>
+        </div>
+      </div>
+
+      <!-- Título y Badge Funcional -->
+      <div class="flex items-center gap-2.5">
+        <h1 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">Gestión de Producción, Recetas & Órdenes</h1>
+        <span class="bg-amber-50 text-amber-700 border border-amber-200 font-mono text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 tracking-wider">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          TRANSFORMACIÓN & COSTEO NIIF
+        </span>
+      </div>
+    </div>
+
+    <!-- Centro / Derecha: Conmutador de Modo + Enlace Kardex + Perfil -->
+    <div class="flex items-center gap-3">
+      <!-- Conmutador de Modo Operativo (Industrial vs Gastronomía) -->
+      <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <button id="btn-modo-industrial" onclick="conmutarModoProduccion('INDUSTRIAL')" 
+                class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-xs">
+          🏭 Modo Industrial
+        </button>
+        <button id="btn-modo-cocina" onclick="conmutarModoProduccion('COCINA')" 
+                class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+          🍳 Modo Gastronomía
+        </button>
+      </div>
+
+      <!-- Enlace a Kardex de Bodegas -->
+      <a href="/inventario" 
+         class="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all">
+        <span>📦</span>
+        <span>Ver Kardex de Bodegas</span>
+      </a>
+
+      <!-- Divisor Vertical -->
+      <div class="h-6 w-px bg-slate-200"></div>
+
+      <!-- Perfil de Usuario -->
+      <div class="flex items-center gap-2 pl-1">
+        <div class="w-7 h-7 rounded-full bg-slate-950 text-white font-bold text-xs flex items-center justify-center ring-2 ring-slate-100 shadow-xs">
+          CH
+        </div>
+        <div class="hidden xl:flex flex-col leading-tight text-right">
+          <span class="font-bold text-[11px] text-slate-900">Carlos Hernández</span>
+          <span class="text-[9px] text-slate-400 font-mono">Control de Costos & Producción</span>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- 2. BARRA DE 4 KPIS SUPERIORES DE PRODUCCIÓN -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 z-10 no-print">
+    
+    <!-- KPI 1: Órdenes Activas / En Proceso -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between border-l-4 border-l-amber-500">
+      <div class="flex items-center justify-between text-slate-500 mb-1">
+        <span class="text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1" id="kpi-label-ordenes">
+          <span>⚙️</span> Órdenes en Proceso
+        </span>
+        <span class="font-mono text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded">
+          4 Activas
+        </span>
+      </div>
+      <div class="text-xl font-black font-mono text-slate-950 tracking-tight" id="kpi-val-ordenes">
+        L 84,200.00
+      </div>
+      <div class="flex items-center justify-between text-[10px] text-slate-500 mt-2 pt-2 border-t border-slate-100">
+        <span>En Bodega 03 (PP)</span>
+        <span class="font-mono font-bold text-amber-600">Transformando</span>
+      </div>
+    </div>
+
+    <!-- KPI 2: Materia Prima Directa (MPD) Consumida -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between border-l-4 border-l-slate-800">
+      <div class="flex items-center justify-between text-slate-500 mb-1">
+        <span class="text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1" id="kpi-label-mpd">
+          <span>🧪</span> Consumo MPD del Mes
+        </span>
+        <span class="font-mono text-[9px] font-bold bg-slate-100 text-slate-700 border border-slate-200 px-1.5 py-0.5 rounded">
+          Salidas B02
+        </span>
+      </div>
+      <div class="text-xl font-black font-mono text-slate-900 tracking-tight" id="kpi-val-mpd">
+        L 245,600.00
+      </div>
+      <div class="flex items-center justify-between text-[10px] text-slate-500 mt-2 pt-2 border-t border-slate-100">
+        <span>Kardex CPP Aplicado</span>
+        <span class="font-mono font-bold text-emerald-600">100% Asentado</span>
+      </div>
+    </div>
+
+    <!-- KPI 3: Absorción MOD & CIF -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between border-l-4 border-l-blue-500">
+      <div class="flex items-center justify-between text-slate-500 mb-1">
+        <span class="text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1">
+          <span>👥</span> Absorción MOD & CIF
+        </span>
+        <span class="font-mono text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded">
+          Conversión NIIF
+        </span>
+      </div>
+      <div class="text-xl font-black font-mono text-blue-700 tracking-tight" id="kpi-val-mod-cif">
+        L 68,400.00
+      </div>
+      <div class="flex items-center justify-between text-[10px] text-slate-500 mt-2 pt-2 border-t border-slate-100">
+        <span>MOD: L 42,000</span>
+        <span class="font-mono font-bold text-blue-600">CIF: L 26,400</span>
+      </div>
+    </div>
+
+    <!-- KPI 4: Eficiencia & Tolerancia de Merma -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between border-l-4 border-l-emerald-500">
+      <div class="flex items-center justify-between text-slate-500 mb-1">
+        <span class="text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1">
+          <span>⚖️</span> Merma / Rendimiento
+        </span>
+        <span class="font-mono text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded">
+          Control Normal
+        </span>
+      </div>
+      <div class="text-xl font-black font-mono text-emerald-700 tracking-tight" id="kpi-val-merma">
+        1.8% Merma Promedio
+      </div>
+      <div class="flex items-center justify-between text-[10px] text-slate-500 mt-2 pt-2 border-t border-slate-100">
+        <span>Tolerancia máx: 3.0%</span>
+        <span class="font-mono font-bold text-emerald-600">98.2% Rendimiento</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 3. BARRA DE PESTAÑAS OPERATIVAS (SEGMENTED SWITCHER) -->
+  <div class="flex items-center justify-between bg-slate-200/80 p-1.5 rounded-2xl border border-slate-300/80 z-10 no-print">
+    <div class="flex items-center gap-1.5">
+      <button id="tab-btn-recetas" onclick="cambiarTabProduccion('recetas')" 
+              class="tab-prod-active px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 transition-all flex items-center gap-2 border border-transparent">
+        <span id="tab-icon-recetas">📜</span>
+        <span id="tab-title-recetas">1. Catálogo de Recetas Maestras / Escandallos (BOM)</span>
+        <span class="bg-amber-100 text-amber-800 font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-full ml-1">4</span>
+      </button>
+
+      <button id="tab-btn-ordenes" onclick="cambiarTabProduccion('ordenes')" 
+              class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2 border border-transparent">
+        <span id="tab-icon-ordenes">⚙️</span>
+        <span id="tab-title-ordenes">2. Órdenes de Producción & Comandas</span>
+        <span class="bg-blue-100 text-blue-800 font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-full ml-1">4</span>
+      </button>
+
+      <button id="tab-btn-liquidacion" onclick="cambiarTabProduccion('liquidacion')" 
+              class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2 border border-transparent">
+        <span>⚖️</span>
+        <span>3. Liquidación de Costos & Cierre de Lote</span>
+        <span class="bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-full ml-1">1 Cierre</span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2 pr-2">
+      <span class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider hidden sm:inline" id="label-estado-modo">MODO: INDUSTRIAL ACTIVO</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 1: CATÁLOGO DE RECETAS MAESTRAS / ESCANDALLOS (BOM)                  -->
+  <!-- ========================================================================= -->
+  <section id="panel-tab-recetas" class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 z-10">
+    
+    <!-- Lista de Recetas (4 Cols) -->
+    <div class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold text-slate-900 uppercase tracking-wider" id="label-lista-recetas">Recetas / Escandallos</span>
+        <button onclick="abrirModalCrearReceta()" 
+                class="bg-slate-950 hover:bg-slate-800 text-white font-bold px-2.5 py-1 rounded-xl text-[11px] flex items-center gap-1 shadow-xs">
+          <span>+</span> <span id="btn-label-nueva-receta">Nueva Receta (BOM)</span>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto space-y-2 pr-1" id="lista-recetas-cards">
+        <!-- Renderizado dinámico vía JS -->
+      </div>
+    </div>
+
+    <!-- Detalle de la Receta / Estructura de Costeo (8 Cols) -->
+    <div class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+      
+      <!-- Ficha de Receta -->
+      <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-extrabold text-slate-950" id="rec-producto-nombre">Mueble Ejecutivo Caoba Mod. A</h2>
+            <span class="bg-amber-50 text-amber-800 border border-amber-200 font-mono text-[9.5px] font-bold px-2 py-0.5 rounded" id="rec-codigo-badge">
+              BOM-MUE-001
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5" id="rec-descripcion">
+            Lote estándar: 1 Unidad Conforme | Tiempo estándar: 4.5 Horas Hombre
+          </p>
+        </div>
+
+        <div class="text-right font-mono">
+          <span class="text-[10px] uppercase text-slate-400 font-bold block">Costo Total Estimado Unitario:</span>
+          <span class="text-lg font-black text-slate-950" id="rec-costo-total-header">L 3,450.00</span>
+        </div>
+      </div>
+
+      <!-- Tabla de Ingredientes / Materia Prima Directa (MPD) -->
+      <div class="flex-1 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div class="bg-slate-50 border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+          <span class="font-bold text-xs text-slate-800 uppercase" id="label-tabla-insumos">Componentes / Materias Primas Directas (MPD)</span>
+          <span class="text-[10px] font-mono text-slate-500">Kardex CPP Sincronizado</span>
+        </div>
+
+        <div class="overflow-x-auto flex-1">
+          <table class="w-full text-left border-collapse" id="tabla-receta-ingredientes">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-[10px] font-bold font-mono uppercase text-slate-500">
+                <th class="py-2 px-3">Insumo / Ingrediente</th>
+                <th class="py-2 px-3 text-center">Unidad</th>
+                <th class="py-2 px-3 text-right">Cant. Requerida</th>
+                <th class="py-2 px-3 text-center">Merma Est.</th>
+                <th class="py-2 px-3 text-right">Costo Unitario CPP</th>
+                <th class="py-2 px-3 text-right">Subtotal MPD</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-xs font-mono" id="tbody-receta-ingredientes">
+              <!-- Renderizado dinámico vía JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tarjetas de Conversión (MOD + CIF + Margen Sugerido) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <!-- MOD -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase text-slate-500">Mano de Obra Directa (MOD)</span>
+            <span class="font-mono text-[9px] font-bold text-slate-700">L 65.00/hr</span>
+          </div>
+          <div class="text-base font-black font-mono text-slate-900" id="rec-mod-total">L 450.00</div>
+          <span class="text-[10px] text-slate-500" id="rec-mod-detalle">6.92 Horas Hombre estimadas</span>
+        </div>
+
+        <!-- CIF -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase text-slate-500">Costos Indirectos (CIF)</span>
+            <span class="font-mono text-[9px] font-bold text-slate-700">Absorción</span>
+          </div>
+          <div class="text-base font-black font-mono text-slate-900" id="rec-cif-total">L 350.00</div>
+          <span class="text-[10px] text-slate-500" id="rec-cif-detalle">Energía, desgaste y supervisión</span>
+        </div>
+
+        <!-- Margen y Precio Sugerido -->
+        <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase text-emerald-800">Precio Sugerido Venta</span>
+            <span class="font-mono text-[9px] font-bold text-emerald-700">Margen 45%</span>
+          </div>
+          <div class="text-base font-black font-mono text-emerald-800" id="rec-precio-sugerido">L 6,272.73</div>
+          <span class="text-[10px] text-emerald-600 font-medium">Margen Bruto proyectado</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 2: ÓRDENES DE PRODUCCIÓN (OP) & COMANDAS                             -->
+  <!-- ========================================================================= -->
+  <section id="panel-tab-ordenes" class="hidden flex-1 flex flex-col gap-3 z-10">
+    
+    <!-- Barra Superior de Órdenes -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-blue-500">
+      <div class="flex flex-col">
+        <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight" id="title-seccion-ordenes">Órdenes de Producción & Comandas de Transformación</h2>
+        <p class="text-[11px] text-slate-500 mt-0.5">
+          Control de requisición de insumos (Bodega 02 MP) a cocina/planta (Bodega 03 PP) con explosión de materiales en tiempo real.
+        </p>
+      </div>
+
+      <button onclick="abrirModalCrearOrden()" 
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all">
+        <span>➕</span>
+        <span id="btn-label-nueva-orden">Nueva Orden de Producción</span>
+      </button>
+    </div>
+
+    <!-- Grid de Órdenes Activas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3" id="grid-ordenes-produccion">
+      <!-- Renderizado dinámico vía JS -->
+    </div>
+
+    <!-- Calculadora de Explosión de Materiales / Disponibilidad en Bodega 02 -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold text-slate-900 uppercase tracking-tight">Explosión de Materiales & Disponibilidad en Bodega 02 (MP)</span>
+          <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono text-[9.5px] font-bold px-2 py-0.5 rounded">
+            STOCK VERIFICADO EN KARDEX
+          </span>
+        </div>
+        <span class="font-mono text-xs text-slate-500">Orden Activa: <strong class="text-slate-900">OP-2026-0034 (10 Unidades)</strong></span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-[10px] font-bold font-mono uppercase text-slate-500 border-b border-slate-200">
+              <th class="py-2 px-3">Código Insumo</th>
+              <th class="py-2 px-3">Descripción</th>
+              <th class="py-2 px-3 text-right">Requerido Total</th>
+              <th class="py-2 px-3 text-right">Disponible en Bodega 02</th>
+              <th class="py-2 px-3 text-center">Estado Disponibilidad</th>
+              <th class="py-2 px-3 text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs font-mono">
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">MP-HAR-002</td>
+              <td class="py-2.5 px-3 font-sans font-medium text-slate-800">Harina de Trigo Especial 50 Kg</td>
+              <td class="py-2.5 px-3 text-right font-bold text-slate-900">30.00 Kg</td>
+              <td class="py-2.5 px-3 text-right font-bold text-emerald-700">100.00 Kg</td>
+              <td class="py-2.5 px-3 text-center">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9.5px] font-bold px-2 py-0.5 rounded">🟢 Stock Suficiente</span>
+              </td>
+              <td class="py-2.5 px-3 text-center">
+                <button class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-[10px] font-bold text-slate-700">Vale Salida</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">MP-AZU-003</td>
+              <td class="py-2.5 px-3 font-sans font-medium text-slate-800">Azúcar Refinada Dulce 50 Kg</td>
+              <td class="py-2.5 px-3 text-right font-bold text-slate-900">15.00 Kg</td>
+              <td class="py-2.5 px-3 text-right font-bold text-emerald-700">70.00 Kg</td>
+              <td class="py-2.5 px-3 text-center">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9.5px] font-bold px-2 py-0.5 rounded">🟢 Stock Suficiente</span>
+              </td>
+              <td class="py-2.5 px-3 text-center">
+                <button class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-[10px] font-bold text-slate-700">Vale Salida</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 3: LIQUIDACIÓN DE COSTOS & CIERRE DE LOTE                             -->
+  <!-- ========================================================================= -->
+  <section id="panel-tab-liquidacion" class="hidden flex-1 flex flex-col gap-3 z-10">
+    
+    <!-- Cabecera de Liquidación -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-emerald-500">
+      <div class="flex flex-col">
+        <h2 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">Liquidación de Costos & Alta en Bodega de Producto Terminado (B04)</h2>
+        <p class="text-[11px] text-slate-500 mt-0.5">
+          Cálculo del Costo Unitario Real Conforme: $\text{Costo Unitario PT} = \frac{\text{MPD Real} + \text{MOD Real} + \text{CIF Real}}{\text{Unidades Conformes}}$ y asiento automático.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1">
+          <span class="text-[10px] font-bold uppercase text-slate-500">Orden a Liquidar:</span>
+          <select id="liq-orden-select" onchange="seleccionarOrdenParaLiquidar(this.value)" class="bg-white border border-slate-300 rounded-lg px-2 py-1 font-mono text-xs font-bold text-slate-900 outline-none">
+            <option value="">Seleccione una orden...</option>
+          </select>
+        </div>
+        <button onclick="ejecutarLiquidacionCierre()" 
+                class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all">
+          <span>💾</span>
+          <span>Liquidar y Dar de Alta en Bodega PT</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Ficha de Cierre de Lote OP-2026-0034 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+      
+      <!-- Panel de Datos Reales (7 Cols) -->
+      <div class="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <span class="font-bold text-xs text-slate-900 uppercase">Datos Reales de Producción (Lote OP-2026-0034)</span>
+          <span class="font-mono text-[10px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded">Producto: Mueble Ejecutivo Caoba Mod. A</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Unidades Conformes Terminadas:</label>
+            <input type="number" id="liq-unidades-reales" value="10" 
+                   class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm text-slate-900 outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Merma Real Obtenida (Unidades):</label>
+            <input type="number" id="liq-merma-real" value="0.2" step="0.1" 
+                   class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm text-slate-900 outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Costo Real MPD Consumido:</label>
+            <input type="text" id="liq-mpd-real" value="L 26,500.00" readonly 
+                   class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-xs text-slate-800">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Horas Hombre MOD Reales:</label>
+            <input type="text" id="liq-mod-real" value="L 4,500.00 (69.2 hrs)" readonly 
+                   class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-xs text-slate-800">
+          </div>
+        </div>
+
+        <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-3 flex items-center justify-between font-mono text-xs">
+          <div>
+            <span class="text-[10px] font-bold uppercase text-amber-800 block">Costo Unitario Real Resultante:</span>
+            <span class="text-base font-black text-slate-950" id="liq-costo-unitario-final">L 3,450.00 por Unidad</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] font-bold uppercase text-slate-500 block">Total a Ingresar a Bodega 04:</span>
+            <span class="text-base font-black text-emerald-700" id="liq-total-ingreso-b04">L 34,500.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asiento Contable Automático en Libro Diario (5 Cols) -->
+      <div class="lg:col-span-5 bg-slate-900 text-white rounded-2xl p-4 shadow-sm border border-slate-800 flex flex-col justify-between">
+        <div class="space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="font-mono text-xs font-bold text-amber-400">PÓLIZA DE CIERRE DE PRODUCCIÓN</span>
+            <span class="font-mono text-[9px] font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded">CUADRADO 100%</span>
+          </div>
+
+          <div class="font-mono text-[10.5px] space-y-1.5 pt-1">
+            <div class="flex justify-between">
+              <span class="text-emerald-400">DEBE: 1.1.05.03 Prod. Terminados (B04)</span>
+              <span class="font-bold text-white">L 34,500.00</span>
+            </div>
+            <div class="flex justify-between pl-3">
+              <span class="text-slate-400">HABER: 1.1.05.02 Materias Primas (B02)</span>
+              <span class="font-bold text-white">L 26,500.00</span>
+            </div>
+            <div class="flex justify-between pl-3">
+              <span class="text-slate-400">HABER: 2.1.02.03 Mano de Obra por Aplicar</span>
+              <span class="font-bold text-white">L 4,500.00</span>
+            </div>
+            <div class="flex justify-between pl-3">
+              <span class="text-slate-400">HABER: 5.3.01.01 CIF Aplicados a Fábrica</span>
+              <span class="font-bold text-white">L 3,500.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between font-mono text-xs">
+          <span class="text-slate-400">Sumas Iguales:</span>
+          <span class="text-emerald-400 font-bold">L 34,500.00 = L 34,500.00</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- MODAL: NUEVA ORDEN DE PRODUCCIÓN -->
+  <div id="modal-nueva-orden" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 flex flex-col font-sans">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏭</span>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Nueva Orden de Fabricación (OP)</h3>
+            <p class="text-[10px] text-slate-500 font-mono">Emisión conectada a dev_erp.db con control atómico de Kardex</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalCrearOrden()" class="text-slate-400 hover:text-slate-700 font-mono text-lg font-bold">&times;</button>
+      </div>
+      <div class="space-y-3 font-mono text-xs">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Receta / Ficha Técnica (BOM):</label>
+          <select id="mo-receta-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none">
+            <option value="">Cargando recetas...</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Cantidad a Fabricar:</label>
+            <input type="number" id="mo-cantidad-plan" value="1" min="0.01" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-bold text-xs text-slate-900 outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Fecha de Orden:</label>
+            <input type="date" id="mo-fecha-orden" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Notas / Instrucciones:</label>
+          <input type="text" id="mo-notas" placeholder="Ej. Lote especial de entrega urgente..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-sans text-xs text-slate-900 outline-none">
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 border-t border-slate-100 pt-3 mt-4">
+        <button type="button" onclick="cerrarModalCrearOrden()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+          Cancelar
+        </button>
+        <button type="button" onclick="confirmarCrearOrden()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs rounded-xl shadow-xs transition">
+          🚀 Emitir Orden
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RESULTADO TRANSACCIÓN PÓLIZA EN VIVO -->
+  <div id="modal-notif-poliza" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 text-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-800 flex flex-col font-mono text-xs">
+      <div class="flex items-center gap-3 border-b border-slate-800 pb-3 mb-3">
+        <span class="text-2xl" id="modal-notif-icon">✅</span>
+        <div>
+          <h3 class="font-bold text-sm text-amber-400" id="modal-notif-titulo">Transacción Asentada</h3>
+          <p class="text-[10px] text-slate-400" id="modal-notif-sub">Horizon Ledger Core • Doble Partida Cuadrada</p>
+        </div>
+      </div>
+      <div class="space-y-2 py-2 text-slate-300 text-[11px]" id="modal-notif-body">
+      </div>
+      <div class="border-t border-slate-800 pt-3 mt-3 flex justify-end">
+        <button onclick="document.getElementById('modal-notif-poliza').classList.add('hidden')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs transition">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <!-- JAVASCRIPT: DATASETS & LOGICA -->
+  <script>
+    let MODO_ACTUAL = "INDUSTRIAL";
+    let RECETAS_API = [];
+    let ORDENES_API = [];
+    let WAREHOUSES_API = [];
+    let recetaSeleccionadaId = null;
+    let ordenSeleccionadaId = null;
+
+    // Fallback datasets estáticos en caso de desconexión
+    const RECETAS_DATA_FALLBACK = {
+      INDUSTRIAL: [
+        {
+          id: "BOM-001",
+          code: "BOM-MUE-001",
+          name: "Escritorio Ejecutivo Caoba Mod. A",
+          uom: "UNIDAD",
+          standard_batch_qty: 1,
+          total_estimated_unit_cost: 3450.00,
+          estimated_mod_cost: 450.00,
+          estimated_cif_cost: 350.00,
+          lines: [
+            { component_sku: "MP-MAD-01", component_name: "Madera Caoba Aserrada Tratada", uom: "Pies Tabla", quantity_required: 25.0, normal_scrap_percent: 2.0, unit_cost_cpp: 65.00, total_estimated_cost: 1625.00 },
+            { component_sku: "MP-HER-02", component_name: "Herrajes y Correderas Telescópicas", uom: "Juego", quantity_required: 4.0, normal_scrap_percent: 0.0, unit_cost_cpp: 125.00, total_estimated_cost: 500.00 },
+            { component_sku: "MP-BAR-03", component_name: "Barniz Poliuretano Alto Tráfico", uom: "Litro", quantity_required: 2.5, normal_scrap_percent: 5.0, unit_cost_cpp: 210.00, total_estimated_cost: 525.00 }
+          ]
+        },
+        {
+          id: "BOM-002",
+          code: "BOM-PIN-002",
+          name: "Pintura Anticorrosiva Gris Industrial 5 Gal",
+          uom: "Cubeta (5 Gal)",
+          standard_batch_qty: 1,
+          total_estimated_unit_cost: 820.00,
+          estimated_mod_cost: 120.00,
+          estimated_cif_cost: 95.00,
+          lines: [
+            { component_sku: "MP-RES-10", component_name: "Resina Alquídica Pura", uom: "Galón", quantity_required: 3.0, normal_scrap_percent: 1.0, unit_cost_cpp: 130.00, total_estimated_cost: 390.00 },
+            { component_sku: "MP-PIG-11", component_name: "Pigmento Dióxido de Titanio", uom: "Kg", quantity_required: 2.0, normal_scrap_percent: 0.5, unit_cost_cpp: 85.00, total_estimated_cost: 170.00 }
+          ]
+        }
+      ]
+    };
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      document.getElementById("mo-fecha-orden").valueAsDate = new Date();
+      await cargarDatosDesdeApi();
+    });
+
+    function formatLempiras(monto) {
+      return 'L ' + Number(monto || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    async function cargarDatosDesdeApi() {
+      try {
+        const [resRec, resOrd, resWh] = await Promise.all([
+          fetch('/api/v1/production/recipes'),
+          fetch('/api/v1/production/orders'),
+          fetch('/api/v1/inventory/warehouses/company/08011995-1234-5678-90ab-cdef12345678').catch(() => null)
+        ]);
+
+        if (resRec.ok) {
+          RECETAS_API = await resRec.json();
+        } else {
+          RECETAS_API = RECETAS_DATA_FALLBACK.INDUSTRIAL;
+        }
+
+        if (resOrd.ok) {
+          ORDENES_API = await resOrd.json();
+        }
+
+        if (resWh && resWh.ok) {
+          WAREHOUSES_API = await resWh.json();
+        }
+      } catch (err) {
+        console.warn("API de producción no disponible directamente, usando fallback local:", err);
+        RECETAS_API = RECETAS_DATA_FALLBACK.INDUSTRIAL;
+      }
+
+      renderizarRecetas();
+      if (RECETAS_API.length > 0) {
+        cargarDetalleReceta(RECETAS_API[0].id);
+      }
+      renderizarOrdenes();
+      actualizarSelectorLiquidacion();
+    }
+
+    function conmutarModoProduccion(modo) {
+      MODO_ACTUAL = modo;
+      const btnInd = document.getElementById("btn-modo-industrial");
+      const btnCoc = document.getElementById("btn-modo-cocina");
+
+      if (modo === "INDUSTRIAL") {
+        btnInd.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-xs";
+        btnCoc.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+        document.getElementById("label-estado-modo").innerText = "MODO: INDUSTRIAL ACTIVO";
+        document.getElementById("tab-title-recetas").innerText = "1. Catálogo de Recetas Maestras (BOM)";
+      } else {
+        btnCoc.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-xs";
+        btnInd.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+        document.getElementById("label-estado-modo").innerText = "MODO: GASTRONOMÍA / COCINA";
+        document.getElementById("tab-title-recetas").innerText = "1. Escandallos & Recetas Estándar";
+      }
+      renderizarRecetas();
+    }
+
+    function renderizarRecetas() {
+      const container = document.getElementById("lista-recetas-cards");
+      const list = (RECETAS_API && RECETAS_API.length > 0) ? RECETAS_API : RECETAS_DATA_FALLBACK.INDUSTRIAL;
+
+      container.innerHTML = list.map(r => {
+        const isSel = r.id === recetaSeleccionadaId;
+        const cod = r.code || r.codigo || "BOM-001";
+        const nom = r.name || r.nombre || "Receta";
+        const cost = r.total_estimated_unit_cost || r.costo_total || 0;
+        const uom = r.uom || r.lote_std || "UNIDAD";
+
+        return `
+          <div onclick="cargarDetalleReceta('${r.id}')" 
+               class="p-3 rounded-xl border ${isSel ? 'border-amber-500 bg-amber-50/50 shadow-sm' : 'border-slate-200 bg-white'} cursor-pointer hover:border-amber-400 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-900">${nom}</span>
+              <span class="font-mono text-[9px] font-bold text-slate-500">${cod}</span>
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[10.5px] font-mono">
+              <span class="text-slate-500">${uom}</span>
+              <span class="font-black text-slate-950">${formatLempiras(cost)}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function cargarDetalleReceta(id) {
+      recetaSeleccionadaId = id;
+      const list = (RECETAS_API && RECETAS_API.length > 0) ? RECETAS_API : RECETAS_DATA_FALLBACK.INDUSTRIAL;
+      const r = list.find(x => x.id === id) || list[0];
+      if (!r) return;
+
+      renderizarRecetas();
+
+      const nom = r.name || r.nombre || "Receta";
+      const cod = r.code || r.codigo || "BOM";
+      const uom = r.uom || r.lote_std || "UNIDAD";
+      const cost = r.total_estimated_unit_cost || r.costo_total || 0;
+      const mod = r.estimated_mod_cost || r.mod_total || 0;
+      const cif = r.estimated_cif_cost || r.cif_total || 0;
+
+      document.getElementById("rec-producto-nombre").innerText = nom;
+      document.getElementById("rec-codigo-badge").innerText = cod;
+      document.getElementById("rec-descripcion").innerText = `Lote estándar: ${r.standard_batch_qty || 1} ${uom} | Costeo Continuo CPP NIIF`;
+      document.getElementById("rec-costo-total-header").innerText = formatLempiras(cost);
+      document.getElementById("rec-mod-total").innerText = formatLempiras(mod);
+      document.getElementById("rec-cif-total").innerText = formatLempiras(cif);
+      document.getElementById("rec-precio-sugerido").innerText = formatLempiras(cost * 1.5);
+
+      const tbody = document.getElementById("tbody-receta-ingredientes");
+      const lines = r.lines || r.insumos || [];
+      tbody.innerHTML = lines.map(ins => {
+        const desc = ins.component_name || ins.desc || "Componente";
+        const csku = ins.component_sku || ins.codigo || "MP";
+        const u = ins.uom || ins.unidad || "UND";
+        const q = ins.quantity_required || ins.cant || 0;
+        const sc = ins.normal_scrap_percent != null ? ins.normal_scrap_percent + "%" : (ins.merma || "0%");
+        const cpp = ins.unit_cost_cpp || ins.cpp || 0;
+        const tot = ins.total_estimated_cost || ins.subtotal || (q * cpp);
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="py-2.5 px-3">
+              <div class="font-bold text-slate-900 font-sans">${desc}</div>
+              <div class="text-[10px] text-slate-400">Código: ${csku}</div>
+            </td>
+            <td class="py-2.5 px-3 text-center text-slate-600 font-semibold">${u}</td>
+            <td class="py-2.5 px-3 text-right font-bold text-slate-900">${q}</td>
+            <td class="py-2.5 px-3 text-center text-amber-700 font-semibold">${sc}</td>
+            <td class="py-2.5 px-3 text-right text-slate-700 font-mono">${formatLempiras(cpp)}</td>
+            <td class="py-2.5 px-3 text-right font-black text-slate-950 font-mono">${formatLempiras(tot)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function cambiarTabProduccion(tab) {
+      const pRec = document.getElementById("panel-tab-recetas");
+      const pOrd = document.getElementById("panel-tab-ordenes");
+      const pLiq = document.getElementById("panel-tab-liquidacion");
+
+      const bRec = document.getElementById("tab-btn-recetas");
+      const bOrd = document.getElementById("tab-btn-ordenes");
+      const bLiq = document.getElementById("tab-btn-liquidacion");
+
+      [bRec, bOrd, bLiq].forEach(b => {
+        b.className = "px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2 border border-transparent";
+      });
+
+      pRec.classList.add("hidden");
+      pOrd.classList.add("hidden");
+      pLiq.classList.add("hidden");
+
+      if (tab === 'recetas') {
+        pRec.classList.remove("hidden");
+        bRec.className = "tab-prod-active px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 transition-all flex items-center gap-2 border border-transparent";
+      } else if (tab === 'ordenes') {
+        pOrd.classList.remove("hidden");
+        bOrd.className = "tab-prod-active px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 transition-all flex items-center gap-2 border border-transparent";
+      } else if (tab === 'liquidacion') {
+        pLiq.classList.remove("hidden");
+        bLiq.className = "tab-prod-active px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 transition-all flex items-center gap-2 border border-transparent";
+        actualizarSelectorLiquidacion();
+      }
+    }
+
+    function renderizarOrdenes() {
+      const grid = document.getElementById("grid-ordenes-produccion");
+      if (!grid) return;
+
+      if (!ORDENES_API || ORDENES_API.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white border border-slate-200 rounded-2xl p-6 text-center text-slate-400">
+            No hay órdenes de fabricación registradas. Cree una nueva orden para comenzar.
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = ORDENES_API.map(o => {
+        let badgeClass = "bg-amber-50 text-amber-800 border-amber-200";
+        let actionBtn = "";
+
+        if (o.status === "DRAFT") {
+          badgeClass = "bg-slate-100 text-slate-700 border-slate-300";
+          actionBtn = `<button onclick="iniciarOrdenProduccion('${o.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-extrabold shadow-xs transition">⚡ Iniciar WIP</button>`;
+        } else if (o.status === "IN_PROGRESS_WIP") {
+          badgeClass = "bg-blue-50 text-blue-800 border-blue-200 animate-pulse";
+          actionBtn = `<button onclick="irALiquidarOrden('${o.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-extrabold shadow-xs transition">💾 Liquidar PT</button>`;
+        } else if (o.status === "COMPLETED") {
+          badgeClass = "bg-emerald-50 text-emerald-800 border-emerald-200";
+          actionBtn = `<span class="text-[10px] font-mono text-emerald-700 font-bold">Póliza: ${o.close_entry_number || 'CERRADA'}</span>`;
+        }
+
+        const cost = o.total_production_cost > 0 ? o.total_production_cost : o.total_raw_material_cost;
+
+        return `
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between border-l-4 ${o.status === 'COMPLETED' ? 'border-l-emerald-500' : 'border-l-amber-500'}">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-mono font-bold text-xs text-slate-900">${o.order_number}</span>
+                <span class="${badgeClass} border text-[9px] font-mono font-bold px-2 py-0.5 rounded">${o.status}</span>
+              </div>
+              <p class="font-bold text-xs text-slate-900">${o.product_name || o.recipe_name || 'Fabricación'}</p>
+              <p class="text-[11px] text-slate-500 mt-0.5 font-mono">Plan: ${o.planned_quantity} | Real: ${o.produced_quantity || 0}</p>
+              ${o.wip_entry_number ? `<p class="text-[9.5px] text-slate-400 font-mono mt-1">WIP: ${o.wip_entry_number}</p>` : ''}
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="font-mono font-black text-slate-950">${formatLempiras(cost)}</span>
+              ${actionBtn}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function actualizarSelectorLiquidacion() {
+      const select = document.getElementById("liq-orden-select");
+      if (!select) return;
+
+      const wipOrders = (ORDENES_API || []).filter(o => o.status === "IN_PROGRESS_WIP");
+      if (wipOrders.length === 0) {
+        select.innerHTML = `<option value="">No hay órdenes en WIP activas</option>`;
+        return;
+      }
+
+      select.innerHTML = wipOrders.map(o => `
+        <option value="${o.id}">${o.order_number} - ${o.product_name || o.recipe_name} (${o.planned_quantity} u)</option>
+      `).join("");
+
+      seleccionarOrdenParaLiquidar(wipOrders[0].id);
+    }
+
+    function irALiquidarOrden(orderId) {
+      cambiarTabProduccion('liquidacion');
+      const select = document.getElementById("liq-orden-select");
+      if (select) {
+        select.value = orderId;
+        seleccionarOrdenParaLiquidar(orderId);
+      }
+    }
+
+    function seleccionarOrdenParaLiquidar(orderId) {
+      ordenSeleccionadaId = orderId;
+      const order = (ORDENES_API || []).find(o => o.id === orderId);
+      if (!order) return;
+
+      document.getElementById("liq-unidades-reales").value = order.planned_quantity;
+      document.getElementById("liq-merma-real").value = 0;
+      document.getElementById("liq-mpd-real").value = formatLempiras(order.total_raw_material_cost);
+      
+      const mod = order.applied_mod_cost > 0 ? order.applied_mod_cost : (order.recipe ? order.recipe.estimated_mod_cost : 0);
+      const cif = order.applied_cif_cost > 0 ? order.applied_cif_cost : (order.recipe ? order.recipe.estimated_cif_cost : 0);
+
+      document.getElementById("liq-mod-real").value = formatLempiras(mod);
+      
+      const totalCost = Number(order.total_raw_material_cost) + Number(mod) + Number(cif);
+      const unitCost = order.planned_quantity > 0 ? (totalCost / Number(order.planned_quantity)) : 0;
+
+      document.getElementById("liq-costo-unitario-final").innerText = formatLempiras(unitCost) + " por Unidad";
+      document.getElementById("liq-total-ingreso-b04").innerText = formatLempiras(totalCost);
+    }
+
+    async function iniciarOrdenProduccion(orderId) {
+      if (!confirm("¿Desea iniciar la orden de producción y descargar materias primas al Kardex (CPP)?")) return;
+
+      try {
+        const res = await fetch(`/api/v1/production/orders/${orderId}/start`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes: "Inicio de orden desde workspace" })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          alert("Error: " + (err.detail || "No se pudo iniciar la orden"));
+          return;
+        }
+
+        const data = await res.json();
+        mostrarNotificacionPoliza(
+          "Consumo WIP Asentado con Éxito",
+          `✅ Orden: ${data.order_number}\n` +
+          `📦 Descarga Kardex: PRODUCTION_OUT al CPP\n` +
+          `📋 Asiento Libro Diario: ${data.wip_entry_number || 'OK'}\n` +
+          `💰 Total Materia Prima: ${formatLempiras(data.total_raw_material_cost)}\n` +
+          `🔗 Thread ID: ${data.thread_id}`
+        );
+        await cargarDatosDesdeApi();
+      } catch (e) {
+        alert("Error de conexión: " + e.message);
+      }
+    }
+
+    async function ejecutarLiquidacionCierre() {
+      const orderId = document.getElementById("liq-orden-select").value || ordenSeleccionadaId;
+      if (!orderId) {
+        alert("Por favor seleccione una orden de producción en estado IN_PROGRESS_WIP.");
+        return;
+      }
+
+      const producedQty = parseFloat(document.getElementById("liq-unidades-reales").value) || 0;
+      const scrapQty = parseFloat(document.getElementById("liq-merma-real").value) || 0;
+
+      if (producedQty <= 0) {
+        alert("La cantidad terminada debe ser mayor a cero.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/v1/production/orders/${orderId}/complete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            produced_quantity: producedQty,
+            abnormal_scrap_quantity: scrapQty,
+            notes: "Liquidación y cierre de orden desde Workspace Producción"
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          alert("Error: " + (err.detail || "No se pudo liquidar la orden"));
+          return;
+        }
+
+        const data = await res.json();
+        mostrarNotificacionPoliza(
+          "Liquidación PT Asentada con Éxito",
+          `✅ Orden Completada: ${data.order_number}\n` +
+          `📦 Alta en Kardex PT: ${data.produced_quantity} u a ${formatLempiras(data.final_unit_cost)}\n` +
+          `📋 Asiento Liquidación: ${data.close_entry_number || 'OK'}\n` +
+          `💰 Costo Total Producción: ${formatLempiras(data.total_production_cost)}\n` +
+          `🔗 Thread ID: ${data.thread_id}`
+        );
+
+        await cargarDatosDesdeApi();
+        cambiarTabProduccion('ordenes');
+      } catch (e) {
+        alert("Error de conexión: " + e.message);
+      }
+    }
+
+    function mostrarNotificacionPoliza(titulo, detalle) {
+      document.getElementById("modal-notif-titulo").innerText = titulo;
+      document.getElementById("modal-notif-body").innerHTML = detalle.replace(/\n/g, '<br>');
+      document.getElementById("modal-notif-poliza").classList.remove("hidden");
+    }
+
+    function abrirModalCrearOrden() {
+      const sel = document.getElementById("mo-receta-select");
+      const list = (RECETAS_API && RECETAS_API.length > 0) ? RECETAS_API : RECETAS_DATA_FALLBACK.INDUSTRIAL;
+      sel.innerHTML = list.map(r => `
+        <option value="${r.id}">${r.code || r.codigo} - ${r.name || r.nombre}</option>
+      `).join("");
+      document.getElementById("modal-nueva-orden").classList.remove("hidden");
+    }
+
+    function cerrarModalCrearOrden() {
+      document.getElementById("modal-nueva-orden").classList.add("hidden");
+    }
+
+    async function confirmarCrearOrden() {
+      const recipeId = document.getElementById("mo-receta-select").value;
+      const plannedQty = parseFloat(document.getElementById("mo-cantidad-plan").value) || 1;
+      const orderDate = document.getElementById("mo-fecha-orden").value || new Date().toISOString().split("T")[0];
+      const notes = document.getElementById("mo-notas").value;
+
+      if (!recipeId) {
+        alert("Seleccione una receta.");
+        return;
+      }
+
+      const recipe = RECETAS_API.find(r => r.id === recipeId);
+      const companyId = recipe ? recipe.company_id : "08011995-1234-5678-90ab-cdef12345678";
+
+      // Bodegas por defecto
+      let sourceWhId = "00000000-0000-0000-0000-000000000001";
+      let targetWhId = "00000000-0000-0000-0000-000000000002";
+      if (WAREHOUSES_API && WAREHOUSES_API.length >= 2) {
+        sourceWhId = WAREHOUSES_API[0].id;
+        targetWhId = WAREHOUSES_API[1].id;
+      }
+
+      try {
+        const res = await fetch('/api/v1/production/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            company_id: companyId,
+            recipe_id: recipeId,
+            source_warehouse_id: sourceWhId,
+            target_warehouse_id: targetWhId,
+            planned_quantity: plannedQty,
+            order_date: orderDate,
+            notes: notes
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          alert("Error: " + (err.detail || "No se pudo crear la orden"));
+          return;
+        }
+
+        const data = await res.json();
+        cerrarModalCrearOrden();
+        mostrarNotificacionPoliza("Orden de Producción Creada", `Orden ${data.order_number} registrada en estado DRAFT en dev_erp.db.`);
+        await cargarDatosDesdeApi();
+        cambiarTabProduccion('ordenes');
+      } catch (e) {
+        alert("Error de conexión: " + e.message);
+      }
+    }
+
+    function abrirModalCrearReceta() {
+      alert("Para registrar nuevas recetas maestras, use el endpoint POST /api/v1/production/recipes o el catálogo interactivo.");
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Libro de Compras Fiscal SAR (Ledger) | Horizon Ledger Core</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background-color: #f8fafc; 
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-corporate { font-family: 'Cinzel', serif; }
+
+    /* PATRÓN DE CUADRÍCULA FINTECH CON DIFUMINADO RADIAL */
+    .bg-grid-blueprint {
+      background-size: 28px 28px;
+      background-image: 
+        linear-gradient(to right, rgba(148, 163, 184, 0.18) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 80%);
+      -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 80%);
+    }
+
+    /* Estandarización tipográfica para inputs y selects */
+    .input-std {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      color: #0f172a !important;
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 0.35rem 0.55rem;
+      transition: all 0.15s ease-in-out;
+    }
+    .input-std:focus {
+      outline: none;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+      background-color: #ffffff;
+    }
+    .select-std {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      color: #0f172a !important;
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 0.35rem 0.55rem;
+      transition: all 0.15s ease-in-out;
+      cursor: pointer;
+    }
+    .select-std:focus {
+      outline: none;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+      background-color: #ffffff;
+    }
+
+    /* Scrollbar sutil y técnico */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f8fafc;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .bg-grid-blueprint { display: none !important; }
+      header, footer { box-shadow: none !important; border: 1px solid #ccc !important; }
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased p-2.5 h-screen overflow-hidden flex flex-col justify-between relative select-none">
+
+  <!-- CAPA DE FONDO: CUADRÍCULA CON MÁSCARA RADIAL DIFUMINADA -->
+  <div class="pointer-events-none fixed inset-0 z-0 bg-grid-blueprint"></div>
+
+  <!-- WRAPPER PRINCIPAL QUE OCUPA EL ALTO TOTAL -->
+  <div class="relative z-10 flex-1 flex flex-col min-h-0 w-full">
+
+    <!-- ============================================================== -->
+    <!-- ENCABEZADO INSTITUCIONAL                                       -->
+    <!-- ============================================================== -->
+    <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2 px-5 shadow-xs flex flex-wrap items-center justify-between gap-3 mb-2 shrink-0 border-l-4 border-l-amber-500">
+      <div class="flex items-center gap-3">
+        <a href="sandbox_compras.html" class="w-7 h-7 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-xs" title="Volver al Registro de Facturas">
+          &larr;
+        </a>
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-md bg-slate-900 text-white font-black text-xs flex items-center justify-center tracking-tighter">HL</span>
+          <div>
+            <div class="font-black text-xs text-slate-900 tracking-tight leading-none">HORIZON LEDGER CORE</div>
+            <div class="text-[9px] font-mono text-slate-500 font-bold leading-none mt-0.5">LIBRO OFICIAL DE COMPRAS &bull; SAR HONDURAS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nombre Corporativo Elegante (Cinzel) -->
+      <div class="flex items-center justify-center text-center">
+        <span class="font-corporate font-extrabold text-base sm:text-lg tracking-[0.22em] text-slate-900 drop-shadow-2xs select-none">
+          SOLUTIONS &amp; APPLIANCES LTD
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="font-mono text-xs font-bold text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl">
+          PERÍODO FISCAL: 2026
+        </div>
+        <div class="flex items-center gap-2 border-l border-slate-200 pl-3">
+          <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-900 font-mono font-black text-xs flex items-center justify-center border border-amber-300">
+            CH
+          </span>
+          <div class="text-left hidden sm:block">
+            <div class="text-xs font-bold text-slate-900 leading-tight">Carlos Hernández</div>
+            <div class="text-[9px] font-mono text-slate-500 leading-tight">Contador General</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================================== -->
+    <!-- BARRA DE FILTROS TIPO LEDGER & AUDITORÍA                       -->
+    <!-- ============================================================== -->
+    <section class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2.5 shadow-xs mb-2 shrink-0 flex flex-wrap items-center justify-between gap-2.5 font-mono text-xs">
+      
+      <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[320px]">
+        <div>
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Mes Fiscal:</label>
+          <select id="filtro-mes" onchange="aplicarFiltrosLedger()" class="select-std py-1 text-xs font-bold">
+            <option value="ALL">Todo el Año 2026</option>
+            <option value="09" selected>Septiembre 2026</option>
+            <option value="08">Agosto 2026</option>
+            <option value="07">Julio 2026</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Tipo Comprobante:</label>
+          <select id="filtro-tipo-doc" onchange="aplicarFiltrosLedger()" class="select-std py-1 text-xs">
+            <option value="ALL">Todos los Tipos</option>
+            <option value="FACTURA">Facturas Locales (SAR)</option>
+            <option value="DUA">Importaciones (DUA / Boletín)</option>
+            <option value="RECIBO">Recibos Oficiales</option>
+            <option value="NC">Notas de Crédito</option>
+          </select>
+        </div>
+
+        <div class="flex-1 min-w-[220px]">
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Búsqueda Rápida:</label>
+          <input type="text" id="filtro-busqueda" oninput="aplicarFiltrosLedger()" placeholder="Filtrar por RTN, Proveedor, # Factura, CAI o DUA..." class="w-full input-std py-1 text-xs">
+        </div>
+      </div>
+
+      <!-- Acciones de Exportación -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" onclick="exportarExcel()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs">
+          <span>📊</span>
+          <span>Exportar Excel</span>
+        </button>
+        <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs">
+          <span>🖨️</span>
+          <span>Imprimir SAR</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- GRILLA PRINCIPAL TIPO LEDGER (EXPANDIDA AL TOPE DE ALTURA)     -->
+    <!-- ============================================================== -->
+    <main class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-2xl p-2.5 shadow-xs flex-1 flex flex-col justify-between min-h-0">
+      
+      <div class="flex-1 flex flex-col min-h-0">
+        <!-- Encabezado de la Grilla -->
+        <div class="flex items-center justify-between pb-2 mb-1 shrink-0 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            <h2 class="font-bold text-slate-900 text-xs uppercase font-mono tracking-tight">
+              Libro Diario Auxiliar de Compras e Importaciones
+            </h2>
+            <span id="badge-total-filas" class="px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+              0 registros
+            </span>
+          </div>
+          <div class="text-[10px] font-mono text-slate-400">
+            Regulado según Artículo 17 Ley ISV &bull; SAR Honduras
+          </div>
+        </div>
+
+        <!-- Tabla Ledger con Desglose Fiscal Completo -->
+        <div class="overflow-y-auto overflow-x-auto flex-1 custom-scrollbar rounded-xl border border-slate-200">
+          <table class="w-full text-left font-mono text-xs border-collapse table-auto">
+            <thead class="sticky top-0 bg-slate-800 text-slate-100 z-10 border-b-2 border-slate-900 shadow-xs text-[10px] uppercase tracking-wider">
+              <tr class="divide-x divide-slate-700/80">
+                <th class="py-2.5 px-2 text-center w-10">#</th>
+                <th class="py-2.5 px-2 text-center w-20">Fecha</th>
+                <th class="py-2.5 px-3 w-32">RTN Proveedor</th>
+                <th class="py-2.5 px-3">Razón Social / Entidad Fiscal</th>
+                <th class="py-2.5 px-3 w-36"># Doc / DUA</th>
+                <th class="py-2.5 px-2 text-center w-24">CAI / Póliza</th>
+                <th class="py-2.5 px-2.5 text-right w-24">Exento / 0%</th>
+                <th class="py-2.5 px-2.5 text-right w-24">Grav 15%</th>
+                <th class="py-2.5 px-2.5 text-right w-24">Grav 18%</th>
+                <th class="py-2.5 px-3 text-right w-28 text-emerald-400 bg-slate-900">ISV Crédito (L)</th>
+                <th class="py-2.5 px-2.5 text-right w-24 text-rose-300 bg-slate-900">Ret. 1%</th>
+                <th class="py-2.5 px-3 text-right w-32 text-amber-300 font-bold bg-slate-900">Total (L)</th>
+                <th class="py-2.5 px-2 text-center w-16 bg-slate-900">Asiento</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-tbody" class="divide-y divide-slate-100 bg-white text-[11px]">
+              <!-- Filas inyectadas dinámicamente -->
+            </tbody>
+          </table>
+
+          <div id="ledger-empty-state" class="py-20 text-center text-slate-400 space-y-1 hidden">
+            <span class="text-3xl block">📑</span>
+            <span class="font-bold text-xs text-slate-600 block">No se encontraron comprobantes con los filtros seleccionados.</span>
+            <p class="text-[10px]">Ajuste el rango de fechas o el término de búsqueda.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Resumen y Liquidación Acumulada al Pie de la Grilla -->
+      <div class="border-t border-slate-200 pt-2 mt-2 flex flex-wrap items-center justify-between font-mono text-xs shrink-0 text-slate-700 bg-slate-50/50 p-2 rounded-xl">
+        <div class="flex items-center gap-4">
+          <div>Compras Exentas: <strong id="lbl-sum-exento" class="text-slate-900">0.00</strong></div>
+          <div>Gravado 15%: <strong id="lbl-sum-grav15" class="text-slate-900">0.00</strong></div>
+          <div>Gravado 18%: <strong id="lbl-sum-grav18" class="text-slate-900">0.00</strong></div>
+        </div>
+        <div class="flex items-center gap-5 text-right">
+          <div>ISV Crédito Total: <strong id="lbl-sum-isv" class="text-emerald-700 font-black text-sm">L 0.00</strong></div>
+          <div>Retención 1% Acumulada: <strong id="lbl-sum-ret" class="text-rose-600 font-bold">L 0.00</strong></div>
+          <div class="border-l border-slate-300 pl-4">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">TOTAL ADQUISICIONES (L)</span>
+            <strong id="lbl-sum-total" class="text-slate-900 font-black text-base">L 0.00</strong>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ============================================================== -->
+    <!-- BARRA INFERIOR DE NAVEGACIÓN Y ENLACE AL WORKSPACE             -->
+    <!-- ============================================================== -->
+    <footer class="mt-2 z-40 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl px-4 py-2 shadow-xs shrink-0 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <a href="sandbox_compras.html" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5">
+          <span>&larr;</span>
+          <span>Volver al Registro de Compras</span>
+        </a>
+        <a href="workspace_cxp.html" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5">
+          <span>🏦</span>
+          <span>Ir a Cuentas por Pagar / Tesorería</span>
+        </a>
+      </div>
+
+      <div class="text-[10px] font-mono text-slate-400">
+        Horizon Ledger Core &bull; Módulo Fiscal v4.2
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: DETALLE DEL ASIENTO CONTABLE ASOCIADO                  -->
+  <!-- ============================================================== -->
+  <div id="modal-asiento-detalle" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-3 font-sans">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⚖️</span>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm" id="modal-asiento-titulo">Partida Contable: COM-202609-001</h3>
+            <p class="text-[11px] text-slate-500 font-mono" id="modal-asiento-sub">Factura: 000-001-01-00045821</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalAsiento()" class="text-slate-400 hover:text-slate-700 font-mono text-lg font-bold">&times;</button>
+      </div>
+
+      <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-xl">
+        <table class="w-full text-left font-mono text-xs">
+          <thead class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase sticky top-0">
+            <tr>
+              <th class="p-2">Cuenta</th>
+              <th class="p-2 text-right">Debe (L)</th>
+              <th class="p-2 text-right">Haber (L)</th>
+            </tr>
+          </thead>
+          <tbody id="modal-asiento-tbody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between border-t border-slate-100 pt-2 text-xs font-mono">
+        <span class="text-slate-500">Balance: <strong class="text-emerald-700">100% CUADRADO</strong></span>
+        <button type="button" onclick="cerrarModalAsiento()" class="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT DEL LEDGER FISCAL -->
+  <script>
+    const dbLibroCompras = [
+      {
+        id: 1,
+        fecha: "17/09/2026",
+        mes: "09",
+        rtn: "08011999887766",
+        proveedor: "Distribuidora Industrial S. de R.L.",
+        tipoDoc: "FACTURA",
+        numDoc: "000-001-01-00045821",
+        cai: "3A2B1C-4D5E6F",
+        exento: 0.00,
+        grav15: 34500.00,
+        grav18: 0.00,
+        isv: 5175.00,
+        retencion: 345.00,
+        total: 39675.00,
+        asientoId: "COM-202609-0045",
+        asiento: [
+          { cuenta: "1.2.01.01 - Maquinaria y Equipo (NIC 16)", debe: 34500.00, haber: 0.00 },
+          { cuenta: "1.1.07.01 - Crédito Fiscal ISV 15%", debe: 5175.00, haber: 0.00 },
+          { cuenta: "2.1.03.01 - Retención 1% ISV SAR", debe: 0.00, haber: 345.00 },
+          { cuenta: "2.1.01.01 - Proveedores Locales CxP", debe: 0.00, haber: 39330.00 }
+        ]
+      },
+      {
+        id: 2,
+        fecha: "15/09/2026",
+        mes: "09",
+        rtn: "08011990123456",
+        proveedor: "Molinos de Honduras S.A.",
+        tipoDoc: "FACTURA",
+        numDoc: "000-002-01-00091230",
+        cai: "8E9A0B-1C2D3E",
+        exento: 19500.00,
+        grav15: 0.00,
+        grav18: 0.00,
+        isv: 0.00,
+        retencion: 0.00,
+        total: 19500.00,
+        asientoId: "COM-202609-0044",
+        asiento: [
+          { cuenta: "1.1.05.02 - Materias Primas e Insumos", debe: 19500.00, haber: 0.00 },
+          { cuenta: "2.1.01.01 - Proveedores Locales CxP", debe: 0.00, haber: 19500.00 }
+        ]
+      },
+      {
+        id: 3,
+        fecha: "14/09/2026",
+        mes: "09",
+        rtn: "08019015123456",
+        proveedor: "ADMINISTRACION ADUANERA DE HONDURAS",
+        tipoDoc: "DUA",
+        numDoc: "BOL-2026-09-00812",
+        cai: "EXP-2026-IMP-0045",
+        exento: 44136.53,
+        grav15: 0.00,
+        grav18: 0.00,
+        isv: 70762.77,
+        retencion: 0.00,
+        total: 114899.30,
+        asientoId: "ADU-202609-0012",
+        asiento: [
+          { cuenta: "1.1.07.01 - ISV Crédito Fiscal Aduanero", debe: 70762.77, haber: 0.00 },
+          { cuenta: "5.1.02.01 - Aranceles DAI / TSA Importación", debe: 44136.53, haber: 0.00 },
+          { cuenta: "1.1.01.02.01 - Banco Atlántida (Pago Boletín)", debe: 0.00, haber: 114899.30 }
+        ]
+      },
+      {
+        id: 4,
+        fecha: "10/09/2026",
+        mes: "09",
+        rtn: "05011985443322",
+        proveedor: "AgroInsumos del Valle",
+        tipoDoc: "FACTURA",
+        numDoc: "001-001-01-00018844",
+        cai: "5D6E7F-8A9B0C",
+        exento: 0.00,
+        grav15: 39900.00,
+        grav18: 0.00,
+        isv: 5985.00,
+        retencion: 399.00,
+        total: 45885.00,
+        asientoId: "COM-202609-0041",
+        asiento: [
+          { cuenta: "1.1.05.02 - Inventario Materias Primas", debe: 39900.00, haber: 0.00 },
+          { cuenta: "1.1.07.01 - Crédito Fiscal ISV 15%", debe: 5985.00, haber: 0.00 },
+          { cuenta: "2.1.03.01 - Retención 1% ISV SAR", debe: 0.00, haber: 399.00 },
+          { cuenta: "2.1.01.01 - Proveedores Locales CxP", debe: 0.00, haber: 45486.00 }
+        ]
+      },
+      {
+        id: 5,
+        fecha: "28/08/2026",
+        mes: "08",
+        rtn: "08011995123456",
+        proveedor: "Equipos Industriales S.A.",
+        tipoDoc: "FACTURA",
+        numDoc: "000-001-01-00045120",
+        cai: "1A2B3C-9F8E7D",
+        exento: 0.00,
+        grav15: 100000.00,
+        grav18: 0.00,
+        isv: 15000.00,
+        retencion: 1000.00,
+        total: 115000.00,
+        asientoId: "COM-202608-0089",
+        asiento: [
+          { cuenta: "1.2.01.01 - Maquinaria Industrial", debe: 100000.00, haber: 0.00 },
+          { cuenta: "1.1.07.01 - Crédito Fiscal ISV 15%", debe: 15000.00, haber: 0.00 },
+          { cuenta: "2.1.03.01 - Retención 1% ISV SAR", debe: 0.00, haber: 1000.00 },
+          { cuenta: "2.1.01.01 - Proveedores Locales CxP", debe: 0.00, haber: 114000.00 }
+        ]
+      }
+    ];
+
+    function formatNumber(num) {
+      return (Number(num) || 0).toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function aplicarFiltrosLedger() {
+      const mes = document.getElementById('filtro-mes').value;
+      const tipoDoc = document.getElementById('filtro-tipo-doc').value;
+      const q = document.getElementById('filtro-busqueda').value.toLowerCase().trim();
+
+      const tbody = document.getElementById('ledger-tbody');
+      const empty = document.getElementById('ledger-empty-state');
+      tbody.innerHTML = '';
+
+      let sumExento = 0;
+      let sumGrav15 = 0;
+      let sumGrav18 = 0;
+      let sumIsv = 0;
+      let sumRet = 0;
+      let sumTotal = 0;
+      let count = 0;
+
+      const filtrados = dbLibroCompras.filter(item => {
+        if (mes !== 'ALL' && item.mes !== mes) return false;
+        if (tipoDoc !== 'ALL' && item.tipoDoc !== tipoDoc) return false;
+        if (q) {
+          const matchRtn = item.rtn.includes(q);
+          const matchProv = item.proveedor.toLowerCase().includes(q);
+          const matchDoc = item.numDoc.toLowerCase().includes(q);
+          const matchCai = item.cai.toLowerCase().includes(q);
+          if (!matchRtn && !matchProv && !matchDoc && !matchCai) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('badge-total-filas').textContent = `${filtrados.length} registros`;
+
+      if (filtrados.length === 0) {
+        empty.classList.remove('hidden');
+      } else {
+        empty.classList.add('hidden');
+      }
+
+      filtrados.forEach((r) => {
+        count++;
+        sumExento += r.exento;
+        sumGrav15 += r.grav15;
+        sumGrav18 += r.grav18;
+        sumIsv += r.isv;
+        sumRet += r.retencion;
+        sumTotal += r.total;
+
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-colors";
+        tr.innerHTML = `
+          <td class="py-2 px-2 text-center text-slate-400 font-bold">${count}</td>
+          <td class="py-2 px-2 text-center text-slate-600">${r.fecha}</td>
+          <td class="py-2 px-3 font-bold text-slate-800">${r.rtn}</td>
+          <td class="py-2 px-3 text-slate-900 truncate max-w-[220px]" title="${r.proveedor}">${r.proveedor}</td>
+          <td class="py-2 px-3 font-bold ${r.tipoDoc === 'DUA' ? 'text-cyan-800' : 'text-slate-900'}">${r.numDoc}</td>
+          <td class="py-2 px-2 text-center text-slate-500 text-[10px]">${r.cai}</td>
+          <td class="py-2 px-2.5 text-right text-slate-600">${formatNumber(r.exento)}</td>
+          <td class="py-2 px-2.5 text-right text-slate-800 font-medium">${formatNumber(r.grav15)}</td>
+          <td class="py-2 px-2.5 text-right text-slate-800 font-medium">${formatNumber(r.grav18)}</td>
+          <td class="py-2 px-3 text-right font-black text-emerald-700 bg-emerald-50/30">${formatNumber(r.isv)}</td>
+          <td class="py-2 px-2.5 text-right font-bold text-rose-600">${r.retencion > 0 ? formatNumber(r.retencion) : '-'}</td>
+          <td class="py-2 px-3 text-right font-black text-slate-900 bg-amber-50/20">${formatNumber(r.total)}</td>
+          <td class="py-2 px-2 text-center">
+            <button type="button" onclick="verDetalleAsiento(${r.id})" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9px] font-bold transition-all cursor-pointer">
+              Ver PDA
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('lbl-sum-exento').textContent = formatNumber(sumExento);
+      document.getElementById('lbl-sum-grav15').textContent = formatNumber(sumGrav15);
+      document.getElementById('lbl-sum-grav18').textContent = formatNumber(sumGrav18);
+      document.getElementById('lbl-sum-isv').textContent = `L ${formatNumber(sumIsv)}`;
+      document.getElementById('lbl-sum-ret').textContent = `L ${formatNumber(sumRet)}`;
+      document.getElementById('lbl-sum-total').textContent = `L ${formatNumber(sumTotal)}`;
+    }
+
+    function verDetalleAsiento(id) {
+      const reg = dbLibroCompras.find(r => r.id === id);
+      if (!reg) return;
+
+      document.getElementById('modal-asiento-titulo').textContent = `Partida: ${reg.asientoId}`;
+      document.getElementById('modal-asiento-sub').textContent = `${reg.tipoDoc}: ${reg.numDoc} • ${reg.proveedor}`;
+
+      const tbody = document.getElementById('modal-asiento-tbody');
+      tbody.innerHTML = '';
+
+      reg.asiento.forEach(a => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-2 ${a.haber > 0 ? 'pl-4 text-slate-600' : 'font-bold text-slate-800'}">${a.haber > 0 ? '↳ ' : ''}${a.cuenta}</td>
+          <td class="p-2 text-right font-bold text-emerald-700">${a.debe > 0 ? formatNumber(a.debe) : '-'}</td>
+          <td class="p-2 text-right font-bold text-blue-700">${a.haber > 0 ? formatNumber(a.haber) : '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('modal-asiento-detalle').classList.remove('hidden');
+    }
+
+    function cerrarModalAsiento() {
+      document.getElementById('modal-asiento-detalle').classList.add('hidden');
+    }
+
+    function exportarExcel() {
+      const mes = document.getElementById('filtro-mes').value;
+      const tipoDoc = document.getElementById('filtro-tipo-doc').value;
+      const q = document.getElementById('filtro-busqueda').value.toLowerCase().trim();
+
+      const filtrados = dbLibroCompras.filter(item => {
+        if (mes !== 'ALL' && item.mes !== mes) return false;
+        if (tipoDoc !== 'ALL' && item.tipoDoc !== tipoDoc) return false;
+        if (q) {
+          const matchRtn = item.rtn.includes(q);
+          const matchProv = item.proveedor.toLowerCase().includes(q);
+          const matchDoc = item.numDoc.toLowerCase().includes(q);
+          const matchCai = item.cai.toLowerCase().includes(q);
+          if (!matchRtn && !matchProv && !matchDoc && !matchCai) return false;
+        }
+        return true;
+      });
+
+      const headers = ["#", "Fecha", "Mes", "RTN Proveedor", "Proveedor", "Tipo Doc", "Num Doc", "CAI", "Exento", "Grav 15%", "Grav 18%", "ISV Credito", "Retencion 1%", "Total", "Asiento ID"];
+      let csvContent = "\uFEFF";
+      csvContent += headers.join(",") + "\r\n";
+
+      filtrados.forEach((r, idx) => {
+        const row = [
+          idx + 1,
+          `"${r.fecha}"`,
+          `"${r.mes}"`,
+          `"${r.rtn}"`,
+          `"${(r.proveedor || '').replace(/"/g, '""')}"`,
+          `"${r.tipoDoc}"`,
+          `"${r.numDoc}"`,
+          `"${r.cai}"`,
+          (r.exento || 0).toFixed(2),
+          (r.grav15 || 0).toFixed(2),
+          (r.grav18 || 0).toFixed(2),
+          (r.isv || 0).toFixed(2),
+          (r.retencion || 0).toFixed(2),
+          (r.total || 0).toFixed(2),
+          `"${r.asientoId}"`
+        ];
+        csvContent += row.join(",") + "\r\n";
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Libro_Compras_SAR_2026_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      aplicarFiltrosLedger();
+    });
+  </script>
+</body>
+</html>

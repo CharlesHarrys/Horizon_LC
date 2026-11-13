@@ -1,0 +1,94 @@
+/* static/css/horizon_tokens.css */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Lienzo & Superficies */
+  --hl-bg: #eef2f6;
+  --hl-surface: #ffffff;
+  --hl-surface-subtle: #f8fafc;
+  --hl-border: #e2e8f0;
+  --hl-border-focus: #0f172a;
+
+  /* Tipografía */
+  --hl-text-main: #090d15;
+  --hl-text-muted: #64748b;
+  --hl-text-subtle: #94a3b8;
+
+  /* Código Cromático Funcional */
+  --hl-emerald: #10b981; /* Ingresos & Ventas */
+  --hl-amber: #f59e0b;   /* Egresos & Compras/Stock */
+  --hl-sky: #0284c7;     /* Tesorería & Bancos */
+  --hl-rose: #f43f5e;    /* Contabilidad & Cierres */
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--hl-bg);
+  color: var(--hl-text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Textura Reticulada Matemática con Viñeta Suave */
+.grid-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.045) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+}
+
+/* Tarjetas y Contenedores Ejecutivos */
+.hl-card {
+  background: var(--hl-surface);
+  border: 1px solid var(--hl-border);
+  border-radius: 1.25rem; /* rounded-2xl */
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+}
+
+/* Franjas Cromáticas Funcionales de 6px */
+.hl-stripe-emerald { border-left: 6px solid var(--hl-emerald) !important; }
+.hl-stripe-amber   { border-left: 6px solid var(--hl-amber) !important; }
+.hl-stripe-sky     { border-left: 6px solid var(--hl-sky) !important; }
+.hl-stripe-rose    { border-left: 6px solid var(--hl-rose) !important; }
+
+/* Campos de Formulario */
+.hl-input {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem; /* rounded-xl */
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem; /* text-xs */
+  color: #0f172a;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+}
+.hl-input:focus {
+  background-color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 0 0 1px #0f172a;
+}
+.hl-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Badges de Atajos de Teclado */
+.hl-kbd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}

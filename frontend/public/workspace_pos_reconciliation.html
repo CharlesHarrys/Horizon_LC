@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100 dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conciliación de Lotes POS & Adquirencia Bancaria | AEI ERP Enterprise</title>
+    <!-- Tailwind CSS v3 via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151f32',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        emerald: {
+                            450: '#10b981',
+                            550: '#059669',
+                        },
+                        sky: {
+                            450: '#0ea5e9',
+                            550: '#0284c7',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+                        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 1); }
+        .selected-lot-card { border-color: #10b981 !important; background-color: rgba(6, 78, 59, 0.25) !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4) !important; }
+        .selected-deposit-card { border-color: #0ea5e9 !important; background-color: rgba(12, 74, 110, 0.25) !important; box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.4) !important; }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 antialiased flex flex-col min-h-screen">
+
+    <!-- TOP HEADER / NAVIGATION -->
+    <header class="bg-slate-900 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between shadow-lg sticky top-0 z-40">
+        <div class="flex items-center space-x-3">
+            <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-sky-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-sky-950/40">
+                💳
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <h1 class="font-extrabold text-sm sm:text-base text-white tracking-wide uppercase">Conciliación de Lotes POS & Adquirencia</h1>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30">MDR & ISV ENGINE</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">CUADRE ATÓMICO</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Cruce de Lotes Pinpad vs. Depósitos Bancarios (BAC, Banpaís, Ficohsa, Atlántida)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <a href="/lobby" class="px-2.5 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 hover:text-white text-xs font-bold flex items-center space-x-1.5 border border-indigo-500/30 transition-all shadow-sm">
+                <span>🏠</span>
+                <span>Lobby</span>
+            </a>
+            <a href="/workspace_ventas" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center space-x-1.5 border border-slate-700 transition-all">
+                <span>⚡</span>
+                <span class="hidden md:inline">Facturación / POS</span>
+            </a>
+            <a href="/workspace_libro_ventas" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center space-x-1.5 border border-slate-700 transition-all">
+                <span>📖</span>
+                <span class="hidden md:inline">Libro de Ventas</span>
+            </a>
+            <a href="/workspace_conciliacion_bancaria" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center space-x-1.5 border border-slate-700 transition-all">
+                <span>🏦</span>
+                <span class="hidden md:inline">Bancos</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 p-4 sm:p-6 max-w-[1700px] w-full mx-auto space-y-4">
+
+        <!-- KPI SUMMARY CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+            <!-- Card 1: Total Bruto Pendiente -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total Bruto por Cobrar</span>
+                    <span class="p-1 rounded bg-amber-500/10 text-amber-400 text-xs">⏳</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <div class="text-lg sm:text-xl font-extrabold text-amber-400 font-mono" id="kpi-bruto-pendiente">L 0.00</div>
+                </div>
+                <div class="mt-1 text-[10px] text-slate-400 flex items-center space-x-1">
+                    <span class="text-amber-400 font-semibold" id="kpi-lotes-pendientes-count">0 lotes</span>
+                    <span>pendientes de depósito</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-400"></div>
+            </div>
+
+            <!-- Card 2: Comisiones Acumuladas Mes -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Comisiones MDR Mes</span>
+                    <span class="p-1 rounded bg-rose-500/10 text-rose-400 text-xs">📉</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <div class="text-lg sm:text-xl font-extrabold text-rose-400 font-mono" id="kpi-comisiones-mes">L 0.00</div>
+                </div>
+                <div class="mt-1 text-[10px] text-slate-400">
+                    Deducción promedio: <span class="text-slate-300 font-mono font-bold">~2.50%</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-rose-500 to-red-400"></div>
+            </div>
+
+            <!-- Card 3: Retenciones ISV Acumuladas -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Retención ISV Sufrida</span>
+                    <span class="p-1 rounded bg-purple-500/10 text-purple-400 text-xs">🏛️</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <div class="text-lg sm:text-xl font-extrabold text-purple-300 font-mono" id="kpi-retenciones-mes">L 0.00</div>
+                </div>
+                <div class="mt-1 text-[10px] text-slate-400">
+                    Crédito Fiscal SAR: <span class="text-purple-400 font-bold">1.1.04.02</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-400"></div>
+            </div>
+
+            <!-- Card 4: Total Neto Depositado Mes -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Neto Acreditado Mes</span>
+                    <span class="p-1 rounded bg-emerald-500/10 text-emerald-400 text-xs">💰</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <div class="text-lg sm:text-xl font-extrabold text-emerald-400 font-mono" id="kpi-neto-mes">L 0.00</div>
+                </div>
+                <div class="mt-1 text-[10px] text-slate-400 flex items-center space-x-1">
+                    <span class="text-emerald-400 font-semibold" id="kpi-lotes-conciliados-count">0 lotes</span>
+                    <span>conciliados con éxito</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+            </div>
+
+            <!-- Card 5: Depósitos en Feed -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Depósitos en Feed</span>
+                    <span class="p-1 rounded bg-sky-500/10 text-sky-400 text-xs">⚡</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <div class="text-lg sm:text-xl font-extrabold text-sky-400 font-mono" id="kpi-depositos-feed-count">0</div>
+                </div>
+                <div class="mt-1 text-[10px] text-slate-400">
+                    Abonos bancarios <span class="text-sky-400 font-bold">Listos para cruce</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-sky-500 to-blue-400"></div>
+            </div>
+        </div>
+
+        <!-- TABS BAR -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center space-x-2">
+                <button onclick="switchTab('active')" id="tab-btn-active" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-sky-600/30 text-sky-300 border border-sky-500/40 transition-all flex items-center space-x-1.5">
+                    <span>⚡</span>
+                    <span>Conciliación Activa (Doble Panel)</span>
+                </button>
+                <button onclick="switchTab('history')" id="tab-btn-history" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 hover:border-slate-700 transition-all flex items-center space-x-1.5">
+                    <span>📜</span>
+                    <span>Historial de Lotes Conciliados & Auditoría</span>
+                </button>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button onclick="loadAllData()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold transition-all flex items-center space-x-1">
+                    <span>🔄</span>
+                    <span>Refrescar Feed</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: CONCILIACIÓN ACTIVA (DOBLE PANEL) -->
+        <div id="tab-content-active" class="space-y-4">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                
+                <!-- PANEL IZQUIERDO: LOTES POS EN ESPERA DE DEPÓSITO (Col 6) -->
+                <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex flex-col min-h-[480px]">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-bold text-white flex items-center space-x-1.5">
+                                <span>📦</span>
+                                <span>Lotes POS en Espera de Depósito</span>
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30" id="badge-lotes-count">0 Lotes</span>
+                        </div>
+                    </div>
+
+                    <!-- Acquirer Filter Pills & Search -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center space-x-1" id="bank-filter-pills">
+                            <button onclick="filterBankLots('')" class="bank-pill active px-2 py-0.5 rounded text-[11px] font-bold bg-sky-600/30 text-sky-300 border border-sky-500/40">TODOS</button>
+                            <button onclick="filterBankLots('BAC')" class="bank-pill px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700">BAC</button>
+                            <button onclick="filterBankLots('BANPAIS')" class="bank-pill px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700">BANPAÍS</button>
+                            <button onclick="filterBankLots('FICOHSA')" class="bank-pill px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700">FICOHSA</button>
+                            <button onclick="filterBankLots('ATLANTIDA')" class="bank-pill px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700">ATLÁNTIDA</button>
+                        </div>
+                        <div class="relative w-48">
+                            <input type="text" id="input-search-lots" oninput="renderLotsList()" placeholder="Buscar lote o terminal..." class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-7 pr-2 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 font-mono">
+                            <span class="absolute left-2 top-1.5 text-slate-500 text-xs">🔍</span>
+                        </div>
+                    </div>
+
+                    <!-- Lots List Container -->
+                    <div class="flex-1 overflow-y-auto space-y-2.5 max-h-[460px] pr-1" id="container-lots-list">
+                        <!-- Dynamic lot cards injected here -->
+                    </div>
+                </div>
+
+                <!-- PANEL DERECHO: DEPÓSITOS BANCARIOS DEL FEED (Col 6) -->
+                <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex flex-col min-h-[480px]">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-bold text-white flex items-center space-x-1.5">
+                                <span>🏦</span>
+                                <span>Depósitos Bancarios del Feed</span>
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-sky-500/20 text-sky-400 border border-sky-500/30" id="badge-deposits-count">0 Disponibles</span>
+                        </div>
+                    </div>
+
+                    <!-- Search Deposits -->
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <span class="text-[11px] text-slate-400">Abonos entrantes acreditados en cuentas de la empresa:</span>
+                        <div class="relative w-56">
+                            <input type="text" id="input-search-deposits" oninput="renderDepositsList()" placeholder="Buscar por referencia o monto..." class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-7 pr-2 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 font-mono">
+                            <span class="absolute left-2 top-1.5 text-slate-500 text-xs">🔍</span>
+                        </div>
+                    </div>
+
+                    <!-- Deposits List Container -->
+                    <div class="flex-1 overflow-y-auto space-y-2.5 max-h-[460px] pr-1" id="container-deposits-list">
+                        <!-- Dynamic deposit cards injected here -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CONSOLA INFERIOR DE CRUCE & DEDUCCIONES (INTERACTIVE DOCK) -->
+            <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 shadow-2xl space-y-3" id="reconciliation-console">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-black text-white flex items-center space-x-1.5">
+                            <span>⚖️</span>
+                            <span>Consola de Cruce & Deducciones Contables</span>
+                        </span>
+                        <span class="text-xs text-slate-400">| Conciliación en Tiempo Real con Asiento Automático</span>
+                    </div>
+
+                    <!-- Difference Status Badge / Semáforo -->
+                    <div id="semaphore-badge" class="px-3 py-1 rounded-lg text-xs font-bold font-mono bg-slate-800 text-slate-400 border border-slate-700 flex items-center space-x-1.5">
+                        <span>⚪</span>
+                        <span>Seleccione 1 Lote y 1 Depósito para cruzar</span>
+                    </div>
+                </div>
+
+                <!-- 4 Columns Grid for Calculation & Adjustments -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    
+                    <!-- Col 1: Lote POS Seleccionado -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1.5">
+                        <div class="text-[11px] font-bold uppercase text-slate-400 flex items-center justify-between">
+                            <span>Lote POS Seleccionado</span>
+                            <span class="text-emerald-400 font-mono" id="calc-lot-bank">-</span>
+                        </div>
+                        <div class="text-base font-extrabold text-white font-mono" id="calc-lot-gross">L 0.00</div>
+                        <div class="text-[11px] text-slate-400 font-mono" id="calc-lot-meta">N° Lote: - | 0 vouchers</div>
+                    </div>
+
+                    <!-- Col 2: Depósito Bancario Seleccionado -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1.5">
+                        <div class="text-[11px] font-bold uppercase text-slate-400 flex items-center justify-between">
+                            <span>Depósito Bancario (Neto)</span>
+                            <span class="text-sky-400 font-mono" id="calc-dep-bank">-</span>
+                        </div>
+                        <div class="text-base font-extrabold text-sky-400 font-mono" id="calc-dep-net">L 0.00</div>
+                        <div class="text-[11px] text-slate-400 font-mono truncate" id="calc-dep-meta">Ref: -</div>
+                    </div>
+
+                    <!-- Col 3: Deducciones & Ajuste Fino -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-300">Comisión MDR (L):</span>
+                            <input type="number" step="0.01" id="input-mdr-commission" oninput="recalcDifference()" class="w-24 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs text-rose-300 focus:outline-none focus:border-rose-500">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-300">Retención ISV (L):</span>
+                            <input type="number" step="0.01" id="input-isv-retention" oninput="recalcDifference()" class="w-24 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs text-purple-300 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-300">Otros Cargos (L):</span>
+                            <input type="number" step="0.01" id="input-other-charges" oninput="recalcDifference()" value="0.00" class="w-24 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs text-slate-300 focus:outline-none focus:border-sky-500">
+                        </div>
+                    </div>
+
+                    <!-- Col 4: Referencia & Acción de Asentamiento -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 flex flex-col justify-between space-y-2">
+                        <div>
+                            <label class="text-[10px] font-semibold text-slate-400 block mb-0.5">Ref. Liquidación Fiscal Banco:</label>
+                            <input type="text" id="input-liquidation-ref" placeholder="ej. BAC-LIQ-998812" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono">
+                        </div>
+                        <button onclick="executeReconciliation()" id="btn-settle-batch" disabled class="w-full py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs flex items-center justify-center space-x-1.5 shadow-lg shadow-emerald-950/50 transition-all">
+                            <span>⚡</span>
+                            <span>Registrar Conciliación y Asiento</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: HISTORIAL DE LOTES CONCILIADOS & AUDITORÍA -->
+        <div id="tab-content-history" class="hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-xl overflow-hidden flex flex-col">
+                <div class="p-3.5 border-b border-slate-800 bg-slate-900/90 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Auditoría de Lotes Liquidados</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700" id="badge-history-count">0 Registros</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="input-search-history" oninput="filterHistoryTable()" placeholder="Buscar por lote, asiento o banco..." class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 w-64 font-mono">
+                        <button onclick="exportHistoryCSV()" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold flex items-center space-x-1 transition-all">
+                            <span>📥</span>
+                            <span>Exportar CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto min-h-[380px]">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-850 text-slate-300 font-semibold border-b border-slate-800 uppercase text-[10px] tracking-wider font-mono">
+                            <tr>
+                                <th class="py-2.5 px-3">Fecha Depósito</th>
+                                <th class="py-2.5 px-3">Banco / Red</th>
+                                <th class="py-2.5 px-3">N° Lote</th>
+                                <th class="py-2.5 px-3">Terminal</th>
+                                <th class="py-2.5 px-3 text-center">Vouchers</th>
+                                <th class="py-2.5 px-3 text-right">Monto Bruto (L)</th>
+                                <th class="py-2.5 px-3 text-right text-rose-300">Comisión MDR (L)</th>
+                                <th class="py-2.5 px-3 text-right text-purple-300">Retención ISV (L)</th>
+                                <th class="py-2.5 px-3 text-right text-emerald-400 font-bold">Neto Depositado (L)</th>
+                                <th class="py-2.5 px-3 text-center">Asiento Diario</th>
+                                <th class="py-2.5 px-3 text-center">Ref. Liquidación</th>
+                                <th class="py-2.5 px-3 text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/80 text-[11px] font-mono" id="tbody-history">
+                            <!-- Injected rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL VISTA DE ASIENTO CONTABLE GENERADO -->
+    <div id="modal-entry" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">📑</span>
+                    <div>
+                        <h3 class="font-bold text-sm text-white" id="modal-entry-title">Asiento Contable Generado</h3>
+                        <p class="text-[11px] text-slate-400" id="modal-entry-subtitle">Partida Doble Automática de Liquidación</p>
+                    </div>
+                </div>
+                <button onclick="closeEntryModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2 text-xs font-mono">
+                <div class="flex justify-between border-b border-slate-800/80 pb-1.5 font-bold text-slate-400 uppercase text-[10px]">
+                    <span>Cuenta Contable & Descripción</span>
+                    <div class="space-x-8">
+                        <span>DEBE (L)</span>
+                        <span>HABER (L)</span>
+                    </div>
+                </div>
+                <div id="modal-entry-lines" class="space-y-1.5">
+                    <!-- Dynamic lines -->
+                </div>
+                <div class="border-t-2 border-slate-700 pt-2 flex justify-between font-extrabold text-white text-xs">
+                    <span>TOTALES BALANCEADOS:</span>
+                    <div class="space-x-8 font-mono text-emerald-400" id="modal-entry-totals">
+                        <span>L 0.00</span>
+                        <span>L 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="closeEntryModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+        <div class="bg-slate-900 border border-slate-700 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-xs">
+            <span id="toast-icon">ℹ️</span>
+            <span id="toast-msg" class="font-medium">Mensaje de notificación</span>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT STATE & EVENT CONTROLLER -->
+    <script>
+        // State
+        let pendingLots = [];
+        let bankDeposits = [];
+        let historyLots = [];
+        let selectedLot = null;
+        let selectedDeposit = null;
+        let activeBankFilter = '';
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+        });
+
+        async function loadAllData() {
+            await Promise.all([
+                fetchPendingLots(),
+                fetchBankDeposits(),
+                fetchKPIs(),
+                fetchHistory()
+            ]);
+        }
+
+        function switchTab(tab) {
+            const btnActive = document.getElementById('tab-btn-active');
+            const btnHistory = document.getElementById('tab-btn-history');
+            const contentActive = document.getElementById('tab-content-active');
+            const contentHistory = document.getElementById('tab-content-history');
+
+            if (tab === 'active') {
+                btnActive.className = 'px-4 py-1.5 rounded-lg text-xs font-bold bg-sky-600/30 text-sky-300 border border-sky-500/40 transition-all flex items-center space-x-1.5';
+                btnHistory.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 hover:border-slate-700 transition-all flex items-center space-x-1.5';
+                contentActive.classList.remove('hidden');
+                contentHistory.classList.add('hidden');
+            } else {
+                btnHistory.className = 'px-4 py-1.5 rounded-lg text-xs font-bold bg-sky-600/30 text-sky-300 border border-sky-500/40 transition-all flex items-center space-x-1.5';
+                btnActive.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 hover:border-slate-700 transition-all flex items-center space-x-1.5';
+                contentHistory.classList.remove('hidden');
+                contentActive.classList.add('hidden');
+                renderHistoryTable();
+            }
+        }
+
+        function filterBankLots(bank) {
+            activeBankFilter = bank;
+            document.querySelectorAll('.bank-pill').forEach(btn => {
+                btn.className = 'bank-pill px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700';
+            });
+            if (event && event.target) {
+                event.target.className = 'bank-pill active px-2 py-0.5 rounded text-[11px] font-bold bg-sky-600/30 text-sky-300 border border-sky-500/40';
+            }
+            renderLotsList();
+        }
+
+        // Fetch Functions
+        async function fetchPendingLots() {
+            try {
+                let url = '/api/v1/adquirencia/lotes-pendientes';
+                const res = await fetch(url);
+                if (res.ok) {
+                    pendingLots = await res.json();
+                } else {
+                    pendingLots = getDemoLots();
+                }
+            } catch (e) {
+                console.warn('Usando lotes demo:', e);
+                pendingLots = getDemoLots();
+            }
+            renderLotsList();
+        }
+
+        async function fetchBankDeposits() {
+            try {
+                let url = '/api/v1/adquirencia/depositos-bancarios-sugeridos';
+                const res = await fetch(url);
+                if (res.ok) {
+                    bankDeposits = await res.json();
+                } else {
+                    bankDeposits = getDemoDeposits();
+                }
+            } catch (e) {
+                console.warn('Usando depósitos demo:', e);
+                bankDeposits = getDemoDeposits();
+            }
+            renderDepositsList();
+        }
+
+        async function fetchKPIs() {
+            try {
+                let url = '/api/v1/adquirencia/kpis';
+                const res = await fetch(url);
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('kpi-bruto-pendiente').textContent = `L ${Number(data.total_bruto_por_cobrar || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                    document.getElementById('kpi-comisiones-mes').textContent = `L ${Number(data.comisiones_acumuladas_mes || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                    document.getElementById('kpi-retenciones-mes').textContent = `L ${Number(data.retenciones_acumuladas_mes || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                    document.getElementById('kpi-neto-mes').textContent = `L ${Number(data.total_neto_depositado_mes || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                    document.getElementById('kpi-lotes-pendientes-count').textContent = `${data.lotes_pendientes_count || pendingLots.length} lotes`;
+                    document.getElementById('kpi-lotes-conciliados-count').textContent = `${data.lotes_conciliados_mes_count || 0} lotes`;
+                    document.getElementById('kpi-depositos-feed-count').textContent = data.depositos_bancarios_disponibles_count || bankDeposits.length;
+                }
+            } catch (e) {
+                console.warn('Error al cargar KPIs:', e);
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                let url = '/api/v1/adquirencia/historial-conciliaciones';
+                const res = await fetch(url);
+                if (res.ok) {
+                    historyLots = await res.json();
+                } else {
+                    historyLots = [];
+                }
+            } catch (e) {
+                historyLots = [];
+            }
+            renderHistoryTable();
+        }
+
+        // Render Functions
+        function renderLotsList() {
+            const container = document.getElementById('container-lots-list');
+            const search = (document.getElementById('input-search-lots').value || '').toLowerCase().trim();
+
+            let filtered = pendingLots;
+            if (activeBankFilter) {
+                filtered = filtered.filter(l => l.banco_adquirente.toUpperCase() === activeBankFilter.toUpperCase());
+            }
+            if (search) {
+                filtered = filtered.filter(l => 
+                    l.numero_lote.toLowerCase().includes(search) || 
+                    (l.terminal_id && l.terminal_id.toLowerCase().includes(search)) ||
+                    l.banco_adquirente.toLowerCase().includes(search)
+                );
+            }
+
+            document.getElementById('badge-lotes-count').textContent = `${filtered.length} Lotes`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center text-slate-500 font-sans">
+                        <span class="text-2xl">📦</span>
+                        <p class="font-medium text-slate-400 mt-1">No hay lotes POS pendientes con este filtro</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(lot => {
+                const isSelected = selectedLot && selectedLot.numero_lote === lot.numero_lote && selectedLot.banco_adquirente === lot.banco_adquirente;
+                const cardClass = isSelected ? 'selected-lot-card' : 'bg-slate-950/80 border-slate-800 hover:border-slate-700';
+                
+                let bankColor = 'bg-sky-500/20 text-sky-400 border-sky-500/30';
+                if (lot.banco_adquirente === 'BAC') bankColor = 'bg-red-500/20 text-red-400 border-red-500/30';
+                if (lot.banco_adquirente === 'BANPAIS') bankColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+                if (lot.banco_adquirente === 'FICOHSA') bankColor = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                if (lot.banco_adquirente === 'ATLANTIDA') bankColor = 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+
+                html += `
+                    <div class="border rounded-xl p-3.5 transition-all cursor-pointer ${cardClass}" onclick="selectLot('${lot.numero_lote}', '${lot.banco_adquirente}')">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-black border ${bankColor}">${lot.banco_adquirente}</span>
+                                <span class="font-mono font-bold text-xs text-white">Lote #${lot.numero_lote}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">(${lot.terminal_id || 'POS-001'})</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-mono">${formatDateTime(lot.fecha_cierre_lote)}</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-xs font-mono my-2 pt-1 border-t border-slate-800/60">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block">Venta Bruta:</span>
+                                <span class="text-sm font-extrabold text-amber-400">L ${Number(lot.monto_bruto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] text-slate-400 block">Neto Estimado:</span>
+                                <span class="text-sm font-extrabold text-emerald-400">L ${Number(lot.monto_neto_estimado).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-800/40 text-[10px] text-slate-400">
+                            <span>Vouchers: <b class="text-slate-200">${lot.cantidad_vouchers}</b></span>
+                            <span>MDR est: <b class="text-rose-400 font-mono">L ${Number(lot.comision_estimada_mdr).toFixed(2)}</b></span>
+                            <span>ISV est: <b class="text-purple-400 font-mono">L ${Number(lot.retencion_isv_estimada).toFixed(2)}</b></span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderDepositsList() {
+            const container = document.getElementById('container-deposits-list');
+            const search = (document.getElementById('input-search-deposits').value || '').toLowerCase().trim();
+
+            let filtered = bankDeposits.filter(d => d.estado === 'DISPONIBLE');
+            if (search) {
+                filtered = filtered.filter(d => 
+                    d.referencia.toLowerCase().includes(search) || 
+                    d.banco.toLowerCase().includes(search) ||
+                    String(d.monto).includes(search)
+                );
+            }
+
+            document.getElementById('badge-deposits-count').textContent = `${filtered.length} Disponibles`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center text-slate-500 font-sans">
+                        <span class="text-2xl">🏦</span>
+                        <p class="font-medium text-slate-400 mt-1">No hay depósitos bancarios disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(dep => {
+                const isSelected = selectedDeposit && selectedDeposit.id === dep.id;
+                const cardClass = isSelected ? 'selected-deposit-card' : 'bg-slate-950/80 border-slate-800 hover:border-slate-700';
+
+                let bankColor = 'bg-sky-500/20 text-sky-400 border-sky-500/30';
+                if (dep.banco === 'BAC') bankColor = 'bg-red-500/20 text-red-400 border-red-500/30';
+                if (dep.banco === 'BANPAIS') bankColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+                if (dep.banco === 'FICOHSA') bankColor = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                if (dep.banco === 'ATLANTIDA') bankColor = 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+
+                html += `
+                    <div class="border rounded-xl p-3.5 transition-all cursor-pointer ${cardClass}" onclick="selectDeposit('${dep.id}')">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-black border ${bankColor}">${dep.banco}</span>
+                                <span class="font-mono text-xs text-slate-300 font-semibold">${dep.cuenta_destino}</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-mono">${dep.fecha_banco}</span>
+                        </div>
+                        
+                        <div class="flex items-baseline justify-between my-1.5">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block font-mono">Ref: ${dep.referencia}</span>
+                                <span class="text-xs text-slate-200 font-sans truncate max-w-[240px] block">${dep.nombre_remitente}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-base font-extrabold text-sky-400 font-mono">L ${Number(dep.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                        </div>
+
+                        ${dep.notas ? `<div class="text-[10px] text-slate-400 font-sans border-t border-slate-800/40 pt-1 truncate">📝 ${dep.notas}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Selection Handlers
+        function selectLot(loteNum, banco) {
+            selectedLot = pendingLots.find(l => l.numero_lote === loteNum && l.banco_adquirente === banco);
+            renderLotsList();
+            updateConsole();
+        }
+
+        function selectDeposit(depId) {
+            selectedDeposit = bankDeposits.find(d => d.id === depId);
+            renderDepositsList();
+            updateConsole();
+        }
+
+        function updateConsole() {
+            const lotBank = document.getElementById('calc-lot-bank');
+            const lotGross = document.getElementById('calc-lot-gross');
+            const lotMeta = document.getElementById('calc-lot-meta');
+            const depBank = document.getElementById('calc-dep-bank');
+            const depNet = document.getElementById('calc-dep-net');
+            const depMeta = document.getElementById('calc-dep-meta');
+            const inputMdr = document.getElementById('input-mdr-commission');
+            const inputIsv = document.getElementById('input-isv-retention');
+            const inputRef = document.getElementById('input-liquidation-ref');
+
+            if (selectedLot) {
+                lotBank.textContent = selectedLot.banco_adquirente;
+                lotGross.textContent = `L ${Number(selectedLot.monto_bruto).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                lotMeta.textContent = `Lote #${selectedLot.numero_lote} | ${selectedLot.cantidad_vouchers} vouchers`;
+                
+                if (!inputMdr.value || inputMdr.dataset.autoLot !== selectedLot.numero_lote) {
+                    inputMdr.value = Number(selectedLot.comision_estimada_mdr).toFixed(2);
+                    inputIsv.value = Number(selectedLot.retencion_isv_estimada).toFixed(2);
+                    inputMdr.dataset.autoLot = selectedLot.numero_lote;
+                }
+                if (!inputRef.value) {
+                    inputRef.value = `${selectedLot.banco_adquirente}-LIQ-${selectedLot.numero_lote}`;
+                }
+            } else {
+                lotBank.textContent = '-';
+                lotGross.textContent = 'L 0.00';
+                lotMeta.textContent = 'N° Lote: - | 0 vouchers';
+            }
+
+            if (selectedDeposit) {
+                depBank.textContent = selectedDeposit.banco;
+                depNet.textContent = `L ${Number(selectedDeposit.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                depMeta.textContent = `Ref: ${selectedDeposit.referencia}`;
+            } else {
+                depBank.textContent = '-';
+                depNet.textContent = 'L 0.00';
+                depMeta.textContent = 'Ref: -';
+            }
+
+            // Auto tune commission if both selected and difference is close
+            if (selectedLot && selectedDeposit) {
+                const bruto = Number(selectedLot.monto_bruto);
+                const neto = Number(selectedDeposit.monto);
+                const totalDeductionsNeeded = bruto - neto;
+                const currentRet = Number(inputIsv.value) || 0;
+                
+                if (totalDeductionsNeeded > 0 && totalDeductionsNeeded > currentRet) {
+                    const exactMdr = totalDeductionsNeeded - currentRet;
+                    inputMdr.value = exactMdr.toFixed(2);
+                }
+            }
+
+            recalcDifference();
+        }
+
+        function recalcDifference() {
+            const sem = document.getElementById('semaphore-badge');
+            const btn = document.getElementById('btn-settle-batch');
+
+            if (!selectedLot || !selectedDeposit) {
+                sem.className = 'px-3 py-1 rounded-lg text-xs font-bold font-mono bg-slate-800 text-slate-400 border border-slate-700 flex items-center space-x-1.5';
+                sem.innerHTML = `<span>⚪</span><span>Seleccione 1 Lote y 1 Depósito para cruzar</span>`;
+                btn.disabled = true;
+                return;
+            }
+
+            const bruto = Number(selectedLot.monto_bruto) || 0;
+            const neto = Number(selectedDeposit.monto) || 0;
+            const comision = Number(document.getElementById('input-mdr-commission').value) || 0;
+            const retencion = Number(document.getElementById('input-isv-retention').value) || 0;
+            const otros = Number(document.getElementById('input-other-charges').value) || 0;
+
+            const sumDeducciones = neto + comision + retencion + otros;
+            const diff = bruto - sumDeducciones;
+
+            if (Math.abs(diff) <= 0.05) {
+                sem.className = 'px-3 py-1 rounded-lg text-xs font-bold font-mono bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 flex items-center space-x-1.5 animate-pulse';
+                sem.innerHTML = `<span>✅</span><span>L 0.00 DIFERENCIA (CUADRADO PERFECTO)</span>`;
+                btn.disabled = false;
+            } else {
+                sem.className = 'px-3 py-1 rounded-lg text-xs font-bold font-mono bg-rose-600/20 text-rose-400 border border-rose-500/40 flex items-center space-x-1.5';
+                sem.innerHTML = `<span>⚠️</span><span>DIFERENCIA: L ${diff.toFixed(2)} (DESCUADRE)</span>`;
+                btn.disabled = true;
+            }
+        }
+
+        // Execute Reconciliation
+        async function executeReconciliation() {
+            if (!selectedLot || !selectedDeposit) return;
+
+            const btn = document.getElementById('btn-settle-batch');
+            btn.disabled = true;
+            btn.innerHTML = `<span>⏳</span><span>Asentando en Libro Diario...</span>`;
+
+            const payload = {
+                lote_id: selectedLot.id || null,
+                banco_adquirente: selectedLot.banco_adquirente,
+                numero_lote: selectedLot.numero_lote,
+                terminal_id: selectedLot.terminal_id || 'POS-001',
+                fecha_cierre_lote: selectedLot.fecha_cierre_lote || new Date().toISOString(),
+                fecha_deposito_banco: new Date().toISOString().split('T')[0],
+                cantidad_vouchers: selectedLot.cantidad_vouchers || 1,
+                monto_bruto: Number(selectedLot.monto_bruto),
+                comision_mdr: Number(document.getElementById('input-mdr-commission').value) || 0,
+                retencion_isv: Number(document.getElementById('input-isv-retention').value) || 0,
+                otros_cargos: Number(document.getElementById('input-other-charges').value) || 0,
+                monto_neto: Number(selectedDeposit.monto),
+                bank_transaction_id: selectedDeposit.id || null,
+                referencia_liquidacion: document.getElementById('input-liquidation-ref').value || `${selectedLot.banco_adquirente}-LIQ-${selectedLot.numero_lote}`,
+                notas: `Conciliación Lote POS #${selectedLot.numero_lote} contra Depósito ${selectedDeposit.referencia}`,
+                user_id: 'cajero_central'
+            };
+
+            try {
+                const res = await fetch('/api/v1/adquirencia/conciliar-lote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Error al conciliar');
+                }
+
+                const result = await res.json();
+                showToast(`¡Lote #${result.numero_lote} conciliado con éxito! Asiento: ${result.journal_entry_number || 'Generado'}`, 'success');
+                
+                // Show Entry Modal
+                showEntryModal(result);
+
+                // Update Local State
+                pendingLots = pendingLots.filter(l => !(l.numero_lote === selectedLot.numero_lote && l.banco_adquirente === selectedLot.banco_adquirente));
+                bankDeposits = bankDeposits.filter(d => d.id !== selectedDeposit.id);
+                selectedLot = null;
+                selectedDeposit = null;
+
+                renderLotsList();
+                renderDepositsList();
+                updateConsole();
+                fetchKPIs();
+                fetchHistory();
+
+            } catch (err) {
+                console.error(err);
+                showToast(`Error: ${err.message}`, 'error');
+            } finally {
+                btn.innerHTML = `<span>⚡</span><span>Registrar Conciliación y Asiento</span>`;
+                recalcDifference();
+            }
+        }
+
+        // History Table
+        function renderHistoryTable() {
+            const tbody = document.getElementById('tbody-history');
+            const search = (document.getElementById('input-search-history')?.value || '').toLowerCase().trim();
+
+            let filtered = historyLots;
+            if (search) {
+                filtered = filtered.filter(h => 
+                    h.numero_lote.toLowerCase().includes(search) || 
+                    h.banco_adquirente.toLowerCase().includes(search) ||
+                    (h.journal_entry_number && h.journal_entry_number.toLowerCase().includes(search))
+                );
+            }
+
+            document.getElementById('badge-history-count').textContent = `${filtered.length} Registros`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="py-12 text-center text-slate-500 font-sans">
+                            <span class="text-2xl">📜</span>
+                            <p class="font-medium text-slate-400 mt-1">No hay liquidaciones en el historial</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(h => {
+                html += `
+                    <tr class="hover:bg-slate-800/50 transition-colors">
+                        <td class="py-2.5 px-3">${h.fecha_deposito_banco || '-'}</td>
+                        <td class="py-2.5 px-3 font-bold text-slate-200">${h.banco_adquirente}</td>
+                        <td class="py-2.5 px-3 font-bold text-white">#${h.numero_lote}</td>
+                        <td class="py-2.5 px-3 text-slate-400">${h.terminal_id || 'POS-001'}</td>
+                        <td class="py-2.5 px-3 text-center">${h.cantidad_vouchers}</td>
+                        <td class="py-2.5 px-3 text-right font-extrabold text-amber-400">L ${Number(h.monto_bruto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td class="py-2.5 px-3 text-right text-rose-300">L ${Number(h.comision_bancaria_mdr).toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-right text-purple-300">L ${Number(h.retencion_isv).toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-right font-extrabold text-emerald-400">L ${Number(h.monto_neto_depositado).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td class="py-2.5 px-3 text-center">
+                            <span class="px-2 py-0.5 rounded bg-sky-900/40 text-sky-300 border border-sky-600/40 font-bold cursor-pointer" onclick="showEntryModal(${JSON.stringify(h).replace(/"/g, '&quot;')})">
+                                ${h.journal_entry_number || 'DIARIO'}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 text-center text-slate-400">${h.comprobante_liquidacion_ref || '-'}</td>
+                        <td class="py-2.5 px-3 text-center">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">CONCILIADO</span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function filterHistoryTable() {
+            renderHistoryTable();
+        }
+
+        function exportHistoryCSV() {
+            if (historyLots.length === 0) {
+                showToast('No hay registros de historial para exportar', 'info');
+                return;
+            }
+            let csv = "CONCILIACION DE LOTES POS Y ADQUIRENCIA BANCARIA
+
+";
+            csv += "Fecha Deposito,Banco Adquirente,Numero Lote,Terminal,Vouchers,Monto Bruto (L),Comision MDR (L),Retencion ISV (L),Neto Depositado (L),Asiento Diario,Ref Liquidacion,Estado
+
+";
+
+            historyLots.forEach(h => {
+                csv += `"${h.fecha_deposito_banco || ''}","${h.banco_adquirente}","${h.numero_lote}","${h.terminal_id || ''}",${h.cantidad_vouchers},${Number(h.monto_bruto).toFixed(2)},${Number(h.comision_bancaria_mdr).toFixed(2)},${Number(h.retencion_isv).toFixed(2)},${Number(h.monto_neto_depositado).toFixed(2)},"${h.journal_entry_number || ''}","${h.comprobante_liquidacion_ref || ''}","${h.estado}"
+
+`;
+            });
+
+            const blob = new Blob(["﻿" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Conciliacion_Lotes_POS_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Reporte CSV descargado con éxito", "success");
+        }
+
+        // Modal Handlers
+        function showEntryModal(settlement) {
+            const modal = document.getElementById('modal-entry');
+            document.getElementById('modal-entry-title').textContent = `Asiento Contable: ${settlement.journal_entry_number || 'DIARIO'}`;
+            document.getElementById('modal-entry-subtitle').textContent = `Liquidación Lote #${settlement.numero_lote} (${settlement.banco_adquirente}) - Fecha: ${settlement.fecha_deposito_banco || 'Hoy'}`;
+
+            const linesContainer = document.getElementById('modal-entry-lines');
+            const bruto = Number(settlement.monto_bruto) || 0;
+            const neto = Number(settlement.monto_neto_depositado) || 0;
+            const comision = Number(settlement.comision_bancaria_mdr) || 0;
+            const retencion = Number(settlement.retencion_isv) || 0;
+
+            linesContainer.innerHTML = `
+                <div class="flex justify-between items-center py-1">
+                    <span class="text-sky-300">1.1.01.02.xx - Banco ${settlement.banco_adquirente} Cta Cte</span>
+                    <div class="space-x-8 font-mono">
+                        <span class="text-emerald-400">L ${neto.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                        <span class="text-slate-600">L 0.00</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <span class="text-rose-300">6.1.02.05 - Gastos Comisiones Adquirencia POS</span>
+                    <div class="space-x-8 font-mono">
+                        <span class="text-emerald-400">L ${comision.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                        <span class="text-slate-600">L 0.00</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <span class="text-purple-300">1.1.04.02 - Anticipo / Retención ISV Sufrida</span>
+                    <div class="space-x-8 font-mono">
+                        <span class="text-emerald-400">L ${retencion.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                        <span class="text-slate-600">L 0.00</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center py-1 border-t border-slate-800/80 pt-1">
+                    <span class="text-amber-300">1.1.01.03.01 - Tarjetas POS por Liquidar</span>
+                    <div class="space-x-8 font-mono">
+                        <span class="text-slate-600">L 0.00</span>
+                        <span class="text-amber-400">L ${bruto.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modal-entry-totals').innerHTML = `
+                <span>L ${bruto.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                <span>L ${bruto.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeEntryModal() {
+            document.getElementById('modal-entry').classList.add('hidden');
+        }
+
+        // Demo Generators
+        function getDemoLots() {
+            const now = new Date();
+            return [
+                { id: 'demo-1', banco_adquirente: 'BAC', numero_lote: '000142', terminal_id: 'PINPAD-BAC-01', sucursal_id: '001-001', fecha_cierre_lote: new Date(now - 3600000 * 14).toISOString(), cantidad_vouchers: 18, monto_bruto: 35450.00, comision_estimada_mdr: 886.25, retencion_isv_estimada: 354.50, monto_neto_estimado: 34209.25, estado: 'PENDIENTE' },
+                { id: 'demo-2', banco_adquirente: 'BANPAIS', numero_lote: '000089', terminal_id: 'PINPAD-BP-02', sucursal_id: '001-002', fecha_cierre_lote: new Date(now - 3600000 * 18).toISOString(), cantidad_vouchers: 12, monto_bruto: 24800.00, comision_estimada_mdr: 570.40, retencion_isv_estimada: 248.00, monto_neto_estimado: 23981.60, estado: 'PENDIENTE' },
+                { id: 'demo-3', banco_adquirente: 'FICOHSA', numero_lote: '000215', terminal_id: 'PINPAD-FIC-01', sucursal_id: '001-001', fecha_cierre_lote: new Date(now - 3600000 * 27).toISOString(), cantidad_vouchers: 9, monto_bruto: 18250.00, comision_estimada_mdr: 474.50, retencion_isv_estimada: 182.50, monto_neto_estimado: 17593.00, estado: 'PENDIENTE' },
+                { id: 'demo-4', banco_adquirente: 'ATLANTIDA', numero_lote: '000067', terminal_id: 'PINPAD-ATL-01', sucursal_id: '002-001', fecha_cierre_lote: new Date(now - 3600000 * 32).toISOString(), cantidad_vouchers: 15, monto_bruto: 29100.00, comision_estimada_mdr: 727.50, retencion_isv_estimada: 291.00, monto_neto_estimado: 28081.50, estado: 'PENDIENTE' }
+            ];
+        }
+
+        function getDemoDeposits() {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            return [
+                { id: 'dep-1', banco: 'BAC', cuenta_destino: 'Cta Cte #9042', referencia: `BAC-DEP-${dateStr}-998812`, monto: 34209.25, nombre_remitente: 'BAC CREDOMATIC ADQUIRENCIA POS', fecha_banco: `${dateStr} 06:30`, estado: 'DISPONIBLE', notas: 'Depósito Lote 000142 Neto Liquidado' },
+                { id: 'dep-2', banco: 'BANPAIS', cuenta_destino: 'Cta Cte #1120', referencia: `BP-DEP-${dateStr}-445521`, monto: 23981.60, nombre_remitente: 'BANCO DEL PAIS LIQUIDACION POS', fecha_banco: `${dateStr} 07:15`, estado: 'DISPONIBLE', notas: 'Depósito Lote 000089 Neto Liquidado' },
+                { id: 'dep-3', banco: 'FICOHSA', cuenta_destino: 'Cta Cte #8834', referencia: `FIC-DEP-${dateStr}-772210`, monto: 17593.00, nombre_remitente: 'BANCO FICOHSA ADQUIRENCIA', fecha_banco: `${dateStr} 08:00`, estado: 'DISPONIBLE', notas: 'Depósito Lote 000215 Neto Liquidado' },
+                { id: 'dep-4', banco: 'ATLANTIDA', cuenta_destino: 'Cta Cte #5512', referencia: `ATL-DEP-${dateStr}-331190`, monto: 28081.50, nombre_remitente: 'BANCO ATLANTIDA RECAUDOS POS', fecha_banco: `${dateStr} 08:45`, estado: 'DISPONIBLE', notas: 'Depósito Lote 000067 Neto Liquidado' }
+            ];
+        }
+
+        // Helpers
+        function formatDateTime(isoStr) {
+            if (!isoStr) return '-';
+            const d = new Date(isoStr);
+            return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        function showToast(msg, type = "info") {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-msg');
+
+            text.textContent = msg;
+            icon.textContent = type === "success" ? "✅" : (type === "error" ? "❌" : "ℹ️");
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

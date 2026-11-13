@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Cartera & Cuentas Corrientes (CxC / CxP) | Horizon Ledger ERP</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    .grid-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black 20%, transparent 85%);
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .tab-cxc-active {
+      background-color: #ffffff !important;
+      color: #065f46 !important;
+      border-color: #10b981 !important;
+      box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.15) !important;
+    }
+    .tab-cxp-active {
+      background-color: #ffffff !important;
+      color: #92400e !important;
+      border-color: #f59e0b !important;
+      box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.15) !important;
+    }
+
+    .third-party-item.selected-cxc {
+      background-color: rgba(16, 185, 129, 0.08) !important;
+      border-color: #10b981 !important;
+      box-shadow: 0 0 0 1px #10b981;
+    }
+    .third-party-item.selected-cxp {
+      background-color: rgba(245, 158, 11, 0.08) !important;
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 1px #f59e0b;
+    }
+
+    @media print {
+      body { background: white !important; padding: 0 !important; color: black !important; }
+      .grid-vignette, .no-print, header, .action-bar, .tools-panel, .third-party-list { display: none !important; }
+      .print-only { display: block !important; }
+      .statement-container { width: 100% !important; box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+      @page { size: portrait; margin: 12mm; }
+    }
+  </style>
+</head>
+<body class="bg-[#eef2f6] text-slate-900 min-h-screen flex flex-col p-3 sm:p-4 text-xs gap-3 relative selection:bg-emerald-500 selection:text-white">
+
+  <!-- Retícula de fondo sutil -->
+  <div class="grid-vignette"></div>
+
+  <!-- 1. HEADER INSTITUCIONAL (HORIZON LEDGER) -->
+  <header class="flex items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.07)] relative z-20 flex-shrink-0">
+    
+    <!-- Lado Izquierdo: Retorno + Marca + Título Conciso -->
+    <div class="flex items-center gap-4">
+      <!-- Retorno al Dashboard -->
+      <a href="/" class="w-8 h-8 rounded-xl bg-slate-950 flex items-center justify-center text-white font-bold text-xs hover:bg-slate-800 transition-all shadow-xs" title="Volver al Dashboard Principal">
+        &larr;
+      </a>
+
+      <!-- Identidad del ERP -->
+      <div class="flex items-center gap-2 border-r border-slate-200 pr-4">
+        <div class="w-6 h-6 rounded-lg bg-slate-950 flex items-center justify-center text-white font-black text-[10px]">
+          HL
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-extrabold text-xs tracking-tight text-slate-950">Horizon Ledger</span>
+          <span class="text-[8.5px] font-mono uppercase text-slate-400 font-bold">ERP</span>
+        </div>
+      </div>
+
+      <!-- Título y Badge Funcional Dinámico -->
+      <div class="flex items-center gap-2.5">
+        <h1 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">Gestión de Cartera & Cuentas Corrientes</h1>
+        <span id="header-mode-badge" class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 tracking-wider">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          CARTERA CLIENTES (CxC)
+        </span>
+      </div>
+    </div>
+
+    <!-- Lado Derecho: Selector de Fecha de Corte + Perfil de Usuario -->
+    <div class="flex items-center gap-3">
+      <!-- Selector de Corte -->
+      <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1">
+        <span class="text-[9px] font-mono font-bold text-slate-500 uppercase">CORTE AL:</span>
+        <select id="cut-date-select" class="bg-transparent font-mono font-bold text-slate-900 text-[11px] focus:outline-none cursor-pointer">
+          <option value="2026-09-14" selected>14-SEP-2026 (HOY)</option>
+          <option value="2026-08-31">31-AGO-2026</option>
+          <option value="2026-07-31">31-JUL-2026</option>
+        </select>
+      </div>
+
+      <!-- Usuario y Cargo -->
+      <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+        <div class="w-7 h-7 rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-800 flex items-center justify-center font-bold text-xs" id="user-avatar-badge">
+          CH
+        </div>
+        <div class="hidden lg:flex flex-col text-left leading-none">
+          <span class="font-bold text-[11px] text-slate-900">Carlos Hernández</span>
+          <span class="text-[9px] text-slate-500 font-medium">Control de Créditos & Cobranzas</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. BARRA SUPERIOR DE CONMUTACIÓN Y ACCIONES -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm relative z-10 flex-shrink-0 action-bar">
+    
+    <!-- A) Selector de Modo Activo (Pestañas CxC / CxP) -->
+    <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+      <button id="tab-cxc-btn" onclick="switchCarteraMode('cxc')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all border tab-cxc-active">
+        <span>💰</span>
+        <span>Cartera de Clientes (Cuentas por Cobrar - CxC)</span>
+        <span id="badge-count-cxc" class="font-mono text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-black">5</span>
+      </button>
+      <button id="tab-cxp-btn" onclick="switchCarteraMode('cxp')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900">
+        <span>📦</span>
+        <span>Cartera de Proveedores (Cuentas por Pagar - CxP)</span>
+        <span id="badge-count-cxp" class="font-mono text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-black">5</span>
+      </button>
+    </div>
+
+    <!-- B) Botonera de Acciones Rápidas -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Botón Registrar Abono / Cobro -->
+            <button onclick="openModal('modal-quick-customer')" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-sm transition-all cursor-pointer">
+        <span>＋</span>
+        <span>Nuevo Cliente</span>
+      </button>
+      <button id="btn-registrar-abono-main" onclick="openAbonoModal()" class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-sm transition-all">
+        <span>＋</span>
+        <span id="btn-abono-label">Registrar Recibo de Cobro (CxC)</span>
+      </button>
+
+      <!-- Botón Descargar Aging -->
+      <button onclick="exportAgingReport()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-sm transition-all">
+        <span>📊</span>
+        <span class="hidden md:inline">Reporte de Antigüedad (Aging)</span>
+      </button>
+
+      <!-- Botón Estados de Cuenta Masivos -->
+      <button onclick="sendMassiveStatements()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold rounded-xl text-xs transition-all">
+        <span>📧</span>
+        <span class="hidden lg:inline">Estados de Cuenta</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. TARJETAS DE CONTROL Y KPIS DE CARTERA (4 Tarjetas en JetBrains Mono) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative z-10 flex-shrink-0">
+    
+    <!-- KPI 1: Saldo Total de Cartera -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500 mb-1">
+        <span id="kpi-label-total" class="text-[10px] font-bold uppercase tracking-wider">Saldo Total por Cobrar</span>
+        <span class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-bold" id="kpi-icon-total">💼</span>
+      </div>
+      <div class="mt-1">
+        <div id="kpi-saldo-total" class="text-slate-950 font-black text-lg font-mono tracking-tight">L 942,650.00</div>
+        <div class="text-[10px] text-slate-400 font-mono mt-0.5">5 Cuentas Activas con Balance</div>
+      </div>
+      <div class="mt-2 text-[9px] font-mono text-emerald-700 font-bold flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        Rotación Promedio: 24.5 días
+      </div>
+    </div>
+
+    <!-- KPI 2: Cartera Vencida (> 30 días) -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500 mb-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Cartera Vencida (> 30 Días)</span>
+        <span class="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-mono font-bold text-[9px]">19.6% MORA</span>
+      </div>
+      <div class="mt-1">
+        <div id="kpi-saldo-vencido" class="text-rose-600 font-black text-lg font-mono tracking-tight">L 185,200.00</div>
+        <div class="text-[10px] text-slate-400 font-mono mt-0.5">2 Facturas en Período Crítico</div>
+      </div>
+      <div class="mt-2 text-[9px] font-mono text-rose-700 font-bold">
+        Acción de cobranza requerida
+      </div>
+    </div>
+
+    <!-- KPI 3: Cobros / Pagos Proyectados a 7 Días -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-500 mb-1">
+        <span id="kpi-label-proyectado" class="text-[10px] font-bold uppercase tracking-wider text-sky-700">Cobros Proyectados (7 Días)</span>
+        <span class="w-6 h-6 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center text-xs font-bold">📅</span>
+      </div>
+      <div class="mt-1">
+        <div id="kpi-proyectado-7d" class="text-sky-700 font-black text-lg font-mono tracking-tight">L 310,400.00</div>
+        <div class="text-[10px] text-slate-400 font-mono mt-0.5">3 Facturas con Vencimiento Próximo</div>
+      </div>
+      <div class="mt-2 text-[9px] font-mono text-slate-500">
+        Ingreso estimado en tesorería
+      </div>
+    </div>
+
+    <!-- KPI 4: Límite de Crédito Utilizado Global -->
+    <div class="bg-slate-950 text-white border border-slate-900 rounded-2xl p-4 shadow-md flex flex-col justify-between">
+      <div class="flex items-center justify-between text-slate-400 mb-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Cupo Global Utilizado</span>
+        <span class="px-1.5 py-0.5 rounded bg-white/10 text-slate-200 font-mono font-bold text-[9px]">RIESGO CONTROLADO</span>
+      </div>
+      <div class="mt-1 flex items-baseline justify-between">
+        <div id="kpi-limite-utilizado" class="text-white font-black text-xl font-mono tracking-tight">68.4%</div>
+        <span class="text-[10px] mono text-slate-400">Cupo Total: L 1.8M</span>
+      </div>
+      <!-- Microbarra de progreso -->
+      <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
+        <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 68.4%"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 4. DISTRIBUCIÓN POR ANTIGÜEDAD DE SALDOS (AGING BANNER) -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm relative z-10 flex-shrink-0">
+    <div class="text-[10px] font-bold font-mono text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+      <span>DISTRIBUCIÓN DE ANTIGÜEDAD DE SALDOS (AGING FISCAL NIIF):</span>
+      <span class="text-slate-400">Corte: Septiembre 2026</span>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 font-mono">
+      <!-- 0-30 Días (Verde) -->
+      <div class="p-2.5 bg-emerald-50/50 border border-emerald-200 rounded-xl">
+        <div class="flex justify-between items-center text-[10px] text-emerald-800 font-bold mb-0.5">
+          <span>AL DÍA (0-30 DÍAS)</span>
+          <span class="bg-emerald-200 text-emerald-900 px-1.5 py-0.2 rounded text-[9px]">80.4%</span>
+        </div>
+        <div class="text-sm font-black text-emerald-950">L 757,450.00</div>
+      </div>
+      <!-- 31-60 Días (Ámbar) -->
+      <div class="p-2.5 bg-amber-50/50 border border-amber-200 rounded-xl">
+        <div class="flex justify-between items-center text-[10px] text-amber-800 font-bold mb-0.5">
+          <span>31 A 60 DÍAS</span>
+          <span class="bg-amber-200 text-amber-900 px-1.5 py-0.2 rounded text-[9px]">10.4%</span>
+        </div>
+        <div class="text-sm font-black text-amber-950">L 98,200.00</div>
+      </div>
+      <!-- 61-90 Días (Naranja) -->
+      <div class="p-2.5 bg-orange-50/50 border border-orange-200 rounded-xl">
+        <div class="flex justify-between items-center text-[10px] text-orange-800 font-bold mb-0.5">
+          <span>61 A 90 DÍAS</span>
+          <span class="bg-orange-200 text-orange-900 px-1.5 py-0.2 rounded text-[9px]">5.7%</span>
+        </div>
+        <div class="text-sm font-black text-orange-950">L 54,000.00</div>
+      </div>
+      <!-- +90 Días (Rojo) -->
+      <div class="p-2.5 bg-rose-50/50 border border-rose-200 rounded-xl">
+        <div class="flex justify-between items-center text-[10px] text-rose-800 font-bold mb-0.5">
+          <span>+90 DÍAS (RIESGO)</span>
+          <span class="bg-rose-200 text-rose-900 px-1.5 py-0.2 rounded text-[9px]">3.5%</span>
+        </div>
+        <div class="text-sm font-black text-rose-950">L 33,000.00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MESA DE TRABAJO: DIRECTORIO DE TERCEROS Y EXPEDIENTE DETALLADO (SPLIT VIEW) -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0 relative z-10">
+    
+    <!-- PANEL IZQUIERDO: DIRECTORIO MAESTRO DE TERCEROS (4 Columnas) -->
+    <div class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+      
+      <!-- Buscador y Filtros -->
+      <div class="p-3.5 border-b border-slate-200 space-y-2.5 bg-slate-50/50">
+        <div class="relative">
+          <input type="text" 
+                 id="third-party-search" 
+                 oninput="filterThirdParties()" 
+                 placeholder="Buscar por RTN, nombre o contacto..." 
+                 class="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 font-sans">
+          <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-[10px] font-mono">
+          <span class="text-slate-400 font-bold uppercase">FILTRO:</span>
+          <select id="status-filter-select" onchange="filterThirdParties()" class="bg-white border border-slate-300 rounded-lg px-2 py-1 text-slate-800 font-bold focus:outline-none cursor-pointer">
+            <option value="ALL">TODOS</option>
+            <option value="NORMAL">AL DÍA (NORMAL)</option>
+            <option value="WARNING">CERCA DEL LÍMITE</option>
+            <option value="MORA">CON MORA / BLOQUEADO</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Lista Scrollable de Terceros -->
+      <div id="third-party-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 p-2 space-y-1.5 third-party-list">
+        <!-- Renderizado por JS -->
+      </div>
+
+      <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-[10px] font-mono text-slate-500 flex justify-between">
+        <span id="third-party-count-label">5 terceros listados</span>
+        <span class="font-bold text-slate-700">Total: 100% Sincronizado</span>
+      </div>
+
+    </div>
+
+    <!-- PANEL DERECHO: EXPEDIENTE COMERCIAL & EXTRACTO DE CUENTA (8 Columnas) -->
+    <div id="expediente-card-container" class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden border-l-[6px] border-l-emerald-500 statement-container">
+      
+      <!-- Cabecera del Tercero Seleccionado -->
+      <div class="p-5 border-b border-slate-200 bg-slate-50/50 flex flex-col gap-4">
+        
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 id="exp-razon-social" class="text-base font-extrabold text-slate-950 uppercase tracking-tight">Constructora Lempira S. de R.L.</h2>
+              <span id="exp-status-badge" class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                CRÉDITO NORMAL
+              </span>
+            </div>
+            <div class="flex items-center gap-2 mt-1 text-[11px] font-mono text-slate-500">
+              <span>RTN: <strong id="exp-rtn" class="text-slate-800 font-bold">08011990445566</strong></span>
+              <span>•</span>
+              <span>Contacto: <strong id="exp-contacto" class="text-slate-700">Ing. Roberto Méndez</strong></span>
+              <span>•</span>
+              <span id="exp-email" class="text-slate-600">cobros@lempira.hn</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openAbonoModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5" id="exp-btn-abono">
+              <span>＋</span>
+              <span>Aplicar Abono</span>
+            </button>
+            <button onclick="printAccountStatement()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5">
+              <span>🖨️</span>
+              <span class="hidden sm:inline">Estado Cuenta</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra de Exposición de Crédito (Límite vs Saldo vs Disponible) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-white border border-slate-200 rounded-xl font-mono text-xs">
+          <div>
+            <span class="text-[10px] text-slate-400 block uppercase font-bold">LÍMITE ASIGNADO</span>
+            <span id="exp-limite" class="font-bold text-slate-900 text-sm">L 500,000.00</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block uppercase font-bold">SALDO OCUPADO ACTUAL</span>
+            <span id="exp-saldo" class="font-black text-rose-600 text-sm">L 128,405.00</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block uppercase font-bold">CUPO DISPONIBLE</span>
+            <span id="exp-disponible" class="font-black text-emerald-700 text-sm">L 371,595.00</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pestañas Internas del Expediente -->
+      <div class="flex items-center gap-2 px-5 pt-3 border-b border-slate-200 bg-white">
+        <button id="exp-tab-partidas" onclick="switchExpedienteTab('partidas')" class="px-3 py-1.5 border-b-2 border-emerald-600 font-bold text-emerald-800 text-xs transition-colors">
+          Facturas Pendientes (Partidas Abiertas)
+        </button>
+        <button id="exp-tab-historial" onclick="switchExpedienteTab('historial')" class="px-3 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-bold text-xs transition-colors">
+          Historial de Movimientos (Cuenta Corriente)
+        </button>
+      </div>
+
+      <!-- Contenido Tab 1: Partidas Abiertas -->
+      <div id="exp-pane-partidas" class="flex-1 overflow-auto p-4">
+        <table class="w-full text-left border-collapse text-xs font-mono">
+          <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] sticky top-0">
+            <tr>
+              <th class="py-2.5 px-3">FECHA</th>
+              <th class="py-2.5 px-3">FACTURA FISCAL SAR</th>
+              <th class="py-2.5 px-3">VENCIMIENTO</th>
+              <th class="py-2.5 px-3 text-center">MORA</th>
+              <th class="py-2.5 px-3 text-right">VALOR TOTAL</th>
+              <th class="py-2.5 px-3 text-right">ABONOS</th>
+              <th class="py-2.5 px-3 text-right text-rose-600 font-bold">SALDO PENDIENTE</th>
+              <th class="py-2.5 px-3 text-center">ACCIÓN</th>
+            </tr>
+          </thead>
+          <tbody id="exp-tbody-partidas" class="divide-y divide-slate-100 text-slate-800 text-[11px]">
+            <!-- Renderizado por JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Contenido Tab 2: Historial de Cuenta Corriente -->
+      <div id="exp-pane-historial" class="hidden flex-1 overflow-auto p-4">
+        <table class="w-full text-left border-collapse text-xs font-mono">
+          <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] sticky top-0">
+            <tr>
+              <th class="py-2.5 px-3">FECHA</th>
+              <th class="py-2.5 px-3">DOCUMENTO / REF</th>
+              <th class="py-2.5 px-3 font-sans">CONCEPTO</th>
+              <th class="py-2.5 px-3 text-right text-slate-900">CARGO (L)</th>
+              <th class="py-2.5 px-3 text-right text-emerald-700">ABONO (L)</th>
+              <th class="py-2.5 px-3 text-right font-bold text-slate-950">SALDO ACUMULADO (L)</th>
+            </tr>
+          </thead>
+          <tbody id="exp-tbody-historial" class="divide-y divide-slate-100 text-slate-800 text-[11px]">
+            <!-- Renderizado por JS -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- 6. MODAL INTERACTIVO: REGISTRAR ABONO / PAGO (#modal-registrar-abono) -->
+  <div id="modal-registrar-abono" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">💰</span>
+          <div>
+            <h3 id="modal-abono-title" class="font-bold text-sm">Registrar Recibo de Cobro / Abono</h3>
+            <p id="modal-abono-sub" class="text-[10px] text-slate-400 font-mono">Asentamiento en Tesorería y Descarga de Cartera</p>
+          </div>
+        </div>
+        <button onclick="closeAbonoModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">
+          ✕
+        </button>
+      </div>
+
+      <form onsubmit="submitAbonoForm(event)" class="p-6 space-y-3.5 text-xs">
+        
+        <!-- Tercero & Factura -->
+        <div>
+          <label class="block text-[10px] font-mono font-bold uppercase text-slate-500 mb-1">Tercero / Titular</label>
+          <input type="text" id="modal-input-tercero" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase text-slate-500 mb-1">Factura a Aplicar</label>
+            <select id="modal-select-factura" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-800">
+              <!-- Renderizado por JS -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase text-slate-500 mb-1">Medio de Pago</label>
+            <select id="modal-select-metodo" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-800">
+              <option value="ACH_BAC">Transferencia ACH (BAC)</option>
+              <option value="ACH_FICOHSA">Transferencia ACH (Ficohsa)</option>
+              <option value="EFECTIVO">Efectivo (Caja General)</option>
+              <option value="CHEQUE">Cheque Bancario</option>
+              <option value="TARJETA_POS">Tarjeta POS / Adquirencia</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase text-slate-500 mb-1">No. Comprobante / Referencia</label>
+            <input type="text" id="modal-input-ref" required placeholder="Ej. BAC-8821940" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 outline-none focus:bg-white focus:border-slate-800">
+          </div>
+          <div>
+            <label class="block text-[10px] font-mono font-bold uppercase text-slate-500 mb-1">Monto Pagado / Cobrado (HNL)</label>
+            <input type="number" id="modal-input-monto" step="0.01" required placeholder="0.00" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-black text-slate-950 outline-none focus:bg-white focus:border-slate-800">
+          </div>
+        </div>
+
+        <!-- Asiento Contable Automático Sugerido -->
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-mono text-slate-600 space-y-1">
+          <div class="font-bold text-slate-800 uppercase flex items-center gap-1">
+            <span>⚡</span>
+            <span>Asiento de Partida Doble Sugerido:</span>
+          </div>
+          <div class="flex justify-between"><span>[DEBE] 1.1.01.02 Bancos Cuentas Corrientes:</span> <strong class="text-emerald-700" id="modal-preview-debe">L 0.00</strong></div>
+          <div class="flex justify-between"><span>[HABER] 1.1.03.01 Clientes Cartera Local (CxC):</span> <strong class="text-rose-600" id="modal-preview-haber">L 0.00</strong></div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeAbonoModal()" class="px-4 py-2 text-slate-600 font-bold hover:text-slate-900 text-xs">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md transition-all">
+            Asentar Recibo & Actualizar Cartera
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-950 text-white border border-slate-800 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs font-medium">
+    <span id="toast-icon">✅</span>
+    <span id="toast-message">Notificación del sistema</span>
+  </div>
+
+  <!-- SCRIPT DE LÓGICA DE CARTERA Y EXTRACTOS -->
+  <script>
+    // ==========================================
+    // 1. BASE DE DATOS DE TERCEROS (CXC & CXP)
+    // ==========================================
+    const CLIENTES_DATA = [
+      {
+        id: "c1",
+        nombre: "Constructora Lempira S. de R.L.",
+        rtn: "08011990445566",
+        limite: 500000.00,
+        saldo: 128405.00,
+        plazo: "30 Días",
+        contacto: "Ing. Roberto Méndez",
+        email: "cobros@lempira.hn",
+        status: "NORMAL",
+        facturas: [
+          { fecha: "2026-08-15", factura: "000-001-01-00043910", vencimiento: "2026-09-14", mora: 0, total: 78405.00, abonos: 0.00, saldo: 78405.00 },
+          { fecha: "2026-09-11", factura: "000-001-01-00045231", vencimiento: "2026-10-11", mora: 0, total: 50000.00, abonos: 0.00, saldo: 50000.00 }
+        ],
+        historial: [
+          { fecha: "2026-08-15", ref: "FAC-00043910", concepto: "Facturación de Materiales y Soluciones", cargo: 78405.00, abono: 0.00, saldo: 78405.00 },
+          { fecha: "2026-08-28", ref: "REC-2026-089", concepto: "Abono a Cuenta vía Transferencia BAC", cargo: 0.00, abono: 40000.00, saldo: 38405.00 },
+          { fecha: "2026-09-02", ref: "FAC-00044102", concepto: "Venta de Equipos POS & Licencias", cargo: 40000.00, abono: 0.00, saldo: 78405.00 },
+          { fecha: "2026-09-11", ref: "FAC-00045231", concepto: "Factura Comercial SAR Punto Emisión 01", cargo: 50000.00, abono: 0.00, saldo: 128405.00 }
+        ]
+      },
+      {
+        id: "c2",
+        nombre: "Inversiones del Valle S.A.",
+        rtn: "08011995123456",
+        limite: 350000.00,
+        saldo: 215800.00,
+        plazo: "30 Días",
+        contacto: "Lic. Fernando Valle",
+        email: "finanzas@valle.hn",
+        status: "WARNING",
+        facturas: [
+          { fecha: "2026-07-20", factura: "000-001-01-00042100", vencimiento: "2026-08-19", mora: 26, total: 120800.00, abonos: 0.00, saldo: 120800.00 },
+          { fecha: "2026-09-02", factura: "000-001-01-00045229", vencimiento: "2026-10-02", mora: 0, total: 95000.00, abonos: 0.00, saldo: 95000.00 }
+        ],
+        historial: [
+          { fecha: "2026-07-20", ref: "FAC-00042100", concepto: "Suministro Corporativo Anual", cargo: 120800.00, abono: 0.00, saldo: 120800.00 },
+          { fecha: "2026-09-02", ref: "FAC-00045229", concepto: "Factura Fiscal SAR Gravada 15%", cargo: 95000.00, abono: 0.00, saldo: 215800.00 }
+        ]
+      },
+      {
+        id: "c3",
+        nombre: "Distribuidora Comercial Caribe S.A.",
+        rtn: "08011998776655",
+        limite: 200000.00,
+        saldo: 185200.00,
+        plazo: "15 Días",
+        contacto: "Licda. Claudia Reyes",
+        email: "creyes@caribe.hn",
+        status: "MORA",
+        facturas: [
+          { fecha: "2026-06-10", factura: "000-001-01-00039800", vencimiento: "2026-06-25", mora: 81, total: 87000.00, abonos: 0.00, saldo: 87000.00 },
+          { fecha: "2026-07-05", factura: "000-001-01-00041200", vencimiento: "2026-07-20", mora: 56, total: 98200.00, abonos: 0.00, saldo: 98200.00 }
+        ],
+        historial: [
+          { fecha: "2026-06-10", ref: "FAC-00039800", concepto: "Venta Mayorista Insumos Térmicos", cargo: 87000.00, abono: 0.00, saldo: 87000.00 },
+          { fecha: "2026-07-05", ref: "FAC-00041200", concepto: "Entrega de Servidores en Sucursal SPS", cargo: 98200.00, abono: 0.00, saldo: 185200.00 }
+        ]
+      },
+      {
+        id: "c4",
+        nombre: "Agroindustrias del Norte S.A.",
+        rtn: "05011992334455",
+        limite: 600000.00,
+        saldo: 297750.00,
+        plazo: "45 Días",
+        contacto: "Ing. Mario Zelaya",
+        email: "mzelaya@agronorte.hn",
+        status: "NORMAL",
+        facturas: [
+          { fecha: "2026-08-30", factura: "000-001-01-00044890", vencimiento: "2026-10-14", mora: 0, total: 200000.00, abonos: 0.00, saldo: 200000.00 },
+          { fecha: "2026-09-14", factura: "000-001-01-00045232", vencimiento: "2026-10-29", mora: 0, total: 97750.00, abonos: 0.00, saldo: 97750.00 }
+        ],
+        historial: [
+          { fecha: "2026-08-30", ref: "FAC-00044890", concepto: "Equipos de Automatización Agrícola", cargo: 200000.00, abono: 0.00, saldo: 200000.00 },
+          { fecha: "2026-09-14", ref: "FAC-00045232", concepto: "Factura Comercial Punto Emisión 01", cargo: 97750.00, abono: 0.00, saldo: 297750.00 }
+        ]
+      },
+      {
+        id: "c5",
+        nombre: "Servicios Logísticos Hondureños S.A.",
+        rtn: "08011996112233",
+        limite: 150000.00,
+        saldo: 115495.00,
+        plazo: "30 Días",
+        contacto: "Lic. David Santos",
+        email: "pagos@logistica.hn",
+        status: "NORMAL",
+        facturas: [
+          { fecha: "2026-08-20", factura: "000-001-01-00044500", vencimiento: "2026-09-19", mora: 0, total: 74645.00, abonos: 0.00, saldo: 74645.00 },
+          { fecha: "2026-09-22", factura: "000-001-01-00045234", vencimiento: "2026-10-22", mora: 0, total: 40850.00, abonos: 0.00, saldo: 40850.00 }
+        ],
+        historial: [
+          { fecha: "2026-08-20", ref: "FAC-00044500", concepto: "Servicios de Despacho Aduanero", cargo: 74645.00, abono: 0.00, saldo: 74645.00 },
+          { fecha: "2026-09-22", ref: "FAC-00045234", concepto: "Factura Comercial Mixta 15%/18%", cargo: 40850.00, abono: 0.00, saldo: 115495.00 }
+        ]
+      }
+    ];
+
+    const PROVEEDORES_DATA = [
+      {
+        id: "p1",
+        nombre: "DISTRIBUIDORA INDUSTRIAL S.A.",
+        rtn: "08011990123456",
+        limite: 400000.00,
+        saldo: 228570.00,
+        plazo: "30 Días",
+        contacto: "Licda. Sofía Pineda",
+        email: "cuentas@distribuidoraindustrial.hn",
+        status: "NORMAL",
+        facturas: [
+          { fecha: "2026-08-20", factura: "001-003-01-00034100", vencimiento: "2026-09-19", mora: 0, total: 145920.00, abonos: 0.00, saldo: 145920.00 },
+          { fecha: "2026-09-05", factura: "001-003-01-00034821", vencimiento: "2026-10-05", mora: 0, total: 82650.00, abonos: 0.00, saldo: 82650.00 }
+        ],
+        historial: [
+          { fecha: "2026-08-20", ref: "FC-00034100", concepto: "Compra de Insumos Térmicos y Repuestos", cargo: 145920.00, abono: 0.00, saldo: 145920.00 },
+          { fecha: "2026-09-05", ref: "FC-00034821", concepto: "Factura Proveedor Gravada 15%", cargo: 82650.00, abono: 0.00, saldo: 228570.00 }
+        ]
+      },
+      {
+        id: "p2",
+        nombre: "IMPORTADORA TECNOLÓGICA S.A.",
+        rtn: "08011979334455",
+        limite: 500000.00,
+        saldo: 291840.00,
+        plazo: "45 Días",
+        contacto: "Ing. Gabriel Torres",
+        email: "cobros@importadoratec.hn",
+        status: "NORMAL",
+        facturas: [
+          { fecha: "2026-08-10", factura: "001-001-01-00087500", vencimiento: "2026-09-24", mora: 0, total: 145920.00, abonos: 0.00, saldo: 145920.00 },
+          { fecha: "2026-09-12", factura: "001-001-01-00088210", vencimiento: "2026-10-27", mora: 0, total: 145920.00, abonos: 0.00, saldo: 145920.00 }
+        ],
+        historial: [
+          { fecha: "2026-08-10", ref: "FC-00087500", concepto: "Lote de Servidores Dell y Switches", cargo: 145920.00, abono: 0.00, saldo: 145920.00 },
+          { fecha: "2026-09-12", ref: "FC-00088210", concepto: "Factura Proveedor con Retención 1%", cargo: 145920.00, abono: 0.00, saldo: 291840.00 }
+        ]
+      },
+      {
+        id: "p3",
+        nombre: "ENEE - EMPRESA NACIONAL DE ENERGÍA ELÉCTRICA",
+        rtn: "08011980001122",
+        limite: 100000.00,
+        saldo: 43548.00,
+        plazo: "15 Días",
+        contacto: "Atención Corporativa ENEE",
+        email: "facturacion@enee.hn",
+        status: "NORMAL",
+        facturas: [
+          { fecha: "2026-09-16", factura: "000-001-01-00054320", vencimiento: "2026-10-01", mora: 0, total: 43548.00, abonos: 0.00, saldo: 43548.00 }
+        ],
+        historial: [
+          { fecha: "2026-09-16", ref: "REC-00054320", concepto: "Consumo de Energía Eléctrica Planta Central", cargo: 43548.00, abono: 0.00, saldo: 43548.00 }
+        ]
+      },
+      {
+        id: "p4",
+        nombre: "PAPELERÍA & SUMINISTROS DE HONDURAS",
+        rtn: "08011985112233",
+        limite: 80000.00,
+        saldo: 20756.00,
+        plazo: "30 Días",
+        contacto: "Lic. Marco Antonio Cruz",
+        email: "ventas@papeleriahnd.hn",
+        status: "NORMAL",
+        facturas: [
+          { fecha: "2026-09-08", factura: "000-002-01-00012940", vencimiento: "2026-10-08", mora: 0, total: 20756.00, abonos: 0.00, saldo: 20756.00 }
+        ],
+        historial: [
+          { fecha: "2026-09-08", ref: "FC-00012940", concepto: "Papelería y Útiles de Oficina Central", cargo: 20756.00, abono: 0.00, saldo: 20756.00 }
+        ]
+      },
+      {
+        id: "p5",
+        nombre: "CLARO HONDURAS / TELECOMUNICACIONES",
+        rtn: "08011993445566",
+        limite: 50000.00,
+        saldo: 14250.00,
+        plazo: "15 Días",
+        contacto: "Corporativo Claro",
+        email: "empresas@claro.com.hn",
+        status: "NORMAL",
+        facturas: [
+          { fecha: "2026-09-20", factura: "000-003-01-00009845", vencimiento: "2026-10-05", mora: 0, total: 14250.00, abonos: 0.00, saldo: 14250.00 }
+        ],
+        historial: [
+          { fecha: "2026-09-20", ref: "FC-00009845", concepto: "Enlace Dedicado de Fibra Óptica 500Mbps", cargo: 14250.00, abono: 0.00, saldo: 14250.00 }
+        ]
+      }
+    ];
+
+    let currentMode = 'cxc'; // 'cxc' o 'cxp'
+    let activeThirdPartyId = 'c1';
+    let currentExpTab = 'partidas'; // 'partidas' o 'historial'
+
+    function formatMoney(amount) {
+      return 'L ' + Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // ==========================================
+    // 2. CONMUTACIÓN DE MODO (CXC / CXP)
+    // ==========================================
+    function switchCarteraMode(mode) {
+      currentMode = mode;
+      const tabCxC = document.getElementById('tab-cxc-btn');
+      const tabCxP = document.getElementById('tab-cxp-btn');
+      const headerBadge = document.getElementById('header-mode-badge');
+      const cardContainer = document.getElementById('expediente-card-container');
+      const btnAbonoLabel = document.getElementById('btn-abono-label');
+      const kpiLabelTotal = document.getElementById('kpi-label-total');
+      const kpiLabelProyectado = document.getElementById('kpi-label-proyectado');
+      const kpiSaldoTotal = document.getElementById('kpi-saldo-total');
+      const kpiSaldoVencido = document.getElementById('kpi-saldo-vencido');
+      const kpiProyectado7d = document.getElementById('kpi-proyectado-7d');
+      const kpiLimiteUtilizado = document.getElementById('kpi-limite-utilizado');
+      
+      if (mode === 'cxc') {
+        tabCxC.className = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all border tab-cxc-active';
+        tabCxP.className = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900';
+        
+        headerBadge.className = 'bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 tracking-wider';
+        headerBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> CARTERA CLIENTES (CxC)';
+        
+        cardContainer.className = 'lg:col-span-8 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden border-l-[6px] border-l-emerald-500 statement-container';
+        btnAbonoLabel.textContent = 'Registrar Recibo de Cobro (CxC)';
+        kpiLabelTotal.textContent = 'Saldo Total por Cobrar';
+        kpiLabelProyectado.textContent = 'Cobros Proyectados (7 Días)';
+        
+        kpiSaldoTotal.textContent = 'L 942,650.00';
+        kpiSaldoVencido.textContent = 'L 185,200.00';
+        kpiProyectado7d.textContent = 'L 310,400.00';
+        kpiLimiteUtilizado.textContent = '68.4%';
+
+        activeThirdPartyId = 'c1';
+        window.location.hash = '#cxc';
+      } else {
+        tabCxP.className = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all border tab-cxp-active';
+        tabCxC.className = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all border border-transparent text-slate-600 hover:text-slate-900';
+        
+        headerBadge.className = 'bg-amber-50 text-amber-700 border border-amber-200 font-mono text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 tracking-wider';
+        headerBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> PROVEEDORES (CxP)';
+        
+        cardContainer.className = 'lg:col-span-8 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden border-l-[6px] border-l-amber-500 statement-container';
+        btnAbonoLabel.textContent = 'Aplicar Pago a Proveedor (CxP)';
+        kpiLabelTotal.textContent = 'Saldo Total por Pagar';
+        kpiLabelProyectado.textContent = 'Pagos Proyectados (7 Días)';
+        
+        kpiSaldoTotal.textContent = 'L 598,964.00';
+        kpiSaldoVencido.textContent = 'L 0.00';
+        kpiProyectado7d.textContent = 'L 189,468.00';
+        kpiLimiteUtilizado.textContent = '52.9%';
+
+        activeThirdPartyId = 'p1';
+        window.location.hash = '#cxp';
+      }
+
+      filterThirdParties();
+      selectThirdParty(activeThirdPartyId);
+    }
+
+    // ==========================================
+    // 3. RENDERIZADO DEL DIRECTORIO DE TERCEROS
+    // ==========================================
+    function filterThirdParties() {
+      const q = document.getElementById('third-party-search').value.toLowerCase().trim();
+      const statusFilter = document.getElementById('status-filter-select').value;
+      const listContainer = document.getElementById('third-party-list');
+      const countLabel = document.getElementById('third-party-count-label');
+
+      const data = currentMode === 'cxc' ? CLIENTES_DATA : PROVEEDORES_DATA;
+      
+      const filtered = data.filter(item => {
+        const matchQ = !q || item.nombre.toLowerCase().includes(q) || item.rtn.includes(q) || item.contacto.toLowerCase().includes(q);
+        const matchStatus = statusFilter === 'ALL' || item.status === statusFilter;
+        return matchQ && matchStatus;
+      });
+
+      countLabel.textContent = `${filtered.length} terceros listados`;
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="py-8 text-center text-slate-400 font-sans text-xs">
+            No se encontraron terceros con los filtros aplicados.
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = filtered.map(t => {
+        const isSelected = t.id === activeThirdPartyId;
+        const selClass = isSelected ? (currentMode === 'cxc' ? 'selected-cxc' : 'selected-cxp') : 'border-slate-200 bg-white hover:border-slate-300';
+        
+        let badgeHtml = '';
+        if (t.status === 'NORMAL') {
+          badgeHtml = `<span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">NORMAL</span>`;
+        } else if (t.status === 'WARNING') {
+          badgeHtml = `<span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200">CERCA LÍMITE</span>`;
+        } else {
+          badgeHtml = `<span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">MORA / BLOQ</span>`;
+        }
+
+        return `
+          <div onclick="selectThirdParty('${t.id}')" class="third-party-item p-3 rounded-xl border transition-all cursor-pointer ${selClass}">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex-1 min-w-0">
+                <h4 class="font-extrabold text-xs text-slate-900 truncate">${t.nombre}</h4>
+                <div class="text-[10px] font-mono text-slate-500 mt-0.5">RTN: ${t.rtn}</div>
+              </div>
+              ${badgeHtml}
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 font-mono text-[10px]">
+              <span class="text-slate-400">Plazo: ${t.plazo}</span>
+              <strong class="text-slate-950 font-bold">${formatMoney(t.saldo)}</strong>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========================================
+    // 4. SELECCIÓN DE TERCERO Y EXPEDIENTE
+    // ==========================================
+    function selectThirdParty(id) {
+      activeThirdPartyId = id;
+      const data = currentMode === 'cxc' ? CLIENTES_DATA : PROVEEDORES_DATA;
+      const third = data.find(t => t.id === id) || data[0];
+      if (!third) return;
+
+      // Actualizar cabecera del expediente
+      document.getElementById('exp-razon-social').textContent = third.nombre;
+      document.getElementById('exp-rtn').textContent = third.rtn;
+      document.getElementById('exp-contacto').textContent = third.contacto;
+      document.getElementById('exp-email').textContent = third.email;
+
+      const disponible = Math.max(0, third.limite - third.saldo);
+      document.getElementById('exp-limite').textContent = formatMoney(third.limite);
+      document.getElementById('exp-saldo').textContent = formatMoney(third.saldo);
+      document.getElementById('exp-disponible').textContent = formatMoney(disponible);
+
+      const statusBadge = document.getElementById('exp-status-badge');
+      if (third.status === 'NORMAL') {
+        statusBadge.className = 'px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        statusBadge.textContent = 'CRÉDITO NORMAL';
+      } else if (third.status === 'WARNING') {
+        statusBadge.className = 'px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-100 text-amber-800 border border-amber-300';
+        statusBadge.textContent = 'CERCA DEL LÍMITE';
+      } else {
+        statusBadge.className = 'px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-100 text-rose-800 border border-rose-300';
+        statusBadge.textContent = 'SALDO EN MORA';
+      }
+
+      // Renderizar Partidas Abiertas
+      const tbodyPartidas = document.getElementById('exp-tbody-partidas');
+      tbodyPartidas.innerHTML = third.facturas.map(f => {
+        const isMora = f.mora > 0;
+        const moraBadge = isMora 
+          ? `<span class="bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded font-bold">${f.mora} d</span>`
+          : `<span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">0 d</span>`;
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-2.5 px-3 text-slate-600">${f.fecha}</td>
+            <td class="py-2.5 px-3 font-bold text-slate-900">${f.factura}</td>
+            <td class="py-2.5 px-3 text-slate-600">${f.vencimiento}</td>
+            <td class="py-2.5 px-3 text-center">${moraBadge}</td>
+            <td class="py-2.5 px-3 text-right text-slate-900">${formatMoney(f.total)}</td>
+            <td class="py-2.5 px-3 text-right text-emerald-700 font-bold">${formatMoney(f.abonos)}</td>
+            <td class="py-2.5 px-3 text-right text-rose-600 font-black">${formatMoney(f.saldo)}</td>
+            <td class="py-2.5 px-3 text-center">
+              <button onclick="openAbonoModalForFactura('${third.id}', '${f.factura}', ${f.saldo})" class="px-2 py-1 bg-slate-950 hover:bg-slate-800 text-white font-bold rounded-lg text-[10px] transition-all">
+                ${currentMode === 'cxc' ? 'Cobrar' : 'Pagar'}
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Renderizar Historial de Movimientos
+      const tbodyHistorial = document.getElementById('exp-tbody-historial');
+      tbodyHistorial.innerHTML = third.historial.map(h => {
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-2 px-3 text-slate-600">${h.fecha}</td>
+            <td class="py-2 px-3 font-bold text-slate-900">${h.ref}</td>
+            <td class="py-2 px-3 font-sans text-slate-700">${h.concepto}</td>
+            <td class="py-2 px-3 text-right text-slate-900">${h.cargo > 0 ? formatMoney(h.cargo) : '-'}</td>
+            <td class="py-2 px-3 text-right text-emerald-700 font-bold">${h.abono > 0 ? formatMoney(h.abono) : '-'}</td>
+            <td class="py-2 px-3 text-right font-black text-slate-950">${formatMoney(h.saldo)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Re-renderizar lista para actualizar clase selected
+      filterThirdParties();
+    }
+
+    // ==========================================
+    // 5. PESTAÑAS INTERNAS DEL EXPEDIENTE
+    // ==========================================
+    function switchExpedienteTab(tab) {
+      currentExpTab = tab;
+      const tabPartidas = document.getElementById('exp-tab-partidas');
+      const tabHistorial = document.getElementById('exp-tab-historial');
+      const panePartidas = document.getElementById('exp-pane-partidas');
+      const paneHistorial = document.getElementById('exp-pane-historial');
+
+      if (tab === 'partidas') {
+        tabPartidas.className = 'px-3 py-1.5 border-b-2 border-emerald-600 font-bold text-emerald-800 text-xs transition-colors';
+        tabHistorial.className = 'px-3 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-bold text-xs transition-colors';
+        panePartidas.classList.remove('hidden');
+        paneHistorial.classList.add('hidden');
+      } else {
+        tabHistorial.className = 'px-3 py-1.5 border-b-2 border-emerald-600 font-bold text-emerald-800 text-xs transition-colors';
+        tabPartidas.className = 'px-3 py-1.5 border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-bold text-xs transition-colors';
+        paneHistorial.classList.remove('hidden');
+        panePartidas.classList.add('hidden');
+      }
+    }
+
+    // ==========================================
+    // 6. MODAL DE APLICACIÓN DE ABONOS (#modal-registrar-abono)
+    // ==========================================
+    function openAbonoModal() {
+      const data = currentMode === 'cxc' ? CLIENTES_DATA : PROVEEDORES_DATA;
+      const third = data.find(t => t.id === activeThirdPartyId) || data[0];
+      if (!third) return;
+
+      document.getElementById('modal-abono-title').textContent = currentMode === 'cxc' 
+        ? 'Registrar Recibo de Cobro / Abono' 
+        : 'Aplicar Pago a Proveedor';
+      document.getElementById('modal-abono-sub').textContent = currentMode === 'cxc'
+        ? 'Asentamiento en Tesorería y Descarga de Cuentas por Cobrar (CxC)'
+        : 'Asentamiento en Tesorería y Descarga de Cuentas por Pagar (CxP)';
+
+      document.getElementById('modal-input-tercero').value = `${third.nombre} (${third.rtn})`;
+      
+      const selectFac = document.getElementById('modal-select-factura');
+      selectFac.innerHTML = third.facturas.map(f => `
+        <option value="${f.factura}" data-saldo="${f.saldo}">Fac: ${f.factura} - Saldo: ${formatMoney(f.saldo)}</option>
+      `).join('');
+
+      if (third.facturas.length > 0) {
+        document.getElementById('modal-input-monto').value = third.facturas[0].saldo.toFixed(2);
+        updateModalPreview(third.facturas[0].saldo);
+      }
+
+      document.getElementById('modal-registrar-abono').classList.remove('hidden');
+      document.getElementById('modal-registrar-abono').classList.add('flex');
+    }
+
+    function openAbonoModalForFactura(thirdId, facturaNum, saldo) {
+      selectThirdParty(thirdId);
+      openAbonoModal();
+      document.getElementById('modal-select-factura').value = facturaNum;
+      document.getElementById('modal-input-monto').value = saldo.toFixed(2);
+      updateModalPreview(saldo);
+    }
+
+    function closeAbonoModal() {
+      document.getElementById('modal-registrar-abono').classList.add('hidden');
+      document.getElementById('modal-registrar-abono').classList.remove('flex');
+    }
+
+    function updateModalPreview(monto) {
+      const formatted = formatMoney(monto);
+      document.getElementById('modal-preview-debe').textContent = formatted;
+      document.getElementById('modal-preview-haber').textContent = formatted;
+    }
+
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'modal-input-monto') {
+        const val = parseFloat(e.target.value) || 0;
+        updateModalPreview(val);
+      }
+    });
+
+    function submitAbonoForm(e) {
+      e.preventDefault();
+      const ref = document.getElementById('modal-input-ref').value;
+      const monto = parseFloat(document.getElementById('modal-input-monto').value) || 0;
+      const facNum = document.getElementById('modal-select-factura').value;
+
+      closeAbonoModal();
+      showToast("✅", `¡Abono de ${formatMoney(monto)} registrado con referencia ${ref}! Partida asentada en el Libro Diario.`);
+    }
+
+    // ==========================================
+    // 7. EXPORTACIÓN DE AGING Y ESTADOS DE CUENTA
+    // ==========================================
+    function exportAgingReport() {
+      showToast("📊", "Generando Reporte de Antigüedad de Saldos (Aging)...");
+      setTimeout(() => {
+        const csv = "REPORTE DE ANTIGUEDAD DE SALDOS (AGING FISCAL)\r\n" +
+          "TERCERO,RTN,TOTAL SALDO,0-30 DIAS,31-60 DIAS,61-90 DIAS,+90 DIAS\r\n" +
+          "Constructora Lempira,08011990445566,128405.00,128405.00,0.00,0.00,0.00\r\n" +
+          "Inversiones del Valle,08011995123456,215800.00,95000.00,120800.00,0.00,0.00\r\n" +
+          "Distribuidora Caribe,08011998776655,185200.00,0.00,98200.00,87000.00,0.00\r\n";
+        
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `AGING_REPORTE_${currentMode.toUpperCase()}_SEP2026.csv`;
+        link.click();
+      }, 400);
+    }
+
+    function printAccountStatement() {
+      showToast("🖨️", "Preparando Estado de Cuenta para impresión...");
+      setTimeout(() => {
+        window.print();
+      }, 350);
+    }
+
+    function sendMassiveStatements() {
+      showToast("📧", "Enviando estados de cuenta por correo electrónico a los 5 terceros...");
+      setTimeout(() => {
+        showToast("✉️", "5 Estados de Cuenta enviados exitosamente.");
+      }, 1500);
+    }
+
+    // ==========================================
+    // 8. TOAST NOTIFICATION
+    // ==========================================
+    function showToast(icon, message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-message').textContent = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    // ==========================================
+    // 9. INICIALIZACIÓN POR RUTA O HASH
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.location.pathname.includes('cxp') || window.location.hash === '#cxp') {
+        switchCarteraMode('cxp');
+      } else {
+        switchCarteraMode('cxc');
+      }
+    });
+  </script>
+  <!-- MODAL: ALTA RÁPIDA DE CLIENTE (FICHA 3 NIVELES) -->
+  <div id="modal-quick-customer" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+            <span class="font-bold text-base">＋</span>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-900">Ficha Maestra de Cliente (CxC)</h3>
+            <p class="text-[10px] text-slate-500 font-medium font-mono">Despliegue Progresivo en 3 Niveles con Pre-Imputación</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-quick-customer')" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl font-bold">&times;</button>
+      </div>
+
+      <form id="form-quick-customer-cxc" onsubmit="saveQuickCustomerCxC(event)" class="p-4 space-y-3 text-xs overflow-y-auto custom-scrollbar flex-1 font-sans">
+        <div class="space-y-2 border border-slate-200 rounded-2xl p-3 bg-white">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono flex items-center justify-center font-bold">1</span>
+              <span>Nivel 1: Identificación Fiscal, Segmento y Pre-Imputación</span>
+            </span>
+            <span class="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Obligatorio</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <div class="flex justify-between items-center mb-0.5">
+                <label class="text-[10px] text-slate-500 font-bold block uppercase">RTN o DNI:</label>
+                <span id="cxc-rtn-badge" class="text-[9px] font-mono text-slate-400">0/14</span>
+              </div>
+              <input type="text" id="cxc-cust-taxid" required maxlength="14" oninput="validarRTNCxC(this.value)" placeholder="08011990123456" 
+                     class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 text-xs font-mono font-bold outline-none" />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">Razón Social:</label>
+              <input type="text" id="cxc-cust-name" required placeholder="COMERCIAL HONDUREÑA S.A." 
+                     class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 text-xs font-bold outline-none uppercase" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">Nombre Comercial:</label>
+              <input type="text" id="cxc-cust-tradename" placeholder="Marca Comercial" 
+                     class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl px-3 py-1.5 text-slate-900 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">Giro / Segmento:</label>
+              <select id="cxc-cust-category" onchange="actualizarPreimputacionCxCCust(this.value)"
+                      class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl px-2 py-1.5 text-slate-900 text-xs font-bold outline-none">
+                <option value="VENTA_MERCADERIA_GENERAL" selected>🛒 Mercadería General</option>
+                <option value="CLIENTE_MAYORISTA">🏢 Distribuidor Mayorista</option>
+                <option value="EXONERADO_DIPLOMATICO_OCE">🏛 Exonerado OCE / SAG</option>
+                <option value="SERVICIOS_TECNICOS">🔧 Servicios Técnicos</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">Moneda:</label>
+              <select id="cxc-cust-currency" class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl px-2 py-1.5 text-slate-900 text-xs outline-none font-mono">
+                <option value="HNL" selected>HNL (Lempiras)</option>
+                <option value="USD">USD (Dólares)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">Cuenta Contable:</label>
+              <select id="cxc-cust-account" class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl px-2 py-1.5 text-slate-900 text-[10px] font-mono outline-none">
+                <option value="4.1.01.01.0001">4.1.01.01.0001 - Venta de Mercaderías</option>
+                <option value="4.1.02.01.0001">4.1.02.01.0001 - Ingresos por Servicios</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <div id="cxc-cust-preimputacion-badge" class="w-full bg-emerald-50/80 border border-emerald-200/90 rounded-xl px-2.5 py-1.5 text-[10px] font-mono text-emerald-900 flex items-center justify-between">
+                <span>⚡ Ingresos: <strong id="cxc-cust-badge-cuenta-desc">4.1.01.01.0001 Ventas</strong></span>
+                <span id="cxc-cust-badge-exempt-desc" class="text-emerald-700 bg-emerald-100/70 px-1 py-0.2 rounded font-bold">Gravado 15%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NIVEL 2 -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <button type="button" onclick="toggleNivel2CxCCust()" class="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100/80 text-left transition font-bold text-xs text-slate-700">
+            <span class="flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-mono flex items-center justify-center font-bold">2</span>
+              <span>Nivel 2: Contacto, Crédito y Banco de Cobro</span>
+            </span>
+            <span id="chevron-nivel2-cxccust" class="text-slate-400 font-mono text-xs">▼ Desplegar</span>
+          </button>
+          <div id="nivel2-cxccust-content" class="hidden p-3 bg-white space-y-2 border-t border-slate-100 text-xs">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Teléfono:</label>
+                <input type="text" id="cxc-cust-phone" placeholder="9988-7766" class="w-full input-std" />
+              </div>
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Correo:</label>
+                <input type="email" id="cxc-cust-email" placeholder="cobranzas@cliente.hn" class="w-full input-std" />
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Días Crédito:</label>
+                <input type="number" id="cxc-cust-credit-days" value="0" min="0" class="w-full input-std font-mono font-bold" />
+              </div>
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Límite Crédito (L):</label>
+                <input type="number" id="cxc-cust-limit" value="50000" step="1000" class="w-full input-std font-mono font-bold" />
+              </div>
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Dirección:</label>
+                <input type="text" id="cxc-cust-address" placeholder="Tegucigalpa" class="w-full input-std" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 border-t border-slate-100 pt-2">
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Banco:</label>
+                <select id="cxc-cust-bank" class="w-full select-std">
+                  <option value="">-- Sin banco --</option>
+                  <option value="Banco Ficohsa">Banco Ficohsa</option>
+                  <option value="Banco Atlántida">Banco Atlántida</option>
+                  <option value="BAC Credomatic">BAC Credomatic</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">No. Cuenta Bancaria:</label>
+                <input type="text" id="cxc-cust-bank-acc" placeholder="001-201-000000" class="w-full input-std font-mono" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NIVEL 3 -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <button type="button" onclick="toggleNivel3CxCCust()" class="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100/80 text-left transition font-bold text-xs text-slate-700">
+            <span class="flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-mono flex items-center justify-center font-bold">3</span>
+              <span>Nivel 3: Régimen SAR y Datos Complementarios</span>
+            </span>
+            <span id="chevron-nivel3-cxccust" class="text-slate-400 font-mono text-xs">▼ Desplegar</span>
+          </button>
+          <div id="nivel3-cxccust-content" class="hidden p-3 bg-white space-y-2 border-t border-slate-100 text-xs">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Persona de Contacto:</label>
+                <input type="text" id="cxc-cust-contact" placeholder="Ing. Contacto" class="w-full input-std" />
+              </div>
+              <div>
+                <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Sitio Web:</label>
+                <input type="text" id="cxc-cust-web" placeholder="https://..." class="w-full input-std" />
+              </div>
+            </div>
+            <div>
+              <label class="text-[9px] text-slate-500 font-bold block uppercase mb-0.5">Notas / Observaciones:</label>
+              <input type="text" id="cxc-cust-notes" placeholder="Condiciones de crédito..." class="w-full input-std" />
+            </div>
+            <div class="bg-cyan-50/60 border border-cyan-200/70 rounded-xl p-2.5">
+              <label class="flex items-center gap-2 text-slate-800 cursor-pointer text-xs font-bold">
+                <input type="checkbox" id="cxc-cust-exempt" class="rounded text-cyan-600 focus:ring-0">
+                <span>Cliente Exonerado de ISV (Régimen SAG / Carnet OCE)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2.5 border-t border-slate-100 shrink-0">
+          <button type="button" onclick="closeModal('modal-quick-customer')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">Cancelar</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md">💾 Guardar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) { document.getElementById(id)?.classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id)?.classList.add('hidden'); }
+
+    function toggleNivel2CxCCust() {
+      const c = document.getElementById('nivel2-cxccust-content');
+      const chev = document.getElementById('chevron-nivel2-cxccust');
+      if (!c || !chev) return;
+      const isHidden = c.classList.contains('hidden');
+      if (isHidden) { c.classList.remove('hidden'); chev.textContent = '▲ Plegar'; }
+      else { c.classList.add('hidden'); chev.textContent = '▼ Desplegar'; }
+    }
+
+    function toggleNivel3CxCCust() {
+      const c = document.getElementById('nivel3-cxccust-content');
+      const chev = document.getElementById('chevron-nivel3-cxccust');
+      if (!c || !chev) return;
+      const isHidden = c.classList.contains('hidden');
+      if (isHidden) { c.classList.remove('hidden'); chev.textContent = '▲ Plegar'; }
+      else { c.classList.add('hidden'); chev.textContent = '▼ Desplegar'; }
+    }
+
+    function validarRTNCxC(val) {
+      const clean = (val || '').replace(/[^0-9]/g, '');
+      const badge = document.getElementById('cxc-rtn-badge');
+      if (!badge) return;
+      if (clean.length === 14) {
+        badge.className = "text-[9px] font-mono font-bold text-emerald-600";
+        badge.textContent = "✓ 14/14 Válido";
+      } else {
+        badge.className = "text-[9px] font-mono text-amber-600";
+        badge.textContent = `${clean.length}/14`;
+      }
+    }
+
+    function actualizarPreimputacionCxCCust(category) {
+      const accSel = document.getElementById('cxc-cust-account');
+      const descEl = document.getElementById('cxc-cust-badge-cuenta-desc');
+      const exemptEl = document.getElementById('cxc-cust-badge-exempt-desc');
+      const chkExempt = document.getElementById('cxc-cust-exempt');
+
+      if (category === 'EXONERADO_DIPLOMATICO_OCE') {
+        if (accSel) accSel.value = '4.1.01.01.0001';
+        if (descEl) descEl.textContent = '4.1.01.01.0001 Ventas';
+        if (exemptEl) { exemptEl.textContent = 'Exonerado ISV (0%)'; exemptEl.className = 'text-cyan-800 bg-cyan-100 px-1 py-0.2 rounded font-bold'; }
+        if (chkExempt) chkExempt.checked = true;
+      } else if (category === 'SERVICIOS_TECNICOS') {
+        if (accSel) accSel.value = '4.1.02.01.0001';
+        if (descEl) descEl.textContent = '4.1.02.01.0001 Servicios';
+        if (exemptEl) { exemptEl.textContent = 'Gravado 15%'; exemptEl.className = 'text-emerald-700 bg-emerald-100/70 px-1 py-0.2 rounded font-bold'; }
+        if (chkExempt) chkExempt.checked = false;
+      } else {
+        if (accSel) accSel.value = '4.1.01.01.0001';
+        if (descEl) descEl.textContent = '4.1.01.01.0001 Ventas';
+        if (exemptEl) { exemptEl.textContent = 'Gravado 15%'; exemptEl.className = 'text-emerald-700 bg-emerald-100/70 px-1 py-0.2 rounded font-bold'; }
+        if (chkExempt) chkExempt.checked = false;
+      }
+    }
+
+    async function saveQuickCustomerCxC(e) {
+      e.preventDefault();
+      const taxId = (document.getElementById('cxc-cust-taxid')?.value || '').trim().replace(/[^0-9]/g, '');
+      const name = (document.getElementById('cxc-cust-name')?.value || '').trim().toUpperCase();
+      if (!taxId || !name) {
+        alert("Ingrese RTN/DNI y Razón Social");
+        return;
+      }
+
+      const tradeName = (document.getElementById('cxc-cust-tradename')?.value || '').trim();
+      const category = document.getElementById('cxc-cust-category')?.value || 'VENTA_MERCADERIA_GENERAL';
+      const currency = document.getElementById('cxc-cust-currency')?.value || 'HNL';
+      const phone = (document.getElementById('cxc-cust-phone')?.value || '').trim() || 'N/A';
+      const email = (document.getElementById('cxc-cust-email')?.value || '').trim();
+      const address = (document.getElementById('cxc-cust-address')?.value || '').trim() || 'Tegucigalpa';
+      const creditDays = parseInt(document.getElementById('cxc-cust-credit-days')?.value || '0', 10);
+      const limit = parseFloat(document.getElementById('cxc-cust-limit')?.value) || 50000;
+      const bank = document.getElementById('cxc-cust-bank')?.value || '';
+      const bankAcc = (document.getElementById('cxc-cust-bank-acc')?.value || '').trim();
+      const contact = (document.getElementById('cxc-cust-contact')?.value || '').trim();
+      const web = (document.getElementById('cxc-cust-web')?.value || '').trim();
+      const notes = (document.getElementById('cxc-cust-notes')?.value || '').trim();
+      const isExempt = !!document.getElementById('cxc-cust-exempt')?.checked;
+
+      const payload = {
+        company_id: window.CURRENT_COMPANY_ID || "00000000-0000-0000-0000-000000000001",
+        tax_id: taxId,
+        legal_name: name,
+        trade_name: tradeName || null,
+        business_category: category,
+        default_currency: currency,
+        email: email || null,
+        phone: phone,
+        address: address,
+        credit_days: isNaN(creditDays) ? 0 : creditDays,
+        credit_limit: limit,
+        bank_name: bank || null,
+        bank_account_number: bankAcc || null,
+        contact_person: contact || null,
+        website: web || null,
+        notes: notes || null,
+        is_tax_exempt: isExempt,
+        is_active: true
+      };
+
+      try {
+        await fetch('/api/v1/sales/customers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn("Fallo persistencia API customer en CxC:", err);
+      }
+
+      closeModal('modal-quick-customer');
+      alert(`✓ Cliente registrado: ${name}`);
+    }
+  </script>
+
+</body>
+</html>
