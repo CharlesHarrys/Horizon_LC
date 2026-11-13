@@ -2835,7 +2835,7 @@ const DEFAULT_LOBBY_MODULES = [
     { id: "contabilidad", nombre: "CONTABILIDAD", activo: true, orden: 3, ruta: "workspace_contabilidad_metro_format_2.html" },
     { id: "finanzas", nombre: "FINANZAS", activo: true, orden: 4, ruta: "workspace_finanzas_metro_format.html" },
     { id: "tesoreria", nombre: "TESORERÍA", activo: true, orden: 5, ruta: "workspace_tesoreria_metro_format.html" },
-    { id: "rrhh", nombre: "RRHH", activo: true, orden: 6, ruta: "workspace_rrhh.html" },
+    { id: "rrhh", nombre: "RRHH", activo: true, orden: 6, ruta: "workspace_rrhh_metro_format.html" },
     { id: "auditoria", nombre: "AUDITORÍA", activo: true, orden: 7, ruta: "workspace_estados_financieros.html" },
     { id: "config", nombre: "CONFIG", activo: true, orden: 8, ruta: "entorno_config.html" }
 ];
@@ -2902,7 +2902,7 @@ function obtenerModulosLobbyActivos() {
         if (found) {
             const isActivo = def.id === 'config' ? true : (found.activo === true || found.activo === 'true');
             let rutaFinal = found.ruta || def.ruta;
-            if (def.id === 'tesoreria' && rutaFinal !== def.ruta) {
+            if ((def.id === 'tesoreria' || def.id === 'rrhh') && rutaFinal !== def.ruta) {
                 rutaFinal = def.ruta;
                 found.ruta = def.ruta;
                 rutaActualizada = true;
