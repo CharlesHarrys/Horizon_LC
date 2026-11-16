@@ -388,11 +388,13 @@
           <input type="month" id="pl-mes" onchange="renderPlanilla()" class="fld">
         </div>
         <div>
-          <label class="fld-label">Periodo</label>
+          <label class="fld-label">Tipo de Nómina / Periodo</label>
           <select id="pl-periodo" onchange="renderPlanilla()" class="fld">
             <option value="MENSUAL">Mensual (100%)</option>
             <option value="Q1">1ra Quincena (50%)</option>
             <option value="Q2">2da Quincena (50%)</option>
+            <option value="DECIMO_TERCERO">Décimo Tercero (Aguinaldo)</option>
+            <option value="DECIMO_CUARTO">Décimo Cuarto Mes</option>
           </select>
         </div>
         <div>
@@ -462,14 +464,16 @@
 
       <!-- Footer operativo -->
       <div class="shrink-0 border-t border-slate-200 bg-slate-50 px-5 py-2.5 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
           <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Estado de la planilla</span>
           <span id="pl-estado-badge" class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300">En curso</span>
           <select id="pl-estado-select" onchange="cambiarEstadoPlanilla(this.value)" class="fld !w-auto">
             <option value="EN_CURSO">En curso</option>
-            <option value="PENDIENTE">Pendiente</option>
+            <option value="PENDIENTE">Pendiente de Pago</option>
             <option value="PAGADA">Pagada</option>
           </select>
+          <span id="pl-snapshot-badge" class="hidden px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-sky-100 text-sky-800 border border-sky-300">🔒 Snapshot histórico inmutable</span>
+          <span id="pl-exencion-badge" class="hidden px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-violet-100 text-violet-800 border border-violet-300">⚖️ Exento de IHSS y RAP (Ley HN)</span>
         </div>
         <button type="button" onclick="abrirModalDispersion()" class="bg-black text-white rounded-full font-bold px-8 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">ENVIAR</button>
       </div>
@@ -525,12 +529,13 @@
         <!-- Formulario rápido para agregar marcaje diario -->
         <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-200 grid grid-cols-2 md:grid-cols-6 gap-2 items-end shrink-0">
           <div><label class="fld-label">Fecha</label><input type="date" id="as-in-fecha" class="fld"></div>
-          <div><label class="fld-label">Tipo de Jornada</label>
+          <div><label class="fld-label">Tipo de Jornada / Evento</label>
             <select id="as-in-jornada" class="fld">
               <option value="DIURNA">Diurna (8h ord. · +25% extra)</option>
               <option value="MIXTA">Mixta (7h ord. · +50% extra)</option>
               <option value="NOCTURNA">Nocturna (6h ord. · +75% extra)</option>
               <option value="JORNAL">Jornal diario</option>
+              <option value="VACACIONES">Vacaciones gozadas (día disfrutado)</option>
             </select>
           </div>
           <div><label class="fld-label">Entrada</label><input type="time" id="as-in-entrada" value="08:00" class="fld font-mono"></div>
@@ -824,7 +829,9 @@
     // ------------------------------------------------------------------
     const LS_EMPLEADOS = 'horizon_rrhh_empleados';
     const LS_ESTADOS_PLANILLA = 'horizon_rrhh_planillas_estado';
+    const LS_PLANILLAS_CERRADAS = 'horizon_rrhh_planillas_cerradas';
     const LS_ASISTENCIA = 'horizon_rrhh_asistencia';
+    const LS_ASISTENCIAS_ALT = 'horizon_rrhh_asistencias';
     const LS_PRESTAMOS = 'horizon_rrhh_prestamos';
     const LS_PARAMS_LEY = 'horizon_rrhh_parametros_ley';
     const LS_ASIENTOS = 'horizon_asientos_contables';
@@ -1252,44 +1259,50 @@
       return isr;
     }
 
+    function esPlanillaEspecial() {
+      const p = document.getElementById('pl-periodo').value;
+      return p === 'DECIMO_TERCERO' || p === 'DECIMO_CUARTO';
+    }
+
     function factorPeriodo() {
-      return document.getElementById('pl-periodo').value === 'MENSUAL' ? 1 : 0.5;
+      const p = document.getElementById('pl-periodo').value;
+      return (p === 'Q1' || p === 'Q2') ? 0.5 : 1;
     }
 
     function cuotaPrestamosEmpleado(empId) {
       return leerPrestamos().filter(p => p.empleadoId === empId && p.saldo > 0).reduce((s, p) => s + Math.min(p.cuota, p.saldo), 0);
     }
 
+    // REGLA 3: Exención legal de IHSS y RAP en Décimo Tercero (Aguinaldo) y Décimo Cuarto Mes
     function calcularFila(e, factor) {
+      const especial = esPlanillaEspecial();
       const mensualEq = e.modalidad === 'JORNAL' ? (e.valorJornal || 0) * 30 : (e.salarioBase || 0);
       const dias = 30 * factor;
       const base = mensualEq * factor;
-      const horas = (e.horasExtras || 0) * factor;
-      const extras = horas * (mensualEq / PARAMS_LEY.horasMes) * PARAMS_LEY.recargoExtra;
-      const bonos = (e.bonos || 0) * factor;
+      const horas = especial ? 0 : (e.horasExtras || 0) * factor;
+      const extras = especial ? 0 : horas * (mensualEq / PARAMS_LEY.horasMes) * PARAMS_LEY.recargoExtra;
+      const bonos = especial ? 0 : (e.bonos || 0) * factor;
       const devengado = base + extras + bonos;
 
-      const aplica = e.aplicaIhss !== 'NO';
+      const aplica = e.aplicaIhss !== 'NO' && !especial;
       const baseIhss = Math.min(devengado, PARAMS_LEY.techoIhssMensual * factor);
       const baseRap = Math.max(0, devengado - PARAMS_LEY.techoIhssMensual * factor);
       const ihss = aplica ? baseIhss * PARAMS_LEY.ihssEmpleado : 0;
       const rap = aplica ? baseRap * PARAMS_LEY.rapEmpleado : 0;
-      const isr = (isrAnual((mensualEq + (e.horasExtras || 0) * (mensualEq / PARAMS_LEY.horasMes) * PARAMS_LEY.recargoExtra + (e.bonos || 0)) * 12) / 12) * factor;
+
+      // En 13º y 14º mes: IHSS = 0, RAP = 0, INFOP = 0; ISR aplica solo si el beneficio excede el tramo exento anual
+      const isr = especial
+        ? isrAnual(devengado)
+        : (isrAnual((mensualEq + (e.horasExtras || 0) * (mensualEq / PARAMS_LEY.horasMes) * PARAMS_LEY.recargoExtra + (e.bonos || 0)) * 12) / 12) * factor;
       const prestamos = cuotaPrestamosEmpleado(e.id) * factor;
       const totalDed = ihss + rap + isr + prestamos;
 
       const ihssP = aplica ? baseIhss * PARAMS_LEY.ihssPatrono : 0;
       const rapP = aplica ? baseRap * PARAMS_LEY.rapPatrono : 0;
-      const infop = devengado * PARAMS_LEY.infopPatrono;
+      const infop = especial ? 0 : devengado * PARAMS_LEY.infopPatrono;
       const totalPat = ihssP + rapP + infop;
 
-      return { e, dias, base, horas, extras, bonos, devengado, ihss, rap, isr, prestamos, totalDed, ihssP, rapP, infop, totalPat, neto: devengado - totalDed };
-    }
-
-    function filasPlanilla() {
-      const factor = factorPeriodo();
-      const suc = document.getElementById('pl-sucursal').value;
-      return empleados.filter(e => e.estado === 'Activo' && (!suc || e.sucursal === suc)).map(e => calcularFila(e, factor));
+      return { e: JSON.parse(JSON.stringify(e)), dias, base, horas, extras, bonos, devengado, ihss, rap, isr, prestamos, totalDed, ihssP, rapP, infop, totalPat, neto: devengado - totalDed };
     }
 
     function clavePlanilla() {
@@ -1299,24 +1312,87 @@
       try { return JSON.parse(localStorage.getItem(LS_ESTADOS_PLANILLA) || '{}') || {}; } catch (e) { return {}; }
     }
 
+    // REGLA 1: Congelamiento histórico de planillas cerradas (Snapshot inmutable)
+    function leerPlanillasCerradas() {
+      try { return JSON.parse(localStorage.getItem(LS_PLANILLAS_CERRADAS) || '{}') || {}; } catch (e) { return {}; }
+    }
+
+    function obtenerSnapshotCerrado(clave) {
+      const cerradas = leerPlanillasCerradas();
+      if (cerradas[clave] && Array.isArray(cerradas[clave].filas)) return cerradas[clave];
+      return null;
+    }
+
+    function guardarSnapshotPlanilla(estadoFinal, filasCalculadas) {
+      const clave = clavePlanilla();
+      const cerradas = leerPlanillasCerradas();
+      const filas = filasCalculadas || empleados
+        .filter(e => e.estado === 'Activo' && (!document.getElementById('pl-sucursal').value || e.sucursal === document.getElementById('pl-sucursal').value))
+        .map(e => calcularFila(e, factorPeriodo()));
+
+      cerradas[clave] = {
+        clave,
+        mes: document.getElementById('pl-mes').value,
+        periodo: document.getElementById('pl-periodo').value,
+        sucursal: document.getElementById('pl-sucursal').value || 'TODAS',
+        estado: estadoFinal,
+        fechaCongelamiento: new Date().toISOString(),
+        filas: JSON.parse(JSON.stringify(filas))
+      };
+      localStorage.setItem(LS_PLANILLAS_CERRADAS, JSON.stringify(cerradas));
+      return cerradas[clave];
+    }
+
+    function filasPlanilla() {
+      const clave = clavePlanilla();
+      const est = leerEstados()[clave] || 'EN_CURSO';
+      const snap = obtenerSnapshotCerrado(clave);
+      if ((est === 'PENDIENTE' || est === 'PAGADA') && snap) {
+        return snap.filas;
+      }
+      const factor = factorPeriodo();
+      const suc = document.getElementById('pl-sucursal').value;
+      return empleados.filter(e => e.estado === 'Activo' && (!suc || e.sucursal === suc)).map(e => calcularFila(e, factor));
+    }
+
     function pintarEstadoPlanilla() {
-      const est = leerEstados()[clavePlanilla()] || 'EN_CURSO';
+      const clave = clavePlanilla();
+      const snap = obtenerSnapshotCerrado(clave);
+      const est = leerEstados()[clave] || (snap ? snap.estado : 'EN_CURSO');
       const cfg = {
         EN_CURSO: ['En curso', 'bg-amber-100 text-amber-800 border-amber-300'],
-        PENDIENTE: ['Pendiente', 'bg-slate-200 text-slate-700 border-slate-300'],
+        PENDIENTE: ['Pendiente de Pago', 'bg-slate-200 text-slate-700 border-slate-300'],
         PAGADA: ['Pagada', 'bg-emerald-100 text-emerald-800 border-emerald-300']
-      }[est];
+      }[est] || ['En curso', 'bg-amber-100 text-amber-800 border-amber-300'];
       const b = document.getElementById('pl-estado-badge');
       b.textContent = cfg[0];
       b.className = 'px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider border ' + cfg[1];
       document.getElementById('pl-estado-select').value = est;
+
+      const snapBadge = document.getElementById('pl-snapshot-badge');
+      if (snapBadge) snapBadge.classList.toggle('hidden', !((est === 'PENDIENTE' || est === 'PAGADA') && snap));
+      const exBadge = document.getElementById('pl-exencion-badge');
+      if (exBadge) exBadge.classList.toggle('hidden', !esPlanillaEspecial());
     }
 
     function cambiarEstadoPlanilla(valor) {
+      const clave = clavePlanilla();
       const est = leerEstados();
-      est[clavePlanilla()] = valor;
+      if ((valor === 'PENDIENTE' || valor === 'PAGADA') && !obtenerSnapshotCerrado(clave)) {
+        const filasVivas = empleados
+          .filter(e => e.estado === 'Activo' && (!document.getElementById('pl-sucursal').value || e.sucursal === document.getElementById('pl-sucursal').value))
+          .map(e => calcularFila(e, factorPeriodo()));
+        guardarSnapshotPlanilla(valor, filasVivas);
+      } else if (valor === 'PENDIENTE' || valor === 'PAGADA') {
+        const cerradas = leerPlanillasCerradas();
+        if (cerradas[clave]) {
+          cerradas[clave].estado = valor;
+          localStorage.setItem(LS_PLANILLAS_CERRADAS, JSON.stringify(cerradas));
+        }
+      }
+      est[clave] = valor;
       localStorage.setItem(LS_ESTADOS_PLANILLA, JSON.stringify(est));
-      pintarEstadoPlanilla();
+      renderPlanilla();
     }
 
     function renderPlanilla() {
@@ -1335,13 +1411,13 @@
           '<td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ' + (f.e.modalidad === 'JORNAL' ? 'bg-violet-100 text-violet-700' : 'bg-sky-100 text-sky-700') + '">' + (f.e.modalidad === 'JORNAL' ? 'JORNAL' : 'SALARIO') + '</span></td>' +
           '<td class="' + R + '">' + f.dias + '</td>' +
           '<td class="' + R + B + '">' + fmt(f.base) + '</td>' +
-          '<td class="' + R + '">' + f.horas.toFixed(1) + '</td>' +
+          '<td class="' + R + '">' + Number(f.horas || 0).toFixed(1) + '</td>' +
           '<td class="' + R + '">' + fmt(f.extras) + '</td>' +
           '<td class="' + R + '">' + fmt(f.bonos) + '</td>' +
           '<td class="' + R + ' font-bold text-slate-900' + B + '">' + fmt(f.devengado) + '</td>' +
           '<td class="' + R + ' text-rose-700">' + fmt(f.ihss) + '</td>' +
           '<td class="' + R + ' text-rose-700">' + fmt(f.rap) + '</td>' +
-          '<td class="' + R + ' text-rose-700">' + fmt(f.isr + f.prestamos) + '</td>' +
+          '<td class="' + R + ' text-rose-700">' + fmt((f.isr || 0) + (f.prestamos || 0)) + '</td>' +
           '<td class="' + R + ' font-bold text-rose-800' + B + '">' + fmt(f.totalDed) + '</td>' +
           '<td class="' + R + ' text-amber-700">' + fmt(f.ihssP) + '</td>' +
           '<td class="' + R + ' text-amber-700">' + fmt(f.rapP) + '</td>' +
@@ -1351,7 +1427,7 @@
         '</tr>'
       )).join('') : '<tr><td colspan="18" class="px-3 py-10 text-center text-xs text-slate-400 font-sans">No hay colaboradores activos para el filtro seleccionado.</td></tr>';
 
-      const sum = k => filas.reduce((s, f) => s + f[k], 0);
+      const sum = k => filas.reduce((s, f) => s + (Number(f[k]) || 0), 0);
       const set = (id, v) => { document.getElementById(id).textContent = v; };
       set('ft-base', fmt(sum('base')));
       set('ft-hrs', sum('horas').toFixed(1));
@@ -1389,19 +1465,40 @@
       { id: 'AS-1', empleadoId: 'EMP-001', fecha: '2026-05-01', jornada: 'DIURNA', entrada: '08:00', salida: '17:00', proyecto: 'Casa Matriz TGU' },
       { id: 'AS-2', empleadoId: 'EMP-002', fecha: '2026-05-04', jornada: 'DIURNA', entrada: '08:00', salida: '19:00', proyecto: 'Casa Matriz TGU' },
       { id: 'AS-3', empleadoId: 'EMP-003', fecha: '2026-05-05', jornada: 'JORNAL', entrada: '07:00', salida: '17:00', proyecto: 'Sucursal San Pedro Sula' },
-      { id: 'AS-4', empleadoId: 'EMP-004', fecha: '2026-05-06', jornada: 'NOCTURNA', entrada: '19:00', salida: '03:00', proyecto: 'Sucursal San Pedro Sula' }
+      { id: 'AS-4', empleadoId: 'EMP-004', fecha: '2026-05-06', jornada: 'NOCTURNA', entrada: '19:00', salida: '03:00', proyecto: 'Sucursal San Pedro Sula' },
+      { id: 'AS-5', empleadoId: 'EMP-002', fecha: '2026-05-08', jornada: 'VACACIONES', entrada: '08:00', salida: '17:00', diasVacaciones: 1, proyecto: 'Casa Matriz TGU' }
     ];
 
     function leerAsistencia() {
       try {
-        const r = JSON.parse(localStorage.getItem(LS_ASISTENCIA) || 'null');
+        const r = JSON.parse(localStorage.getItem(LS_ASISTENCIAS_ALT) || localStorage.getItem(LS_ASISTENCIA) || 'null');
         if (Array.isArray(r) && r.length) return r;
       } catch (e) {}
       localStorage.setItem(LS_ASISTENCIA, JSON.stringify(ASISTENCIA_MUESTRA));
+      localStorage.setItem(LS_ASISTENCIAS_ALT, JSON.stringify(ASISTENCIA_MUESTRA));
       return JSON.parse(JSON.stringify(ASISTENCIA_MUESTRA));
     }
     function guardarAsistencia(arr) {
-      localStorage.setItem(LS_ASISTENCIA, JSON.stringify(arr));
+      const raw = JSON.stringify(arr);
+      localStorage.setItem(LS_ASISTENCIA, raw);
+      localStorage.setItem(LS_ASISTENCIAS_ALT, raw);
+    }
+
+    function esRegistroVacaciones(m) {
+      const j = String(m.jornada || m.tipo || m.condicion || '').toUpperCase();
+      return j.includes('VACACION') || Number(m.diasVacaciones) > 0;
+    }
+
+    function obtenerVacacionesGozadas(empId, fIn, fOut) {
+      const marcajes = leerAsistencia().filter(m => (m.empleadoId === empId || m.codigo === empId));
+      return marcajes.reduce((acc, m) => {
+        if (!esRegistroVacaciones(m)) return acc;
+        if (m.fecha && fIn && fOut) {
+          const fm = new Date(m.fecha + 'T00:00:00');
+          if (fm < fIn || fm > fOut) return acc;
+        }
+        return acc + (Number(m.diasVacaciones) || Number(m.dias) || 1);
+      }, 0);
     }
 
     function horasEntre(entrada, salida) {
@@ -1414,6 +1511,9 @@
     }
 
     function evaluarMarcaje(m, emp) {
+      if (esRegistroVacaciones(m)) {
+        return { feriado: null, esVacacion: true, hrsOrd: 8, hrsExt: 0, pctExtra: 0, monto: 0 };
+      }
       const mmdd = String(m.fecha || '').slice(5, 10);
       const feriado = FERIADOS_HONDURAS[mmdd] || null;
       const totalHrs = Math.max(0, horasEntre(m.entrada, m.salida));
@@ -1436,7 +1536,7 @@
         monto += hrsOrd * valorHora; // recargo 100% sobre horas ordinarias trabajadas en feriado
       }
 
-      return { feriado, hrsOrd, hrsExt, pctExtra, monto };
+      return { feriado, esVacacion: false, hrsOrd, hrsExt, pctExtra, monto };
     }
 
     function seleccionarEmpleadoAsistencia(id) {
@@ -1489,9 +1589,12 @@
       document.getElementById('as-tbody').innerHTML = filas.length ? filas.map(m => {
         const ev = evaluarMarcaje(m, emp);
         sumOrd += ev.hrsOrd; sumExt += ev.hrsExt; sumMonto += ev.monto;
+        const condBadge = ev.esVacacion
+          ? '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">🏖️ Vacaciones gozadas</span>'
+          : (ev.feriado ? '<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold">🇭🇳 Feriado: ' + esc(ev.feriado) + '</span>' : '<span class="text-slate-500">Día hábil</span>');
         return '<tr class="hover:bg-slate-50">' +
           '<td class="px-3 py-2 font-bold">' + esc(m.fecha) + '</td>' +
-          '<td class="px-3 py-2 font-sans">' + (ev.feriado ? '<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold">🇭🇳 Feriado: ' + esc(ev.feriado) + '</span>' : '<span class="text-slate-500">Día hábil</span>') + '</td>' +
+          '<td class="px-3 py-2 font-sans">' + condBadge + '</td>' +
           '<td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">' + esc(m.jornada) + '</span></td>' +
           '<td class="px-3 py-2 text-center">' + esc(m.entrada) + '</td>' +
           '<td class="px-3 py-2 text-center">' + esc(m.salida) + '</td>' +
@@ -1513,12 +1616,14 @@
       if (!asEmpleadoId) return;
       const fecha = document.getElementById('as-in-fecha').value;
       if (!fecha) { toast('Selecciona una fecha.'); return; }
+      const jornada = document.getElementById('as-in-jornada').value;
       const arr = leerAsistencia();
       arr.push({
         id: 'AS-' + Date.now(),
         empleadoId: asEmpleadoId,
         fecha,
-        jornada: document.getElementById('as-in-jornada').value,
+        jornada,
+        diasVacaciones: jornada === 'VACACIONES' ? 1 : 0,
         entrada: document.getElementById('as-in-entrada').value || '08:00',
         salida: document.getElementById('as-in-salida').value || '17:00',
         proyecto: document.getElementById('as-in-proyecto').value || 'Casa Matriz TGU'
@@ -1526,12 +1631,14 @@
       guardarAsistencia(arr);
       document.getElementById('as-mes').value = fecha.slice(0, 7);
       renderAsistencia();
+      if (dedEmpleadoId === asEmpleadoId) calcularLiquidacion();
       toast('Marcaje registrado.');
     }
 
     function eliminarMarcaje(id) {
       guardarAsistencia(leerAsistencia().filter(m => m.id !== id));
       renderAsistencia();
+      calcularLiquidacion();
     }
 
     function sincronizarExtrasAPlanilla() {
@@ -1560,6 +1667,7 @@
         'EMP-001, 2026-05-04, 08:00, 19:00, DIURNA, Casa Matriz TGU',
         'EMP-002, 2026-05-01, 08:00, 17:00, DIURNA, Casa Matriz TGU',
         'EMP-002, 2026-05-05, 14:00, 23:00, MIXTA, Casa Matriz TGU',
+        'EMP-002, 2026-05-08, 08:00, 17:00, VACACIONES, Casa Matriz TGU',
         'EMP-003, 2026-05-01, 07:00, 17:00, JORNAL, Sucursal San Pedro Sula',
         'EMP-003, 2026-05-06, 07:00, 18:00, JORNAL, Sucursal San Pedro Sula',
         'EMP-004, 2026-05-07, 19:00, 04:00, NOCTURNA, Sucursal San Pedro Sula'
@@ -1588,14 +1696,16 @@
         const emp = empleados.find(e => e.codigo.toUpperCase() === cod.toUpperCase() || e.id.toUpperCase() === cod.toUpperCase());
         if (!emp || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return;
         const jornada = (jornadaRaw || (emp.modalidad === 'JORNAL' ? 'JORNAL' : 'DIURNA')).toUpperCase();
-        if (FERIADOS_HONDURAS[fecha.slice(5, 10)]) feriadosDetectados++;
+        if (FERIADOS_HONDURAS[fecha.slice(5, 10)] && jornada !== 'VACACIONES') feriadosDetectados++;
+        const jValida = ['DIURNA', 'MIXTA', 'NOCTURNA', 'JORNAL', 'VACACIONES'].includes(jornada) ? jornada : 'DIURNA';
         arr.push({
           id: 'AS-IMP-' + Date.now() + '-' + idx,
           empleadoId: emp.id,
           fecha,
           entrada: entrada || '08:00',
           salida: salida || '17:00',
-          jornada: ['DIURNA', 'MIXTA', 'NOCTURNA', 'JORNAL'].includes(jornada) ? jornada : 'DIURNA',
+          jornada: jValida,
+          diasVacaciones: jValida === 'VACACIONES' ? 1 : 0,
           proyecto: proyecto || emp.sucursal || 'Casa Matriz TGU'
         });
         importados++;
@@ -1743,6 +1853,7 @@
       renderDeducciones();
     }
 
+    // REGLA 2: Cruce automático de Vacaciones Gozadas desde horizon_rrhh_asistencias en Liquidaciones
     function calcularLiquidacion() {
       const emp = empleados.find(e => e.id === dedEmpleadoId);
       if (!emp) return;
@@ -1780,9 +1891,11 @@
         }
       }
 
-      // Vacaciones proporcionales (escala 10, 12, 15, 20 días según antigüedad)
+      // Vacaciones proporcionales menos Vacaciones Gozadas registradas en Asistencia (horizon_rrhh_asistencias)
       const topeVacAnual = anios >= 4 ? 20 : anios === 3 ? 15 : anios === 2 ? 12 : 10;
-      const diasVacProp = ((diasTotales % 365) / 365) * topeVacAnual + vacPend;
+      const diasVacBrutos = ((diasTotales % 365) / 365) * topeVacAnual + vacPend;
+      const diasVacGozadas = obtenerVacacionesGozadas(emp.id, fIn, fOut);
+      const diasVacProp = Math.max(0, diasVacBrutos - diasVacGozadas);
 
       // 13º (Aguinaldo: Ene-Dic) y 14º (Jul-Jun) proporcionales
       const inicioAnio = new Date(fOut.getFullYear(), 0, 1);
@@ -1806,12 +1919,12 @@
       document.getElementById('liq-sal-prom').textContent = 'L ' + fmt(salProm);
       document.getElementById('liq-sal-prom-diario').textContent = 'Diario prom.: L ' + fmt(salPromDiario);
       document.getElementById('liq-total').textContent = 'L ' + fmt(totalNeto);
-      document.getElementById('liq-ded-prestamos').textContent = 'Menos saldo préstamos: L ' + fmt(saldoPrestamos);
+      document.getElementById('liq-ded-prestamos').textContent = 'Menos préstamos: L ' + fmt(saldoPrestamos) + ' · Vac. gozadas: ' + diasVacGozadas + 'd';
 
       const conceptos = [
         ['Preaviso (Art. 116 CT)', 'Salario ordinario promedio diario', diasPreaviso.toFixed(1) + ' días', mPreaviso],
         ['Auxilio de Cesantía + Proporcional (Art. 120 CT)', 'Salario ordinario promedio diario', diasCesantia.toFixed(1) + ' días', mCesantia],
-        ['Vacaciones Proporcionales + Pendientes', 'Escala legal ' + topeVacAnual + ' días/año', diasVacProp.toFixed(1) + ' días', mVac],
+        ['Vacaciones Proporcionales Netas (Cruce Asistencia)', 'Acumuladas ' + diasVacBrutos.toFixed(1) + 'd menos ' + diasVacGozadas + 'd gozadas (escala ' + topeVacAnual + 'd/año)', diasVacProp.toFixed(1) + ' días', mVac],
         ['Décimo Tercer Mes Proporcional (Aguinaldo)', 'Enero a fecha de corte', dias13 + ' días', prop13],
         ['Décimo Cuarto Mes Proporcional (Bono 14)', 'Julio a fecha de corte', dias14 + ' días', prop14],
         ['Deducción por Saldo de Préstamos / Anticipos', 'Retención autorizada en finiquito', '—', -saldoPrestamos]
@@ -1851,7 +1964,7 @@
     }
 
     function registrarAsientoPlanilla(filas) {
-      const sum = k => +filas.reduce((s, f) => s + f[k], 0).toFixed(2);
+      const sum = k => +filas.reduce((s, f) => s + (Number(f[k]) || 0), 0).toFixed(2);
       const devengado = sum('devengado');
       const patronal = sum('totalPat');
       const ihssTotal = +(sum('ihss') + sum('ihssP')).toFixed(2);
@@ -1945,7 +2058,7 @@
         '<h2 style="margin:0 0 2px;font-size:16px">' + esc(empresa) + '</h2><div style="color:#64748b;margin-bottom:12px">Boleta de pago · ' + esc(periodo) + '</div>' +
         '<div><strong>' + esc(f.e.nombres) + ' ' + esc(f.e.apellidos) + '</strong> — ' + esc(f.e.codigo) + ' · ' + esc(f.e.cargo) + '</div><hr>' +
         '<table style="width:100%;border-collapse:collapse">' +
-        [['Salario base', f.base], ['Horas extras', f.extras], ['Bonificaciones', f.bonos], ['Total devengado', f.devengado], ['IHSS', -f.ihss], ['RAP', -f.rap], ['ISR y Préstamos', -(f.isr + f.prestamos)]]
+        [['Salario base', f.base], ['Horas extras', f.extras], ['Bonificaciones', f.bonos], ['Total devengado', f.devengado], ['IHSS', -f.ihss], ['RAP', -f.rap], ['ISR y Préstamos', -((f.isr || 0) + (f.prestamos || 0))]]
           .map(r => '<tr><td style="padding:3px 0">' + r[0] + '</td><td style="text-align:right">L ' + fmt(r[1]) + '</td></tr>').join('') +
         '<tr><td style="padding-top:8px;font-weight:800">NETO A PAGAR</td><td style="padding-top:8px;text-align:right;font-weight:800">L ' + fmt(f.neto) + '</td></tr></table>' +
         '</section>').join('');
@@ -1984,9 +2097,11 @@
         acciones.push(ok ? (chPrn ? 'boletas enviadas a impresión' : 'boletas generadas') : 'boletas bloqueadas (habilita pop-ups)');
       }
 
+      // Guardar snapshot histórico inmutable en horizon_rrhh_planillas_cerradas y marcar estado PAGADA
+      guardarSnapshotPlanilla('PAGADA', filas);
       cambiarEstadoPlanilla('PAGADA');
       cerrarModalDispersion();
-      toast('Cierre ejecutado: ' + acciones.join(' · '));
+      toast('Cierre ejecutado y snapshot congelado: ' + acciones.join(' · '));
     }
 
     // ------------------------------------------------------------------
