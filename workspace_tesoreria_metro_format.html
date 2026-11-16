@@ -52,6 +52,9 @@
       border-right: 1px solid rgba(255, 255, 255, 0.1);
       border-bottom: 2px solid #0284c7;
     }
+    .fld { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.4rem 0.65rem; font-size: 0.75rem; background: #fff; outline: none; }
+    .fld:focus { border-color: #0f172a; }
+    .fld-label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 2px; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-slate-900 selection:text-white relative bg-[#f6f5f4] p-2.5">
@@ -143,52 +146,36 @@
   </header>
 
   <!-- =========================================================================
-       GATEWAY DE TESORERÍA (4 PANELES METRO UI)
+       GATEWAY DE TESORERÍA (4 PANELES METRO UI — GRID 2x2)
        ========================================================================= -->
-  <div class="flex-1 flex flex-col justify-center py-2 max-w-7xl w-full mx-auto relative z-10" id="view-gateway">
-
-    <!-- Cabecera Editorial del Gateway -->
+  <div class="flex-1 flex flex-col justify-center py-2 w-full relative z-10" id="view-gateway">
     <div class="text-center max-w-2xl mx-auto mb-4 space-y-1">
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
-        ÁREA DE TESORERÍA Y LIQUIDEZ
-      </h1>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">ÁREA DE TESORERÍA Y LIQUIDEZ</h1>
     </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center max-w-[1000px] w-full mx-auto">
 
-    <!-- Grid 2x2 Metro UI -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-8">
-
-      <!-- PANEL 1: BANCOS Y CAJAS -->
-      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; margin-left: 145px; height: 300px;">
+      <div class="metro-tile p-5 flex flex-col justify-between w-full max-w-[450px]" style="height: 300px;">
         <div style="border-bottom-width: 1px;">
-          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">BANCOS Y CAJAS</h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Cuentas bancarias, caja chica, saldos disponibles en tiempo real y transferencias internas.</p>
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">CUENTAS POR PAGAR</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Proveedores, estados de cuenta, órdenes de pago (OP), ACH, cheques y nómina.</p>
         </div>
-
         <div class="my-1 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
-            <path d="M16 38L48 20L80 38H16Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
-            <path d="M26 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
-            <path d="M40 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
-            <path d="M56 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
-            <path d="M70 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
-            <path d="M16 74H80" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <rect x="18" y="22" width="60" height="52" rx="6" stroke="currentColor" stroke-width="4"></rect>
+            <path d="M30 40H66M30 52H54M30 64H46" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M62 60L68 66L78 54" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
         </div>
-
         <div class="pt-1 flex items-center justify-end">
-          <button type="button" onclick="ingresarAPanel('bancos')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
-            INGRESAR
-          </button>
+          <button type="button" onclick="ingresarAPanel('cxp')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">INGRESAR</button>
         </div>
       </div>
 
-      <!-- PANEL 2: INGRESOS Y EGRESOS -->
-      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; height: 300px;">
+      <div class="metro-tile p-5 flex flex-col justify-between w-full max-w-[450px]" style="height: 300px;">
         <div style="border-bottom-width: 1px;">
-          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">INGRESOS Y EGRESOS</h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Registro de cobros, pagos a proveedores, cheques, transferencias ACH y flujo de caja diario.</p>
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">CUENTAS POR COBRAR E INGRESOS</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Clientes, estados de cuenta (EC), cierres POS, anticipos y piscina de liquidaciones.</p>
         </div>
-
         <div class="my-1 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
             <path d="M24 34H72" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
@@ -197,58 +184,41 @@
             <path d="M36 50L24 62L36 74" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
         </div>
-
         <div class="pt-1 flex items-center justify-end">
-          <button type="button" onclick="ingresarAPanel('movimientos')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
-            INGRESAR
-          </button>
+          <button type="button" onclick="ingresarAPanel('cxc')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">INGRESAR</button>
         </div>
       </div>
 
-      <!-- PANEL 3: CONCILIACIÓN BANCARIA -->
-      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; margin-left: 145px; height: 300px;">
+      <div class="metro-tile p-5 flex flex-col justify-between w-full max-w-[450px]" style="height: 300px;">
         <div style="border-bottom-width: 1px;">
-          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">CONCILIACIÓN BANCARIA</h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Cruce de extractos bancarios vs. libros auxiliares, partidas en tránsito y ajustes.</p>
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">CONCILIACIÓN Y CAJAS</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Conciliación bancaria, bancos, caja general y caja chica.</p>
         </div>
-
         <div class="my-1 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
-            <rect x="16" y="20" width="30" height="56" rx="6" stroke="currentColor" stroke-width="4"></rect>
-            <rect x="50" y="20" width="30" height="56" rx="6" stroke="currentColor" stroke-width="4"></rect>
-            <path d="M24 38H38" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
-            <path d="M24 50H38" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
-            <path d="M58 46L64 52L74 38" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M16 38L48 20L80 38H16Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
+            <path d="M26 38V68M40 38V68M56 38V68M70 38V68" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M16 74H80" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
           </svg>
         </div>
-
         <div class="pt-1 flex items-center justify-end">
-          <button type="button" onclick="ingresarAPanel('conciliacion')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
-            INGRESAR
-          </button>
+          <button type="button" onclick="ingresarAPanel('conciliacion')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">INGRESAR</button>
         </div>
       </div>
 
-      <!-- PANEL 4: PRÉSTAMOS Y CRÉDITOS -->
-      <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; height: 300px;">
+      <div class="metro-tile p-5 flex flex-col justify-between w-full max-w-[450px]" style="height: 300px;">
         <div style="border-bottom-width: 1px;">
           <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">PRÉSTAMOS Y CRÉDITOS</h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Control de desembolsos, líneas de crédito, calendario de cuotas, capital e intereses bancarios.</p>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Obligaciones financieras, tablas de amortización y líneas de crédito.</p>
         </div>
-
         <div class="my-1 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
-            <rect x="16" y="26" width="64" height="44" rx="8" stroke="currentColor" stroke-width="4"></rect>
-            <path d="M16 40H80" stroke="currentColor" stroke-width="4"></path>
-            <path d="M28 56H46" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
-            <circle cx="66" cy="56" r="5" stroke="currentColor" stroke-width="4"></circle>
+            <circle cx="48" cy="48" r="28" stroke="currentColor" stroke-width="4"></circle>
+            <path d="M48 32V64M56 38C56 38 52 35 48 35C44 35 40 37 40 41C40 49 56 47 56 55C56 59 52 61 48 61C44 61 40 58 40 58" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
           </svg>
         </div>
-
         <div class="pt-1 flex items-center justify-end">
-          <button type="button" onclick="ingresarAPanel('prestamos')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
-            INGRESAR
-          </button>
+          <button type="button" onclick="ingresarAPanel('prestamos')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">INGRESAR</button>
         </div>
       </div>
 
@@ -256,325 +226,103 @@
   </div>
 
   <!-- =========================================================================
-       SUB-VISTA 1: BANCOS Y CAJAS (#view-panel-bancos)
+       SUB-VISTA 1: CUENTAS POR PAGAR (#view-panel-cxp) — Maestro / Detalle
        ========================================================================= -->
-  <div id="view-panel-bancos" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+  <div id="view-panel-cxp" class="hidden flex-1 flex flex-col w-full py-2 relative z-10 gap-2">
+    <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
       <div>
-        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Disponibilidad Inmediata</span>
-        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Bancos y Cajas Chicas</h2>
-        <p class="text-xs text-slate-500">Saldos disponibles en tiempo real y vinculación directa con cuentas de Efectivo y Bancos de Config.</p>
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Cuentas por Pagar</span>
+        <h2 class="text-xl font-black tracking-tight text-slate-950">PROVEEDORES Y ÓRDENES DE PAGO</h2>
       </div>
-      <div class="flex items-center gap-2.5">
-        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
-          ← Volver al Gateway
-        </button>
-      </div>
+      <div id="cxp-kpis" class="flex flex-wrap gap-2"></div>
     </div>
-
-    <!-- KPIs de Liquidez -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Saldo Consolidado (HNL)</span>
-        <div id="kpi-bancos-hnl" class="text-2xl font-black text-slate-950 mt-1 mono">L 1,485,200.00</div>
-        <span class="text-[11px] font-semibold text-emerald-600 mt-1 block">Disponible inmediato</span>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Cuentas en Dólares (USD)</span>
-        <div id="kpi-bancos-usd" class="text-2xl font-black text-sky-700 mt-1 mono">$ 28,450.00</div>
-        <span class="text-[11px] font-semibold text-slate-500 mt-1 block">Reserva operativa USD</span>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Caja Chica Matriz</span>
-        <div class="text-2xl font-black text-slate-950 mt-1 mono">L 25,000.00</div>
-        <span class="text-[11px] font-semibold text-amber-600 mt-1 block">Fondo fijo autorizado</span>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Cuentas Activas</span>
-        <div id="kpi-bancos-count" class="text-2xl font-black text-slate-950 mt-1 mono">4</div>
-        <span class="text-[11px] font-semibold text-slate-500 mt-1 block">Enlazadas a Config</span>
-      </div>
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[32%_1fr] gap-2 flex-1 min-h-0" style="height: calc(100vh - 210px);">
+      <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
+          <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-full p-1">
+            <button id="cxp-tab-prov" onclick="cxpSetTab('prov')" class="rounded-full text-[11px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Proveedores</button>
+            <button id="cxp-tab-ops" onclick="cxpSetTab('ops')" class="rounded-full text-[11px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Bandeja de OPs</button>
+          </div>
+          <div class="flex gap-2">
+            <input id="cxp-q" oninput="renderCxPList()" placeholder="Buscar…" class="fld flex-1">
+            <select id="cxp-f" onchange="renderCxPList()" class="fld w-36"></select>
+          </div>
+          <button id="cxp-btn-nuevo" onclick="cxpNuevoProv()" class="w-full bg-black text-white rounded-full py-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer">+ Nuevo proveedor</button>
+        </div>
+        <div id="cxp-lista" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
+      </aside>
+      <section id="cxp-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0"></section>
     </div>
+  </div>
 
-    <!-- Registro de Cuenta Bancaria enlazada a Config -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-        <div>
-          <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Registrar Nueva Cuenta Bancaria / Caja</h3>
-          <p class="text-[11px] text-slate-500">Selecciona una cuenta contable de Efectivo o Bancos del catálogo de Config.</p>
-        </div>
+  <!-- =========================================================================
+       SUB-VISTA 2: CUENTAS POR COBRAR E INGRESOS (#view-panel-cxc) — Maestro / Detalle
+       ========================================================================= -->
+  <div id="view-panel-cxc" class="hidden flex-1 flex flex-col w-full py-2 relative z-10 gap-2">
+    <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div>
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Cuentas por Cobrar e Ingresos</span>
+        <h2 class="text-xl font-black tracking-tight text-slate-950">CLIENTES, INGRESOS DEVENGADOS Y ANTICIPOS</h2>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cuenta Contable (Config - Efectivo/Bancos)</label>
-          <select id="select-cuenta-bancos" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800"></select>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Institución / Alias</label>
-          <input id="banco-nombre-input" type="text" placeholder="Ej. BAC Credomatic Cheques" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Moneda &amp; Saldo Inicial</label>
-          <div class="flex gap-1.5">
-            <select id="banco-moneda-input" class="w-20 px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-              <option value="HNL">HNL</option>
-              <option value="USD">USD</option>
-            </select>
-            <input id="banco-saldo-input" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
+      <div id="cxc-kpis" class="flex flex-wrap gap-2"></div>
+    </div>
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[32%_1fr] gap-2 flex-1 min-h-0" style="height: calc(100vh - 210px);">
+      <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
+          <div class="grid grid-cols-3 gap-1 bg-slate-100 rounded-full p-1">
+            <button id="cxc-tab-cli" onclick="cxcSetTab('cli')" class="rounded-full text-[10px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Clientes & ECs</button>
+            <button id="cxc-tab-pos" onclick="cxcSetTab('pos')" class="rounded-full text-[10px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Ingresos POS</button>
+            <button id="cxc-tab-pis" onclick="cxcSetTab('pis')" class="rounded-full text-[10px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Piscina & Anticipos</button>
+          </div>
+          <div class="flex gap-2">
+            <input id="cxc-q" oninput="renderCxCList()" placeholder="Buscar…" class="fld flex-1">
+            <select id="cxc-f" onchange="renderCxCList()" class="fld w-36"></select>
           </div>
         </div>
-        <div>
-          <button type="button" onclick="registrarCuentaBancaria()" class="w-full px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">
-            + Registrar Cuenta
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabla de Cuentas Bancarias y Cajas -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Cuentas Bancarias y Cajas Registradas</h3>
-        <span class="text-[11px] font-mono text-slate-400">Sincronizado con Catálogo NIIF</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
-              <th class="py-3 px-4">Institución / Caja</th>
-              <th class="py-3 px-4">No. Cuenta / Ref</th>
-              <th class="py-3 px-4">Cuenta Contable Config</th>
-              <th class="py-3 px-4 text-center">Moneda</th>
-              <th class="py-3 px-4 text-right">Saldo Disponible</th>
-              <th class="py-3 px-4 text-center">Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-bancos" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
-        </table>
-      </div>
+        <div id="cxc-lista" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
+      </aside>
+      <section id="cxc-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0"></section>
     </div>
   </div>
 
   <!-- =========================================================================
-       SUB-VISTA 2: INGRESOS Y EGRESOS (#view-panel-movimientos)
+       SUB-VISTA 3: CONCILIACIÓN, SALUD DE CAJAS Y TRASLADOS (#view-panel-conciliacion)
        ========================================================================= -->
-  <div id="view-panel-movimientos" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+  <div id="view-panel-conciliacion" class="hidden flex-1 flex flex-col w-full py-2 relative z-10 gap-2">
+    <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
       <div>
-        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Flujo Operativo Diario</span>
-        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Ingresos y Egresos de Caja y Bancos</h2>
-        <p class="text-xs text-slate-500">Cobros a clientes, pagos a proveedores, emisión de cheques y transferencias ACH.</p>
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Cero Descuadres</span>
+        <h2 class="text-xl font-black tracking-tight text-slate-950">CONCILIACIÓN, SALUD DE CAJAS Y TRASLADOS</h2>
       </div>
-      <div class="flex items-center gap-2.5">
-        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
-          ← Volver al Gateway
-        </button>
-      </div>
-    </div>
-
-    <!-- KPIs de Flujo -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Entradas del Periodo</span>
-        <div id="kpi-mov-ingresos" class="text-2xl font-black text-emerald-700 mt-1 mono">L 0.00</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Salidas del Periodo</span>
-        <div id="kpi-mov-egresos" class="text-2xl font-black text-rose-700 mt-1 mono">L 0.00</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Flujo Neto de Tesorería</span>
-        <div id="kpi-mov-neto" class="text-2xl font-black text-slate-950 mt-1 mono">L 0.00</div>
+      <div class="flex flex-wrap gap-1 bg-slate-100 rounded-full p-1">
+        <button id="con-tab-cajas" onclick="conSetTab('cajas')" class="rounded-full text-[11px] font-bold uppercase tracking-wider px-4 py-1.5 cursor-pointer">Salud de Cajas y Arqueo</button>
+        <button id="con-tab-bancos" onclick="conSetTab('bancos')" class="rounded-full text-[11px] font-bold uppercase tracking-wider px-4 py-1.5 cursor-pointer">Conciliación Bancaria</button>
+        <button id="con-tab-traslados" onclick="conSetTab('traslados')" class="rounded-full text-[11px] font-bold uppercase tracking-wider px-4 py-1.5 cursor-pointer">Traslados Atómicos</button>
       </div>
     </div>
-
-    <!-- Formulario de Nuevo Movimiento -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-3">
-      <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Registrar Movimiento de Tesorería</h3>
-      <div class="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Tipo</label>
-          <select id="mov-tipo-input" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-            <option value="INGRESO">INGRESO (+)</option>
-            <option value="EGRESO">EGRESO (-)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Referencia / Cheque / ACH</label>
-          <input id="mov-ref-input" type="text" placeholder="ACH-90412" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cuenta Bancaria</label>
-          <select id="mov-banco-select" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"></select>
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Contrapartida Contable (Config)</label>
-          <select id="mov-cuenta-select" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800"></select>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Monto (L)</label>
-          <div class="flex gap-1.5">
-            <input id="mov-monto-input" type="number" step="0.01" placeholder="15000.00" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
-            <button type="button" onclick="registrarMovimientoTesoreria()" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer shrink-0">
-              +
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabla de Movimientos -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Bitácora de Entradas y Salidas de Efectivo</h3>
-        <span class="text-[11px] font-mono text-slate-400">Partida Doble Tesorería</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
-              <th class="py-3 px-4">Fecha</th>
-              <th class="py-3 px-4">Tipo</th>
-              <th class="py-3 px-4">Referencia</th>
-              <th class="py-3 px-4">Cuenta Bancaria</th>
-              <th class="py-3 px-4">Contrapartida Contable</th>
-              <th class="py-3 px-4 text-right">Monto</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-movimientos" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
-        </table>
-      </div>
-    </div>
+    <section id="con-body" class="w-full flex-1 bg-white border border-slate-200 rounded-3xl p-5 overflow-y-auto"></section>
   </div>
 
   <!-- =========================================================================
-       SUB-VISTA 3: CONCILIACIÓN BANCARIA (#view-panel-conciliacion)
+       SUB-VISTA 4: PRÉSTAMOS Y CRÉDITOS (#view-panel-prestamos) — Maestro / Detalle
        ========================================================================= -->
-  <div id="view-panel-conciliacion" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
-      <div>
-        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Control de Extractos</span>
-        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Conciliación Bancaria</h2>
-        <p class="text-xs text-slate-500">Comparativa entre saldo en libros auxiliares, saldo según estado de cuenta bancario y partidas en tránsito.</p>
-      </div>
-      <div class="flex items-center gap-2.5">
-        <select id="concil-cuenta-select" onchange="recalcularConciliacion()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"></select>
-        <select id="concil-mes-select" onchange="recalcularConciliacion()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-          <option value="OCTUBRE 2026">OCTUBRE 2026</option>
-          <option value="NOVIEMBRE 2026">NOVIEMBRE 2026</option>
-          <option value="SEPTIEMBRE 2026">SEPTIEMBRE 2026</option>
-        </select>
-        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
-          ← Volver
-        </button>
-      </div>
-    </div>
-
-    <!-- Comparativa de Saldos -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Saldo en Libros Auxiliares</span>
-        <div id="concil-saldo-libros" class="text-2xl font-black text-slate-950 mt-1 mono">L 842,500.00</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Saldo según Estado de Banco</span>
-        <div id="concil-saldo-banco" class="text-2xl font-black text-sky-700 mt-1 mono">L 864,700.00</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Diferencia Neta en Tránsito</span>
-        <div id="concil-diferencia" class="text-2xl font-black text-amber-600 mt-1 mono">L 0.00</div>
-      </div>
-    </div>
-
-    <!-- Partidas en Tránsito -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
-          <h3 class="text-xs font-black text-slate-900 uppercase">Depósitos en Tránsito (+)</h3>
-          <span id="concil-total-depositos" class="text-xs font-mono font-bold text-emerald-700">L 0.00</span>
-        </div>
-        <div id="concil-lista-depositos" class="divide-y divide-slate-100 p-4 space-y-2 text-xs"></div>
-      </div>
-
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
-          <h3 class="text-xs font-black text-slate-900 uppercase">Cheques Pendientes de Cobro (-)</h3>
-          <span id="concil-total-cheques" class="text-xs font-mono font-bold text-rose-700">L 0.00</span>
-        </div>
-        <div id="concil-lista-cheques" class="divide-y divide-slate-100 p-4 space-y-2 text-xs"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- =========================================================================
-       SUB-VISTA 4: PRÉSTAMOS Y CRÉDITOS (#view-panel-prestamos)
-       ========================================================================= -->
-  <div id="view-panel-prestamos" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+  <div id="view-panel-prestamos" class="hidden flex-1 flex flex-col w-full py-2 relative z-10 gap-2">
+    <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
       <div>
         <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Obligaciones Financieras</span>
-        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Préstamos, Líneas de Crédito y Cuotas</h2>
-        <p class="text-xs text-slate-500">Control de desembolsos, tasas de interés, saldo insoluto y desglose mensual entre capital e intereses.</p>
+        <h2 class="text-xl font-black tracking-tight text-slate-950">PRÉSTAMOS BANCARIOS Y LÍNEAS DE CRÉDITO</h2>
       </div>
-      <div class="flex items-center gap-2.5">
-        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
-          ← Volver al Gateway
-        </button>
-      </div>
+      <div id="prs-kpis" class="flex flex-wrap gap-2"></div>
     </div>
-
-    <!-- Alta de Obligación Financiera vinculada a Config -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-4">
-      <div class="border-b border-slate-100 pb-3">
-        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Registrar Obligación / Crédito Bancario</h3>
-        <p class="text-[11px] text-slate-500">Enlaza con cuentas de Obligaciones Financieras y Préstamos del catálogo de Config.</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cuenta Contable (Config - Préstamos/Pasivos)</label>
-          <select id="select-cuenta-prestamos" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800"></select>
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[32%_1fr] gap-2 flex-1 min-h-0" style="height: calc(100vh - 210px);">
+      <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
+          <input id="prs-q" oninput="renderPrestamosList()" placeholder="Buscar préstamo o banco…" class="fld">
+          <button onclick="prsNuevo()" class="w-full bg-black text-white rounded-full py-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer">+ Nuevo préstamo / línea</button>
         </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Institución Bancaria</label>
-          <input id="prestamo-banco-input" type="text" placeholder="Ej. Banco Ficohsa" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Saldo Insoluto &amp; Tasa %</label>
-          <div class="flex gap-1.5">
-            <input id="prestamo-saldo-input" type="number" step="0.01" placeholder="500000" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
-            <input id="prestamo-tasa-input" type="number" step="0.1" value="11.5" class="w-20 px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
-          </div>
-        </div>
-        <div>
-          <button type="button" onclick="agregarPrestamoTesoreria()" class="w-full px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">
-            + Agregar Crédito
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabla de Préstamos Activos -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Obligaciones Financieras Activas y Desglose de Cuota</h3>
-        <span class="text-[11px] font-mono text-slate-400">Amortización Mensual (36 meses ref.)</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
-              <th class="py-3 px-4">Institución Bancaria</th>
-              <th class="py-3 px-4">Cuenta Contable Config</th>
-              <th class="py-3 px-4 text-right">Tasa Anual</th>
-              <th class="py-3 px-4 text-right">Saldo Insoluto</th>
-              <th class="py-3 px-4 text-right">Cuota Capital</th>
-              <th class="py-3 px-4 text-right">Cuota Interés</th>
-              <th class="py-3 px-4 text-right">Cuota Total</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-prestamos" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
-        </table>
-      </div>
+        <div id="prs-lista" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
+      </aside>
+      <section id="prs-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0"></section>
     </div>
   </div>
 
@@ -585,33 +333,35 @@
     // -------------------------------------------------------------------------
     // 1. NAVEGACIÓN DEL GATEWAY DE 4 PANELES
     // -------------------------------------------------------------------------
+    const SUBVISTAS = { cxp: 'view-panel-cxp', cxc: 'view-panel-cxc', conciliacion: 'view-panel-conciliacion', prestamos: 'view-panel-prestamos' };
+
     function ocultarTodasLasSubVistas() {
-      ['view-panel-bancos', 'view-panel-movimientos', 'view-panel-conciliacion', 'view-panel-prestamos'].forEach(id => {
+      Object.values(SUBVISTAS).forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
       });
     }
 
+    function cerrarModalesAbiertos() {
+      const abiertos = Array.from(document.querySelectorAll('[data-modal]')).filter(m => !m.classList.contains('hidden'));
+      abiertos.forEach(m => m.classList.add('hidden'));
+      return abiertos.length > 0;
+    }
+
     function ingresarAPanel(panelId) {
-      const gateway = document.getElementById('view-gateway');
-      ocultarTodasLasSubVistas();
-
-      const mapaVistas = {
-        bancos: 'view-panel-bancos',
-        movimientos: 'view-panel-movimientos',
-        conciliacion: 'view-panel-conciliacion',
-        prestamos: 'view-panel-prestamos'
-      };
-
-      const targetId = mapaVistas[panelId];
+      const targetId = SUBVISTAS[panelId];
       if (!targetId) return;
-
+      ocultarTodasLasSubVistas();
+      const gateway = document.getElementById('view-gateway');
       if (gateway) gateway.classList.add('hidden');
       const targetEl = document.getElementById(targetId);
       if (targetEl) targetEl.classList.remove('hidden');
 
       sincronizarCuentasTesoreria();
+      if (panelId === 'cxp') { sincronizarSolicitudesRRHH(); renderCxP(); }
+      if (panelId === 'cxc') renderCxC();
       if (panelId === 'conciliacion') recalcularConciliacion();
+      if (panelId === 'prestamos') renderPrestamos();
     }
 
     function volverAGateway() {
@@ -621,6 +371,7 @@
     }
 
     function manejarBotonRegresar() {
+      if (cerrarModalesAbiertos()) return;
       const gateway = document.getElementById('view-gateway');
       if (gateway && gateway.classList.contains('hidden')) {
         volverAGateway();
@@ -755,238 +506,944 @@
       }
     }
 
-    // -------------------------------------------------------------------------
-    // 3. DATOS OPERATIVOS DE LAS 4 SUB-VISTAS DE TESORERÍA
-    // -------------------------------------------------------------------------
-    const cuentasBancariasData = [
-      { banco: 'Banco Atlántida — Cta. Cheques', numero: '1100-492018-4', cuentaConfig: '1.1.01.02 — Banco Atlántida Cta. Cheques HNL', moneda: 'HNL', saldo: 842500.00, estado: 'Activa' },
-      { banco: 'BAC Credomatic — Cta. Corriente', numero: '740-192831-0', cuentaConfig: '1.1.01.03 — BAC Credomatic Cta. Corriente HNL', moneda: 'HNL', saldo: 617700.00, estado: 'Activa' },
-      { banco: 'Banco Ficohsa — Reserva USD', numero: '2000-881209-1', cuentaConfig: '1.1.01.04 — Banco Ficohsa Cta. Ahorro USD', moneda: 'USD', saldo: 28450.00, estado: 'Activa' },
-      { banco: 'Caja Chica Casa Matriz TGU', numero: 'CC-MATRIZ-01', cuentaConfig: '1.1.01.01 — Caja General y Caja Chica Matriz', moneda: 'HNL', saldo: 25000.00, estado: 'Activa' }
-    ];
-
-    const movimientosData = [
-      { fecha: '2026-10-12', tipo: 'INGRESO', ref: 'DEP-88412', banco: 'Banco Atlántida', contrapartida: '1.1.02.01 — Cuentas por Cobrar Clientes', monto: 145000.00 },
-      { fecha: '2026-10-13', tipo: 'EGRESO', ref: 'CHQ-00419', banco: 'BAC Credomatic', contrapartida: '2.1.01.01 — Proveedores Nacionales por Pagar', monto: 62400.00 },
-      { fecha: '2026-10-14', tipo: 'EGRESO', ref: 'ACH-77120', banco: 'Banco Atlántida', contrapartida: '5.2.01.01 — Gastos Financieros e Intereses', monto: 18500.00 },
-      { fecha: '2026-10-15', tipo: 'INGRESO', ref: 'POS-99210', banco: 'BAC Credomatic', contrapartida: '1.1.02.01 — Cuentas por Cobrar Clientes', monto: 94200.00 }
-    ];
-
-    const conciliacionDepositos = [
-      { id: 'dep1', ref: 'DEP-88450', desc: 'Liquidación Lote POS BAC 15/10', monto: 48200.00, conciliado: false },
-      { id: 'dep2', ref: 'DEP-88459', desc: 'Transferencia Cliente Distribuidora Sur', monto: 31500.00, conciliado: false }
-    ];
-
-    const conciliacionCheques = [
-      { id: 'chq1', ref: 'CHQ-00422', desc: 'Pago Proveedor Logística del Norte', monto: 64100.00, conciliado: false },
-      { id: 'chq2', ref: 'CHQ-00425', desc: 'Anticipo Servicios Aduanales', monto: 37800.00, conciliado: false }
-    ];
-
-    const prestamosData = [
-      { banco: 'BAC Credomatic — Línea Capital Trabajo', cuentaConfig: '2.1.03.01 — Préstamos Bancarios Corto Plazo', tasa: 11.5, saldo: 450000.00 },
-      { banco: 'Banco Ficohsa — Crédito Maquinaria NIIF', cuentaConfig: '2.2.01.01 — Obligaciones Financieras Largo Plazo', tasa: 10.2, saldo: 1200000.00 }
-    ];
 
     function fmt(num, sym = 'L ') {
       return sym + Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function renderBancos() {
-      const tbody = document.getElementById('tbody-bancos');
-      const selMovBanco = document.getElementById('mov-banco-select');
-      const selConcil = document.getElementById('concil-cuenta-select');
-      if (!tbody) return;
+    // -------------------------------------------------------------------------
+    // 4. BASE DE DATOS TESORERÍA (localStorage), HELPERS Y ASIENTOS CONTABLES
+    // -------------------------------------------------------------------------
+    const K = {
+      cuentas: 'horizon_tesoreria_cuentas', prov: 'horizon_tesoreria_proveedores', fcxp: 'horizon_tesoreria_facturas_cxp',
+      ops: 'horizon_tesoreria_ops', chq: 'horizon_tesoreria_chequeras', cli: 'horizon_tesoreria_clientes',
+      fcxc: 'horizon_tesoreria_facturas_cxc', ecs: 'horizon_tesoreria_ecs', rec: 'horizon_tesoreria_recibos',
+      pos: 'horizon_tesoreria_cierres_pos', ant: 'horizon_tesoreria_anticipos', pis: 'horizon_tesoreria_piscina',
+      cajas: 'horizon_tesoreria_cajas_estado', vales: 'horizon_tesoreria_vales', arq: 'horizon_tesoreria_arqueos',
+      con: 'horizon_tesoreria_concil', trf: 'horizon_tesoreria_traslados', prs: 'horizon_tesoreria_prestamos'
+    };
+    const LS_SOLICITUDES = 'horizon_tesoreria_solicitudes_pago';
+    const LS_ASIENTOS = 'horizon_asientos_contables';
+    const D = {};
+    let SYM = 'L ';
+    const CTA_NOMBRES = {
+      '2.1.01.01': 'Proveedores Nacionales por Pagar', '2.1.02.01': 'Sueldos y Salarios por Pagar',
+      '1.1.02.01': 'Cuentas por Cobrar Clientes', '1.1.02.02': 'Cuentas por Cobrar Tarjetas y Transferencias',
+      '1.1.01.05': 'Efectivo en Tránsito', '2.1.05.01': 'Anticipos de Clientes (Ingreso Diferido)',
+      '5.2.02.01': 'Comisiones Bancarias y POS', '1.1.01.06': 'Caja Chica Casa Matriz',
+      '1.1.02.05': 'Cuentas por Cobrar Empleados (Faltantes de Caja)', '4.2.01.01': 'Otros Ingresos Financieros y Sobrantes',
+      '4.2.01.02': 'Ganancia por Diferencial Cambiario', '5.2.01.01': 'Gastos Financieros e Intereses Bancarios',
+      '5.2.01.02': 'Pérdida por Diferencial Cambiario', '5.1.01.02': 'Gastos Operativos de Caja Chica',
+      '2.1.03.01': 'Préstamos Bancarios Corto Plazo', '2.2.01.01': 'Obligaciones Financieras Largo Plazo'
+    };
 
-      tbody.innerHTML = cuentasBancariasData.map(c => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-4 font-sans font-bold text-slate-900">${c.banco}</td>
-          <td class="py-3 px-4 text-slate-600">${c.numero}</td>
-          <td class="py-3 px-4 text-sky-700 font-semibold">${c.cuentaConfig}</td>
-          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">${c.moneda}</span></td>
-          <td class="py-3 px-4 text-right font-bold text-slate-900">${fmt(c.saldo, c.moneda === 'USD' ? '$ ' : 'L ')}</td>
-          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">${c.estado}</span></td>
-        </tr>
-      `).join('');
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function hoy() { return new Date().toISOString().slice(0, 10); }
+    function addD(f, n) { const d = new Date(f + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
+    function diasEntre(a, b) { return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000); }
+    function $(id) { return document.getElementById(id); }
+    function val(id) { const e = $(id); return e ? e.value.trim() : ''; }
+    function num(id) { return parseFloat(val(id)) || 0; }
+    function r2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
 
-      const totalHnl = cuentasBancariasData.filter(c => c.moneda === 'HNL').reduce((s, c) => s + Number(c.saldo), 0);
-      const totalUsd = cuentasBancariasData.filter(c => c.moneda === 'USD').reduce((s, c) => s + Number(c.saldo), 0);
-      const elHnl = document.getElementById('kpi-bancos-hnl');
-      const elUsd = document.getElementById('kpi-bancos-usd');
-      const elCount = document.getElementById('kpi-bancos-count');
-      if (elHnl) elHnl.textContent = fmt(totalHnl);
-      if (elUsd) elUsd.textContent = fmt(totalUsd, '$ ');
-      if (elCount) elCount.textContent = String(cuentasBancariasData.length);
+    function ld(key, seed, valido) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) { const v = JSON.parse(raw); if (Array.isArray(v) && (!valido || v.every(valido))) return v; }
+      } catch (e) { /* reseed */ }
+      const s = seed();
+      localStorage.setItem(key, JSON.stringify(s));
+      return s;
+    }
+    function sv() { Array.prototype.slice.call(arguments).forEach(n => localStorage.setItem(K[n], JSON.stringify(D[n]))); }
+    function nextId(prefix, arr, pad) {
+      const re = new RegExp('^' + prefix.replace(/[-]/g, '\\-') + '(\\d+)$');
+      let max = 0; arr.forEach(x => { const m = re.exec(x.id); if (m) max = Math.max(max, parseInt(m[1], 10)); });
+      return prefix + String(max + 1).padStart(pad || 3, '0');
+    }
+    function toast(msg, tipo) {
+      let t = $('toast-t');
+      if (!t) { t = document.createElement('div'); t.id = 'toast-t'; t.className = 'fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-2xl text-xs font-bold shadow-lg text-white'; document.body.appendChild(t); }
+      t.style.background = tipo === 'err' ? '#be123c' : '#0f172a';
+      t.textContent = msg; t.style.display = 'block';
+      clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 3200);
+    }
+    function fm(n) { return fmt(n, SYM); }
+    function nombreCuenta(cod) {
+      const c = obtenerCuentasDeConfig().find(x => x.codigo === cod);
+      return c ? c.nombre : (CTA_NOMBRES[cod] || cod);
+    }
+    function pushAsiento(origen, referencia, descripcion, partidas, fecha) {
+      let lista = [];
+      try { lista = JSON.parse(localStorage.getItem(LS_ASIENTOS) || '[]'); if (!Array.isArray(lista)) lista = []; } catch (e) { lista = []; }
+      const f = fecha || hoy();
+      const ps = partidas.map(p => ({ codigo: p.codigo, cuenta: nombreCuenta(p.codigo), debe: r2(p.debe || 0), haber: r2(p.haber || 0) }));
+      const td = r2(ps.reduce((s, p) => s + p.debe, 0)), th = r2(ps.reduce((s, p) => s + p.haber, 0));
+      const asiento = {
+        id: 'AST-TES-' + Date.now().toString(36).toUpperCase() + Math.floor(Math.random() * 99),
+        fecha: f, periodo: f.slice(0, 7), origen: 'TESORERÍA', referencia, descripcion,
+        cuadrado: td === th, totalDebe: td, totalHaber: th, partidas: ps
+      };
+      lista.unshift(asiento);
+      localStorage.setItem(LS_ASIENTOS, JSON.stringify(lista));
+      return asiento.id;
+    }
+    function ctaBanco(id) { return D.cuentas.find(c => c.id === id); }
+    function bancosLista() { return D.cuentas.filter(c => c.tipo === 'BANCO'); }
+    function optsBancos(sel) { return bancosLista().map(c => `<option value="${esc(c.id)}" ${c.id === sel ? 'selected' : ''}>${esc(c.nombre)} (${esc(c.moneda)} ${fmt(c.saldo, '')})</option>`).join(''); }
 
-      const opts = cuentasBancariasData.map(c => `<option value="${c.banco}">${c.banco} (${c.moneda})</option>`).join('');
-      if (selMovBanco) selMovBanco.innerHTML = opts;
-      if (selConcil) selConcil.innerHTML = opts;
+    function agingDias(fechasVenc) { // devuelve días vencidos de la factura más antigua (o null)
+      if (!fechasVenc.length) return null;
+      const min = fechasVenc.slice().sort()[0];
+      return diasEntre(min, hoy());
+    }
+    function agingBadge(d) {
+      if (d === null) return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Sin saldo</span>';
+      if (d <= 0) return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Corriente</span>';
+      if (d <= 30) return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">1-30d</span>';
+      if (d <= 60) return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200">31-60d</span>';
+      return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">+60d</span>';
+    }
+    function agingKey(d) { return d === null ? 'Sin saldo' : d <= 0 ? 'Corriente' : d <= 30 ? '1-30d' : d <= 60 ? '31-60d' : '+60d'; }
+    function estadoBadge(e) {
+      const m = { 'PENDIENTE DE EJECUCIÓN': 'bg-amber-50 text-amber-700 border-amber-200', 'BORRADOR POR VALIDAR': 'bg-sky-50 text-sky-700 border-sky-200', 'PAGADA': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'ENVIADO': 'bg-sky-50 text-sky-700 border-sky-200', 'COBRADO': 'bg-emerald-50 text-emerald-700 border-emerald-200', 'EN TRÁNSITO': 'bg-amber-50 text-amber-700 border-amber-200',
+        'PENDIENTE T+1': 'bg-amber-50 text-amber-700 border-amber-200', 'LIQUIDACIÓN POR VALIDAR': 'bg-sky-50 text-sky-700 border-sky-200', 'CONCILIADO': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'POR CONCILIAR': 'bg-amber-50 text-amber-700 border-amber-200', 'SIN SUSTENTAR': 'bg-rose-50 text-rose-700 border-rose-200', 'RESUELTO': 'bg-emerald-50 text-emerald-700 border-emerald-200', 'VALIDADO': 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+      return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${m[e] || 'bg-slate-100 text-slate-600 border-slate-200'}">${esc(e)}</span>`;
+    }
+    const BTN = 'px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer transition ';
+    const BTN1 = BTN + 'bg-black text-white hover:bg-neutral-800';
+    const BTN2 = BTN + 'bg-white text-slate-800 border border-slate-300 hover:border-slate-900';
+    const BTN3 = BTN + 'bg-sky-600 text-white hover:bg-sky-700';
+    const BTNR = BTN + 'bg-white text-rose-700 border border-rose-200 hover:bg-rose-50';
+    const TH = 'py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500';
+
+    function inicializarDatosTesoreria() {
+      const h = hoy();
+      D.cuentas = ld(K.cuentas, () => [
+        { id: 'CTA-001', tipo: 'BANCO', nombre: 'Banco Atlántida — Cta. Cheques', numero: '1100-492018-4', codigo: '1.1.01.02', moneda: 'HNL', saldo: 842500 },
+        { id: 'CTA-002', tipo: 'BANCO', nombre: 'BAC Credomatic — Cta. Corriente', numero: '740-192831-0', codigo: '1.1.01.03', moneda: 'HNL', saldo: 617700 },
+        { id: 'CTA-003', tipo: 'BANCO', nombre: 'Banco Ficohsa — Reserva USD', numero: '2000-881209-1', codigo: '1.1.01.04', moneda: 'USD', saldo: 28450 },
+        { id: 'CTA-004', tipo: 'CAJA', nombre: 'Caja General', numero: 'CAJA-GRAL', codigo: '1.1.01.01', moneda: 'HNL', saldo: 85000 },
+        { id: 'CTA-005', tipo: 'CAJA', nombre: 'Caja Chica Casa Matriz', numero: 'CC-MATRIZ-01', codigo: '1.1.01.06', moneda: 'HNL', saldo: 25000 }
+      ], x => x && x.id && x.tipo && typeof x.saldo === 'number');
+      D.prov = ld(K.prov, () => [
+        { id: 'PRV-001', nombre: 'Logística del Norte, S. de R.L.', rtn: '05019995123456', contacto: 'Marta Reyes', email: 'cobros@logisticanorte.hn', banco: 'Banco Atlántida', cuenta: '1100-338201-7', tipoCuenta: 'Cheques', condicion: 'Crédito 30 días' },
+        { id: 'PRV-002', nombre: 'Distribuidora Eléctrica Centroamericana', rtn: '08019001234567', contacto: 'Julio Cárcamo', email: 'ventas@dec-ca.com', banco: 'BAC Credomatic', cuenta: '740-882190-3', tipoCuenta: 'Corriente', condicion: 'Crédito 30 días' },
+        { id: 'PRV-003', nombre: 'Servicios Aduanales de Honduras', rtn: '05019885554321', contacto: 'Karla Mejía', email: 'admin@sadh.hn', banco: 'Banco Ficohsa', cuenta: '2000-110233-0', tipoCuenta: 'Ahorro', condicion: 'Crédito 30 días' },
+        { id: 'PRV-004', nombre: 'Papelería y Suministros El Éxito', rtn: '08011977765432', contacto: 'Rene Pineda', email: 'elexito@gmail.com', banco: 'Banco Atlántida', cuenta: '1100-770412-5', tipoCuenta: 'Ahorro', condicion: 'Contado' }
+      ]);
+      D.fcxp = ld(K.fcxp, () => [
+        { id: 'FCP-001', provId: 'PRV-001', numero: '000-001-01-00004521', fecha: addD(h, -95), vence: addD(h, -65), monto: 48200, estado: 'ABIERTA', opId: '' },
+        { id: 'FCP-002', provId: 'PRV-001', numero: '000-001-01-00004702', fecha: addD(h, -40), vence: addD(h, -10), monto: 64100, estado: 'EN_OP', opId: 'OP-001' },
+        { id: 'FCP-003', provId: 'PRV-001', numero: '000-001-01-00004890', fecha: addD(h, -8), vence: addD(h, 22), monto: 22750, estado: 'ABIERTA', opId: '' },
+        { id: 'FCP-004', provId: 'PRV-002', numero: '001-002-01-00012300', fecha: addD(h, -50), vence: addD(h, -20), monto: 131400, estado: 'ABIERTA', opId: '' },
+        { id: 'FCP-005', provId: 'PRV-002', numero: '001-002-01-00012788', fecha: addD(h, -5), vence: addD(h, 25), monto: 87300.5, estado: 'ABIERTA', opId: '' },
+        { id: 'FCP-006', provId: 'PRV-003', numero: '000-003-01-00000912', fecha: addD(h, -12), vence: addD(h, 18), monto: 37800, estado: 'ABIERTA', opId: '' },
+        { id: 'FCP-007', provId: 'PRV-004', numero: '000-004-01-00000231', fecha: addD(h, -70), vence: addD(h, -70), monto: 4520, estado: 'PAGADA', opId: '' }
+      ]);
+      D.ops = ld(K.ops, () => [
+        { id: 'OP-001', origen: 'CXP', provId: 'PRV-001', beneficiario: 'Logística del Norte, S. de R.L.', facturas: ['FCP-002'], monto: 64100, fecha: addD(h, -2), estado: 'PENDIENTE DE EJECUCIÓN', cuentaId: 'CTA-001', chequeNo: '', refBanco: '', fechaBanco: '', montoBanco: 0, beneficiarios: [{ nombre: 'Logística del Norte, S. de R.L.', banco: 'Banco Atlántida', cuenta: '1100-338201-7', monto: 64100 }] }
+      ]);
+      D.chq = ld(K.chq, () => [
+        { id: 'CHQR-01', cuentaId: 'CTA-001', prefijo: 'CHQ-', desde: 431, hasta: 480, siguiente: 431, activa: true },
+        { id: 'CHQR-02', cuentaId: 'CTA-002', prefijo: 'CHQ-', desde: 120, hasta: 170, siguiente: 120, activa: true }
+      ]);
+      D.cli = ld(K.cli, () => [
+        { id: 'CLI-001', nombre: 'Distribuidora Sur, S.A.', rtn: '08019912345678', email: 'pagos@distsur.hn' },
+        { id: 'CLI-002', nombre: 'Comercial Los Pinos', rtn: '05019887654321', email: 'tesoreria@lospinos.hn' },
+        { id: 'CLI-003', nombre: 'Hotel Plaza Central', rtn: '08019800011122', email: 'cxp@hotelplaza.hn' },
+        { id: 'CLI-004', nombre: 'Constructora Mesoamericana', rtn: '08019955566677', email: 'finanzas@mesoconst.com' }
+      ]);
+      D.fcxc = ld(K.fcxc, () => [
+        { id: 'FCC-001', cliId: 'CLI-001', numero: '000-001-01-00031020', fecha: addD(h, -75), vence: addD(h, -45), monto: 31500, estado: 'ABIERTA', ecId: '' },
+        { id: 'FCC-002', cliId: 'CLI-001', numero: '000-001-01-00031388', fecha: addD(h, -20), vence: addD(h, 10), monto: 58900, estado: 'ABIERTA', ecId: '' },
+        { id: 'FCC-003', cliId: 'CLI-002', numero: '000-001-01-00031250', fecha: addD(h, -45), vence: addD(h, -15), monto: 27650, estado: 'EN_EC', ecId: 'EC-001' },
+        { id: 'FCC-004', cliId: 'CLI-003', numero: '000-001-01-00031401', fecha: addD(h, -10), vence: addD(h, 20), monto: 112300, estado: 'ABIERTA', ecId: '' },
+        { id: 'FCC-005', cliId: 'CLI-004', numero: '000-001-01-00030011', fecha: addD(h, -110), vence: addD(h, -80), monto: 210000, estado: 'ABIERTA', ecId: '' },
+        { id: 'FCC-006', cliId: 'CLI-004', numero: '000-001-01-00031377', fecha: addD(h, -18), vence: addD(h, 12), monto: 76400, estado: 'ABIERTA', ecId: '' }
+      ]);
+      D.ecs = ld(K.ecs, () => [
+        { id: 'EC-001', cliId: 'CLI-002', facturas: ['FCC-003'], monto: 27650, fecha: addD(h, -3), estado: 'ENVIADO', nota: 'Estado de cuenta al cierre de semana.' }
+      ]);
+      D.rec = ld(K.rec, () => []);
+      D.pos = ld(K.pos, () => [
+        { id: 'POS-001', fecha: addD(h, -2), tipo: 'EFECTIVO', desc: 'Cierre de caja tienda Matriz', monto: 48200, estado: 'EN TRÁNSITO', cuentaId: '', ref: '', comision: 0, neto: 0 },
+        { id: 'POS-002', fecha: addD(h, -1), tipo: 'TARJETA', desc: 'Lote POS BAC (Visa/Master)', monto: 94200, estado: 'PENDIENTE T+1', cuentaId: 'CTA-002', ref: '', comision: 0, neto: 0 },
+        { id: 'POS-003', fecha: addD(h, -1), tipo: 'TRANSFERENCIA', desc: 'Transferencias instantáneas (QR/ACH)', monto: 31500, estado: 'POR CONCILIAR', cuentaId: 'CTA-001', ref: '', comision: 0, neto: 0 },
+        { id: 'POS-004', fecha: h, tipo: 'EFECTIVO', desc: 'Cierre de caja sucursal Norte', monto: 22300, estado: 'EN TRÁNSITO', cuentaId: '', ref: '', comision: 0, neto: 0 }
+      ]);
+      D.ant = ld(K.ant, () => []);
+      D.pis = ld(K.pis, () => [
+        { id: 'PIS-001', fecha: addD(h, -4), monto: 15750, ref: 'DEP-88471', desc: 'Depósito en ventanilla sin identificar', cuentaId: 'CTA-001', estado: 'SIN SUSTENTAR', resolucion: '' }
+      ]);
+      D.cajas = ld(K.cajas, () => [
+        { cuentaId: 'CTA-005', cajero: 'Ana Gabriela Flores', apertura: 25000, cobros: 0, traslados: 0, techo: 25000, ajuste: 0 },
+        { cuentaId: 'CTA-004', cajero: 'Roberto Pineda', apertura: 60000, cobros: 42000, traslados: 17000, techo: 85000, ajuste: 0 }
+      ]);
+      D.vales = ld(K.vales, () => [
+        { id: 'VAL-001', cajaId: 'CTA-005', fecha: addD(h, -2), solicitante: 'Mensajería Interna', concepto: 'Combustible y peajes', soporte: 'FAC-001-8891', monto: 1850, estado: 'PENDIENTE' },
+        { id: 'VAL-002', cajaId: 'CTA-005', fecha: addD(h, -1), solicitante: 'Mantenimiento', concepto: 'Ferretería menor y bombillos', soporte: 'FAC-004-1120', monto: 1400, estado: 'PENDIENTE' }
+      ]);
+      D.arq = ld(K.arq, () => []);
+      D.con = ld(K.con, () => [
+        { id: 'CN-001', cuentaId: 'CTA-001', origen: 'LIBRO', fecha: addD(h, -5), ref: 'DEP-88412', desc: 'Depósito cliente Distribuidora Sur', monto: 145000, conciliado: false },
+        { id: 'CN-002', cuentaId: 'CTA-001', origen: 'LIBRO', fecha: addD(h, -4), ref: 'ACH-77120', desc: 'Pago servicios corporativos', monto: -18500, conciliado: false },
+        { id: 'CN-003', cuentaId: 'CTA-001', origen: 'LIBRO', fecha: addD(h, -2), ref: 'DEP-88450', desc: 'Depósito cierre de caja en tránsito', monto: 48200, conciliado: false },
+        { id: 'CN-004', cuentaId: 'CTA-001', origen: 'LIBRO', fecha: addD(h, -1), ref: 'CHQ-00422', desc: 'Cheque Proveedor Logística del Norte', monto: -64100, conciliado: false }
+      ]);
+      D.trf = ld(K.trf, () => []);
+      D.prs = ld(K.prs, () => [
+        { id: 'PRS-001', banco: 'BAC Credomatic — Línea Capital de Trabajo', tipo: 'Línea de Capital de Trabajo', montoOriginal: 450000, saldo: 450000, tasa: 11.5, plazo: 12, fechaDesembolso: addD(h, -30), codigoPasivo: '2.1.03.01', cuotas: generarTablaPrestamo(450000, 11.5, 12, addD(h, -30)) },
+        { id: 'PRS-002', banco: 'Banco Ficohsa — Crédito Maquinaria NIIF', tipo: 'Crédito Hipotecario / Maquinaria', montoOriginal: 1200000, saldo: 1200000, tasa: 10.2, plazo: 24, fechaDesembolso: addD(h, -60), codigoPasivo: '2.2.01.01', cuotas: generarTablaPrestamo(1200000, 10.2, 24, addD(h, -60)) }
+      ]);
+      cajasLista().forEach(x => infoCaja(x.id));
+      sv('cuentas');
     }
 
-    function registrarCuentaBancaria() {
-      const sel = document.getElementById('select-cuenta-bancos');
-      const banco = document.getElementById('banco-nombre-input')?.value?.trim();
-      const moneda = document.getElementById('banco-moneda-input')?.value || 'HNL';
-      const saldo = parseFloat(document.getElementById('banco-saldo-input')?.value) || 0;
-      if (!banco) return;
-
-      const opt = sel && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex] : null;
-      const cuentaConfig = opt ? opt.textContent : '1.1.01.02 — Bancos';
-
-      cuentasBancariasData.push({
-        banco,
-        numero: 'CTA-' + Math.floor(100000 + Math.random() * 900000),
-        cuentaConfig,
-        moneda,
-        saldo,
-        estado: 'Activa'
+    // Lee las solicitudes de pago que RRHH deposita en Tesorería y las convierte en OP-NOM (sin duplicar)
+    function sincronizarSolicitudesRRHH() {
+      let sols = [];
+      try { sols = JSON.parse(localStorage.getItem(LS_SOLICITUDES) || '[]'); if (!Array.isArray(sols)) sols = []; } catch (e) { sols = []; }
+      let cambios = false;
+      sols.forEach(s => {
+        if (!s || !s.id) return;
+        if (D.ops.some(o => o.solId === s.id)) return;
+        const n = D.ops.filter(o => /^OP-NOM-/.test(o.id)).length + 1;
+        D.ops.unshift({
+          id: 'OP-NOM-' + String(n).padStart(3, '0'), origen: 'RRHH', solId: s.id, provId: '', beneficiario: 'Nómina ' + (s.periodo || '') + (s.sucursal ? ' — ' + s.sucursal : ''),
+          facturas: [], monto: r2(s.montoNeto), fecha: s.fecha || hoy(), estado: s.estado === 'DESEMBOLSADA' ? 'PAGADA' : 'PENDIENTE DE EJECUCIÓN',
+          cuentaId: (bancosLista()[0] || {}).id || '', chequeNo: '', refBanco: '', fechaBanco: '', montoBanco: 0,
+          beneficiarios: (s.beneficiarios || []).map(b => ({ nombre: b.nombre, banco: b.banco, cuenta: b.cuenta, monto: b.neto }))
+        });
+        cambios = true;
       });
-
-      document.getElementById('banco-nombre-input').value = '';
-      document.getElementById('banco-saldo-input').value = '';
-      renderBancos();
+      if (cambios) sv('ops');
     }
 
-    function renderMovimientos() {
-      const tbody = document.getElementById('tbody-movimientos');
-      if (!tbody) return;
+    // -------------------------------------------------------------------------
+    // 5. PANEL 1 — CUENTAS POR PAGAR
+    // -------------------------------------------------------------------------
+    const CXP = { tab: 'prov', sel: '', edit: false, nuevo: false };
 
-      tbody.innerHTML = movimientosData.map(m => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-4 text-slate-500">${m.fecha}</td>
-          <td class="py-3 px-4">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${m.tipo === 'INGRESO' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
-              ${m.tipo}
-            </span>
-          </td>
-          <td class="py-3 px-4 font-bold text-slate-800">${m.ref}</td>
-          <td class="py-3 px-4 font-sans font-semibold text-slate-700">${m.banco}</td>
-          <td class="py-3 px-4 text-sky-700">${m.contrapartida}</td>
-          <td class="py-3 px-4 text-right font-bold ${m.tipo === 'INGRESO' ? 'text-emerald-700' : 'text-rose-700'}">${m.tipo === 'INGRESO' ? '+' : '-'} ${fmt(m.monto)}</td>
-        </tr>
-      `).join('');
+    function provSaldoInfo(pid) {
+      const fs = D.fcxp.filter(f => f.provId === pid && f.estado !== 'PAGADA');
+      return { saldo: r2(fs.reduce((s, f) => s + f.monto, 0)), aging: agingDias(fs.map(f => f.vence)), n: fs.length };
+    }
+    function cxpSetTab(t) { CXP.tab = t; CXP.sel = ''; CXP.edit = false; CXP.nuevo = false; $('cxp-q').value = ''; renderCxP(); }
+    function renderCxP() {
+      const act = 'bg-black text-white', ina = 'text-slate-600 hover:text-slate-900';
+      $('cxp-tab-prov').className = 'rounded-full text-[11px] font-bold uppercase tracking-wider py-1.5 cursor-pointer ' + (CXP.tab === 'prov' ? act : ina);
+      $('cxp-tab-ops').className = 'rounded-full text-[11px] font-bold uppercase tracking-wider py-1.5 cursor-pointer ' + (CXP.tab === 'ops' ? act : ina);
+      $('cxp-btn-nuevo').style.display = CXP.tab === 'prov' ? '' : 'none';
+      const opts = CXP.tab === 'prov' ? ['Todos', 'Corriente', '1-30d', '31-60d', '+60d'] : ['Todos', 'PENDIENTE DE EJECUCIÓN', 'BORRADOR POR VALIDAR', 'PAGADA'];
+      const f = $('cxp-f'); const prev = f.value;
+      f.innerHTML = opts.map(o => `<option value="${esc(o)}" ${o === prev ? 'selected' : ''}>${esc(o)}</option>`).join('');
+      const totalPend = D.fcxp.filter(x => x.estado !== 'PAGADA').reduce((s, x) => s + x.monto, 0);
+      const opsPend = D.ops.filter(o => o.estado !== 'PAGADA');
+      $('cxp-kpis').innerHTML = [['Saldo por pagar', fm(totalPend)], ['OPs abiertas', opsPend.length], ['Monto en OPs', fm(opsPend.reduce((s, o) => s + o.monto, 0))]]
+        .map(k => `<div class="px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200"><div class="text-[9px] uppercase tracking-wider font-bold text-slate-400">${k[0]}</div><div class="text-sm font-black font-mono text-slate-900">${k[1]}</div></div>`).join('');
+      renderCxPList(); renderCxPDetalle();
+    }
+    function renderCxPList() {
+      const q = val('cxp-q').toLowerCase(), f = $('cxp-f').value || 'Todos', cont = $('cxp-lista');
+      let html = '';
+      if (CXP.tab === 'prov') {
+        const l = D.prov.filter(p => (!q || (p.nombre + p.rtn).toLowerCase().includes(q)) && (f === 'Todos' || agingKey(provSaldoInfo(p.id).aging) === f));
+        html = l.map(p => { const i = provSaldoInfo(p.id);
+          return `<div onclick="cxpSel('${p.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXP.sel === p.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold text-slate-900 truncate">${esc(p.nombre)}</span>${agingBadge(i.aging)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span>${esc(p.rtn)} · ${i.n} fact.</span><span class="font-mono font-bold text-slate-800">${fm(i.saldo)}</span></div></div>`; }).join('');
+      } else {
+        const l = D.ops.filter(o => (!q || (o.id + o.beneficiario).toLowerCase().includes(q)) && (f === 'Todos' || o.estado === f));
+        html = l.map(o => `<div onclick="cxpSel('${o.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXP.sel === o.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold font-mono text-slate-900">${esc(o.id)}</span>${estadoBadge(o.estado)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(o.beneficiario)}</span><span class="font-mono font-bold text-slate-800">${fm(o.monto)}</span></div></div>`).join('');
+      }
+      cont.innerHTML = html || '<div class="p-6 text-center text-xs text-slate-400">Sin resultados.</div>';
+    }
+    function cxpSel(id) { CXP.sel = id; CXP.edit = false; CXP.nuevo = false; renderCxPList(); renderCxPDetalle(); }
+    function cxpNuevoProv() { CXP.tab = 'prov'; CXP.sel = ''; CXP.nuevo = true; CXP.edit = true; renderCxP(); }
 
-      const ing = movimientosData.filter(m => m.tipo === 'INGRESO').reduce((s, m) => s + Number(m.monto), 0);
-      const egr = movimientosData.filter(m => m.tipo === 'EGRESO').reduce((s, m) => s + Number(m.monto), 0);
-      document.getElementById('kpi-mov-ingresos').textContent = fmt(ing);
-      document.getElementById('kpi-mov-egresos').textContent = fmt(egr);
-      document.getElementById('kpi-mov-neto').textContent = fmt(ing - egr);
+    function provFormHtml(p) {
+      const v = k => esc(p ? p[k] : '');
+      const c = (id, lab, k, cls) => `<div class="${cls || ''}"><label class="fld-label">${lab}</label><input id="pf-${id}" class="fld" value="${v(k)}"></div>`;
+      return `<div class="grid grid-cols-1 md:grid-cols-3 gap-3">${c('nombre', 'Razón social', 'nombre', 'md:col-span-2')}${c('rtn', 'RTN', 'rtn')}${c('contacto', 'Contacto', 'contacto')}${c('email', 'Correo', 'email')}
+        <div><label class="fld-label">Condición</label><select id="pf-condicion" class="fld">${['Contado', 'Crédito 30 días', 'Crédito 60 días'].map(o => `<option ${p && p.condicion === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
+        ${c('banco', 'Banco', 'banco')}${c('cuenta', 'No. de cuenta', 'cuenta')}${c('tipoCuenta', 'Tipo de cuenta', 'tipoCuenta')}</div>
+        <div class="flex gap-2 mt-3"><button onclick="guardarProv('${p ? p.id : ''}')" class="${BTN1}">Guardar</button><button onclick="CXP.edit=false;CXP.nuevo=false;renderCxPDetalle()" class="${BTN2}">Cancelar</button></div>`;
+    }
+    function guardarProv(id) {
+      const d = { nombre: val('pf-nombre'), rtn: val('pf-rtn'), contacto: val('pf-contacto'), email: val('pf-email'), condicion: val('pf-condicion'), banco: val('pf-banco'), cuenta: val('pf-cuenta'), tipoCuenta: val('pf-tipoCuenta') };
+      if (!d.nombre) { toast('La razón social es obligatoria.', 'err'); return; }
+      if (id) { Object.assign(D.prov.find(p => p.id === id), d); } else { id = nextId('PRV-', D.prov); D.prov.push(Object.assign({ id }, d)); }
+      sv('prov'); CXP.sel = id; CXP.edit = false; CXP.nuevo = false; toast('Proveedor guardado.'); renderCxP();
     }
 
-    function registrarMovimientoTesoreria() {
-      const tipo = document.getElementById('mov-tipo-input')?.value || 'INGRESO';
-      const ref = document.getElementById('mov-ref-input')?.value?.trim() || ('MOV-' + Math.floor(1000 + Math.random() * 9000));
-      const banco = document.getElementById('mov-banco-select')?.value || 'Banco Atlántida';
-      const selCuenta = document.getElementById('mov-cuenta-select');
-      const contrapartida = selCuenta && selCuenta.selectedIndex >= 0 ? selCuenta.options[selCuenta.selectedIndex].textContent : '1.1.02.01';
-      const monto = parseFloat(document.getElementById('mov-monto-input')?.value) || 0;
-      if (monto <= 0) return;
+    function renderCxPDetalle() {
+      const c = $('cxp-detalle');
+      if (CXP.nuevo) { c.innerHTML = `<h3 class="text-base font-black text-slate-900 mb-3">Nuevo proveedor</h3>` + provFormHtml(null); return; }
+      if (!CXP.sel) { c.innerHTML = '<div class="h-full flex items-center justify-center text-sm text-slate-400">Seleccione un proveedor o una OP del panel izquierdo.</div>'; return; }
+      if (CXP.sel.startsWith('OP-')) { renderOPDetalle(c); return; }
+      const p = D.prov.find(x => x.id === CXP.sel); if (!p) { c.innerHTML = ''; return; }
+      const i = provSaldoInfo(p.id);
+      const facts = D.fcxp.filter(f => f.provId === p.id).sort((a, b) => a.vence < b.vence ? -1 : 1);
+      const ficha = CXP.edit ? provFormHtml(p) : `<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">${[['RTN', p.rtn], ['Contacto', p.contacto], ['Correo', p.email], ['Condición', p.condicion], ['Banco', p.banco], ['Cuenta', p.cuenta + ' (' + p.tipoCuenta + ')']].map(x => `<div><div class="fld-label">${x[0]}</div><div class="font-semibold text-slate-800 break-words">${esc(x[1])}</div></div>`).join('')}</div>`;
+      c.innerHTML = `<div class="flex flex-wrap items-start justify-between gap-3 mb-3"><div><h3 class="text-lg font-black text-slate-900">${esc(p.nombre)}</h3><div class="mt-1 flex items-center gap-2">${agingBadge(i.aging)}<span class="text-xs text-slate-500">Saldo pendiente: <b class="font-mono text-slate-900">${fm(i.saldo)}</b></span></div></div>
+        <div class="flex gap-2"><button onclick="CXP.edit=true;renderCxPDetalle()" class="${BTN2}">Modificar</button><button onclick="cxpNuevoProv()" class="${BTN1}">+ Nuevo</button></div></div>${ficha}
+        <div class="mt-5 flex items-center justify-between"><h4 class="text-sm font-black uppercase tracking-wider text-slate-700">Estado de cuenta</h4><button onclick="generarOP('${p.id}')" class="${BTN3}">Generar Orden de Pago (OP)</button></div>
+        <table class="w-full mt-2 text-xs"><thead class="bg-slate-50"><tr><th class="${TH} w-8"></th><th class="${TH}">Factura</th><th class="${TH}">Fecha</th><th class="${TH}">Vence</th><th class="${TH} text-right">Monto</th><th class="${TH}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
+        ${facts.map(f => `<tr><td class="py-2 px-3">${f.estado === 'ABIERTA' ? `<input type="checkbox" class="chk-fcxp w-4 h-4 accent-slate-900" value="${f.id}" onchange="cxpSumSel()">` : ''}</td><td class="py-2 px-3 font-mono">${esc(f.numero)}</td><td class="py-2 px-3">${f.fecha}</td><td class="py-2 px-3">${f.vence}</td><td class="py-2 px-3 text-right font-mono font-bold">${fm(f.monto)}</td><td class="py-2 px-3">${f.estado === 'EN_OP' ? `<a class="text-sky-700 font-bold cursor-pointer" onclick="cxpSel('${f.opId}');CXP.tab='ops';renderCxP()">${esc(f.opId)}</a>` : estadoBadge(f.estado === 'PAGADA' ? 'PAGADA' : 'POR CONCILIAR').replace('POR CONCILIAR', 'ABIERTA')}</td></tr>`).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Sin facturas.</td></tr>'}
+        </tbody></table><div id="cxp-sum" class="text-right text-xs font-bold text-slate-600 mt-2"></div>
+        <h4 class="text-sm font-black uppercase tracking-wider text-slate-700 mt-5 mb-2">Registrar factura</h4>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 items-end"><div><label class="fld-label">No. factura</label><input id="nf-num" class="fld"></div><div><label class="fld-label">Fecha</label><input id="nf-fecha" type="date" class="fld" value="${hoy()}"></div><div><label class="fld-label">Monto</label><input id="nf-monto" type="number" step="0.01" class="fld"></div>
+        <div><label class="fld-label">Condición</label><select id="nf-cond" class="fld"><option ${p.condicion === 'Contado' ? '' : 'selected'}>Crédito</option><option ${p.condicion === 'Contado' ? 'selected' : ''}>Contado</option></select></div><button onclick="registrarFacturaCxP('${p.id}')" class="${BTN1}">Registrar</button></div>
+        <p class="text-[11px] text-slate-400 mt-1">Contado: genera una OP automática. Crédito: se agrega al estado de cuenta.</p>`;
+    }
+    function cxpSumSel() {
+      const ids = Array.from(document.querySelectorAll('.chk-fcxp:checked')).map(x => x.value);
+      const t = D.fcxp.filter(f => ids.includes(f.id)).reduce((s, f) => s + f.monto, 0);
+      $('cxp-sum').textContent = ids.length ? `${ids.length} factura(s) seleccionada(s): ${fm(t)}` : '';
+    }
+    function crearOP(prov, facturas) {
+      const monto = r2(facturas.reduce((s, f) => s + f.monto, 0));
+      const op = { id: nextId('OP-', D.ops.filter(o => /^OP-\d+$/.test(o.id))), origen: 'CXP', provId: prov.id, beneficiario: prov.nombre, facturas: facturas.map(f => f.id), monto, fecha: hoy(), estado: 'PENDIENTE DE EJECUCIÓN',
+        cuentaId: (bancosLista()[0] || {}).id || '', chequeNo: '', refBanco: '', fechaBanco: '', montoBanco: 0, beneficiarios: [{ nombre: prov.nombre, banco: prov.banco, cuenta: prov.cuenta, monto }] };
+      facturas.forEach(f => { f.estado = 'EN_OP'; f.opId = op.id; });
+      D.ops.unshift(op); sv('ops', 'fcxp'); return op;
+    }
+    function generarOP(pid) {
+      const ids = Array.from(document.querySelectorAll('.chk-fcxp:checked')).map(x => x.value);
+      if (!ids.length) { toast('Marque al menos una factura de crédito.', 'err'); return; }
+      const op = crearOP(D.prov.find(p => p.id === pid), D.fcxp.filter(f => ids.includes(f.id)));
+      toast(op.id + ' generada con ' + ids.length + ' factura(s).'); CXP.tab = 'ops'; CXP.sel = op.id; renderCxP();
+    }
+    function registrarFacturaCxP(pid) {
+      const monto = num('nf-monto'), numero = val('nf-num'), fecha = val('nf-fecha') || hoy(), cond = val('nf-cond');
+      if (!numero || monto <= 0) { toast('Indique número de factura y monto.', 'err'); return; }
+      const prov = D.prov.find(p => p.id === pid);
+      const f = { id: nextId('FCP-', D.fcxp), provId: pid, numero, fecha, vence: cond === 'Contado' ? fecha : addD(fecha, /60/.test(prov.condicion) ? 60 : 30), monto: r2(monto), estado: 'ABIERTA', opId: '' };
+      D.fcxp.push(f); sv('fcxp');
+      if (cond === 'Contado') { const op = crearOP(prov, [f]); toast('Factura de contado: ' + op.id + ' generada automáticamente.'); CXP.tab = 'ops'; CXP.sel = op.id; }
+      else toast('Factura a crédito registrada en el estado de cuenta.');
+      renderCxP();
+    }
 
-      movimientosData.unshift({
-        fecha: new Date().toISOString().slice(0, 10),
-        tipo,
-        ref,
-        banco,
-        contrapartida,
-        monto
+    function renderOPDetalle(c) {
+      const o = D.ops.find(x => x.id === CXP.sel); if (!o) { c.innerHTML = ''; return; }
+      const abierta = o.estado !== 'PAGADA', facts = D.fcxp.filter(f => o.facturas.includes(f.id));
+      const lote = o.origen === 'RRHH' ? o.beneficiarios.map(b => `<tr><td class="py-2 px-3">${esc(b.nombre)}</td><td class="py-2 px-3">${esc(b.banco)}</td><td class="py-2 px-3 font-mono">${esc(b.cuenta)}</td><td class="py-2 px-3 text-right font-mono font-bold">${fm(b.monto)}</td></tr>`).join('')
+        : facts.map(f => `<tr><td class="py-2 px-3 font-mono">${esc(f.numero)}</td><td class="py-2 px-3">${f.fecha}</td><td class="py-2 px-3">${f.vence}</td><td class="py-2 px-3 text-right font-mono font-bold">${fm(f.monto)}</td></tr>`).join('');
+      const th = o.origen === 'RRHH' ? ['Colaborador', 'Banco', 'Cuenta', 'Neto'] : ['Factura', 'Fecha', 'Vence', 'Monto'];
+      const cap = o.refBanco ? `<div class="mt-3 p-3 rounded-2xl bg-sky-50 border border-sky-200 text-xs"><b>Notificación bancaria capturada:</b> monto ${fm(o.montoBanco)} · ref. ${esc(o.refBanco)} · fecha ${esc(o.fechaBanco)}</div>` : '';
+      c.innerHTML = `<div class="flex flex-wrap items-start justify-between gap-3"><div><span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">${o.origen === 'RRHH' ? 'Nómina • RRHH' : 'Lote de pago'}</span><h3 class="text-lg font-black font-mono text-slate-900">${esc(o.id)} — ${esc(o.beneficiario)}</h3><div class="mt-1 flex items-center gap-2">${estadoBadge(o.estado)}<span class="text-xs text-slate-500">${esc(o.fecha)} · Total <b class="font-mono text-slate-900">${fm(o.monto)}</b>${o.chequeNo ? ' · Cheque ' + esc(o.chequeNo) : ''}</span></div></div>
+        ${o.estado === 'PENDIENTE DE EJECUCIÓN' ? `<button onclick="anularOP('${o.id}')" class="${BTNR}">Anular OP</button>` : ''}</div>
+        <div class="mt-4 max-w-md"><label class="fld-label">Cuenta bancaria de pago</label><select class="fld" ${abierta ? '' : 'disabled'} onchange="cambiarCuentaOP('${o.id}',this.value)">${optsBancos(o.cuentaId)}</select></div>
+        <table class="w-full mt-4 text-xs"><thead class="bg-slate-50"><tr>${th.map((t, i) => `<th class="${TH} ${i === 3 ? 'text-right' : ''}">${t}</th>`).join('')}</tr></thead><tbody class="divide-y divide-slate-100">${lote}</tbody></table>
+        ${cap}
+        <div class="mt-4 flex flex-wrap gap-2"><button onclick="descargarACH('${o.id}')" class="${BTN2}">Descargar .csv Banca ACH</button><button onclick="imprimirVoucher('${o.id}')" class="${BTN2}">Imprimir PDF / Voucher de Cheque</button>
+        <button ${o.estado === 'PENDIENTE DE EJECUCIÓN' ? '' : 'disabled style="opacity:.4;cursor:not-allowed"'} onclick="sincronizarCorreoOP('${o.id}')" class="${BTN2}">Sincronizar Notificaciones de Correo Bancario</button>
+        <button ${o.estado === 'BORRADOR POR VALIDAR' ? '' : 'disabled style="opacity:.4;cursor:not-allowed"'} onclick="confirmarOP('${o.id}')" class="${BTN3}">Confirmar y Contabilizar</button></div>`;
+    }
+    function cambiarCuentaOP(id, cid) { const o = D.ops.find(x => x.id === id); o.cuentaId = cid; sv('ops'); }
+    function anularOP(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'PENDIENTE DE EJECUCIÓN') return;
+      if (!confirm('¿Anular ' + id + '? Las facturas volverán al estado de cuenta.')) return;
+      D.fcxp.forEach(f => { if (f.opId === id) { f.estado = 'ABIERTA'; f.opId = ''; } });
+      D.ops = D.ops.filter(x => x.id !== id); sv('ops', 'fcxp'); CXP.sel = ''; toast(id + ' anulada.'); renderCxP();
+    }
+    function descargarCSV(nombre, filas) {
+      const csv = '\ufeff' + filas.map(r => r.map(x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = nombre;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    function descargarACH(id) {
+      const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId);
+      const filas = [['Cuenta Origen', 'Banco Destino', 'Cuenta Destino', 'Beneficiario', 'Monto', 'Moneda', 'Referencia']];
+      o.beneficiarios.forEach(b => filas.push([cta ? cta.numero : '', b.banco, b.cuenta, b.nombre, r2(b.monto).toFixed(2), cta ? cta.moneda : 'HNL', o.id]));
+      descargarCSV('ACH_' + o.id + '.csv', filas); toast('Archivo ACH generado.');
+    }
+    function imprimirVoucher(id) {
+      const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId);
+      const chq = D.chq.find(c => c.cuentaId === o.cuentaId && c.activa);
+      if (!o.chequeNo) {
+        if (!chq) { toast('No hay chequera activa para la cuenta seleccionada.', 'err'); return; }
+        o.chequeNo = chq.prefijo + String(chq.siguiente).padStart(5, '0'); chq.siguiente++;
+        if (chq.siguiente > chq.hasta) chq.activa = false;
+        sv('chq', 'ops');
+      }
+      const w = window.open('', '_blank', 'width=820,height=620');
+      if (!w) { toast('El navegador bloqueó la ventana de impresión.', 'err'); return; }
+      w.document.write(`<html><head><title>${esc(o.chequeNo)}</title><style>body{font-family:Arial;padding:30px}.c{border:2px solid #0f172a;padding:20px;border-radius:8px}.r{display:flex;justify-content:space-between;margin:8px 0}td,th{border:1px solid #cbd5e1;padding:6px;font-size:12px}table{border-collapse:collapse;width:100%;margin-top:14px}</style></head><body>
+        <div class="c"><div class="r"><b>${esc($('hdr-company-name').textContent)}</b><b>Cheque ${esc(o.chequeNo)}</b></div><div class="r"><span>Banco: ${esc(cta ? cta.nombre : '')}</span><span>Fecha: ${hoy()}</span></div>
+        <div class="r"><span>Pagar a la orden de: <b>${esc(o.beneficiario)}</b></span><b>${esc(SYM)}${r2(o.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</b></div><div class="r"><span>Concepto: Orden de pago ${esc(o.id)}</span></div>
+        <table><tr><th>Detalle</th><th>Monto</th></tr>${(o.origen === 'RRHH' ? o.beneficiarios.map(b => [b.nombre, b.monto]) : D.fcxp.filter(f => o.facturas.includes(f.id)).map(f => ['Factura ' + f.numero, f.monto])).map(r => `<tr><td>${esc(r[0])}</td><td style="text-align:right">${r2(r[1]).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td></tr>`).join('')}</table>
+        <div class="r" style="margin-top:50px"><span>_____________________<br>Elaboró</span><span>_____________________<br>Autorizó</span><span>_____________________<br>Recibí conforme</span></div></div>
+        <script>setTimeout(function(){window.print()},300)<\/script></body></html>`);
+      w.document.close(); renderCxPDetalle();
+    }
+    function sincronizarCorreoOP(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'PENDIENTE DE EJECUCIÓN') return;
+      const cta = ctaBanco(o.cuentaId);
+      o.estado = 'BORRADOR POR VALIDAR'; o.montoBanco = o.monto; o.refBanco = (cta ? cta.nombre.split(' ')[0].toUpperCase().slice(0, 3) : 'BNK') + '-' + Math.floor(100000 + Math.random() * 900000); o.fechaBanco = hoy();
+      sv('ops'); toast('Notificación bancaria capturada. Revise y confirme.'); renderCxP();
+    }
+    function confirmarOP(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'BORRADOR POR VALIDAR') return;
+      const cta = ctaBanco(o.cuentaId); if (!cta) { toast('Seleccione una cuenta bancaria.', 'err'); return; }
+      if (cta.saldo < o.montoBanco) { toast('Saldo insuficiente en ' + cta.nombre + '.', 'err'); return; }
+      const deb = o.origen === 'RRHH' ? '2.1.02.01' : '2.1.01.01';
+      pushAsiento('TESORERÍA', o.id, 'Pago ' + o.id + ' — ' + o.beneficiario + ' (ref. ' + o.refBanco + ')', [{ codigo: deb, debe: o.montoBanco }, { codigo: cta.codigo, haber: o.montoBanco }], o.fechaBanco);
+      cta.saldo = r2(cta.saldo - o.montoBanco); o.estado = 'PAGADA';
+      D.fcxp.forEach(f => { if (f.opId === o.id) f.estado = 'PAGADA'; });
+      if (o.solId) { try { const s = JSON.parse(localStorage.getItem(LS_SOLICITUDES) || '[]'); s.forEach(x => { if (x.id === o.solId) x.estado = 'DESEMBOLSADA'; }); localStorage.setItem(LS_SOLICITUDES, JSON.stringify(s)); } catch (e) { /* noop */ } }
+      sv('cuentas', 'ops', 'fcxp'); toast(o.id + ' contabilizada y saldo bancario actualizado.'); renderCxP();
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. PANEL 2 — CUENTAS POR COBRAR E INGRESOS
+    // -------------------------------------------------------------------------
+    const CXC = { tab: 'cli', sel: '', ecEdit: '' };
+
+    function cliSaldoInfo(cid) {
+      const fs = D.fcxc.filter(f => f.cliId === cid && f.estado !== 'COBRADA');
+      return { saldo: r2(fs.reduce((s, f) => s + f.monto, 0)), aging: agingDias(fs.map(f => f.vence)), n: fs.length };
+    }
+    function cxcSetTab(t) { CXC.tab = t; CXC.sel = ''; CXC.ecEdit = ''; $('cxc-q').value = ''; renderCxC(); }
+    function nombreCli(id) { const c = D.cli.find(x => x.id === id); return c ? c.nombre : id; }
+    function renderCxC() {
+      const act = 'bg-black text-white', ina = 'text-slate-600 hover:text-slate-900';
+      ['cli', 'pos', 'pis'].forEach(t => { $('cxc-tab-' + t).className = 'rounded-full text-[10px] font-bold uppercase tracking-wider py-1.5 cursor-pointer ' + (CXC.tab === t ? act : ina); });
+      const opts = CXC.tab === 'cli' ? ['Todos', 'Corriente', '1-30d', '31-60d', '+60d'] : CXC.tab === 'pos' ? ['Todos', 'EN TRÁNSITO', 'PENDIENTE T+1', 'POR CONCILIAR', 'LIQUIDACIÓN POR VALIDAR', 'CONCILIADO'] : ['Todos', 'SIN SUSTENTAR', 'RESUELTO'];
+      const f = $('cxc-f'); const prev = f.value;
+      f.innerHTML = opts.map(o => `<option value="${esc(o)}" ${o === prev ? 'selected' : ''}>${esc(o)}</option>`).join('');
+      const cxc = D.fcxc.filter(x => x.estado !== 'COBRADA').reduce((s, x) => s + x.monto, 0);
+      const transito = D.pos.filter(p => p.estado !== 'CONCILIADO').reduce((s, p) => s + p.monto, 0);
+      const pis = D.pis.filter(p => p.estado === 'SIN SUSTENTAR').reduce((s, p) => s + p.monto, 0);
+      const ant = D.ant.reduce((s, a) => s + a.monto, 0);
+      $('cxc-kpis').innerHTML = [['Por cobrar', fm(cxc)], ['Ingresos por conciliar', fm(transito)], ['Piscina sin sustentar', fm(pis)], ['Anticipos (pasivo)', fm(ant)]]
+        .map(k => `<div class="px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200"><div class="text-[9px] uppercase tracking-wider font-bold text-slate-400">${k[0]}</div><div class="text-sm font-black font-mono text-slate-900">${k[1]}</div></div>`).join('');
+      renderCxCList(); renderCxCDetalle();
+    }
+    function cxcSel(id) { CXC.sel = id; CXC.ecEdit = ''; renderCxCList(); renderCxCDetalle(); }
+    function renderCxCList() {
+      const q = val('cxc-q').toLowerCase(), f = $('cxc-f').value || 'Todos', cont = $('cxc-lista'); let html = '';
+      if (CXC.tab === 'cli') {
+        html = D.cli.filter(c => (!q || (c.nombre + c.rtn).toLowerCase().includes(q)) && (f === 'Todos' || agingKey(cliSaldoInfo(c.id).aging) === f)).map(c => {
+          const i = cliSaldoInfo(c.id), ecs = D.ecs.filter(e => e.cliId === c.id).map(e => e.id).join(', ');
+          return `<div onclick="cxcSel('${c.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXC.sel === c.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold text-slate-900 truncate">${esc(c.nombre)}</span>${agingBadge(i.aging)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${ecs ? esc(ecs) : 'Sin EC'}</span><span class="font-mono font-bold text-slate-800">${fm(i.saldo)}</span></div></div>`; }).join('');
+      } else if (CXC.tab === 'pos') {
+        html = D.pos.filter(p => (!q || (p.id + p.desc + p.tipo).toLowerCase().includes(q)) && (f === 'Todos' || p.estado === f)).map(p =>
+          `<div onclick="cxcSel('${p.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXC.sel === p.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold font-mono text-slate-900">${esc(p.id)} · ${esc(p.tipo)}</span>${estadoBadge(p.estado)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(p.fecha)} · ${esc(p.desc)}</span><span class="font-mono font-bold text-slate-800">${fm(p.monto)}</span></div></div>`).join('');
+      } else {
+        const its = D.pis.filter(p => (!q || (p.id + p.desc + p.ref).toLowerCase().includes(q)) && (f === 'Todos' || p.estado === f)).map(p =>
+          `<div onclick="cxcSel('${p.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXC.sel === p.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold font-mono text-slate-900">${esc(p.id)}</span>${estadoBadge(p.estado)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(p.fecha)} · ${esc(p.desc)}</span><span class="font-mono font-bold text-slate-800">${fm(p.monto)}</span></div></div>`).join('');
+        const ants = f === 'Todos' ? D.ant.filter(a => !q || (a.id + nombreCli(a.cliId)).toLowerCase().includes(q)).map(a =>
+          `<div class="px-4 py-3 bg-slate-50/60"><div class="flex justify-between gap-2"><span class="text-xs font-bold font-mono text-slate-900">${esc(a.id)} · Anticipo</span><span class="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-violet-50 text-violet-700 border-violet-200">Pasivo diferido</span></div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(nombreCli(a.cliId))}</span><span class="font-mono font-bold text-slate-800">${fm(a.monto)}</span></div></div>`).join('') : '';
+        html = its + ants;
+      }
+      cont.innerHTML = html || '<div class="p-6 text-center text-xs text-slate-400">Sin resultados.</div>';
+    }
+    function renderCxCDetalle() {
+      const c = $('cxc-detalle');
+      if (CXC.tab === 'cli') return renderCliDetalle(c);
+      if (CXC.tab === 'pos') return renderPosDetalle(c);
+      return renderPisDetalle(c);
+    }
+
+    // ---- Clientes & ECs ----
+    function renderCliDetalle(c) {
+      if (!CXC.sel) { c.innerHTML = '<div class="h-full flex items-center justify-center text-sm text-slate-400">Seleccione un cliente para ver su estado de cuenta.</div>'; return; }
+      const cl = D.cli.find(x => x.id === CXC.sel); if (!cl) { c.innerHTML = ''; return; }
+      const i = cliSaldoInfo(cl.id), facts = D.fcxc.filter(f => f.cliId === cl.id).sort((a, b) => a.vence < b.vence ? -1 : 1);
+      const ecs = D.ecs.filter(e => e.cliId === cl.id), recs = D.rec.filter(r => r.cliId === cl.id);
+      const ecHtml = ecs.map(e => {
+        if (CXC.ecEdit === e.id) return `<div class="p-3 rounded-2xl border border-sky-300 bg-sky-50/40 space-y-2"><div class="font-mono font-bold text-sm">${esc(e.id)} (editando)</div><div class="grid grid-cols-1 md:grid-cols-3 gap-3"><div><label class="fld-label">Monto del EC</label><input id="ec-monto" type="number" step="0.01" class="fld" value="${e.monto}"></div><div class="md:col-span-2"><label class="fld-label">Nota</label><input id="ec-nota" class="fld" value="${esc(e.nota)}"></div></div><div class="flex gap-2"><button onclick="guardarEC('${e.id}')" class="${BTN1}">Guardar</button><button onclick="CXC.ecEdit='';renderCxCDetalle()" class="${BTN2}">Cancelar</button></div></div>`;
+        return `<div class="p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2"><div><span class="font-mono font-bold text-sm">${esc(e.id)}</span> ${estadoBadge(e.estado)}<div class="text-[11px] text-slate-500 mt-0.5">${esc(e.fecha)} · ${e.facturas.length} factura(s) · ${esc(e.nota)}</div></div><div class="flex items-center gap-2"><span class="font-mono font-bold">${fm(e.monto)}</span>
+          ${e.estado === 'COBRADO' ? '' : `<button onclick="enviarEC('${e.id}')" class="${BTN2}">Enviar</button><button onclick="CXC.ecEdit='${e.id}';renderCxCDetalle()" class="${BTN2}">Editar</button><button onclick="eliminarEC('${e.id}')" class="${BTNR}">Eliminar</button>`}</div></div>`; }).join('');
+      c.innerHTML = `<div class="flex flex-wrap items-start justify-between gap-3 mb-3"><div><h3 class="text-lg font-black text-slate-900">${esc(cl.nombre)}</h3><div class="mt-1 flex items-center gap-2">${agingBadge(i.aging)}<span class="text-xs text-slate-500">${esc(cl.rtn)} · Saldo pendiente: <b class="font-mono text-slate-900">${fm(i.saldo)}</b></span></div></div><button onclick="generarEC('${cl.id}')" class="${BTN3}">Generar y Enviar EC</button></div>
+        <table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="${TH} w-8"></th><th class="${TH}">Factura</th><th class="${TH}">Fecha</th><th class="${TH}">Vence</th><th class="${TH} text-right">Monto</th><th class="${TH}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
+        ${facts.map(f => `<tr><td class="py-2 px-3">${f.estado === 'ABIERTA' ? `<input type="checkbox" class="chk-fcxc w-4 h-4 accent-slate-900" value="${f.id}" onchange="cxcSumSel()">` : ''}</td><td class="py-2 px-3 font-mono">${esc(f.numero)}</td><td class="py-2 px-3">${f.fecha}</td><td class="py-2 px-3">${f.vence}</td><td class="py-2 px-3 text-right font-mono font-bold">${fm(f.monto)}</td><td class="py-2 px-3 text-[11px] font-bold ${f.estado === 'COBRADA' ? 'text-emerald-700' : f.estado === 'EN_EC' ? 'text-sky-700' : 'text-amber-700'}">${f.estado === 'EN_EC' ? esc(f.ecId) : f.estado}</td></tr>`).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Sin facturas.</td></tr>'}
+        </tbody></table><div id="cxc-sum" class="text-right text-xs font-bold text-slate-600 mt-2"></div>
+        <h4 class="text-sm font-black uppercase tracking-wider text-slate-700 mt-5 mb-2">Estados de cuenta (EC)</h4><div class="space-y-2">${ecHtml || '<div class="text-xs text-slate-400">Aún no hay ECs para este cliente.</div>'}</div>
+        <h4 class="text-sm font-black uppercase tracking-wider text-slate-700 mt-5 mb-2">Recibos de cobro</h4><div class="space-y-2">${recs.map(r => `<div class="p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2"><div><span class="font-mono font-bold text-sm">${esc(r.id)}</span> ${estadoBadge(r.estado)}<div class="text-[11px] text-slate-500 mt-0.5">${esc(r.fecha)} · ${esc(r.ecId)} · ref. ${esc(r.referencia)}</div></div><div class="flex items-center gap-2"><span class="font-mono font-bold">${fm(r.monto)}</span>${r.estado !== 'VALIDADO' ? `<select id="rc-banco-${r.id}" class="fld w-56">${optsBancos(r.cuentaId)}</select><button onclick="validarRecibo('${r.id}')" class="${BTN3}">Validar y Contabilizar</button>` : ''}</div></div>`).join('') || '<div class="text-xs text-slate-400">Sin recibos.</div>'}</div>
+        <h4 class="text-sm font-black uppercase tracking-wider text-slate-700 mt-5 mb-2">Simular transferencia recibida</h4>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 items-end"><div class="md:col-span-2"><label class="fld-label">Ordenante (cliente)</label><input id="tr-orden" class="fld" value="${esc(cl.nombre)}"></div><div><label class="fld-label">Monto</label><input id="tr-monto" type="number" step="0.01" class="fld"></div><div><label class="fld-label">Cuenta destino</label><select id="tr-banco" class="fld">${optsBancos('')}</select></div><button onclick="procesarTransferencia()" class="${BTN1}">Procesar</button></div>
+        <p class="text-[11px] text-slate-400 mt-1">El motor compara Monto + Cliente contra los ECs enviados; si coincide crea un Recibo de Cobro en borrador por validar, si no, el monto cae a la Piscina sin Sustentar.</p>`;
+    }
+    function cxcSumSel() {
+      const ids = Array.from(document.querySelectorAll('.chk-fcxc:checked')).map(x => x.value);
+      const t = D.fcxc.filter(f => ids.includes(f.id)).reduce((s, f) => s + f.monto, 0);
+      $('cxc-sum').textContent = ids.length ? `${ids.length} factura(s) seleccionada(s): ${fm(t)}` : '';
+    }
+    function generarEC(cid) {
+      const ids = Array.from(document.querySelectorAll('.chk-fcxc:checked')).map(x => x.value);
+      if (!ids.length) { toast('Marque al menos una factura abierta.', 'err'); return; }
+      const fs = D.fcxc.filter(f => ids.includes(f.id)), id = nextId('EC-', D.ecs);
+      D.ecs.push({ id, cliId: cid, facturas: ids, monto: r2(fs.reduce((s, f) => s + f.monto, 0)), fecha: hoy(), estado: 'ENVIADO', nota: 'Estado de cuenta generado el ' + hoy() + '.' });
+      fs.forEach(f => { f.estado = 'EN_EC'; f.ecId = id; }); sv('ecs', 'fcxc'); toast(id + ' generado y enviado a ' + nombreCli(cid) + '.'); renderCxC();
+    }
+    function enviarEC(id) { const e = D.ecs.find(x => x.id === id), c = D.cli.find(x => x.id === e.cliId); e.estado = 'ENVIADO'; sv('ecs'); toast(id + ' reenviado a ' + (c ? c.email : '')); renderCxC(); }
+    function guardarEC(id) {
+      const e = D.ecs.find(x => x.id === id), m = num('ec-monto'); if (m <= 0) { toast('Monto inválido.', 'err'); return; }
+      e.monto = r2(m); e.nota = val('ec-nota'); sv('ecs'); CXC.ecEdit = ''; toast(id + ' actualizado.'); renderCxC();
+    }
+    function eliminarEC(id) {
+      if (!confirm('¿Eliminar ' + id + '? Las facturas volverán a estar abiertas.')) return;
+      D.fcxc.forEach(f => { if (f.ecId === id) { f.estado = 'ABIERTA'; f.ecId = ''; } });
+      D.ecs = D.ecs.filter(e => e.id !== id); sv('ecs', 'fcxc'); toast(id + ' eliminado.'); renderCxC();
+    }
+    function procesarTransferencia() {
+      const orden = val('tr-orden').toLowerCase(), monto = r2(num('tr-monto')), cid = val('tr-banco');
+      if (monto <= 0) { toast('Indique el monto recibido.', 'err'); return; }
+      const ref = 'TRF-' + Math.floor(100000 + Math.random() * 900000);
+      const ec = D.ecs.find(e => e.estado === 'ENVIADO' && Math.abs(e.monto - monto) < 0.01 && (() => { const n = nombreCli(e.cliId).toLowerCase(); return orden && (n.includes(orden) || orden.includes(n)); })());
+      if (ec) {
+        const rec = { id: nextId('RC-', D.rec), cliId: ec.cliId, ecId: ec.id, monto, fecha: hoy(), referencia: ref, estado: 'BORRADOR POR VALIDAR', cuentaId: cid };
+        D.rec.push(rec); sv('rec'); toast('Coincidencia con ' + ec.id + ': ' + rec.id + ' en borrador por validar.');
+      } else {
+        D.pis.push({ id: nextId('PIS-', D.pis), fecha: hoy(), monto, ref, desc: 'Transferencia sin EC coincidente — ' + val('tr-orden'), cuentaId: cid, estado: 'SIN SUSTENTAR', resolucion: '' });
+        sv('pis'); toast('Sin coincidencia: el monto pasó a la Piscina sin Sustentar.', 'err');
+      }
+      renderCxC();
+    }
+    function validarRecibo(id) {
+      const r = D.rec.find(x => x.id === id), sel = $('rc-banco-' + id); if (!r || r.estado === 'VALIDADO') return;
+      const cta = ctaBanco(sel ? sel.value : r.cuentaId); if (!cta) { toast('Seleccione cuenta bancaria.', 'err'); return; }
+      pushAsiento('TESORERÍA', r.id, 'Cobro ' + r.id + ' — ' + nombreCli(r.cliId) + ' (' + r.ecId + ', ref. ' + r.referencia + ')', [{ codigo: cta.codigo, debe: r.monto }, { codigo: '1.1.02.01', haber: r.monto }]);
+      cta.saldo = r2(cta.saldo + r.monto); r.estado = 'VALIDADO'; r.cuentaId = cta.id;
+      const ec = D.ecs.find(e => e.id === r.ecId); if (ec) { ec.estado = 'COBRADO'; D.fcxc.forEach(f => { if (f.ecId === ec.id) f.estado = 'COBRADA'; }); }
+      sv('cuentas', 'rec', 'ecs', 'fcxc'); toast(id + ' validado y contabilizado.'); renderCxC();
+    }
+
+    // ---- Ingresos devengados (POS) ----
+    function renderPosDetalle(c) {
+      const p = D.pos.find(x => x.id === CXC.sel);
+      const res = ['EFECTIVO', 'TARJETA', 'TRANSFERENCIA'].map(t => { const l = D.pos.filter(x => x.tipo === t && x.estado !== 'CONCILIADO'); return `<div class="p-3 rounded-2xl bg-slate-50 border border-slate-200"><div class="text-[9px] uppercase tracking-wider font-bold text-slate-400">${t === 'EFECTIVO' ? 'Efectivo en tránsito' : t === 'TARJETA' ? 'Tarjetas POS (T+1)' : 'Transferencias instantáneas'}</div><div class="font-black font-mono">${fm(l.reduce((s, x) => s + x.monto, 0))}</div><div class="text-[10px] text-slate-400">${l.length} lote(s) por conciliar</div></div>`; }).join('');
+      let det = '<div class="text-sm text-slate-400 mt-6 text-center">Seleccione un lote de cierre diario del panel izquierdo.</div>';
+      if (p) {
+        const cta = ctaBanco(p.cuentaId);
+        let acc = '';
+        if (p.estado === 'CONCILIADO') acc = `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs">Lote conciliado${p.ref ? ' · ref. ' + esc(p.ref) : ''}${p.comision ? ' · comisión ' + fm(p.comision) + ' · neto ' + fm(p.neto) : ''}.</div>`;
+        else if (p.tipo === 'EFECTIVO') acc = `<div class="grid grid-cols-2 md:grid-cols-4 gap-3 items-end"><div><label class="fld-label">Cuenta de depósito</label><select id="pos-banco" class="fld">${optsBancos(p.cuentaId)}</select></div><div><label class="fld-label">Monto depositado</label><input id="pos-dep" type="number" step="0.01" class="fld" value="${p.monto}"></div><div><label class="fld-label">Ref. depósito</label><input id="pos-ref" class="fld"></div><button onclick="conciliarEfectivo('${p.id}')" class="${BTN3}">Conciliar depósito</button></div><p class="text-[11px] text-slate-400 mt-1">Si el depósito difiere del cierre, la diferencia pasa a la Piscina sin Sustentar.</p>`;
+        else if (p.tipo === 'TARJETA' && p.estado === 'PENDIENTE T+1') acc = `<button onclick="capturarLiquidacionPOS('${p.id}')" class="${BTN2}">Sincronizar liquidación T+1 del correo bancario</button>`;
+        else if (p.tipo === 'TARJETA') acc = `<div class="p-3 rounded-2xl bg-sky-50 border border-sky-200 text-xs mb-3">Liquidación capturada: comisión bancaria <b>${fm(p.comision)}</b> · neto a depositar <b>${fm(p.neto)}</b> · ref. ${esc(p.ref)}</div><button onclick="confirmarLoteBanco('${p.id}')" class="${BTN3}">Confirmar y Contabilizar</button>`;
+        else acc = `<div class="grid grid-cols-2 md:grid-cols-4 gap-3 items-end"><div><label class="fld-label">Cuenta acreditada</label><select id="pos-banco" class="fld">${optsBancos(p.cuentaId)}</select></div><div><label class="fld-label">Ref. extracto</label><input id="pos-ref" class="fld"></div><button onclick="confirmarLoteBanco('${p.id}')" class="${BTN3}">Conciliar con extracto</button></div>`;
+        det = `<div class="mt-4 p-4 rounded-2xl border border-slate-200"><div class="flex flex-wrap justify-between gap-2 mb-3"><div><div class="font-mono font-black text-slate-900">${esc(p.id)} · ${esc(p.tipo)}</div><div class="text-xs text-slate-500">${esc(p.fecha)} · ${esc(p.desc)}</div></div><div class="text-right">${estadoBadge(p.estado)}<div class="font-mono font-black text-lg">${fm(p.monto)}</div></div></div>${acc}
+          ${p.estado !== 'CONCILIADO' ? `<div class="mt-3"><button onclick="lotePiscina('${p.id}')" class="${BTNR}">Enviar a Piscina sin Sustentar</button></div>` : ''}</div>`;
+      }
+      c.innerHTML = `<h3 class="text-lg font-black text-slate-900">Ingresos Devengados (POS)</h3><p class="text-xs text-slate-500 mb-3">Lotes de cierre diario pendientes de acreditar en bancos.</p><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${res}</div>${det}`;
+    }
+    function conciliarEfectivo(id) {
+      const p = D.pos.find(x => x.id === id), cta = ctaBanco(val('pos-banco')), dep = r2(num('pos-dep'));
+      if (!cta || dep <= 0) { toast('Indique cuenta y monto depositado.', 'err'); return; }
+      const ref = val('pos-ref') || ('DEP-' + Math.floor(10000 + Math.random() * 90000));
+      pushAsiento('TESORERÍA', p.id, 'Depósito de efectivo del cierre ' + p.id + ' (ref. ' + ref + ')', [{ codigo: cta.codigo, debe: dep }, { codigo: '1.1.01.05', haber: dep }]);
+      cta.saldo = r2(cta.saldo + dep);
+      const dif = r2(p.monto - dep);
+      if (Math.abs(dif) >= 0.01) D.pis.push({ id: nextId('PIS-', D.pis), fecha: hoy(), monto: dif, ref, desc: (dif > 0 ? 'Faltante' : 'Sobrante') + ' de efectivo en cierre ' + p.id, cuentaId: cta.id, estado: 'SIN SUSTENTAR', resolucion: '' });
+      p.estado = 'CONCILIADO'; p.ref = ref; p.cuentaId = cta.id; sv('cuentas', 'pos', 'pis');
+      toast(Math.abs(dif) >= 0.01 ? 'Depositado ' + fm(dep) + '. Diferencia de ' + fm(dif) + ' enviada a la piscina.' : 'Depósito conciliado.', Math.abs(dif) >= 0.01 ? 'err' : ''); renderCxC();
+    }
+    function capturarLiquidacionPOS(id) {
+      const p = D.pos.find(x => x.id === id); p.comision = r2(p.monto * 0.025); p.neto = r2(p.monto - p.comision);
+      p.ref = 'LIQ-' + Math.floor(100000 + Math.random() * 900000); p.estado = 'LIQUIDACIÓN POR VALIDAR'; sv('pos'); toast('Liquidación T+1 capturada del correo bancario.'); renderCxC();
+    }
+    function confirmarLoteBanco(id) {
+      const p = D.pos.find(x => x.id === id), selB = $('pos-banco'), cta = ctaBanco(selB ? selB.value : p.cuentaId);
+      if (!cta) { toast('Seleccione cuenta bancaria.', 'err'); return; }
+      const ref = val('pos-ref') || p.ref || ('EXT-' + Math.floor(100000 + Math.random() * 900000));
+      if (p.tipo === 'TARJETA') {
+        pushAsiento('TESORERÍA', p.id, 'Liquidación POS ' + p.id + ' (ref. ' + ref + ')', [{ codigo: cta.codigo, debe: p.neto }, { codigo: '5.2.02.01', debe: p.comision }, { codigo: '1.1.02.02', haber: p.monto }]);
+        cta.saldo = r2(cta.saldo + p.neto);
+      } else {
+        pushAsiento('TESORERÍA', p.id, 'Transferencias instantáneas ' + p.id + ' (ref. ' + ref + ')', [{ codigo: cta.codigo, debe: p.monto }, { codigo: '1.1.02.02', haber: p.monto }]);
+        cta.saldo = r2(cta.saldo + p.monto);
+      }
+      p.estado = 'CONCILIADO'; p.ref = ref; p.cuentaId = cta.id; sv('cuentas', 'pos'); toast(p.id + ' conciliado y contabilizado.'); renderCxC();
+    }
+    function lotePiscina(id) {
+      const p = D.pos.find(x => x.id === id); if (!confirm('¿Enviar ' + id + ' a la Piscina de Liquidaciones sin Sustentar?')) return;
+      D.pis.push({ id: nextId('PIS-', D.pis), fecha: hoy(), monto: p.monto, ref: p.id, desc: 'Lote ' + p.id + ' (' + p.tipo + ') sin sustento bancario', cuentaId: p.cuentaId || (bancosLista()[0] || {}).id, estado: 'SIN SUSTENTAR', resolucion: '' });
+      p.estado = 'CONCILIADO'; p.ref = 'PISCINA'; sv('pos', 'pis'); toast('Lote enviado a la piscina.'); renderCxC();
+    }
+
+    // ---- Piscina & Anticipos ----
+    function renderPisDetalle(c) {
+      const it = D.pis.find(x => x.id === CXC.sel);
+      let det = '<div class="text-xs text-slate-400">Seleccione una partida de la piscina para resolverla.</div>';
+      if (it) {
+        const cierres = D.pos.filter(p => p.estado !== 'CONCILIADO');
+        det = `<div class="p-4 rounded-2xl border border-slate-200"><div class="flex justify-between gap-2 mb-2"><div><div class="font-mono font-black">${esc(it.id)}</div><div class="text-xs text-slate-500">${esc(it.fecha)} · ${esc(it.desc)} · ref. ${esc(it.ref)}</div></div><div class="text-right">${estadoBadge(it.estado)}<div class="font-mono font-black text-lg">${fm(it.monto)}</div></div></div>
+          ${it.estado === 'RESUELTO' ? `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs">Resuelto: ${esc(it.resolucion)}</div>` : `<div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end"><div class="md:col-span-2"><label class="fld-label">Vincular a</label><select id="pis-dest" class="fld"><optgroup label="Cliente (anticipo / pasivo diferido)">${D.cli.map(cl => `<option value="cli:${cl.id}">${esc(cl.nombre)}</option>`).join('')}</optgroup><optgroup label="Cierre de caja pendiente">${cierres.map(p => `<option value="pos:${p.id}">${esc(p.id)} · ${esc(p.tipo)} · ${fm(p.monto)}</option>`).join('')}</optgroup></select></div><button onclick="resolverPiscina('${it.id}')" class="${BTN3}">Vincular y Contabilizar</button></div>`}</div>`;
+      }
+      c.innerHTML = `<h3 class="text-lg font-black text-slate-900">Piscina & Anticipos</h3><p class="text-xs text-slate-500 mb-3">Partidas huérfanas sin sustento y cobros adelantados de clientes (ingreso diferido).</p>
+        <h4 class="text-sm font-black uppercase tracking-wider text-slate-700 mb-2">Registrar anticipo de cliente</h4>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 items-end mb-5"><div><label class="fld-label">Cliente</label><select id="an-cli" class="fld">${D.cli.map(cl => `<option value="${cl.id}">${esc(cl.nombre)}</option>`).join('')}</select></div><div><label class="fld-label">Monto</label><input id="an-monto" type="number" step="0.01" class="fld"></div><div><label class="fld-label">Cuenta</label><select id="an-banco" class="fld">${optsBancos('')}</select></div><div><label class="fld-label">Referencia</label><input id="an-ref" class="fld"></div><button onclick="registrarAnticipo()" class="${BTN1}">Registrar</button></div>
+        <h4 class="text-sm font-black uppercase tracking-wider text-slate-700 mb-2">Resolución de partidas huérfanas</h4>${det}`;
+    }
+    function registrarAnticipo() {
+      const m = r2(num('an-monto')), cta = ctaBanco(val('an-banco')), cid = val('an-cli');
+      if (m <= 0 || !cta) { toast('Indique monto y cuenta.', 'err'); return; }
+      const a = { id: nextId('ANT-', D.ant), cliId: cid, monto: m, fecha: hoy(), ref: val('an-ref') || 'S/R', cuentaId: cta.id };
+      pushAsiento('TESORERÍA', a.id, 'Anticipo de cliente ' + nombreCli(cid) + ' (ref. ' + a.ref + ')', [{ codigo: cta.codigo, debe: m }, { codigo: '2.1.05.01', haber: m }]);
+      cta.saldo = r2(cta.saldo + m); D.ant.push(a); sv('cuentas', 'ant'); toast(a.id + ' registrado como ingreso diferido (pasivo).'); renderCxC();
+    }
+    function resolverPiscina(id) {
+      const it = D.pis.find(x => x.id === id), dest = val('pis-dest').split(':'), cta = ctaBanco(it.cuentaId) || bancosLista()[0];
+      if (!cta || dest.length < 2) { toast('Destino inválido.', 'err'); return; }
+      if (dest[0] === 'cli') {
+        const a = { id: nextId('ANT-', D.ant), cliId: dest[1], monto: it.monto, fecha: hoy(), ref: it.ref, cuentaId: cta.id };
+        pushAsiento('TESORERÍA', it.id, 'Partida ' + it.id + ' vinculada a ' + nombreCli(dest[1]) + ' como anticipo', [{ codigo: cta.codigo, debe: it.monto }, { codigo: '2.1.05.01', haber: it.monto }]);
+        D.ant.push(a); it.resolucion = 'Anticipo ' + a.id + ' de ' + nombreCli(dest[1]);
+      } else {
+        const p = D.pos.find(x => x.id === dest[1]);
+        pushAsiento('TESORERÍA', it.id, 'Partida ' + it.id + ' vinculada al cierre ' + dest[1], [{ codigo: cta.codigo, debe: it.monto }, { codigo: p && p.tipo === 'EFECTIVO' ? '1.1.01.05' : '1.1.02.02', haber: it.monto }]);
+        if (p) { p.estado = 'CONCILIADO'; p.ref = it.ref; }
+        it.resolucion = 'Vinculada al cierre ' + dest[1];
+      }
+      cta.saldo = r2(cta.saldo + it.monto); it.estado = 'RESUELTO'; sv('cuentas', 'ant', 'pis', 'pos'); toast(it.id + ' resuelta y contabilizada.'); renderCxC();
+    }
+
+
+    // -------------------------------------------------------------------------
+    // 7. PANEL 3 — CONCILIACIÓN, SALUD DE CAJAS ("CERO DESCUADRES") Y TRASLADOS
+    // -------------------------------------------------------------------------
+    const DENOMS = [
+      { v: 500, l: 'L 500' }, { v: 200, l: 'L 200' }, { v: 100, l: 'L 100' }, { v: 50, l: 'L 50' }, { v: 20, l: 'L 20' },
+      { v: 10, l: 'L 10' }, { v: 5, l: 'L 5' }, { v: 2, l: 'L 2' }, { v: 1, l: 'L 1' },
+      { v: 0.5, l: '50 ¢' }, { v: 0.2, l: '20 ¢' }, { v: 0.1, l: '10 ¢' }, { v: 0.05, l: '5 ¢' }
+    ];
+    const CON = { tab: 'cajas', cajaId: 'CTA-005', ctaId: 'CTA-001', conteo: {} };
+
+    function cajasLista() { return D.cuentas.filter(c => c.tipo === 'CAJA'); }
+    function infoCaja(cid) {
+      let c = D.cajas.find(x => x.cuentaId === cid);
+      if (!c) { c = { cuentaId: cid, cajero: 'Cajero general', apertura: 25000, cobros: 0, traslados: 0, techo: 25000, ajuste: 0 }; D.cajas.push(c); }
+      const vales = r2(D.vales.filter(v => v.cajaId === cid && v.estado === 'PENDIENTE').reduce((s, v) => s + v.monto, 0));
+      const teorico = r2(c.apertura + c.cobros - vales - c.traslados + (c.ajuste || 0));
+      const cta = D.cuentas.find(x => x.id === cid); if (cta) cta.saldo = teorico;
+      const intTotal = r2(teorico + vales);
+      return { c, cta, vales, teorico, intTotal, pct: c.techo > 0 ? Math.min(100, Math.round((intTotal / c.techo) * 100)) : 100 };
+    }
+    function totalFisico() { return r2(DENOMS.reduce((s, d) => s + d.v * (Number(CON.conteo[d.v]) || 0), 0)); }
+
+    function conSetTab(t) { CON.tab = t; renderConciliacion(); }
+    function recalcularConciliacion() { renderConciliacion(); }
+    function renderConciliacion() {
+      const b = $('con-body'); if (!b) return;
+      const act = 'bg-black text-white', ina = 'text-slate-600 hover:text-slate-900';
+      ['cajas', 'bancos', 'traslados'].forEach(t => { const el = $('con-tab-' + t); if (el) el.className = 'rounded-full text-[11px] font-bold uppercase tracking-wider px-4 py-1.5 cursor-pointer ' + (CON.tab === t ? act : ina); });
+      if (CON.tab === 'cajas') return renderTabCajas(b);
+      if (CON.tab === 'bancos') return renderTabBancos(b);
+      return renderTabTraslados(b);
+    }
+
+    // ---- Pestaña 1: Salud de Cajas y Arqueo Ciego ----
+    function renderTabCajas(b) {
+      const i = infoCaja(CON.cajaId), vales = D.vales.filter(v => v.cajaId === CON.cajaId && v.estado === 'PENDIENTE');
+      const pctEf = i.c.techo > 0 ? Math.min(100, (Math.max(0, i.teorico) / i.c.techo) * 100) : 0;
+      const pctVa = i.c.techo > 0 ? Math.min(100 - pctEf, (i.vales / i.c.techo) * 100) : 0;
+      b.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3 mb-4"><div class="flex flex-wrap gap-2">${cajasLista().map(x => `<button onclick="CON.cajaId='${x.id}';CON.conteo={};renderConciliacion()" class="${CON.cajaId === x.id ? BTN1 : BTN2}">${esc(x.nombre)}</button>`).join('')}</div><span class="text-xs text-slate-500">Responsable: <b>${esc(i.c.cajero)}</b></span></div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+          ${[[' (+) Apertura', i.c.apertura, 'text-slate-800'], [' (+) Cobros en efectivo', i.c.cobros, 'text-emerald-700'], [' (−) Vales pendientes', i.vales, 'text-amber-700'], [' (−) Traslados a banco', i.c.traslados, 'text-rose-700'], [' (=) Saldo teórico inmutable', i.teorico, 'text-slate-950']].map(x => `<div class="p-3 rounded-2xl bg-slate-50 border border-slate-200"><div class="text-[9px] uppercase tracking-wider font-bold text-slate-400">${x[0]}</div><div class="text-base font-black font-mono ${x[2]}">${fm(x[1])}</div></div>`).join('')}
+        </div>
+        <div class="p-4 rounded-2xl border border-slate-200 mb-5"><div class="flex flex-wrap justify-between text-xs mb-1.5"><b>Integridad del Fondo Fijo (Efectivo Disponible + Vales Pendientes = 100% Techo)</b><span class="font-mono font-bold">${fm(i.teorico)} + ${fm(i.vales)} = ${fm(i.intTotal)} / Techo ${fm(i.c.techo)} (${i.pct}%)</span></div>
+          <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex"><div style="width:${pctEf}%" class="bg-emerald-500" title="Efectivo"></div><div style="width:${pctVa}%" class="bg-amber-400" title="Vales"></div></div>
+          <div class="flex gap-4 text-[11px] text-slate-500 mt-1"><span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></i>Efectivo ${fm(i.teorico)}</span><span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></i>Vales ${fm(i.vales)}</span></div></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div class="p-4 rounded-2xl border border-slate-200">
+            <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-black uppercase tracking-wider text-slate-800">Arqueo Físico por Denominación</h3><button onclick="cargarConteoExacto()" class="${BTN2}">Cargar conteo exacto</button></div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">${DENOMS.map(d => `<div class="flex items-center justify-between gap-1.5 p-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs"><span class="font-mono font-bold w-12">${d.l}</span><input type="number" min="0" step="1" value="${CON.conteo[d.v] || ''}" placeholder="0" oninput="setDenom(${d.v},this.value)" class="fld w-16 text-right font-mono"><span id="sub-${d.v}" class="font-mono text-[11px] text-slate-500 w-20 text-right">${fm((CON.conteo[d.v] || 0) * d.v)}</span></div>`).join('')}</div>
+            <div id="arq-sem" class="mt-3"></div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="p-4 rounded-2xl border border-slate-200">
+              <h3 class="text-sm font-black uppercase tracking-wider text-slate-800 mb-2">Vales provisionales y Reposición de Fondo Fijo</h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 items-end"><div><label class="fld-label">Solicitante</label><input id="vl-sol" class="fld"></div><div><label class="fld-label">Concepto</label><input id="vl-con" class="fld"></div><div><label class="fld-label">Soporte (fact./rec.)</label><input id="vl-sop" class="fld" placeholder="REC- / FAC-"></div><div><label class="fld-label">Monto</label><input id="vl-mon" type="number" step="0.01" class="fld"></div></div>
+              <div class="mt-2 flex justify-end"><button onclick="registrarVale()" class="${BTN1}">Registrar vale</button></div>
+              <table class="w-full mt-3 text-xs"><thead class="bg-slate-50"><tr><th class="${TH}">Vale</th><th class="${TH}">Solicitante / Concepto</th><th class="${TH}">Soporte</th><th class="${TH} text-right">Monto</th></tr></thead><tbody class="divide-y divide-slate-100">
+                ${vales.map(v => `<tr><td class="py-1.5 px-3 font-mono font-bold">${esc(v.id)}</td><td class="py-1.5 px-3">${esc(v.solicitante)} — ${esc(v.concepto)}</td><td class="py-1.5 px-3 font-mono">${esc(v.soporte)}</td><td class="py-1.5 px-3 text-right font-mono font-bold">${fm(v.monto)}</td></tr>`).join('') || '<tr><td colspan="4" class="p-3 text-center text-slate-400">Sin vales pendientes.</td></tr>'}
+              </tbody></table>
+              <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2"><select id="vl-banco" class="fld w-64">${optsBancos('')}</select><button onclick="reponerFondoFijo()" class="${BTN3}">Reponer Fondo Fijo desde Banco (${fm(i.vales)})</button></div>
+            </div>
+
+            <div class="p-4 rounded-2xl border border-slate-200">
+              <h3 class="text-sm font-black uppercase tracking-wider text-slate-800 mb-2">Control de Chequeras</h3>
+              <table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="${TH}">Chequera</th><th class="${TH}">Cuenta</th><th class="${TH}">Rango</th><th class="${TH}">Siguiente</th><th class="${TH}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
+                ${D.chq.map(c => { const b = ctaBanco(c.cuentaId); return `<tr><td class="py-1.5 px-3 font-mono font-bold">${esc(c.id)}</td><td class="py-1.5 px-3">${esc(b ? b.nombre : c.cuentaId)}</td><td class="py-1.5 px-3 font-mono">${esc(c.prefijo)}${c.desde} – ${c.hasta}</td><td class="py-1.5 px-3 font-mono font-bold text-sky-700">${esc(c.prefijo)}${String(c.siguiente).padStart(5, '0')}</td><td class="py-1.5 px-3">${estadoBadge(c.activa ? 'VALIDADO' : 'POR CONCILIAR').replace('VALIDADO', 'ACTIVA').replace('POR CONCILIAR', 'AGOTADA')}</td></tr>`; }).join('')}
+              </tbody></table>
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-2 items-end mt-3"><div class="md:col-span-2"><label class="fld-label">Cuenta bancaria</label><select id="cq-cta" class="fld">${optsBancos('')}</select></div><div><label class="fld-label">Desde</label><input id="cq-d" type="number" class="fld" value="501"></div><div><label class="fld-label">Hasta</label><input id="cq-h" type="number" class="fld" value="550"></div><button onclick="registrarChequera()" class="${BTN1}">Registrar chequera</button></div>
+            </div>
+          </div>
+        </div>`;
+      pintarSemaforoArqueo();
+    }
+    function setDenom(v, cant) {
+      CON.conteo[v] = Math.max(0, parseInt(cant, 10) || 0);
+      const el = $('sub-' + v); if (el) el.textContent = fm(CON.conteo[v] * v);
+      pintarSemaforoArqueo();
+    }
+    function cargarConteoExacto() {
+      let rem = Math.round(Math.max(0, infoCaja(CON.cajaId).teorico) * 100); CON.conteo = {};
+      DENOMS.forEach(d => { const c = Math.round(d.v * 100), n = Math.floor(rem / c); if (n > 0) { CON.conteo[d.v] = n; rem -= n * c; } });
+      renderConciliacion();
+    }
+    function pintarSemaforoArqueo() {
+      const box = $('arq-sem'); if (!box) return;
+      const i = infoCaja(CON.cajaId), fis = totalFisico(), dif = r2(fis - i.teorico), ok = Math.abs(dif) < 0.01;
+      box.innerHTML = `<div class="p-3 rounded-2xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900'}"><div class="flex flex-wrap justify-between gap-2 text-xs"><span>Conteo físico: <b class="font-mono">${fm(fis)}</b> · Teórico: <b class="font-mono">${fm(i.teorico)}</b></span><span class="font-mono font-black">${ok ? '● SEMÁFORO VERDE — DIFERENCIA L 0.00' : '● DESCUADRE: ' + fm(dif)}</span></div>
+        ${ok ? `<div class="mt-2 flex justify-end"><button onclick="cerrarArqueo()" class="${BTN1}">Certificar Arqueo Cero Descuadres</button></div>`
+          : `<div class="grid grid-cols-1 md:grid-cols-3 gap-2 items-end mt-2"><div class="md:col-span-2"><label class="fld-label">Clasificación obligatoria de la diferencia</label><select id="arq-tipo" class="fld"><option value="FALTANTE" ${dif < 0 ? 'selected' : ''}>Faltante por cobrar al cajero (${esc(i.c.cajero)})</option><option value="SOBRANTE" ${dif > 0 ? 'selected' : ''}>Sobrante de caja (Otros ingresos)</option></select></div><button onclick="cerrarArqueo()" class="${BTN3}">Ajustar y Contabilizar</button></div>`}</div>`;
+    }
+    function cerrarArqueo() {
+      const i = infoCaja(CON.cajaId), fis = totalFisico(), dif = r2(fis - i.teorico), ok = Math.abs(dif) < 0.01;
+      let ast = '';
+      if (!ok) {
+        const tipo = val('arq-tipo') || (dif < 0 ? 'FALTANTE' : 'SOBRANTE'), m = Math.abs(dif);
+        const parts = tipo === 'FALTANTE' ? [{ codigo: '1.1.02.05', debe: m }, { codigo: i.cta.codigo, haber: m }] : [{ codigo: i.cta.codigo, debe: m }, { codigo: '4.2.01.01', haber: m }];
+        ast = pushAsiento('TESORERÍA', 'ARQ-' + CON.cajaId, (tipo === 'FALTANTE' ? 'Faltante por cobrar a ' + i.c.cajero : 'Sobrante en arqueo') + ' — ' + i.cta.nombre, parts);
+        i.c.ajuste = r2((i.c.ajuste || 0) + (tipo === 'FALTANTE' ? -m : m));
+      }
+      D.arq.unshift({ id: nextId('ARQ-', D.arq), fecha: hoy(), cajaId: CON.cajaId, teorico: i.teorico, fisico: fis, dif, asientoId: ast });
+      infoCaja(CON.cajaId); sv('cajas', 'cuentas', 'arq');
+      toast(ok ? 'Arqueo certificado en L 0.00.' : 'Ajuste contabilizado (' + ast + '). Caja cuadrada.'); renderConciliacion();
+    }
+    function registrarVale() {
+      const sol = val('vl-sol'), con = val('vl-con'), sop = val('vl-sop'), m = r2(num('vl-mon')), i = infoCaja(CON.cajaId);
+      if (!sol || !con || !sop || m <= 0) { toast('Solicitante, concepto, soporte y monto son obligatorios.', 'err'); return; }
+      if (m > i.teorico) { toast('El vale supera el efectivo disponible en caja.', 'err'); return; }
+      D.vales.push({ id: nextId('VAL-', D.vales), cajaId: CON.cajaId, fecha: hoy(), solicitante: sol, concepto: con, soporte: sop, monto: m, estado: 'PENDIENTE' });
+      infoCaja(CON.cajaId); sv('vales', 'cuentas'); toast('Vale registrado.'); renderConciliacion();
+    }
+    function reponerFondoFijo() {
+      const vales = D.vales.filter(v => v.cajaId === CON.cajaId && v.estado === 'PENDIENTE'), cta = ctaBanco(val('vl-banco'));
+      const total = r2(vales.reduce((s, v) => s + v.monto, 0));
+      if (!vales.length) { toast('No hay vales pendientes por reponer.', 'err'); return; }
+      if (!cta || cta.saldo < total) { toast('Saldo bancario insuficiente para la reposición.', 'err'); return; }
+      const ast = pushAsiento('TESORERÍA', 'REP-' + CON.cajaId, 'Reposición de fondo fijo (' + vales.length + ' vales) desde ' + cta.nombre, [{ codigo: '5.1.01.02', debe: total }, { codigo: cta.codigo, haber: total }]);
+      cta.saldo = r2(cta.saldo - total); vales.forEach(v => { v.estado = 'REPUESTO'; });
+      infoCaja(CON.cajaId); sv('vales', 'cuentas', 'cajas'); toast('Fondo fijo repuesto al 100% (' + ast + ').'); renderConciliacion();
+    }
+    function registrarChequera() {
+      const cid = val('cq-cta'), d = parseInt(val('cq-d'), 10) || 1, h = parseInt(val('cq-h'), 10) || 50;
+      if (!cid || h < d) { toast('Rango de chequera inválido.', 'err'); return; }
+      D.chq.push({ id: nextId('CHQR-', D.chq, 2), cuentaId: cid, prefijo: 'CHQ-', desde: d, hasta: h, siguiente: d, activa: true });
+      sv('chq'); toast('Chequera registrada.'); renderConciliacion();
+    }
+
+    // ---- Pestaña 2: Conciliación Bancaria Automática ----
+    function concilMontos(cid) {
+      const cta = ctaBanco(cid) || bancosLista()[0], ps = D.con.filter(p => p.cuentaId === cta.id);
+      const depT = r2(ps.filter(p => p.origen === 'LIBRO' && !p.conciliado && p.monto > 0).reduce((s, p) => s + p.monto, 0));
+      const chqF = r2(ps.filter(p => p.origen === 'LIBRO' && !p.conciliado && p.monto < 0).reduce((s, p) => s + Math.abs(p.monto), 0));
+      const notas = r2(ps.filter(p => p.origen === 'EXTRACTO' && !p.conciliado).reduce((s, p) => s + p.monto, 0));
+      const sLib = cta.saldo, sExt = r2((cta.saldoExtracto != null ? cta.saldoExtracto : sLib - depT + chqF + notas));
+      const sBanAj = r2(sExt + depT - chqF), sLibAj = r2(sLib + notas), dif = r2(sBanAj - sLibAj);
+      return { cta, ps, depT, chqF, notas, sLib, sExt, sBanAj, sLibAj, dif };
+    }
+    function renderTabBancos(b) {
+      const m = concilMontos(CON.ctaId), lib = m.ps.filter(x => x.origen === 'LIBRO'), ext = m.ps.filter(x => x.origen === 'EXTRACTO');
+      const ok = Math.abs(m.dif) < 0.01;
+      b.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3 mb-4"><div class="flex items-center gap-2"><label class="fld-label m-0">Cuenta bancaria</label><select class="fld w-80" onchange="CON.ctaId=this.value;renderConciliacion()">${optsBancos(m.cta.id)}</select></div>
+        <div class="flex flex-wrap gap-2"><button onclick="cargarExtractoEjemplo()" class="${BTN2}">Cargar estado de cuenta de ejemplo</button><button onclick="ejecutarCruceAutomatico()" class="${BTN3}">Ejecutar cruce automático (Monto + Fecha/Ref)</button></div></div>
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-2 mb-4">
+          ${[['Saldo según libros', m.sLib], ['Saldo extracto bancario', m.sExt], [' (+) Depósitos en tránsito', m.depT], [' (−) Cheques flotantes', m.chqF], [' (±) Notas no registradas', m.notas], ['Diferencia por conciliar', m.dif]].map((x, idx) => `<div class="p-3 rounded-2xl border ${idx === 5 ? (ok ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200') : 'bg-slate-50 border-slate-200'}"><div class="text-[9px] uppercase tracking-wider font-bold text-slate-400">${x[0]}</div><div class="text-sm font-black font-mono ${idx === 5 ? (ok ? 'text-emerald-800' : 'text-rose-800') : 'text-slate-900'}">${fmt(x[1], m.cta.moneda === 'USD' ? '$ ' : SYM)}</div></div>`).join('')}
+        </div>
+        <div class="p-3 rounded-2xl border border-slate-200 mb-4"><div class="flex flex-wrap items-center justify-between gap-2 mb-1.5"><span class="fld-label m-0">Importar estado de cuenta (.csv o pegado desde Excel: Fecha, Referencia, Descripción, Monto)</span><input type="file" accept=".csv,.txt" onchange="leerArchivoExtracto(this)" class="text-xs"></div>
+          <div class="flex gap-2"><textarea id="ext-txt" rows="2" class="fld font-mono" placeholder="2026-10-14,DEP-88412,Deposito cliente,145000.00"></textarea><button onclick="importarExtractoTexto()" class="${BTN1} shrink-0">Procesar filas</button></div></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="p-3 rounded-2xl border border-slate-200"><h4 class="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">Partidas en Libros (verde = conciliada · ámbar = flotante / en tránsito)</h4>
+            <table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="${TH}">Fecha</th><th class="${TH}">Ref.</th><th class="${TH}">Descripción</th><th class="${TH} text-right">Monto</th><th class="${TH}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
+              ${lib.map(p => `<tr class="${p.conciliado ? 'bg-emerald-50/70' : 'bg-amber-50/40'}"><td class="py-1.5 px-2">${p.fecha}</td><td class="py-1.5 px-2 font-mono font-bold">${esc(p.ref)}</td><td class="py-1.5 px-2">${esc(p.desc)}</td><td class="py-1.5 px-2 text-right font-mono font-bold ${p.monto >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${fm(p.monto)}</td><td class="py-1.5 px-2"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${p.conciliado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${p.conciliado ? '✓ Conciliada' : (p.monto >= 0 ? 'Dep. en tránsito' : 'Cheque flotante')}</span></td></tr>`).join('')}
+            </tbody></table></div>
+          <div class="p-3 rounded-2xl border border-slate-200"><h4 class="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">Estado de Cuenta del Banco (extracto importado)</h4>
+            <table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="${TH}">Fecha</th><th class="${TH}">Ref.</th><th class="${TH}">Descripción</th><th class="${TH} text-right">Monto</th><th class="${TH}">Acción</th></tr></thead><tbody class="divide-y divide-slate-100">
+              ${ext.map(p => `<tr class="${p.conciliado ? 'bg-emerald-50/70' : 'bg-rose-50/40'}"><td class="py-1.5 px-2">${p.fecha}</td><td class="py-1.5 px-2 font-mono font-bold">${esc(p.ref)}</td><td class="py-1.5 px-2">${esc(p.desc)}</td><td class="py-1.5 px-2 text-right font-mono font-bold ${p.monto >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${fm(p.monto)}</td><td class="py-1.5 px-2">${p.conciliado ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✓ Conciliada</span>' : `<button onclick="registrarNotaDesdeExtracto('${p.id}')" class="${BTN3}">Registrar ${p.monto < 0 ? 'Nota Débito' : 'Nota Crédito'}</button>`}</td></tr>`).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-400">Importe o cargue el estado de cuenta de ejemplo.</td></tr>'}
+            </tbody></table>
+            <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 md:grid-cols-5 gap-2 items-end"><div><label class="fld-label">Tipo</label><select id="nd-tipo" class="fld"><option value="ND">Nota de Débito (−)</option><option value="NC">Nota de Crédito (+)</option></select></div><div><label class="fld-label">Ref.</label><input id="nd-ref" class="fld" placeholder="ND-901"></div><div><label class="fld-label">Concepto</label><input id="nd-des" class="fld" placeholder="Comisión ACH"></div><div><label class="fld-label">Monto</label><input id="nd-mon" type="number" step="0.01" class="fld"></div><button onclick="registrarNotaManual()" class="${BTN1}">Contabilizar nota</button></div>
+          </div>
+        </div>`;
+    }
+    function cargarExtractoEjemplo() {
+      const cid = CON.ctaId, h = hoy();
+      D.con = D.con.filter(p => !(p.cuentaId === cid && p.origen === 'EXTRACTO'));
+      D.con.push(
+        { id: nextId('CN-', D.con), cuentaId: cid, origen: 'EXTRACTO', fecha: addD(h, -5), ref: 'DEP-88412', desc: 'Depósito cliente Distribuidora Sur', monto: 145000, conciliado: false },
+        { id: nextId('CN-', D.con), cuentaId: cid, origen: 'EXTRACTO', fecha: addD(h, -4), ref: 'ACH-77120', desc: 'Pago servicios corporativos', monto: -18500, conciliado: false },
+        { id: nextId('CN-', D.con), cuentaId: cid, origen: 'EXTRACTO', fecha: addD(h, -1), ref: 'ND-5501', desc: 'Comisión bancaria mantenimiento ACH', monto: -450, conciliado: false },
+        { id: nextId('CN-', D.con), cuentaId: cid, origen: 'EXTRACTO', fecha: addD(h, -1), ref: 'NC-5502', desc: 'Intereses ganados sobre saldo diario', monto: 1200, conciliado: false }
+      );
+      sv('con'); ejecutarCruceAutomatico();
+    }
+    function leerArchivoExtracto(inp) {
+      const f = inp.files && inp.files[0]; if (!f) return;
+      const r = new FileReader(); r.onload = () => { $('ext-txt').value = String(r.result || ''); importarExtractoTexto(); }; r.readAsText(f);
+    }
+    function importarExtractoTexto() {
+      const txt = val('ext-txt'); if (!txt) { toast('Pegue o seleccione filas del extracto.', 'err'); return; }
+      let n = 0;
+      txt.split(/\r?\n/).forEach(l => {
+        const c = l.split(/[,;\t]/).map(x => x.replace(/^"|"$/g, '').trim());
+        if (c.length < 4) return;
+        const m = parseFloat(c[3]); if (isNaN(m) || m === 0) return;
+        D.con.push({ id: nextId('CN-', D.con), cuentaId: CON.ctaId, origen: 'EXTRACTO', fecha: c[0] || hoy(), ref: c[1] || 'S/R', desc: c[2] || 'Partida extracto', monto: r2(m), conciliado: false }); n++;
       });
-      document.getElementById('mov-ref-input').value = '';
-      document.getElementById('mov-monto-input').value = '';
-      renderMovimientos();
+      if (!n) { toast('No se reconocieron filas válidas.', 'err'); return; }
+      sv('con'); ejecutarCruceAutomatico();
+    }
+    function ejecutarCruceAutomatico() {
+      const cid = CON.ctaId, lib = D.con.filter(p => p.cuentaId === cid && p.origen === 'LIBRO'), ext = D.con.filter(p => p.cuentaId === cid && p.origen === 'EXTRACTO');
+      let cruces = 0;
+      ext.forEach(e => {
+        if (e.conciliado) return;
+        const m = lib.find(l => !l.conciliado && Math.abs(l.monto - e.monto) < 0.01 && ((l.ref && e.ref && l.ref.toUpperCase() === e.ref.toUpperCase()) || Math.abs(diasEntre(l.fecha, e.fecha)) <= 3));
+        if (m) { m.conciliado = true; e.conciliado = true; cruces++; }
+      });
+      sv('con'); toast('Cruce automático completado: ' + cruces + ' partida(s) conciliada(s).'); renderConciliacion();
+    }
+    function aplicarNotaContable(cta, ref, desc, monto) {
+      const abs = Math.abs(monto);
+      const parts = monto < 0 ? [{ codigo: '5.2.02.01', debe: abs }, { codigo: cta.codigo, haber: abs }] : [{ codigo: cta.codigo, debe: abs }, { codigo: '4.2.01.01', haber: abs }];
+      pushAsiento('TESORERÍA', ref, (monto < 0 ? 'Nota de débito: ' : 'Nota de crédito: ') + desc, parts);
+      cta.saldo = r2(cta.saldo + monto);
+      D.con.push({ id: nextId('CN-', D.con), cuentaId: cta.id, origen: 'LIBRO', fecha: hoy(), ref, desc, monto: r2(monto), conciliado: true });
+    }
+    function registrarNotaDesdeExtracto(id) {
+      const e = D.con.find(x => x.id === id), cta = ctaBanco(CON.ctaId); if (!e || !cta) return;
+      aplicarNotaContable(cta, e.ref, e.desc, e.monto); e.conciliado = true;
+      sv('con', 'cuentas'); toast('Nota registrada en libros y conciliada.'); renderConciliacion();
+    }
+    function registrarNotaManual() {
+      const cta = ctaBanco(CON.ctaId), tipo = val('nd-tipo'), ref = val('nd-ref') || (tipo + '-' + Math.floor(100 + Math.random() * 900)), desc = val('nd-des') || 'Ajuste bancario', m = r2(num('nd-mon'));
+      if (!cta || m <= 0) { toast('Indique monto válido.', 'err'); return; }
+      const s = tipo === 'ND' ? -m : m;
+      aplicarNotaContable(cta, ref, desc, s);
+      D.con.push({ id: nextId('CN-', D.con), cuentaId: cta.id, origen: 'EXTRACTO', fecha: hoy(), ref, desc, monto: s, conciliado: true });
+      sv('con', 'cuentas'); toast('Nota contabilizada.'); renderConciliacion();
     }
 
-    function togglePartidaConciliacion(tipo, id) {
-      const arr = tipo === 'dep' ? conciliacionDepositos : conciliacionCheques;
-      const item = arr.find(x => x.id === id);
-      if (item) item.conciliado = !item.conciliado;
-      recalcularConciliacion();
+    // ---- Pestaña 3: Traslados Atómicos entre Cuentas y Cajas ----
+    function renderTabTraslados(b) {
+      const opts = D.cuentas.map(c => `<option value="${c.id}">${esc(c.nombre)} (${c.moneda} ${fmt(c.saldo, '')})</option>`).join('');
+      b.innerHTML = `<h3 class="text-base font-black text-slate-900 mb-1">Traslados y Barridos Atómicos entre Cuentas y Cajas</h3>
+        <p class="text-xs text-slate-500 mb-4">Transacción doble indivisible (origen + destino + asiento contable), con conversión multimoneda HNL ↔ USD y diferencial cambiario.</p>
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-3 items-end p-4 rounded-2xl border border-slate-200 mb-5">
+          <div><label class="fld-label">Origen</label><select id="trf-o" class="fld">${opts}</select></div>
+          <div><label class="fld-label">Destino</label><select id="trf-d" class="fld">${D.cuentas.map((c, i) => `<option value="${c.id}" ${i === 1 ? 'selected' : ''}>${esc(c.nombre)} (${c.moneda})</option>`).join('')}</select></div>
+          <div><label class="fld-label">Monto (moneda origen)</label><input id="trf-m" type="number" step="0.01" class="fld"></div>
+          <div><label class="fld-label">Tasa cambio (HNL/USD)</label><input id="trf-tc" type="number" step="0.0001" class="fld" value="24.8500"></div>
+          <div><label class="fld-label">Tasa libro (oficial)</label><input id="trf-tb" type="number" step="0.0001" class="fld" value="24.7500"></div>
+          <button onclick="ejecutarTrasladoAtomico()" class="${BTN3}">Ejecutar traslado atómico</button>
+        </div>
+        <table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="${TH}">ID</th><th class="${TH}">Fecha</th><th class="${TH}">Origen → Destino</th><th class="${TH} text-right">Salida</th><th class="${TH} text-right">Entrada</th><th class="${TH} text-right">Dif. cambiario</th><th class="${TH}">Asiento</th></tr></thead><tbody class="divide-y divide-slate-100">
+          ${D.trf.map(t => `<tr><td class="py-2 px-3 font-mono font-bold">${esc(t.id)}</td><td class="py-2 px-3">${t.fecha}</td><td class="py-2 px-3">${esc(t.origen)} → ${esc(t.destino)}</td><td class="py-2 px-3 text-right font-mono font-bold text-rose-700">${esc(t.mOrig)} ${fmt(t.salida, '')}</td><td class="py-2 px-3 text-right font-mono font-bold text-emerald-700">${esc(t.mDest)} ${fmt(t.entrada, '')}</td><td class="py-2 px-3 text-right font-mono">${fm(t.difCamb)}</td><td class="py-2 px-3 font-mono text-sky-700">${esc(t.asientoId)}</td></tr>`).join('') || '<tr><td colspan="7" class="p-4 text-center text-slate-400">Sin traslados registrados.</td></tr>'}
+        </tbody></table>`;
     }
-
-    function recalcularConciliacion() {
-      const saldoLibros = 842500.00;
-      const depPendientes = conciliacionDepositos.filter(d => !d.conciliado).reduce((s, d) => s + d.monto, 0);
-      const chqPendientes = conciliacionCheques.filter(c => !c.conciliado).reduce((s, c) => s + c.monto, 0);
-      const saldoBanco = saldoLibros - depPendientes + chqPendientes;
-      const diferencia = saldoBanco - saldoLibros - chqPendientes + depPendientes;
-
-      document.getElementById('concil-saldo-libros').textContent = fmt(saldoLibros);
-      document.getElementById('concil-saldo-banco').textContent = fmt(saldoBanco);
-      document.getElementById('concil-diferencia').textContent = fmt(diferencia);
-      document.getElementById('concil-total-depositos').textContent = fmt(depPendientes);
-      document.getElementById('concil-total-cheques').textContent = fmt(chqPendientes);
-
-      const contDep = document.getElementById('concil-lista-depositos');
-      if (contDep) {
-        contDep.innerHTML = conciliacionDepositos.map(d => `
-          <label class="flex items-center justify-between pt-2 cursor-pointer">
-            <div class="flex items-center gap-2.5">
-              <input type="checkbox" ${d.conciliado ? 'checked' : ''} onchange="togglePartidaConciliacion('dep', '${d.id}')" class="w-4 h-4 accent-slate-900">
-              <div>
-                <span class="font-mono font-bold text-slate-900">${d.ref}</span>
-                <p class="text-[11px] text-slate-500">${d.desc}</p>
-              </div>
-            </div>
-            <span class="font-mono font-bold ${d.conciliado ? 'line-through text-slate-400' : 'text-emerald-700'}">${fmt(d.monto)}</span>
-          </label>
-        `).join('');
+    function ejecutarTrasladoAtomico() {
+      const o = D.cuentas.find(c => c.id === val('trf-o')), d = D.cuentas.find(c => c.id === val('trf-d')), m = r2(num('trf-m'));
+      const tc = parseFloat(val('trf-tc')) || 24.85, tb = parseFloat(val('trf-tb')) || tc;
+      if (!o || !d || o.id === d.id || m <= 0) { toast('Seleccione cuentas distintas e indique un monto mayor a cero.', 'err'); return; }
+      if (o.saldo < m) { toast('Saldo insuficiente en ' + o.nombre + '.', 'err'); return; }
+      let ent = m, debH = m, habH = m, dif = 0;
+      if (o.moneda !== d.moneda) {
+        if (o.moneda === 'HNL' && d.moneda === 'USD') { ent = r2(m / tc); debH = r2(ent * tb); habH = m; }
+        else { ent = r2(m * tc); debH = ent; habH = r2(m * tb); }
+        dif = r2(debH - habH);
       }
-
-      const contChq = document.getElementById('concil-lista-cheques');
-      if (contChq) {
-        contChq.innerHTML = conciliacionCheques.map(c => `
-          <label class="flex items-center justify-between pt-2 cursor-pointer">
-            <div class="flex items-center gap-2.5">
-              <input type="checkbox" ${c.conciliado ? 'checked' : ''} onchange="togglePartidaConciliacion('chq', '${c.id}')" class="w-4 h-4 accent-slate-900">
-              <div>
-                <span class="font-mono font-bold text-slate-900">${c.ref}</span>
-                <p class="text-[11px] text-slate-500">${c.desc}</p>
-              </div>
-            </div>
-            <span class="font-mono font-bold ${c.conciliado ? 'line-through text-slate-400' : 'text-rose-700'}">${fmt(c.monto)}</span>
-          </label>
-        `).join('');
-      }
+      const parts = [{ codigo: d.codigo, debe: debH }, { codigo: o.codigo, haber: habH }];
+      if (Math.abs(dif) >= 0.01) parts.push(dif > 0 ? { codigo: '4.2.01.02', haber: dif } : { codigo: '5.2.01.02', debe: Math.abs(dif) });
+      const id = nextId('TRF-', D.trf), ast = pushAsiento('TESORERÍA', id, 'Traslado atómico ' + o.nombre + ' → ' + d.nombre, parts);
+      o.saldo = r2(o.saldo - m); d.saldo = r2(d.saldo + ent);
+      if (o.tipo === 'CAJA') { const cj = D.cajas.find(x => x.cuentaId === o.id); if (cj) cj.traslados = r2(cj.traslados + m); }
+      if (d.tipo === 'CAJA') { const cj = D.cajas.find(x => x.cuentaId === d.id); if (cj) cj.traslados = r2(cj.traslados - ent); }
+      D.trf.unshift({ id, fecha: hoy(), origen: o.nombre, destino: d.nombre, mOrig: o.moneda, mDest: d.moneda, salida: m, entrada: ent, difCamb: dif, asientoId: ast });
+      sv('cuentas', 'cajas', 'trf'); toast(id + ' ejecutado y contabilizado (' + ast + ').'); renderConciliacion();
     }
 
+    // -------------------------------------------------------------------------
+    // 8. PANEL 4 — PRÉSTAMOS BANCARIOS Y LÍNEAS DE CRÉDITO
+    // -------------------------------------------------------------------------
+    const PRS = { sel: 'PRS-001', edit: false, nuevo: false };
+
+    function generarTablaPrestamo(monto, tasaAnual, plazo, fDes) {
+      const r = (tasaAnual / 100) / 12, cuota = r > 0 ? (monto * r) / (1 - Math.pow(1 + r, -plazo)) : monto / plazo;
+      let saldo = monto, out = [];
+      for (let k = 1; k <= plazo; k++) {
+        const interes = r2(saldo * r), capital = k === plazo ? r2(saldo) : r2(cuota - interes), cTot = r2(capital + interes);
+        saldo = r2(Math.max(0, saldo - capital));
+        out.push({ n: k, fecha: addD(fDes || hoy(), k * 30), cuota: cTot, capital, interes, saldo, estado: 'PENDIENTE', fechaPago: '', asientoId: '' });
+      }
+      return out;
+    }
     function renderPrestamos() {
-      const tbody = document.getElementById('tbody-prestamos');
-      if (!tbody) return;
-
-      tbody.innerHTML = prestamosData.map(p => {
-        const r = (p.tasa / 100) / 12;
-        const cuotaTotal = p.saldo > 0 && r > 0 ? (p.saldo * r) / (1 - Math.pow(1 + r, -36)) : 0;
-        const interes = p.saldo * r;
-        const capital = Math.max(0, cuotaTotal - interes);
-        return `
-          <tr class="hover:bg-slate-50">
-            <td class="py-3 px-4 font-sans font-bold text-slate-900">${p.banco}</td>
-            <td class="py-3 px-4 text-sky-700 font-semibold">${p.cuentaConfig}</td>
-            <td class="py-3 px-4 text-right font-bold text-sky-700">${Number(p.tasa).toFixed(2)}%</td>
-            <td class="py-3 px-4 text-right font-bold text-slate-900">${fmt(p.saldo)}</td>
-            <td class="py-3 px-4 text-right text-emerald-700 font-bold">${fmt(capital)}</td>
-            <td class="py-3 px-4 text-right text-amber-700 font-bold">${fmt(interes)}</td>
-            <td class="py-3 px-4 text-right font-black text-slate-950">${fmt(cuotaTotal)}</td>
-          </tr>
-        `;
-      }).join('');
+      if (!$('prs-lista')) return;
+      if (!PRS.sel && !PRS.nuevo && D.prs.length) PRS.sel = D.prs[0].id;
+      const tot = D.prs.reduce((s, p) => s + p.saldo, 0), prox = D.prs.reduce((s, p) => { const c = (p.cuotas || []).find(x => x.estado === 'PENDIENTE'); return s + (c ? c.cuota : 0); }, 0);
+      $('prs-kpis').innerHTML = [['Obligaciones activas', D.prs.length], ['Saldo insoluto total', fm(tot)], ['Próximo servicio mensual', fm(prox)]]
+        .map(k => `<div class="px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200"><div class="text-[9px] uppercase tracking-wider font-bold text-slate-400">${k[0]}</div><div class="text-sm font-black font-mono text-slate-900">${k[1]}</div></div>`).join('');
+      renderPrestamosList(); renderPrestamoDetalle();
     }
-
-    function agregarPrestamoTesoreria() {
-      const sel = document.getElementById('select-cuenta-prestamos');
-      const banco = document.getElementById('prestamo-banco-input')?.value?.trim();
-      const saldo = parseFloat(document.getElementById('prestamo-saldo-input')?.value) || 0;
-      const tasa = parseFloat(document.getElementById('prestamo-tasa-input')?.value) || 11.5;
-      if (!banco || saldo <= 0) return;
-
-      const opt = sel && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex] : null;
-      const cuentaConfig = opt ? opt.textContent : '2.1.03.01 — Préstamos Bancarios';
-
-      prestamosData.push({ banco, cuentaConfig, tasa, saldo });
-      document.getElementById('prestamo-banco-input').value = '';
-      document.getElementById('prestamo-saldo-input').value = '';
-      renderPrestamos();
+    function renderPrestamosList() {
+      const q = val('prs-q').toLowerCase(), cont = $('prs-lista'); if (!cont) return;
+      cont.innerHTML = D.prs.filter(p => !q || (p.id + p.banco + p.tipo).toLowerCase().includes(q)).map(p =>
+        `<div onclick="PRS.sel='${p.id}';PRS.edit=false;PRS.nuevo=false;renderPrestamos()" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${PRS.sel === p.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold text-slate-900 truncate">${esc(p.banco)}</span><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">${Number(p.tasa).toFixed(2)}%</span></div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span>${esc(p.id)} · ${p.plazo}m</span><span class="font-mono font-bold text-slate-900">${fm(p.saldo)}</span></div></div>`).join('') || '<div class="p-6 text-center text-xs text-slate-400">Sin préstamos.</div>';
+    }
+    function prsNuevo() { PRS.sel = ''; PRS.nuevo = true; PRS.edit = true; renderPrestamos(); }
+    function prsFormHtml(p) {
+      const v = (k, d) => esc(p ? p[k] : (d || ''));
+      return `<div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="md:col-span-2"><label class="fld-label">Institución / Línea de crédito</label><input id="pr-ban" class="fld" value="${v('banco')}"></div>
+        <div><label class="fld-label">Tipo</label><select id="pr-tip" class="fld">${['Préstamo Fiduciario', 'Línea de Capital de Trabajo', 'Crédito Hipotecario / Maquinaria'].map(o => `<option ${p && p.tipo === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
+        <div><label class="fld-label">Monto original</label><input id="pr-mon" type="number" step="0.01" class="fld" value="${v('montoOriginal', 300000)}"></div>
+        <div><label class="fld-label">Tasa anual (%)</label><input id="pr-tas" type="number" step="0.01" class="fld" value="${v('tasa', 11.5)}"></div>
+        <div><label class="fld-label">Plazo (meses)</label><input id="pr-pla" type="number" class="fld" value="${v('plazo', 12)}"></div>
+        <div><label class="fld-label">Fecha desembolso</label><input id="pr-fec" type="date" class="fld" value="${v('fechaDesembolso', hoy())}"></div>
+        <div class="md:col-span-2"><label class="fld-label">Cuenta contable pasivo</label><select id="pr-cta" class="fld"><option value="2.1.03.01" ${p && p.codigoPasivo === '2.1.03.01' ? 'selected' : ''}>2.1.03.01 — Préstamos Bancarios Corto Plazo</option><option value="2.2.01.01" ${p && p.codigoPasivo === '2.2.01.01' ? 'selected' : ''}>2.2.01.01 — Obligaciones Financieras Largo Plazo</option></select></div>
+      </div><div class="flex gap-2 mt-3"><button onclick="guardarPrestamo('${p ? p.id : ''}')" class="${BTN1}">Guardar</button><button onclick="PRS.edit=false;PRS.nuevo=false;renderPrestamoDetalle()" class="${BTN2}">Cancelar</button></div>`;
+    }
+    function guardarPrestamo(id) {
+      const banco = val('pr-ban'), tipo = val('pr-tip'), monto = r2(num('pr-mon')), tasa = parseFloat(val('pr-tas')) || 11.5, plazo = Math.max(1, parseInt(val('pr-pla'), 10) || 12), f = val('pr-fec') || hoy(), cod = val('pr-cta') || '2.1.03.01';
+      if (!banco || monto <= 0) { toast('Indique institución y monto.', 'err'); return; }
+      if (id) {
+        const p = D.prs.find(x => x.id === id);
+        const pagadas = (p.cuotas || []).filter(c => c.estado === 'PAGADA');
+        Object.assign(p, { banco, tipo, montoOriginal: monto, tasa, plazo, fechaDesembolso: f, codigoPasivo: cod });
+        if (!pagadas.length) { p.saldo = monto; p.cuotas = generarTablaPrestamo(monto, tasa, plazo, f); }
+      } else {
+        id = nextId('PRS-', D.prs);
+        D.prs.push({ id, banco, tipo, montoOriginal: monto, saldo: monto, tasa, plazo, fechaDesembolso: f, codigoPasivo: cod, cuotas: generarTablaPrestamo(monto, tasa, plazo, f) });
+      }
+      sv('prs'); PRS.sel = id; PRS.edit = false; PRS.nuevo = false; toast('Préstamo guardado.'); renderPrestamos();
+    }
+    function renderPrestamoDetalle() {
+      const c = $('prs-detalle'); if (!c) return;
+      if (PRS.nuevo) { c.innerHTML = `<h3 class="text-base font-black text-slate-900 mb-3">Nuevo préstamo o línea de crédito</h3>` + prsFormHtml(null); return; }
+      const p = D.prs.find(x => x.id === PRS.sel);
+      if (!p) { c.innerHTML = '<div class="h-full flex items-center justify-center text-sm text-slate-400">Seleccione un préstamo del panel izquierdo.</div>'; return; }
+      const prox = (p.cuotas || []).find(x => x.estado === 'PENDIENTE');
+      const ficha = PRS.edit ? prsFormHtml(p) : `<div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">${[['Monto original', fm(p.montoOriginal)], ['Saldo insoluto', fm(p.saldo)], ['Tasa anual', Number(p.tasa).toFixed(2) + '%'], ['Plazo', p.plazo + ' meses'], ['Cuenta pasivo', p.codigoPasivo + ' — ' + nombreCuenta(p.codigoPasivo)]].map(x => `<div class="p-2.5 rounded-2xl bg-slate-50 border border-slate-200"><div class="fld-label">${x[0]}</div><div class="font-mono font-bold text-slate-900">${esc(x[1])}</div></div>`).join('')}</div>`;
+      c.innerHTML = `<div class="flex flex-wrap items-start justify-between gap-3 mb-3"><div><span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">${esc(p.id)} · ${esc(p.tipo)}</span><h3 class="text-lg font-black text-slate-900">${esc(p.banco)}</h3></div>
+        <div class="flex gap-2"><button onclick="PRS.edit=true;renderPrestamoDetalle()" class="${BTN2}">Modificar</button><button onclick="prsNuevo()" class="${BTN1}">+ Nuevo</button></div></div>${ficha}
+        <div class="mt-4 p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2"><div class="text-xs">${prox ? `Próxima cuota <b>#${prox.n}</b> (${prox.fecha}) — Cuota <b>${fm(prox.cuota)}</b> (Capital ${fm(prox.capital)} + Interés ${fm(prox.interes)})` : '<b>Préstamo totalmente cancelado.</b>'}</div>
+          ${prox ? `<div class="flex items-center gap-2"><select id="pr-ban-pago" class="fld w-64">${optsBancos('')}</select><button onclick="pagarCuotaPrestamo('${p.id}',${prox.n})" class="${BTN3}">Pagar Cuota #${prox.n}</button></div>` : ''}</div>
+        <h4 class="text-sm font-black uppercase tracking-wider text-slate-700 mt-4 mb-2">Tabla de Amortización (Sistema Francés)</h4>
+        <table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="${TH}">#</th><th class="${TH}">Vencimiento</th><th class="${TH} text-right">Cuota</th><th class="${TH} text-right">Abono a Capital</th><th class="${TH} text-right">Interés</th><th class="${TH} text-right">Saldo Insoluto</th><th class="${TH}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
+          ${(p.cuotas || []).map(q => `<tr class="${q.estado === 'PAGADA' ? 'bg-emerald-50/50' : ''}"><td class="py-1.5 px-3 font-mono font-bold">${q.n}</td><td class="py-1.5 px-3 font-mono">${q.fecha}</td><td class="py-1.5 px-3 text-right font-mono font-bold">${fm(q.cuota)}</td><td class="py-1.5 px-3 text-right font-mono text-emerald-700 font-bold">${fm(q.capital)}</td><td class="py-1.5 px-3 text-right font-mono text-amber-700 font-bold">${fm(q.interes)}</td><td class="py-1.5 px-3 text-right font-mono font-bold">${fm(q.saldo)}</td><td class="py-1.5 px-3">${q.estado === 'PAGADA' ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">PAGADA · ${esc(q.asientoId)}</span>` : estadoBadge('POR CONCILIAR').replace('POR CONCILIAR', 'PENDIENTE')}</td></tr>`).join('')}
+        </tbody></table>`;
+    }
+    function pagarCuotaPrestamo(pid, n) {
+      const p = D.prs.find(x => x.id === pid), q = (p.cuotas || []).find(x => x.n === n), cta = ctaBanco(val('pr-ban-pago'));
+      if (!p || !q || q.estado === 'PAGADA' || !cta) return;
+      if (cta.saldo < q.cuota) { toast('Saldo bancario insuficiente en ' + cta.nombre + '.', 'err'); return; }
+      const ast = pushAsiento('TESORERÍA', p.id + '-C' + q.n, 'Pago cuota #' + q.n + ' — ' + p.banco, [
+        { codigo: p.codigoPasivo, debe: q.capital }, { codigo: '5.2.01.01', debe: q.interes }, { codigo: cta.codigo, haber: q.cuota }
+      ]);
+      cta.saldo = r2(cta.saldo - q.cuota); q.estado = 'PAGADA'; q.fechaPago = hoy(); q.asientoId = ast; p.saldo = q.saldo;
+      sv('cuentas', 'prs'); toast('Cuota #' + q.n + ' pagada y contabilizada (' + ast + ').'); renderPrestamos();
     }
 
     window.addEventListener('storage', (e) => {
+      if (e.key === LS_SOLICITUDES && D.ops) { sincronizarSolicitudesRRHH(); renderCxP(); }
       if (!e.key || e.key === 'horizon_system_config' || e.key === 'horizon_catalogo_cuentas' || e.key === 'catalogo_cuentas') {
         sincronizarIdentidadDesdeConfig();
         sincronizarCuentasTesoreria();
@@ -997,8 +1454,8 @@
     volverAGateway();
     sincronizarIdentidadDesdeConfig();
     sincronizarCuentasTesoreria();
-    renderBancos();
-    renderMovimientos();
+    inicializarDatosTesoreria();
+    sincronizarSolicitudesRRHH();
     recalcularConciliacion();
     renderPrestamos();
   </script>
