@@ -21,7 +21,7 @@
       pointer-events: none;
       z-index: 0;
       background-size: 32px 32px;
-      background-image: 
+      background-image:
         linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
       mask-image: radial-gradient(ellipse 80% 75% at 50% 50%, black 35%, transparent 92%);
@@ -29,7 +29,7 @@
       box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.08);
     }
 
-    /* Estilo exacto de Metro Tile */
+    /* Metro Tile */
     .metro-tile {
       background-color: #ffffff;
       border: 1.5px solid #e2e8f0;
@@ -43,7 +43,7 @@
       box-shadow: 0 18px 32px -8px rgba(15, 23, 42, 0.12);
     }
 
-    /* Franja Colgante Propuesta 1A */
+    /* Franja Colgante */
     .hanging-ribbon {
       background: #0f172a;
       border-radius: 0 0 10px 10px;
@@ -52,6 +52,47 @@
       border-right: 1px solid rgba(255, 255, 255, 0.1);
       border-bottom: 2px solid #0284c7;
     }
+
+    /* Sub-vistas a ancho completo (sin max-w, mx-auto ni p-6) */
+    .subview { display: none; width: 100%; }
+    .subview.active {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 96px);
+      min-height: 480px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Campos de la ficha (bloqueados en lectura, habilitados en edición) */
+    .fld {
+      width: 100%;
+      padding: 0.45rem 0.65rem;
+      font-size: 12px;
+      border-radius: 0.65rem;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .fld:focus { outline: none; border-color: #0f172a; box-shadow: 0 0 0 2px rgba(15, 23, 42, .08); }
+    .fld:disabled {
+      background: #f8fafc;
+      color: #334155;
+      border-color: #e2e8f0;
+      cursor: default;
+      opacity: 1;
+      -webkit-text-fill-color: #334155;
+    }
+    .fld-label { display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#64748b; margin-bottom:3px; }
+
+    /* Sábana de planilla */
+    .sabana { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 11px; }
+    .sabana th, .sabana td { white-space: nowrap; }
+    .sabana thead tr:first-child th { position: sticky; top: 0; z-index: 30; height: 32px; }
+    .sabana thead tr:last-child th { position: sticky; top: 32px; z-index: 30; }
+    .sabana tfoot td { position: sticky; bottom: 0; z-index: 30; }
+    .sabana tbody td { border-bottom: 1px solid #f1f5f9; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-slate-900 selection:text-white relative bg-[#f6f5f4] p-2.5">
@@ -60,17 +101,13 @@
   <div class="grid-vignette"></div>
 
   <!-- =========================================================================
-       HEADER CORPORATIVO CON FRANJA COLGANTE "RRHH"
+       HEADER CORPORATIVO DE 3 COLUMNAS CON FRANJA COLGANTE "RRHH"
        ========================================================================= -->
-  <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 shrink-0 min-h-16 relative z-10" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);">
+  <header class="bg-white/95 backdrop-blur-xs border border-slate-200 rounded-3xl py-2 px-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4 shrink-0 min-h-16 relative z-20" style="box-shadow: 0 4px 6px -1px rgba(12, 10, 9, 0.04), 0 2px 4px -2px rgba(12, 10, 9, 0.04);">
 
     <div class="flex items-center gap-3.5 shrink-0 justify-self-start">
-      <!-- Botón Regresar -->
-      <button type="button" onclick="manejarBotonRegresar()" title="Regresar" class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">
-        ←
-      </button>
+      <button type="button" onclick="manejarBotonRegresar()" title="Regresar" class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition cursor-pointer text-base">←</button>
 
-      <!-- Logo Horizon LC (Con redirección al Lobby) -->
       <div class="flex items-center gap-2.5 select-none cursor-pointer group" onclick="window.location.href='workspace_lobby.html'" title="Ir al Lobby Principal">
         <div class="w-10 h-10 rounded-xl bg-[#f5f5f5] border border-[#e8e6e5] shadow-2xs flex items-center justify-center shrink-0 p-1 group-hover:border-[#3ba6f1]/60 transition-colors">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
@@ -81,7 +118,7 @@
             <path d="M9.5 19H14.5" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"></path>
           </svg>
         </div>
-        <div class="flex flex-col leading-none" style="font-family: 'Inter', sans-serif;">
+        <div class="flex flex-col leading-none">
           <div class="flex items-center gap-1">
             <span class="text-[16px] font-extrabold tracking-tight text-slate-900 uppercase">HORIZON</span>
             <span class="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#3ba6f1]/15 text-[#0284c7] tracking-wider">LC</span>
@@ -90,10 +127,8 @@
         </div>
       </div>
 
-      <!-- Bloque Detalle de Módulo con Línea Divisoria Vertical -->
       <span class="h-6 w-[1px] bg-slate-200 mx-1.5"></span>
 
-      <!-- Franja Colgante Propuesta 1A -->
       <div class="relative -mt-2 -mb-2 self-start pointer-events-none">
         <div class="hanging-ribbon px-3.5 pt-3.5 pb-3.5 flex flex-col items-center justify-center">
           <span class="text-[11px] font-black text-white tracking-wider font-mono">RRHH</span>
@@ -101,20 +136,19 @@
       </div>
     </div>
 
-    <!-- Zona Central: Logotipo Corporativo + Identidad Institucional Dinámica -->
-    <div class="flex items-center justify-center min-w-0 px-2" style="font-family: 'Inter', sans-serif;">
+    <!-- Columna Central: identidad dinámica desde Config -->
+    <div class="flex items-center justify-center min-w-0 px-2">
       <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800" id="hdr-company-logo-container">
+        <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs text-slate-800 overflow-hidden" id="hdr-company-logo-container">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
             <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
         </div>
-
         <div class="flex flex-col min-w-0 leading-none items-center text-center">
           <div class="w-full min-w-0">
-            <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name" title="SOLUTIONS &amp; APPLIANCES LTD">SOLUTIONS &amp; APPLIANCES LTD</span>
+            <span class="text-base md:text-lg font-black tracking-tight text-slate-900 uppercase block truncate select-none" id="hdr-company-name">SOLUTIONS &amp; APPLIANCES LTD</span>
           </div>
           <div class="mt-1 select-none">
             <span id="hdr-company-rtn" class="text-[10px] font-bold text-slate-500 tracking-wider uppercase block truncate">RTN: 08011990123456</span>
@@ -123,17 +157,14 @@
       </div>
     </div>
 
-    <!-- Zona Derecha: Periodo Fiscal + Usuario en Sesión -->
+    <!-- Columna Derecha: periodo y usuario -->
     <div class="flex items-center gap-3.5 shrink-0 justify-self-end">
-      <div id="hdr-period-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 border border-slate-200/80 rounded-xl text-[11px] font-bold text-slate-700 tracking-wide select-none" style="font-family: 'Inter', sans-serif; cursor: default;">
+      <div id="hdr-period-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 border border-slate-200/80 rounded-xl text-[11px] font-bold text-slate-700 tracking-wide select-none cursor-default">
         <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
         <span id="hdr-period-text">OCTUBRE 2026</span>
       </div>
-
-      <div class="flex items-center gap-2.5 border-l border-slate-200 pl-3.5" style="font-family: 'Inter', sans-serif;">
-        <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs">
-          CH
-        </div>
+      <div class="flex items-center gap-2.5 border-l border-slate-200 pl-3.5">
+        <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs">CH</div>
         <div class="text-left hidden sm:flex flex-col leading-tight">
           <span class="text-xs font-extrabold text-slate-900">Carlos Hernández</span>
           <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Director de Talento</span>
@@ -143,27 +174,21 @@
   </header>
 
   <!-- =========================================================================
-       GATEWAY DE RRHH (4 PANELES METRO UI)
+       GATEWAY DE 4 PANELES (#view-gateway)
        ========================================================================= -->
   <div class="flex-1 flex flex-col justify-center py-2 max-w-7xl w-full mx-auto relative z-10" id="view-gateway">
-
-    <!-- Cabecera Editorial del Gateway -->
     <div class="text-center max-w-2xl mx-auto mb-4 space-y-1">
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
-        ÁREA DE TALENTO HUMANO Y PLANILLAS
-      </h1>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">ÁREA DE TALENTO HUMANO Y PLANILLAS</h1>
     </div>
 
-    <!-- Grid 2x2 Metro UI -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-8">
 
-      <!-- PANEL 1: EXPEDIENTES Y CONTRATOS -->
+      <!-- PANEL 1 -->
       <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; margin-left: 145px; height: 300px;">
         <div style="border-bottom-width: 1px;">
-          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">EXPEDIENTES Y CONTRATOS</h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Directorio activo de colaboradores, cargos, departamentos, salarios base y contratos.</p>
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">EXPEDIENTES</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Directorio de colaboradores y contratos.</p>
         </div>
-
         <div class="my-1 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
             <rect x="18" y="20" width="60" height="56" rx="8" stroke="currentColor" stroke-width="4"></rect>
@@ -173,21 +198,17 @@
             <path d="M56 50H70" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
           </svg>
         </div>
-
         <div class="pt-1 flex items-center justify-end">
-          <button type="button" onclick="ingresarAPanel('expedientes')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
-            INGRESAR
-          </button>
+          <button type="button" onclick="ingresarAPanel('expedientes')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">INGRESAR</button>
         </div>
       </div>
 
-      <!-- PANEL 2: PLANILLA Y NÓMINA -->
+      <!-- PANEL 2 -->
       <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; height: 300px;">
         <div style="border-bottom-width: 1px;">
-          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">PLANILLA Y NÓMINA</h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Cálculo de sueldos ordinarios, horas extras, bonificaciones, décimo tercero/cuarto mes y boletas.</p>
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">NÓMINAS</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Hoja de salarios, deducciones, obligaciones y derechos.</p>
         </div>
-
         <div class="my-1 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
             <rect x="20" y="18" width="56" height="60" rx="8" stroke="currentColor" stroke-width="4"></rect>
@@ -197,21 +218,17 @@
             <circle cx="60" cy="62" r="5" stroke="currentColor" stroke-width="4"></circle>
           </svg>
         </div>
-
         <div class="pt-1 flex items-center justify-end">
-          <button type="button" onclick="ingresarAPanel('planilla')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
-            INGRESAR
-          </button>
+          <button type="button" onclick="ingresarAPanel('planilla')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">INGRESAR</button>
         </div>
       </div>
 
-      <!-- PANEL 3: ASISTENCIA Y PERMISOS -->
+      <!-- PANEL 3 -->
       <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; margin-left: 145px; height: 300px;">
         <div style="border-bottom-width: 1px;">
-          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">ASISTENCIA Y PERMISOS</h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Control de jornadas, incapacidades IHSS, vacaciones acumuladas, permisos y ausencias.</p>
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">ASISTENCIA</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Control de jornadas, permisos, vacaciones y ausencias.</p>
         </div>
-
         <div class="my-1 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
             <rect x="18" y="24" width="60" height="52" rx="8" stroke="currentColor" stroke-width="4"></rect>
@@ -221,21 +238,17 @@
             <path d="M36 56L44 64L60 48" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
         </div>
-
         <div class="pt-1 flex items-center justify-end">
-          <button type="button" onclick="ingresarAPanel('asistencia')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
-            INGRESAR
-          </button>
+          <button type="button" onclick="ingresarAPanel('asistencia')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">INGRESAR</button>
         </div>
       </div>
 
-      <!-- PANEL 4: DEDUCCIONES Y LEY -->
+      <!-- PANEL 4 -->
       <div class="metro-tile p-5 flex flex-col justify-between min-h-[300px]" style="width: 450px; height: 300px;">
         <div style="border-bottom-width: 1px;">
-          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">DEDUCCIONES Y LEY</h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Retenciones IHSS, aportaciones RAP, INFOP, retención ISR y cálculo de prestaciones.</p>
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950">DEDUCCIONES</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" style="margin-bottom: 4px;">Retenciones, aportaciones y cálculo de prestaciones.</p>
         </div>
-
         <div class="my-1 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 96 96" class="text-slate-900 w-[150px] h-[150px]">
             <path d="M48 18V76" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
@@ -245,11 +258,8 @@
             <path d="M34 76H62" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
           </svg>
         </div>
-
         <div class="pt-1 flex items-center justify-end">
-          <button type="button" onclick="ingresarAPanel('deducciones')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">
-            INGRESAR
-          </button>
+          <button type="button" onclick="ingresarAPanel('deducciones')" class="bg-black text-white rounded-full font-bold px-6 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">INGRESAR</button>
         </div>
       </div>
 
@@ -257,673 +267,1752 @@
   </div>
 
   <!-- =========================================================================
-       SUB-VISTA 1: EXPEDIENTES Y CONTRATOS (#view-panel-expedientes)
+       SUB-VISTA 1: EXPEDIENTES Y CONTRATOS (Maestro / Detalle en sitio) — w-full
        ========================================================================= -->
-  <div id="view-panel-expedientes" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
-      <div>
-        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">RRHH • Directorio Maestro</span>
-        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Expedientes y Contratos de Colaboradores</h2>
-        <p class="text-xs text-slate-500">Registro maestro de personal, DNI/RTN, cargos, departamentos, fechas de ingreso y salarios base.</p>
-      </div>
-      <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
-        ← Volver al Gateway
-      </button>
-    </div>
+  <section id="view-panel-expedientes" class="subview gap-2 mt-2">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-2 flex-1 min-h-0">
 
-    <!-- Alta de Colaborador -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-3">
-      <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Registrar Colaborador</h3>
-      <div class="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Nombre Completo</label>
-          <input id="emp-nombre-input" type="text" placeholder="Ej. María López" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+      <!-- PANEL IZQUIERDO: LISTA DE COLABORADORES -->
+      <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <div class="px-4 pt-4 pb-3 border-b border-slate-100 space-y-2.5 shrink-0">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-black text-slate-950 uppercase tracking-tight">Colaboradores</h2>
+            <span id="exp-count" class="text-[11px] font-mono font-bold text-slate-500">0</span>
+          </div>
+          <input id="exp-buscar" type="text" placeholder="Buscar por nombre, código, DNI o cargo..." oninput="renderListaEmpleados()" class="fld">
+          <div class="grid grid-cols-2 gap-2">
+            <select id="exp-filtro-depto" onchange="renderListaEmpleados()" class="fld"></select>
+            <select id="exp-filtro-sucursal" onchange="renderListaEmpleados()" class="fld"></select>
+          </div>
         </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">DNI / RTN</label>
-          <input id="emp-dni-input" type="text" placeholder="0801-1994-04120" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cargo</label>
-          <input id="emp-cargo-input" type="text" placeholder="Analista Contable" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Departamento</label>
-          <select id="emp-depto-input" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
-            <option value="Administración">Administración</option>
-            <option value="Ventas y Comercial">Ventas y Comercial</option>
-            <option value="Logística y Bodega">Logística y Bodega</option>
-            <option value="Contabilidad y Finanzas">Contabilidad y Finanzas</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Salario Base (L)</label>
-          <input id="emp-salario-input" type="number" step="0.01" placeholder="22000.00" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
-        </div>
-        <div>
-          <button type="button" onclick="agregarColaborador()" class="w-full px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">
-            + Agregar
-          </button>
-        </div>
-      </div>
-    </div>
+        <div id="exp-lista" class="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100"></div>
+      </aside>
 
-    <!-- Tabla Maestra de Colaboradores -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Nómina Maestra de Colaboradores</h3>
-        <span id="kpi-emp-count" class="text-[11px] font-mono font-bold text-slate-500">4 Colaboradores</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
-              <th class="py-3 px-4">Código</th>
-              <th class="py-3 px-4">Colaborador</th>
-              <th class="py-3 px-4">DNI / RTN</th>
-              <th class="py-3 px-4">Cargo</th>
-              <th class="py-3 px-4">Departamento</th>
-              <th class="py-3 px-4">Ingreso</th>
-              <th class="py-3 px-4 text-right">Salario Base</th>
-              <th class="py-3 px-4 text-center">Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-expedientes" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
-        </table>
+      <!-- PANEL DERECHO: FICHA DEL COLABORADOR -->
+      <div class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <!-- Barra superior de acciones -->
+        <div class="px-5 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div>
+            <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">RRHH • Expediente</span>
+            <h3 id="exp-titulo" class="text-lg font-black text-slate-950 tracking-tight leading-tight">Selecciona un colaborador</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="exp-modo-badge" class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider">Solo lectura</span>
+            <button type="button" id="btn-exp-guardar" onclick="guardarEmpleado()" class="hidden px-4 py-1.5 rounded-full bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition cursor-pointer">Guardar</button>
+            <button type="button" id="btn-exp-cancelar" onclick="cancelarEdicion()" class="hidden px-4 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition cursor-pointer">Cancelar</button>
+            <button type="button" id="btn-exp-nuevo" onclick="nuevoEmpleado()" class="px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">+ Nuevo</button>
+            <button type="button" id="btn-exp-modificar" onclick="modificarEmpleado()" class="px-4 py-1.5 rounded-full bg-white border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition cursor-pointer">Modificar</button>
+            <button type="button" id="btn-exp-eliminar" onclick="eliminarEmpleado()" class="px-4 py-1.5 rounded-full bg-white border border-rose-300 text-rose-700 text-xs font-bold hover:bg-rose-50 transition cursor-pointer">Eliminar</button>
+          </div>
+        </div>
+
+        <!-- Formulario con bloques -->
+        <form id="exp-form" onsubmit="return false" class="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-5">
+
+          <!-- Bloque 1: Datos Personales -->
+          <fieldset class="border border-slate-200 rounded-2xl p-4">
+            <legend class="px-2 text-[11px] font-black uppercase tracking-wider text-slate-700">1 · Datos Personales</legend>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div><label class="fld-label">Código</label><input class="fld font-mono" data-field="codigo" disabled data-fixed="1"></div>
+              <div><label class="fld-label">Nombres</label><input class="fld" data-field="nombres"></div>
+              <div><label class="fld-label">Apellidos</label><input class="fld" data-field="apellidos"></div>
+              <div><label class="fld-label">DNI (Identidad)</label><input class="fld font-mono" data-field="dni" placeholder="0801-1990-00000"></div>
+              <div><label class="fld-label">RTN</label><input class="fld font-mono" data-field="rtn" placeholder="08011990000000"></div>
+              <div><label class="fld-label">Fecha de nacimiento</label><input type="date" class="fld" data-field="fechaNac"></div>
+              <div><label class="fld-label">Género</label>
+                <select class="fld" data-field="genero"><option>Femenino</option><option>Masculino</option><option>Otro</option></select></div>
+              <div><label class="fld-label">Estado civil</label>
+                <select class="fld" data-field="estadoCivil"><option>Soltero/a</option><option>Casado/a</option><option>Unión libre</option><option>Divorciado/a</option></select></div>
+              <div><label class="fld-label">Teléfono</label><input class="fld" data-field="telefono" placeholder="+504 9999-0000"></div>
+              <div class="md:col-span-2"><label class="fld-label">Correo electrónico</label><input type="email" class="fld" data-field="email"></div>
+              <div><label class="fld-label">Dirección</label><input class="fld" data-field="direccion"></div>
+            </div>
+          </fieldset>
+
+          <!-- Bloque 2: Contrato / Remuneración -->
+          <fieldset class="border border-slate-200 rounded-2xl p-4">
+            <legend class="px-2 text-[11px] font-black uppercase tracking-wider text-slate-700">2 · Contrato y Remuneración</legend>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div><label class="fld-label">Cargo</label><input class="fld" data-field="cargo"></div>
+              <div><label class="fld-label">Departamento</label><select class="fld" data-field="depto" id="sel-form-depto"></select></div>
+              <div><label class="fld-label">Sucursal / Proyecto</label><select class="fld" data-field="sucursal" id="sel-form-sucursal"></select></div>
+              <div><label class="fld-label">Fecha de ingreso</label><input type="date" class="fld" data-field="fechaIngreso"></div>
+              <div><label class="fld-label">Tipo de contrato</label>
+                <select class="fld" data-field="tipoContrato"><option>Indefinido</option><option>Plazo Fijo</option><option>Temporal</option><option>Por Obra</option></select></div>
+              <div><label class="fld-label">Modalidad de pago</label>
+                <select class="fld" data-field="modalidad" id="sel-form-modalidad" onchange="actualizarCamposModalidad()">
+                  <option value="SALARIO">Salario mensual</option><option value="JORNAL">Jornal diario</option></select></div>
+              <div id="wrap-salario"><label class="fld-label">Salario base mensual (L)</label><input type="number" step="0.01" min="0" class="fld font-mono" data-field="salarioBase"></div>
+              <div id="wrap-jornal" class="hidden"><label class="fld-label">Valor del jornal diario (L)</label><input type="number" step="0.01" min="0" class="fld font-mono" data-field="valorJornal"></div>
+              <div><label class="fld-label">Horas extras mensuales</label><input type="number" step="0.5" min="0" class="fld font-mono" data-field="horasExtras"></div>
+              <div><label class="fld-label">Bonificaciones mensuales (L)</label><input type="number" step="0.01" min="0" class="fld font-mono" data-field="bonos"></div>
+              <div><label class="fld-label">Estado</label>
+                <select class="fld" data-field="estado"><option>Activo</option><option>Inactivo</option></select></div>
+            </div>
+          </fieldset>
+
+          <!-- Bloque 3: Datos Bancarios / IHSS -->
+          <fieldset class="border border-slate-200 rounded-2xl p-4">
+            <legend class="px-2 text-[11px] font-black uppercase tracking-wider text-slate-700">3 · Datos Bancarios e IHSS</legend>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div><label class="fld-label">Banco</label>
+                <select class="fld" data-field="banco"><option>Banco Atlántida</option><option>BAC Credomatic</option><option>Banco Ficohsa</option><option>Banpaís</option><option>Banrural</option><option>Sin cuenta (pago en efectivo)</option></select></div>
+              <div><label class="fld-label">Tipo de cuenta</label>
+                <select class="fld" data-field="tipoCuenta"><option>Ahorro</option><option>Cheques</option></select></div>
+              <div class="md:col-span-2"><label class="fld-label">Número de cuenta</label><input class="fld font-mono" data-field="cuentaBancaria"></div>
+              <div><label class="fld-label">No. afiliación IHSS</label><input class="fld font-mono" data-field="ihss"></div>
+              <div><label class="fld-label">No. RAP</label><input class="fld font-mono" data-field="rap"></div>
+              <div><label class="fld-label">Aplica retención IHSS/RAP</label>
+                <select class="fld" data-field="aplicaIhss"><option value="SI">Sí</option><option value="NO">No</option></select></div>
+            </div>
+          </fieldset>
+        </form>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- =========================================================================
-       SUB-VISTA 2: PLANILLA Y NÓMINA (#view-panel-planilla)
+       SUB-VISTA 2: PLANILLA Y NÓMINA (Sábana Ejecutiva y Cierre) — w-full
        ========================================================================= -->
-  <div id="view-panel-planilla" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+  <section id="view-panel-planilla" class="subview gap-2 mt-2">
+
+    <!-- Barra superior de filtros -->
+    <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-end justify-between gap-3 shrink-0">
       <div>
         <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">RRHH • Liquidación Periódica</span>
-        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Planilla y Nómina</h2>
-        <p class="text-xs text-slate-500">Cálculo de devengados, horas extras, deducciones legales, neto a pagar y partida contable enlazada a Config.</p>
+        <h2 class="text-lg font-black text-slate-950 tracking-tight leading-tight">Planilla y Nómina</h2>
       </div>
-      <div class="flex items-center gap-2.5">
-        <select id="planilla-periodo-select" onchange="renderPlanilla()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-          <option value="MENSUAL">Planilla Mensual (100%)</option>
-          <option value="QUINCENA_1">1ra Quincena (50%)</option>
-          <option value="QUINCENA_2">2da Quincena (50%)</option>
-        </select>
-        <button type="button" onclick="abrirModalPartidaPlanilla()" class="px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">
-          Previsualizar Partida Contable
-        </button>
-        <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
-          ← Volver
-        </button>
-      </div>
-    </div>
-
-    <!-- Cuentas de Gasto de Sueldos desde Config -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <span class="text-[10px] font-bold uppercase text-slate-400 block">Cuenta Contable de Sueldos y Salarios (Config)</span>
-        <span class="text-xs text-slate-600">Se utiliza para generar la partida contable de devengo de planilla.</span>
-      </div>
-      <select id="select-cuenta-sueldos" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 min-w-[300px]"></select>
-    </div>
-
-    <!-- KPIs de Planilla -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Total Devengado Bruto</span>
-        <div id="kpi-planilla-bruto" class="text-2xl font-black text-slate-950 mt-1 mono">L 0.00</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Total Deducciones (IHSS/RAP/ISR)</span>
-        <div id="kpi-planilla-deducciones" class="text-2xl font-black text-rose-700 mt-1 mono">L 0.00</div>
-      </div>
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <span class="text-[10px] font-mono font-bold uppercase text-slate-400">Neto a Pagar</span>
-        <div id="kpi-planilla-neto" class="text-2xl font-black text-emerald-700 mt-1 mono">L 0.00</div>
-      </div>
-    </div>
-
-    <!-- Tabla de Planilla -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
-              <th class="py-3 px-4">Colaborador</th>
-              <th class="py-3 px-4 text-right">Salario Base</th>
-              <th class="py-3 px-4 text-right">H. Extras / Bonos</th>
-              <th class="py-3 px-4 text-right">Devengado</th>
-              <th class="py-3 px-4 text-right">IHSS + RAP</th>
-              <th class="py-3 px-4 text-right">ISR</th>
-              <th class="py-3 px-4 text-right">Neto a Pagar</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-planilla" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- =========================================================================
-       SUB-VISTA 3: ASISTENCIA Y PERMISOS (#view-panel-asistencia)
-       ========================================================================= -->
-  <div id="view-panel-asistencia" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
-      <div>
-        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">RRHH • Control de Jornadas</span>
-        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Asistencia, Vacaciones e Incapacidades</h2>
-        <p class="text-xs text-slate-500">Registro de novedades de asistencia, días de vacaciones disponibles vs. gozados e incapacidades IHSS.</p>
-      </div>
-      <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
-        ← Volver al Gateway
-      </button>
-    </div>
-
-    <!-- Registro de Novedad -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-3">
-      <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Registrar Novedad de Asistencia</h3>
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Colaborador</label>
-          <select id="asis-emp-select" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"></select>
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label class="fld-label">Mes</label>
+          <input type="month" id="pl-mes" onchange="renderPlanilla()" class="fld">
         </div>
         <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Tipo de Novedad</label>
-          <select id="asis-tipo-input" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
-            <option value="Vacaciones Gozadas">Vacaciones Gozadas</option>
-            <option value="Incapacidad IHSS">Incapacidad IHSS</option>
-            <option value="Permiso con Goce">Permiso con Goce</option>
-            <option value="Ausencia Injustificada">Ausencia Injustificada</option>
+          <label class="fld-label">Periodo</label>
+          <select id="pl-periodo" onchange="renderPlanilla()" class="fld">
+            <option value="MENSUAL">Mensual (100%)</option>
+            <option value="Q1">1ra Quincena (50%)</option>
+            <option value="Q2">2da Quincena (50%)</option>
           </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Días</label>
-          <input id="asis-dias-input" type="number" min="1" value="1" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800">
-        </div>
-        <div>
-          <button type="button" onclick="registrarNovedadAsistencia()" class="w-full px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">
-            + Registrar Novedad
-          </button>
+          <label class="fld-label">Proyecto / Sucursal</label>
+          <select id="pl-sucursal" onchange="renderPlanilla()" class="fld min-w-[210px]"></select>
         </div>
       </div>
     </div>
 
-    <!-- Tabla de Asistencia y Vacaciones -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+    <!-- Sábana contable: solo el tbody hace scroll; thead y tfoot permanecen fijos -->
+    <div class="w-full flex-1 min-h-0 bg-white border border-slate-200 rounded-3xl overflow-hidden flex flex-col">
+      <div id="pl-scroll" class="flex-1 min-h-0 overflow-auto">
+        <table class="sabana">
           <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-500">
-              <th class="py-3 px-4">Fecha</th>
-              <th class="py-3 px-4">Colaborador</th>
-              <th class="py-3 px-4">Tipo de Novedad</th>
-              <th class="py-3 px-4 text-right">Días</th>
-              <th class="py-3 px-4 text-right">Vacaciones Disponibles</th>
-              <th class="py-3 px-4 text-center">Estado</th>
+            <tr class="text-[10px] font-black uppercase tracking-wider text-white text-center">
+              <th colspan="2" class="bg-slate-900 border-r-2 border-slate-700 px-3">Colaborador</th>
+              <th colspan="3" class="bg-slate-800 border-r-2 border-slate-700 px-3">1 · Salario Base</th>
+              <th colspan="4" class="bg-slate-900 border-r-2 border-slate-700 px-3">2 · Extras y Devengados</th>
+              <th colspan="4" class="bg-slate-800 border-r-2 border-slate-700 px-3">3 · Deducciones del Colaborador</th>
+              <th colspan="4" class="bg-slate-900 border-r-2 border-slate-700 px-3">4 · Obligaciones Patronales</th>
+              <th colspan="1" class="bg-emerald-700 px-3">5 · Neto</th>
+            </tr>
+            <tr class="text-[10px] font-bold uppercase text-slate-600 bg-slate-100">
+              <th class="px-3 py-2 text-left bg-slate-100 border-b border-slate-300">Código</th>
+              <th class="px-3 py-2 text-left bg-slate-100 border-b border-slate-300 border-r-2 border-slate-700">Nombre</th>
+              <th class="px-3 py-2 text-center bg-slate-100 border-b border-slate-300">Modalidad</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Días</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300 border-r-2 border-slate-700">Salario Base</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Hrs. Extra</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Monto Extras</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Bonos</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300 border-r-2 border-slate-700">Total Devengado</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">IHSS</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">RAP</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">ISR</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300 border-r-2 border-slate-700">Total Deduc.</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">IHSS Patr.</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">RAP Patr.</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">INFOP</th>
+              <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300 border-r-2 border-slate-700">Total Patronal</th>
+              <th class="px-3 py-2 text-right bg-emerald-50 border-b border-slate-300 text-emerald-800">Neto a Pagar</th>
             </tr>
           </thead>
-          <tbody id="tbody-asistencia" class="divide-y divide-slate-100 text-xs font-mono"></tbody>
+          <tbody id="pl-tbody" class="font-mono text-slate-800"></tbody>
+          <tfoot>
+            <tr class="font-mono text-[11px] font-black text-white">
+              <td colspan="2" class="bg-slate-900 border-t-2 border-slate-700 border-r-2 px-3 py-2.5 uppercase tracking-wider">Totales <span id="pl-total-count" class="text-slate-400 font-bold normal-case"></span></td>
+              <td colspan="2" class="bg-slate-900 border-t-2 border-slate-700"></td>
+              <td id="ft-base" class="bg-slate-900 border-t-2 border-slate-700 border-r-2 px-3 text-right"></td>
+              <td id="ft-hrs" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-extras" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-bonos" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-devengado" class="bg-slate-900 border-t-2 border-slate-700 border-r-2 px-3 text-right"></td>
+              <td id="ft-ihss" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-rap" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-isr" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-ded" class="bg-slate-900 border-t-2 border-slate-700 border-r-2 px-3 text-right"></td>
+              <td id="ft-ihss-p" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-rap-p" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-infop" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right"></td>
+              <td id="ft-patronal" class="bg-slate-900 border-t-2 border-slate-700 border-r-2 px-3 text-right"></td>
+              <td id="ft-neto" class="bg-emerald-700 border-t-2 border-emerald-900 px-3 text-right"></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
+
+      <!-- Footer operativo -->
+      <div class="shrink-0 border-t border-slate-200 bg-slate-50 px-5 py-2.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Estado de la planilla</span>
+          <span id="pl-estado-badge" class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300">En curso</span>
+          <select id="pl-estado-select" onchange="cambiarEstadoPlanilla(this.value)" class="fld !w-auto">
+            <option value="EN_CURSO">En curso</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="PAGADA">Pagada</option>
+          </select>
+        </div>
+        <button type="button" onclick="abrirModalDispersion()" class="bg-black text-white rounded-full font-bold px-8 py-2 hover:bg-neutral-800 transition shadow-xs text-xs tracking-wider uppercase cursor-pointer">ENVIAR</button>
+      </div>
     </div>
-  </div>
+  </section>
 
   <!-- =========================================================================
-       SUB-VISTA 4: DEDUCCIONES Y LEY (#view-panel-deducciones)
+       SUB-VISTA 3: ASISTENCIA Y HORARIOS (Maestro / Detalle + Importador Inteligente) — w-full
        ========================================================================= -->
-  <div id="view-panel-deducciones" class="hidden flex-1 flex flex-col py-6 max-w-6xl w-full mx-auto relative z-10 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
-      <div>
-        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">RRHH • Cumplimiento Legal Honduras</span>
-        <h2 class="text-2xl font-black text-slate-950 tracking-tight">Deducciones Legales y Prestaciones</h2>
-        <p class="text-xs text-slate-500">Parámetros vigentes IHSS, RAP, INFOP, escala progresiva ISR y simulador de liquidación laboral.</p>
-      </div>
-      <button type="button" onclick="volverAGateway()" class="px-4 py-2 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition cursor-pointer">
-        ← Volver al Gateway
-      </button>
-    </div>
+  <section id="view-panel-asistencia" class="subview gap-2 mt-2">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-2 flex-1 min-h-0">
 
-    <!-- Cuenta Contable de Retenciones Laborales desde Config -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <span class="text-[10px] font-bold uppercase text-slate-400 block">Cuenta de Retenciones / Obligaciones Laborales por Pagar (Config)</span>
-        <span class="text-xs text-slate-600">Enlazada dinámicamente al catálogo de cuentas de Config.</span>
-      </div>
-      <select id="select-cuenta-retenciones" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 min-w-[300px]"></select>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Tabla Paramétrica Legal -->
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-100">
-          <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Techos y Porcentajes Legales (Honduras)</h3>
+      <!-- PANEL IZQUIERDO: LISTA DE COLABORADORES + RESUMEN DE HORAS -->
+      <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <div class="px-4 pt-4 pb-3 border-b border-slate-100 space-y-2.5 shrink-0">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-black text-slate-950 uppercase tracking-tight">Colaboradores · Horas</h2>
+            <span id="as-count" class="text-[11px] font-mono font-bold text-slate-500">0</span>
+          </div>
+          <input id="as-buscar" type="text" placeholder="Buscar colaborador..." oninput="renderAsistencia()" class="fld">
+          <div class="grid grid-cols-3 gap-1.5 text-center font-mono">
+            <div class="bg-slate-50 border border-slate-200 rounded-xl py-1.5 px-2">
+              <div class="text-[9px] font-sans font-bold uppercase text-slate-400">Regulares</div>
+              <div id="as-kpi-reg" class="text-xs font-black text-slate-900">0.0 h</div>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl py-1.5 px-2">
+              <div class="text-[9px] font-sans font-bold uppercase text-amber-600">Extras</div>
+              <div id="as-kpi-ext" class="text-xs font-black text-amber-800">0.0 h</div>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl py-1.5 px-2">
+              <div class="text-[9px] font-sans font-bold uppercase text-emerald-600">Recargos</div>
+              <div id="as-kpi-monto" class="text-xs font-black text-emerald-800">L 0.00</div>
+            </div>
+          </div>
         </div>
-        <table class="w-full text-left border-collapse text-xs font-mono">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase text-slate-500">
-              <th class="py-2.5 px-4">Concepto</th>
-              <th class="py-2.5 px-4 text-right">Empleado</th>
-              <th class="py-2.5 px-4 text-right">Patrono</th>
-              <th class="py-2.5 px-4 text-right">Techo Ref.</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr><td class="py-2.5 px-4 font-sans font-bold">IHSS (EM + IVM)</td><td class="py-2.5 px-4 text-right">3.50%</td><td class="py-2.5 px-4 text-right">7.00%</td><td class="py-2.5 px-4 text-right">L 11,903.13</td></tr>
-            <tr><td class="py-2.5 px-4 font-sans font-bold">RAP (Fondo Reserva)</td><td class="py-2.5 px-4 text-right">1.50%</td><td class="py-2.5 px-4 text-right">1.50%</td><td class="py-2.5 px-4 text-right">Excedente</td></tr>
-            <tr><td class="py-2.5 px-4 font-sans font-bold">INFOP</td><td class="py-2.5 px-4 text-right">0.00%</td><td class="py-2.5 px-4 text-right">1.00%</td><td class="py-2.5 px-4 text-right">Total Planilla</td></tr>
-            <tr><td class="py-2.5 px-4 font-sans font-bold">ISR (Tabla Progresiva)</td><td class="py-2.5 px-4 text-right">15%–25%</td><td class="py-2.5 px-4 text-right">Retenedor</td><td class="py-2.5 px-4 text-right">Exento &lt; L 209k/año</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <div id="as-lista" class="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100"></div>
+      </aside>
 
-      <!-- Simulador de Prestaciones -->
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 space-y-4">
-        <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight">Simulador Rápido de Liquidación / Prestaciones</h3>
-        <div class="grid grid-cols-2 gap-3">
+      <!-- PANEL DERECHO: DESGLOSE DIARIO POR EMPLEADO -->
+      <div class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <div class="px-5 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Salario Promedio Mensual (L)</label>
-            <input id="sim-salario-input" type="number" value="25000" oninput="calcularSimuladorPrestaciones()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+            <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">RRHH • Control de Marcajes y Recargos</span>
+            <h3 id="as-titulo" class="text-lg font-black text-slate-950 tracking-tight leading-tight">Selecciona un colaborador</h3>
           </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Antigüedad (Años)</label>
-            <input id="sim-anios-input" type="number" step="0.5" value="3" oninput="calcularSimuladorPrestaciones()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+          <div class="flex flex-wrap items-center gap-2">
+            <input type="month" id="as-mes" onchange="renderAsistencia()" class="fld !w-auto">
+            <button type="button" onclick="abrirModalImportador()" class="px-4 py-1.5 rounded-full bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 transition cursor-pointer">⚡ Importador Inteligente (.csv / Excel)</button>
+            <button type="button" onclick="sincronizarExtrasAPlanilla()" class="px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer">Aplicar a Planilla</button>
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-3 pt-2 border-t border-slate-100 text-xs font-mono">
-          <div class="p-3 rounded-xl bg-slate-50">
-            <span class="text-[10px] text-slate-400 block">Preaviso</span>
-            <strong id="sim-preaviso" class="text-sm text-slate-900">L 0.00</strong>
+
+        <!-- Formulario rápido para agregar marcaje diario -->
+        <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-200 grid grid-cols-2 md:grid-cols-6 gap-2 items-end shrink-0">
+          <div><label class="fld-label">Fecha</label><input type="date" id="as-in-fecha" class="fld"></div>
+          <div><label class="fld-label">Tipo de Jornada</label>
+            <select id="as-in-jornada" class="fld">
+              <option value="DIURNA">Diurna (8h ord. · +25% extra)</option>
+              <option value="MIXTA">Mixta (7h ord. · +50% extra)</option>
+              <option value="NOCTURNA">Nocturna (6h ord. · +75% extra)</option>
+              <option value="JORNAL">Jornal diario</option>
+            </select>
           </div>
-          <div class="p-3 rounded-xl bg-slate-50">
-            <span class="text-[10px] text-slate-400 block">Auxilio Cesantía</span>
-            <strong id="sim-cesantia" class="text-sm text-slate-900">L 0.00</strong>
+          <div><label class="fld-label">Entrada</label><input type="time" id="as-in-entrada" value="08:00" class="fld font-mono"></div>
+          <div><label class="fld-label">Salida</label><input type="time" id="as-in-salida" value="17:00" class="fld font-mono"></div>
+          <div><label class="fld-label">Proyecto / Sucursal</label><select id="as-in-proyecto" class="fld"></select></div>
+          <button type="button" onclick="agregarMarcajeManual()" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 cursor-pointer">+ Registrar día</button>
+        </div>
+
+        <!-- Tabla de desglose diario -->
+        <div class="flex-1 min-h-0 overflow-auto">
+          <table class="sabana">
+            <thead>
+              <tr class="text-[10px] font-bold uppercase text-slate-600 bg-slate-100">
+                <th class="px-3 py-2 text-left bg-slate-100 border-b border-slate-300">Fecha</th>
+                <th class="px-3 py-2 text-left bg-slate-100 border-b border-slate-300">Condición / Feriado</th>
+                <th class="px-3 py-2 text-center bg-slate-100 border-b border-slate-300">Tipo de Jornada</th>
+                <th class="px-3 py-2 text-center bg-slate-100 border-b border-slate-300">Entrada</th>
+                <th class="px-3 py-2 text-center bg-slate-100 border-b border-slate-300">Salida</th>
+                <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Hrs. Ord.</th>
+                <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Hrs. Extra</th>
+                <th class="px-3 py-2 text-center bg-slate-100 border-b border-slate-300">% Recargo</th>
+                <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Monto Recargo / Jornal</th>
+                <th class="px-3 py-2 text-left bg-slate-100 border-b border-slate-300">Proyecto</th>
+                <th class="px-3 py-2 text-center bg-slate-100 border-b border-slate-300">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="as-tbody" class="font-mono text-slate-800"></tbody>
+            <tfoot>
+              <tr class="font-mono text-[11px] font-black text-white">
+                <td colspan="5" class="bg-slate-900 border-t-2 border-slate-700 px-3 py-2 uppercase">Totales del colaborador</td>
+                <td id="as-ft-ord" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right">0.0</td>
+                <td id="as-ft-ext" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right">0.0</td>
+                <td class="bg-slate-900 border-t-2 border-slate-700"></td>
+                <td id="as-ft-monto" class="bg-emerald-700 border-t-2 border-emerald-900 px-3 text-right">L 0.00</td>
+                <td colspan="2" class="bg-slate-900 border-t-2 border-slate-700"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SUB-VISTA 4: DEDUCCIONES, LEY Y PRESTACIONES (Maestro / Detalle + 3 Pestañas) — w-full
+       ========================================================================= -->
+  <section id="view-panel-deducciones" class="subview gap-2 mt-2">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-2 flex-1 min-h-0">
+
+      <!-- PANEL IZQUIERDO: LISTA DE COLABORADORES -->
+      <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <div class="px-4 pt-4 pb-3 border-b border-slate-100 space-y-2.5 shrink-0">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-black text-slate-950 uppercase tracking-tight">Colaboradores</h2>
+            <span id="ded-count" class="text-[11px] font-mono font-bold text-slate-500">0</span>
           </div>
-          <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-            <span class="text-[10px] text-emerald-700 block">Total Estimado</span>
-            <strong id="sim-total" class="text-sm text-emerald-800">L 0.00</strong>
+          <input id="ded-buscar" type="text" placeholder="Buscar colaborador..." oninput="renderDeducciones()" class="fld">
+        </div>
+        <div id="ded-lista" class="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100"></div>
+      </aside>
+
+      <!-- PANEL DERECHO: 3 PESTAÑAS -->
+      <div class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+        <div class="px-5 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div>
+            <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">RRHH • Deducciones, Liquidaciones y Ley</span>
+            <h3 id="ded-titulo" class="text-lg font-black text-slate-950 tracking-tight leading-tight">Selecciona un colaborador</h3>
+          </div>
+          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-full">
+            <button type="button" id="tab-btn-prestamos" onclick="cambiarTabDeducciones('prestamos')" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer bg-slate-900 text-white">1 · Deducciones y Préstamos</button>
+            <button type="button" id="tab-btn-liquidacion" onclick="cambiarTabDeducciones('liquidacion')" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer text-slate-600">2 · Simulador de Liquidación</button>
+            <button type="button" id="tab-btn-ley" onclick="cambiarTabDeducciones('ley')" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer text-slate-600">3 · Parámetros Legales</button>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 1: DEDUCCIONES INDIVIDUALES, PRÉSTAMOS Y ANTICIPOS -->
+        <div id="tab-panel-prestamos" class="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 grid grid-cols-2 md:grid-cols-6 gap-2 items-end shrink-0">
+            <div><label class="fld-label">Tipo</label>
+              <select id="pr-tipo" class="fld">
+                <option value="PRESTAMO">Préstamo interno</option>
+                <option value="ANTICIPO">Anticipo de sueldo</option>
+                <option value="DEDUCCION">Deducción individual</option>
+              </select>
+            </div>
+            <div class="md:col-span-2"><label class="fld-label">Concepto / Referencia</label><input id="pr-concepto" placeholder="Ej. Préstamo calamidad doméstica" class="fld"></div>
+            <div><label class="fld-label">Monto total (L)</label><input type="number" step="0.01" min="0" id="pr-monto" class="fld font-mono"></div>
+            <div><label class="fld-label">Cuota mensual (L)</label><input type="number" step="0.01" min="0" id="pr-cuota" class="fld font-mono"></div>
+            <button type="button" onclick="agregarPrestamo()" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer">+ Registrar</button>
+          </div>
+
+          <div class="flex-1 min-h-0 overflow-auto">
+            <table class="sabana">
+              <thead>
+                <tr class="text-[10px] font-bold uppercase text-slate-600 bg-slate-100">
+                  <th class="px-3 py-2 text-left bg-slate-100 border-b border-slate-300">Fecha</th>
+                  <th class="px-3 py-2 text-left bg-slate-100 border-b border-slate-300">Tipo</th>
+                  <th class="px-3 py-2 text-left bg-slate-100 border-b border-slate-300">Concepto</th>
+                  <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Monto Original</th>
+                  <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Cuota Mensual</th>
+                  <th class="px-3 py-2 text-right bg-slate-100 border-b border-slate-300">Saldo Pendiente</th>
+                  <th class="px-3 py-2 text-center bg-slate-100 border-b border-slate-300">Estado</th>
+                  <th class="px-3 py-2 text-center bg-slate-100 border-b border-slate-300">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="pr-tbody" class="font-mono text-slate-800"></tbody>
+              <tfoot>
+                <tr class="font-mono text-[11px] font-black text-white">
+                  <td colspan="4" class="bg-slate-900 border-t-2 border-slate-700 px-3 py-2 uppercase">Totales del colaborador</td>
+                  <td id="pr-ft-cuota" class="bg-rose-800 border-t-2 border-rose-950 px-3 text-right">L 0.00</td>
+                  <td id="pr-ft-saldo" class="bg-slate-900 border-t-2 border-slate-700 px-3 text-right">L 0.00</td>
+                  <td colspan="2" class="bg-slate-900 border-t-2 border-slate-700"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 2: SIMULADOR DE LIQUIDACIÓN Y PRESTACIONES -->
+        <div id="tab-panel-liquidacion" class="hidden flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+            <div><label class="fld-label">Fecha de ingreso</label><input type="date" id="liq-ingreso" onchange="calcularLiquidacion()" class="fld font-mono"></div>
+            <div><label class="fld-label">Fecha de salida / corte</label><input type="date" id="liq-salida" onchange="calcularLiquidacion()" class="fld font-mono"></div>
+            <div><label class="fld-label">Motivo de terminación</label>
+              <select id="liq-motivo" onchange="calcularLiquidacion()" class="fld">
+                <option value="DESPIDO_INJUSTIFICADO">Despido sin justa causa (100% Preaviso + Cesantía)</option>
+                <option value="RENUNCIA">Renuncia voluntaria (Derechos adquiridos)</option>
+                <option value="MUTUO_ACUERDO">Mutuo acuerdo (50% Cesantía + Derechos)</option>
+              </select>
+            </div>
+            <div><label class="fld-label">Días de vacaciones pendientes</label><input type="number" step="1" min="0" id="liq-vac-pend" value="0" onchange="calcularLiquidacion()" class="fld font-mono"></div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 font-mono">
+            <div class="border border-slate-200 rounded-2xl p-3 bg-white">
+              <div class="text-[10px] font-sans font-bold uppercase text-slate-400">Antigüedad Exacta</div>
+              <div id="liq-antiguedad" class="text-sm font-black text-slate-900 mt-0.5">—</div>
+              <div id="liq-dias-total" class="text-[11px] text-slate-500">0 días</div>
+            </div>
+            <div class="border border-slate-200 rounded-2xl p-3 bg-white">
+              <div class="text-[10px] font-sans font-bold uppercase text-slate-400">Salario Base Mensual</div>
+              <div id="liq-sal-base" class="text-sm font-black text-slate-900 mt-0.5">L 0.00</div>
+              <div id="liq-sal-diario" class="text-[11px] text-slate-500">Diario: L 0.00</div>
+            </div>
+            <div class="border border-slate-200 rounded-2xl p-3 bg-white">
+              <div class="text-[10px] font-sans font-bold uppercase text-slate-400">Salario Promedio (Base 14 mes)</div>
+              <div id="liq-sal-prom" class="text-sm font-black text-sky-700 mt-0.5">L 0.00</div>
+              <div id="liq-sal-prom-diario" class="text-[11px] text-slate-500">Diario prom.: L 0.00</div>
+            </div>
+            <div class="border border-emerald-300 rounded-2xl p-3 bg-emerald-50">
+              <div class="text-[10px] font-sans font-bold uppercase text-emerald-700">Total Liquidación Neta</div>
+              <div id="liq-total" class="text-base font-black text-emerald-800 mt-0.5">L 0.00</div>
+              <div id="liq-ded-prestamos" class="text-[11px] text-rose-700">Menos saldo préstamos: L 0.00</div>
+            </div>
+          </div>
+
+          <div class="border border-slate-200 rounded-2xl overflow-hidden">
+            <table class="sabana">
+              <thead>
+                <tr class="text-[10px] font-bold uppercase text-slate-600 bg-slate-100">
+                  <th class="px-4 py-2 text-left bg-slate-100 border-b border-slate-300">Concepto Legal (Código del Trabajo de Honduras)</th>
+                  <th class="px-4 py-2 text-left bg-slate-100 border-b border-slate-300">Base de Cálculo</th>
+                  <th class="px-4 py-2 text-right bg-slate-100 border-b border-slate-300">Días / Factor</th>
+                  <th class="px-4 py-2 text-right bg-slate-100 border-b border-slate-300">Monto (L)</th>
+                </tr>
+              </thead>
+              <tbody id="liq-tbody" class="font-mono text-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 3: PARÁMETROS LEGALES EDITABLES -->
+        <div id="tab-panel-ley" class="hidden flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <fieldset class="border border-slate-200 rounded-2xl p-4 space-y-2.5">
+              <legend class="px-2 text-[11px] font-black uppercase tracking-wider text-slate-700">IHSS (Seguro Social)</legend>
+              <div><label class="fld-label">Techo mensual IHSS (L)</label><input type="number" step="0.01" id="ley-techo-ihss" class="fld font-mono"></div>
+              <div><label class="fld-label">% Retención Colaborador</label><input type="number" step="0.01" id="ley-ihss-emp" class="fld font-mono"></div>
+              <div><label class="fld-label">% Aporte Patronal</label><input type="number" step="0.01" id="ley-ihss-pat" class="fld font-mono"></div>
+            </fieldset>
+
+            <fieldset class="border border-slate-200 rounded-2xl p-4 space-y-2.5">
+              <legend class="px-2 text-[11px] font-black uppercase tracking-wider text-slate-700">RAP e INFOP</legend>
+              <div><label class="fld-label">% RAP Colaborador (sobre excedente)</label><input type="number" step="0.01" id="ley-rap-emp" class="fld font-mono"></div>
+              <div><label class="fld-label">% RAP Patronal (sobre excedente)</label><input type="number" step="0.01" id="ley-rap-pat" class="fld font-mono"></div>
+              <div><label class="fld-label">% INFOP Patronal</label><input type="number" step="0.01" id="ley-infop-pat" class="fld font-mono"></div>
+            </fieldset>
+
+            <fieldset class="border border-slate-200 rounded-2xl p-4 space-y-2.5">
+              <legend class="px-2 text-[11px] font-black uppercase tracking-wider text-slate-700">Tabla Progresiva ISR Anual (SAR)</legend>
+              <div><label class="fld-label">Tramo Exento hasta (L / año)</label><input type="number" step="0.01" id="ley-isr-1" class="fld font-mono"></div>
+              <div><label class="fld-label">Tramo 15% hasta (L / año)</label><input type="number" step="0.01" id="ley-isr-2" class="fld font-mono"></div>
+              <div><label class="fld-label">Tramo 20% hasta (L / año · exceso al 25%)</label><input type="number" step="0.01" id="ley-isr-3" class="fld font-mono"></div>
+            </fieldset>
+          </div>
+
+          <div class="flex items-center justify-end gap-2">
+            <button type="button" onclick="restaurarParametrosLey()" class="px-4 py-2 rounded-full bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 cursor-pointer">Restaurar valores por defecto</button>
+            <button type="button" onclick="guardarParametrosLey()" class="px-5 py-2 rounded-full bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 cursor-pointer">Guardar Parámetros Legales</button>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- MODAL PARTIDA CONTABLE DE PLANILLA -->
-  <div id="modal-partida-planilla" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+  <!-- =========================================================================
+       MODAL: IMPORTADOR INTELIGENTE DE HORARIOS (.csv / Excel)
+       ========================================================================= -->
+  <div id="modal-importador" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-3xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-black text-slate-950 uppercase">Previsualización de Partida Contable de Planilla</h3>
-          <p class="text-[11px] text-slate-500">Asiento automático enlazado al catálogo de Config</p>
+          <h3 class="text-sm font-black text-slate-950 uppercase">Importador Inteligente de Horarios y Marcajes</h3>
+          <p class="text-[11px] text-slate-500">Detecta automáticamente horas extras (+25% diurnas, +50% mixtas, +75% nocturnas), jornales diarios y feriados nacionales de Honduras (+100%).</p>
         </div>
-        <button type="button" onclick="cerrarModalPartidaPlanilla()" class="w-8 h-8 rounded-lg hover:bg-slate-200 flex items-center justify-center font-bold text-slate-500 cursor-pointer">✕</button>
+        <button type="button" onclick="cerrarModalImportador()" class="w-8 h-8 rounded-lg hover:bg-slate-200 flex items-center justify-center font-bold text-slate-500 cursor-pointer">✕</button>
       </div>
-      <div id="contenido-partida-planilla" class="p-6 text-xs font-mono space-y-2"></div>
+      <div class="p-6 space-y-3 text-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <label class="px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer">
+            📂 Cargar archivo .csv
+            <input type="file" accept=".csv,.txt,.tsv" onchange="cargarArchivoImportador(event)" class="hidden">
+          </label>
+          <button type="button" onclick="cargarEjemploImportador()" class="px-4 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-bold hover:bg-sky-100 cursor-pointer">Cargar lote de ejemplo (incluye feriados y nocturnas)</button>
+        </div>
+        <div>
+          <label class="fld-label">Pega desde Excel o CSV (Formato: Codigo, Fecha YYYY-MM-DD, Entrada HH:MM, Salida HH:MM, Jornada [DIURNA|MIXTA|NOCTURNA|JORNAL], Proyecto)</label>
+          <textarea id="imp-texto" rows="8" class="fld font-mono text-xs" placeholder="EMP-001, 2026-05-01, 08:00, 17:00, DIURNA, Casa Matriz TGU&#10;EMP-002, 2026-05-04, 08:00, 19:00, DIURNA, Casa Matriz TGU&#10;EMP-003, 2026-09-15, 07:00, 16:00, JORNAL, Sucursal San Pedro Sula"></textarea>
+        </div>
+        <div class="text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-3">
+          <strong>Feriados nacionales de Honduras reconocidos automáticamente (recargo 100%):</strong> 01-01 Año Nuevo · 04-14 Día de las Américas · 05-01 Día del Trabajador · 09-15 Independencia · 10-03 Francisco Morazán · 10-12 Día de la Raza · 10-21 Fuerzas Armadas · 12-25 Navidad.
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-2">
+        <button type="button" onclick="cerrarModalImportador()" class="px-4 py-2 rounded-full bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 cursor-pointer">Cancelar</button>
+        <button type="button" onclick="procesarImportacionHorarios()" class="px-5 py-2 rounded-full bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 cursor-pointer">Procesar y Distribuir Marcajes</button>
+      </div>
     </div>
   </div>
 
   <!-- =========================================================================
-       MOTOR JAVASCRIPT: NAVEGACIÓN, SINCRONIZACIÓN CONFIG & RRHH
+       MODAL DE DISPERSIÓN Y CIERRE CONTABLE (botón ENVIAR)
+       ========================================================================= -->
+  <div id="modal-dispersion" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-black text-slate-950 uppercase">Dispersión y Cierre Contable de Planilla</h3>
+          <p id="disp-resumen" class="text-[11px] text-slate-500"></p>
+        </div>
+        <button type="button" onclick="cerrarModalDispersion()" class="w-8 h-8 rounded-lg hover:bg-slate-200 flex items-center justify-center font-bold text-slate-500 cursor-pointer">✕</button>
+      </div>
+      <div class="p-6 space-y-2.5 text-xs">
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 cursor-pointer">
+          <input type="checkbox" id="disp-contabilidad" checked class="mt-0.5 w-4 h-4 accent-emerald-700">
+          <span><strong class="block text-slate-900">Generar partida contable cuadrada (Contabilidad)</strong><span class="text-slate-500">Registra el asiento de sueldos, cargas patronales, retenciones y bancos en <code class="font-mono">horizon_asientos_contables</code>.</span></span>
+        </label>
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-sky-200 bg-sky-50/50 hover:bg-sky-50 cursor-pointer">
+          <input type="checkbox" id="disp-tesoreria" checked class="mt-0.5 w-4 h-4 accent-sky-700">
+          <span><strong class="block text-slate-900">Enviar solicitud de dispersión a Tesorería</strong><span class="text-slate-500">Crea la orden de pago de nómina en <code class="font-mono">horizon_tesoreria_solicitudes_pago</code>.</span></span>
+        </label>
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="disp-boletas" checked class="mt-0.5 w-4 h-4 accent-slate-900">
+          <span><strong class="block text-slate-900">Boletas de pago individuales</strong><span class="text-slate-500">Genera una boleta por colaborador en una vista imprimible.</span></span>
+        </label>
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="disp-csv" checked class="mt-0.5 w-4 h-4 accent-slate-900">
+          <span><strong class="block text-slate-900">Archivo .csv bancario</strong><span class="text-slate-500">Descarga el layout de transferencias (banco, cuenta, monto neto).</span></span>
+        </label>
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="disp-print" class="mt-0.5 w-4 h-4 accent-slate-900">
+          <span><strong class="block text-slate-900">Enviar a impresora</strong><span class="text-slate-500">Abre el diálogo de impresión con las boletas generadas.</span></span>
+        </label>
+      </div>
+      <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-2">
+        <button type="button" onclick="cerrarModalDispersion()" class="px-4 py-2 rounded-full bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 cursor-pointer">Cancelar</button>
+        <button type="button" onclick="ejecutarDispersion()" class="px-5 py-2 rounded-full bg-black text-white text-xs font-bold hover:bg-neutral-800 cursor-pointer">Confirmar y enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 z-[60] hidden px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-xl"></div>
+
+  <!-- =========================================================================
+       MOTOR JAVASCRIPT
        ========================================================================= -->
   <script>
-    // -------------------------------------------------------------------------
-    // 1. NAVEGACIÓN DEL GATEWAY DE 4 PANELES
-    // -------------------------------------------------------------------------
+    // ------------------------------------------------------------------
+    // UTILIDADES Y LLAVES DE LOCALSTORAGE
+    // ------------------------------------------------------------------
+    const LS_EMPLEADOS = 'horizon_rrhh_empleados';
+    const LS_ESTADOS_PLANILLA = 'horizon_rrhh_planillas_estado';
+    const LS_ASISTENCIA = 'horizon_rrhh_asistencia';
+    const LS_PRESTAMOS = 'horizon_rrhh_prestamos';
+    const LS_PARAMS_LEY = 'horizon_rrhh_parametros_ley';
+    const LS_ASIENTOS = 'horizon_asientos_contables';
+    const LS_SOLICITUDES_TESORERIA = 'horizon_tesoreria_solicitudes_pago';
+
+    function esc(v) {
+      return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function fmt(n) {
+      return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => t.classList.add('hidden'), 3200);
+    }
+
+    // ------------------------------------------------------------------
+    // 1. ESTADO INICIAL (4 colaboradores de muestra)
+    // ------------------------------------------------------------------
+    const EMPLEADOS_MUESTRA = [
+      { id: 'EMP-001', codigo: 'EMP-001', nombres: 'Carlos', apellidos: 'Hernández', dni: '0801-1988-01234', rtn: '08011988012345', fechaNac: '1988-04-12', genero: 'Masculino', estadoCivil: 'Casado/a', telefono: '+504 9988-1001', email: 'carlos.hernandez@empresa.hn', direccion: 'Col. Palmira, Tegucigalpa', cargo: 'Auditor General', depto: 'Contabilidad y Finanzas', sucursal: 'Casa Matriz TGU', fechaIngreso: '2021-03-15', tipoContrato: 'Indefinido', modalidad: 'SALARIO', salarioBase: 42000, valorJornal: 0, horasExtras: 0, bonos: 0, estado: 'Activo', banco: 'Banco Atlántida', tipoCuenta: 'Cheques', cuentaBancaria: '1100-492018-4', ihss: '0801-88-0012', rap: 'RAP-100234', aplicaIhss: 'SI' },
+      { id: 'EMP-002', codigo: 'EMP-002', nombres: 'Sofía', apellidos: 'Mendoza', dni: '0801-1993-05521', rtn: '08011993055214', fechaNac: '1993-09-03', genero: 'Femenino', estadoCivil: 'Soltero/a', telefono: '+504 9988-1002', email: 'sofia.mendoza@empresa.hn', direccion: 'Res. El Trapiche, Tegucigalpa', cargo: 'Contadora General', depto: 'Contabilidad y Finanzas', sucursal: 'Casa Matriz TGU', fechaIngreso: '2022-06-01', tipoContrato: 'Indefinido', modalidad: 'SALARIO', salarioBase: 28500, valorJornal: 0, horasExtras: 6, bonos: 1800, estado: 'Activo', banco: 'BAC Credomatic', tipoCuenta: 'Ahorro', cuentaBancaria: '740-192831-0', ihss: '0801-93-0551', rap: 'RAP-100871', aplicaIhss: 'SI' },
+      { id: 'EMP-003', codigo: 'EMP-003', nombres: 'Jorge', apellidos: 'Castillo', dni: '0501-1995-09112', rtn: '05011995091127', fechaNac: '1995-01-22', genero: 'Masculino', estadoCivil: 'Unión libre', telefono: '+504 9988-1003', email: 'jorge.castillo@empresa.hn', direccion: 'Bo. Medina, San Pedro Sula', cargo: 'Coordinador de Logística', depto: 'Logística y Bodega', sucursal: 'Sucursal San Pedro Sula', fechaIngreso: '2023-02-10', tipoContrato: 'Plazo Fijo', modalidad: 'JORNAL', salarioBase: 0, valorJornal: 700, horasExtras: 12, bonos: 0, estado: 'Activo', banco: 'Banco Ficohsa', tipoCuenta: 'Ahorro', cuentaBancaria: '2000-881209-1', ihss: '0501-95-0911', rap: 'RAP-101322', aplicaIhss: 'SI' },
+      { id: 'EMP-004', codigo: 'EMP-004', nombres: 'Valeria', apellidos: 'Reyes', dni: '0801-1997-03389', rtn: '08011997033891', fechaNac: '1997-11-30', genero: 'Femenino', estadoCivil: 'Soltero/a', telefono: '+504 9988-1004', email: 'valeria.reyes@empresa.hn', direccion: 'Col. Kennedy, Tegucigalpa', cargo: 'Ejecutiva Comercial SAR', depto: 'Ventas y Comercial', sucursal: 'Sucursal San Pedro Sula', fechaIngreso: '2024-01-15', tipoContrato: 'Indefinido', modalidad: 'SALARIO', salarioBase: 18500, valorJornal: 0, horasExtras: 10, bonos: 3200, estado: 'Activo', banco: 'Banpaís', tipoCuenta: 'Ahorro', cuentaBancaria: '3300-114520-7', ihss: '0801-97-0338', rap: 'RAP-101745', aplicaIhss: 'SI' }
+    ];
+
+    let empleados = [];
+    let empleadoSeleccionadoId = null;
+    let modoFicha = 'view'; // 'view' | 'new' | 'edit'
+    let asEmpleadoId = 'EMP-001';
+    let dedEmpleadoId = 'EMP-001';
+    let dedTabActiva = 'prestamos';
+
+    function cargarEmpleados() {
+      let lista = null;
+      try {
+        const raw = localStorage.getItem(LS_EMPLEADOS);
+        if (raw) lista = JSON.parse(raw);
+      } catch (e) { lista = null; }
+      if (!Array.isArray(lista) || lista.length === 0) {
+        lista = JSON.parse(JSON.stringify(EMPLEADOS_MUESTRA));
+        localStorage.setItem(LS_EMPLEADOS, JSON.stringify(lista));
+      }
+      empleados = lista;
+    }
+    function guardarEmpleadosLS() {
+      localStorage.setItem(LS_EMPLEADOS, JSON.stringify(empleados));
+    }
+
+    // ------------------------------------------------------------------
+    // 2. SINCRONIZACIÓN CORPORATIVA DESDE CONFIG
+    // ------------------------------------------------------------------
+    const DEPARTAMENTOS_BASE = ['Administración', 'Contabilidad y Finanzas', 'Ventas y Comercial', 'Logística y Bodega', 'Producción', 'Recursos Humanos'];
+    const SUCURSALES_BASE = ['Casa Matriz TGU', 'Sucursal San Pedro Sula'];
+
+    function leerConfig() {
+      try { return JSON.parse(localStorage.getItem('horizon_system_config') || '{}') || {}; } catch (e) { return {}; }
+    }
+
+    function sincronizarIdentidadDesdeConfig() {
+      const cfg = leerConfig();
+      const name = cfg.empresa_nombre || (cfg.company && cfg.company.name) || cfg.company_name || cfg.razon_social || cfg.empresa;
+      const rtn = cfg.empresa_rtn || (cfg.company && cfg.company.rtn) || cfg.company_rtn || cfg.rtn;
+      const period = cfg.periodo_activo || (cfg.period && cfg.period.label) || cfg.active_period;
+      const logo = cfg.company_logo || cfg.empresa_logo || (cfg.company && (cfg.company.logo || cfg.company.logo_url || cfg.company.logo_data_url));
+
+      const elName = document.getElementById('hdr-company-name');
+      const elRtn = document.getElementById('hdr-company-rtn');
+      const elPeriod = document.getElementById('hdr-period-text');
+      const elLogo = document.getElementById('hdr-company-logo-container');
+
+      if (name && elName) { elName.textContent = String(name).toUpperCase(); elName.title = String(name).toUpperCase(); }
+      if (rtn && elRtn) elRtn.textContent = 'RTN: ' + String(rtn).replace(/^RTN:\s*/i, '').trim();
+      if (period && elPeriod) elPeriod.textContent = String(period).toUpperCase();
+      if (logo && elLogo) {
+        elLogo.innerHTML = String(logo).trim().startsWith('<svg')
+          ? logo
+          : '<img src="' + esc(logo) + '" alt="Logo" class="w-full h-full object-contain rounded-lg">';
+      }
+    }
+
+    function obtenerSucursales() {
+      const set = new Set(SUCURSALES_BASE);
+      const cfg = leerConfig();
+      const est = cfg.company && Array.isArray(cfg.company.establecimientos) ? cfg.company.establecimientos : [];
+      est.forEach(e => { const n = e.nombre || e.name; if (n) set.add(n); });
+      empleados.forEach(e => { if (e.sucursal) set.add(e.sucursal); });
+      return Array.from(set);
+    }
+    function obtenerDepartamentos() {
+      const set = new Set(DEPARTAMENTOS_BASE);
+      empleados.forEach(e => { if (e.depto) set.add(e.depto); });
+      return Array.from(set);
+    }
+
+    function poblarSelectoresMaestros() {
+      const deptos = obtenerDepartamentos();
+      const sucs = obtenerSucursales();
+      const opt = (arr, first) => (first ? '<option value="">' + first + '</option>' : '') + arr.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join('');
+
+      const fDep = document.getElementById('exp-filtro-depto');
+      const fSuc = document.getElementById('exp-filtro-sucursal');
+      const pSuc = document.getElementById('pl-sucursal');
+      const asPr = document.getElementById('as-in-proyecto');
+      const vDep = fDep.value, vSuc = fSuc.value, vPs = pSuc.value;
+
+      fDep.innerHTML = opt(deptos, 'Todos los departamentos');
+      fSuc.innerHTML = opt(sucs, 'Todas las sucursales');
+      pSuc.innerHTML = opt(sucs, 'Todas las sucursales / proyectos');
+      document.getElementById('sel-form-depto').innerHTML = opt(deptos);
+      document.getElementById('sel-form-sucursal').innerHTML = opt(sucs);
+      if (asPr) asPr.innerHTML = opt(sucs);
+
+      fDep.value = vDep; fSuc.value = vSuc; pSuc.value = vPs;
+    }
+
+    // ------------------------------------------------------------------
+    // 3. NAVEGACIÓN
+    // ------------------------------------------------------------------
+    const SUBVISTAS = {
+      expedientes: 'view-panel-expedientes',
+      planilla: 'view-panel-planilla',
+      asistencia: 'view-panel-asistencia',
+      deducciones: 'view-panel-deducciones'
+    };
+
     function ocultarTodasLasSubVistas() {
-      ['view-panel-expedientes', 'view-panel-planilla', 'view-panel-asistencia', 'view-panel-deducciones'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-      });
+      Object.values(SUBVISTAS).forEach(id => document.getElementById(id).classList.remove('active'));
+    }
+    function subVistaActiva() {
+      return Object.keys(SUBVISTAS).find(k => document.getElementById(SUBVISTAS[k]).classList.contains('active')) || null;
     }
 
     function ingresarAPanel(panelId) {
-      const gateway = document.getElementById('view-gateway');
+      const target = SUBVISTAS[panelId];
+      if (!target) return;
       ocultarTodasLasSubVistas();
-
-      const mapaVistas = {
-        expedientes: 'view-panel-expedientes',
-        planilla: 'view-panel-planilla',
-        asistencia: 'view-panel-asistencia',
-        deducciones: 'view-panel-deducciones'
-      };
-
-      const targetId = mapaVistas[panelId];
-      if (!targetId) return;
-
-      if (gateway) gateway.classList.add('hidden');
-      const targetEl = document.getElementById(targetId);
-      if (targetEl) targetEl.classList.remove('hidden');
-
-      sincronizarCuentasRRHH();
+      document.getElementById('view-gateway').classList.add('hidden');
+      document.getElementById(target).classList.add('active');
+      poblarSelectoresMaestros();
+      if (panelId === 'expedientes') {
+        renderListaEmpleados();
+        if (!empleadoSeleccionadoId && empleados.length) seleccionarEmpleado(empleados[0].id);
+      }
       if (panelId === 'planilla') renderPlanilla();
-      if (panelId === 'deducciones') calcularSimuladorPrestaciones();
+      if (panelId === 'asistencia') {
+        if (!empleados.some(e => e.id === asEmpleadoId) && empleados.length) asEmpleadoId = empleados[0].id;
+        renderAsistencia();
+      }
+      if (panelId === 'deducciones') {
+        if (!empleados.some(e => e.id === dedEmpleadoId) && empleados.length) dedEmpleadoId = empleados[0].id;
+        poblarInputsParametrosLey();
+        renderDeducciones();
+      }
     }
 
     function volverAGateway() {
       ocultarTodasLasSubVistas();
-      const gateway = document.getElementById('view-gateway');
-      if (gateway) gateway.classList.remove('hidden');
+      document.getElementById('view-gateway').classList.remove('hidden');
     }
 
     function manejarBotonRegresar() {
-      const gateway = document.getElementById('view-gateway');
-      if (gateway && gateway.classList.contains('hidden')) {
+      const mDisp = document.getElementById('modal-dispersion');
+      if (!mDisp.classList.contains('hidden')) { cerrarModalDispersion(); return; }
+      const mImp = document.getElementById('modal-importador');
+      if (!mImp.classList.contains('hidden')) { cerrarModalImportador(); return; }
+      if (subVistaActiva()) {
+        if (modoFicha !== 'view') cancelarEdicion();
         volverAGateway();
       } else {
         window.location.href = 'workspace_lobby.html';
       }
     }
 
-    // -------------------------------------------------------------------------
-    // 2. SINCRONIZACIÓN DE IDENTIDAD Y CATÁLOGO DE CUENTAS DESDE CONFIG
-    // -------------------------------------------------------------------------
-    const CUENTAS_RRHH_FALLBACK = [
-      { codigo: '5.1.01.01', nombre: 'Sueldos y Salarios Administrativos', naturaleza: 'DEBE', tipo: 'DETALLE' },
-      { codigo: '5.1.01.02', nombre: 'Horas Extras, Bonificaciones y Décimos', naturaleza: 'DEBE', tipo: 'DETALLE' },
-      { codigo: '5.1.02.01', nombre: 'Aportaciones Patronales IHSS / RAP / INFOP', naturaleza: 'DEBE', tipo: 'DETALLE' },
-      { codigo: '2.1.02.01', nombre: 'Sueldos y Salarios por Pagar', naturaleza: 'HABER', tipo: 'DETALLE' },
-      { codigo: '2.1.02.02', nombre: 'Retenciones Laborales por Pagar (IHSS/RAP/ISR)', naturaleza: 'HABER', tipo: 'DETALLE' },
-      { codigo: '2.1.02.03', nombre: 'Provisión de Prestaciones Laborales', naturaleza: 'HABER', tipo: 'DETALLE' }
-    ];
+    // ------------------------------------------------------------------
+    // 4. EXPEDIENTES: LISTA + FICHA MAESTRO/DETALLE
+    // ------------------------------------------------------------------
+    const CAMPOS_FICHA = ['codigo','nombres','apellidos','dni','rtn','fechaNac','genero','estadoCivil','telefono','email','direccion',
+      'cargo','depto','sucursal','fechaIngreso','tipoContrato','modalidad','salarioBase','valorJornal','horasExtras','bonos','estado',
+      'banco','tipoCuenta','cuentaBancaria','ihss','rap','aplicaIhss'];
 
-    function sincronizarIdentidadDesdeConfig() {
+    function campoEl(nombre) { return document.querySelector('#exp-form [data-field="' + nombre + '"]'); }
+
+    function renderListaEmpleados() {
+      const q = (document.getElementById('exp-buscar').value || '').toLowerCase().trim();
+      const fd = document.getElementById('exp-filtro-depto').value;
+      const fs = document.getElementById('exp-filtro-sucursal').value;
+
+      const filtrados = empleados.filter(e => {
+        const texto = [e.codigo, e.nombres, e.apellidos, e.dni, e.cargo].join(' ').toLowerCase();
+        return (!q || texto.includes(q)) && (!fd || e.depto === fd) && (!fs || e.sucursal === fs);
+      });
+
+      document.getElementById('exp-count').textContent = filtrados.length + ' / ' + empleados.length;
+      const cont = document.getElementById('exp-lista');
+      if (!filtrados.length) {
+        cont.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Sin resultados.</div>';
+        return;
+      }
+      cont.innerHTML = filtrados.map(e => {
+        const activo = e.id === empleadoSeleccionadoId;
+        const ini = ((e.nombres || ' ')[0] + (e.apellidos || ' ')[0]).toUpperCase();
+        return '<button type="button" onclick="seleccionarEmpleado(\'' + esc(e.id) + '\')" class="w-full text-left px-4 py-3 flex items-center gap-3 transition cursor-pointer ' + (activo ? 'bg-slate-900 text-white' : 'hover:bg-slate-50') + '">' +
+          '<span class="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 ' + (activo ? 'bg-white text-slate-900' : 'bg-slate-100 text-slate-700') + '">' + esc(ini) + '</span>' +
+          '<span class="min-w-0 flex-1">' +
+            '<span class="block text-xs font-extrabold truncate">' + esc(e.nombres) + ' ' + esc(e.apellidos) + '</span>' +
+            '<span class="block text-[10px] truncate ' + (activo ? 'text-slate-300' : 'text-slate-500') + '">' + esc(e.codigo) + ' · ' + esc(e.cargo) + '</span>' +
+            '<span class="block text-[10px] truncate ' + (activo ? 'text-slate-400' : 'text-slate-400') + '">' + esc(e.depto) + ' · ' + esc(e.sucursal) + '</span>' +
+          '</span>' +
+          '<span class="text-[9px] font-bold px-2 py-0.5 rounded-full ' + (e.estado === 'Activo' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600') + '">' + esc(e.estado) + '</span>' +
+        '</button>';
+      }).join('');
+    }
+
+    function poblarFormulario(emp) {
+      CAMPOS_FICHA.forEach(c => {
+        const el = campoEl(c);
+        if (!el) return;
+        el.value = emp && emp[c] != null ? emp[c] : '';
+      });
+      actualizarCamposModalidad();
+    }
+
+    function leerFormulario() {
+      const o = {};
+      CAMPOS_FICHA.forEach(c => {
+        const el = campoEl(c);
+        if (!el) return;
+        o[c] = el.type === 'number' ? (parseFloat(el.value) || 0) : String(el.value || '').trim();
+      });
+      return o;
+    }
+
+    function actualizarCamposModalidad() {
+      const m = campoEl('modalidad').value || 'SALARIO';
+      document.getElementById('wrap-salario').classList.toggle('hidden', m !== 'SALARIO');
+      document.getElementById('wrap-jornal').classList.toggle('hidden', m !== 'JORNAL');
+    }
+
+    function setModoFicha(modo) {
+      modoFicha = modo;
+      const editando = modo !== 'view';
+      CAMPOS_FICHA.forEach(c => {
+        const el = campoEl(c);
+        if (!el) return;
+        el.disabled = el.dataset.fixed === '1' ? true : !editando;
+      });
+      document.getElementById('btn-exp-guardar').classList.toggle('hidden', !editando);
+      document.getElementById('btn-exp-cancelar').classList.toggle('hidden', !editando);
+      ['btn-exp-nuevo', 'btn-exp-modificar', 'btn-exp-eliminar'].forEach(id => document.getElementById(id).classList.toggle('hidden', editando));
+      const badge = document.getElementById('exp-modo-badge');
+      badge.textContent = modo === 'new' ? 'Nuevo registro' : modo === 'edit' ? 'Editando' : 'Solo lectura';
+      badge.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ' +
+        (modo === 'new' ? 'bg-sky-100 text-sky-800' : modo === 'edit' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600');
+    }
+
+    function seleccionarEmpleado(id) {
+      if (modoFicha !== 'view') { toast('Guarda o cancela la edición antes de cambiar de colaborador.'); return; }
+      const emp = empleados.find(e => e.id === id);
+      if (!emp) return;
+      empleadoSeleccionadoId = id;
+      poblarFormulario(emp);
+      document.getElementById('exp-titulo').textContent = emp.nombres + ' ' + emp.apellidos + ' — ' + emp.codigo;
+      setModoFicha('view');
+      renderListaEmpleados();
+    }
+
+    function siguienteCodigo() {
+      const max = empleados.reduce((m, e) => {
+        const n = parseInt(String(e.codigo).replace(/\D/g, ''), 10);
+        return isNaN(n) ? m : Math.max(m, n);
+      }, 0);
+      return 'EMP-' + String(max + 1).padStart(3, '0');
+    }
+
+    function nuevoEmpleado() {
+      empleadoSeleccionadoId = null;
+      poblarFormulario({
+        codigo: siguienteCodigo(), genero: 'Femenino', estadoCivil: 'Soltero/a', depto: obtenerDepartamentos()[0], sucursal: obtenerSucursales()[0],
+        tipoContrato: 'Indefinido', modalidad: 'SALARIO', salarioBase: 0, valorJornal: 0, horasExtras: 0, bonos: 0, estado: 'Activo',
+        fechaIngreso: new Date().toISOString().slice(0, 10), banco: 'Banco Atlántida', tipoCuenta: 'Ahorro', aplicaIhss: 'SI'
+      });
+      document.getElementById('exp-titulo').textContent = 'Nuevo colaborador';
+      setModoFicha('new');
+      renderListaEmpleados();
+      const f = campoEl('nombres'); if (f) f.focus();
+    }
+
+    function modificarEmpleado() {
+      if (!empleadoSeleccionadoId) { toast('Selecciona un colaborador para modificar.'); return; }
+      setModoFicha('edit');
+    }
+
+    function cancelarEdicion() {
+      const emp = empleados.find(e => e.id === empleadoSeleccionadoId);
+      if (emp) {
+        poblarFormulario(emp);
+        document.getElementById('exp-titulo').textContent = emp.nombres + ' ' + emp.apellidos + ' — ' + emp.codigo;
+      } else {
+        poblarFormulario(null);
+        document.getElementById('exp-titulo').textContent = 'Selecciona un colaborador';
+      }
+      setModoFicha('view');
+      if (!emp && empleados.length) seleccionarEmpleado(empleados[0].id);
+    }
+
+    function guardarEmpleado() {
+      const d = leerFormulario();
+      if (!d.nombres || !d.apellidos) { toast('Nombres y apellidos son obligatorios.'); return; }
+      if (!d.dni) { toast('El DNI es obligatorio.'); return; }
+      if (d.modalidad === 'SALARIO' && d.salarioBase <= 0) { toast('Ingresa un salario base mayor a cero.'); return; }
+      if (d.modalidad === 'JORNAL' && d.valorJornal <= 0) { toast('Ingresa un valor de jornal mayor a cero.'); return; }
+
+      if (modoFicha === 'new') {
+        d.id = d.codigo;
+        empleados.push(d);
+        empleadoSeleccionadoId = d.id;
+      } else {
+        const i = empleados.findIndex(e => e.id === empleadoSeleccionadoId);
+        if (i === -1) return;
+        empleados[i] = Object.assign({}, empleados[i], d, { id: empleados[i].id });
+      }
+      guardarEmpleadosLS();
+      poblarSelectoresMaestros();
+      setModoFicha('view');
+      const emp = empleados.find(e => e.id === empleadoSeleccionadoId);
+      poblarFormulario(emp);
+      document.getElementById('exp-titulo').textContent = emp.nombres + ' ' + emp.apellidos + ' — ' + emp.codigo;
+      renderListaEmpleados();
+      toast('Expediente guardado.');
+    }
+
+    function eliminarEmpleado() {
+      const emp = empleados.find(e => e.id === empleadoSeleccionadoId);
+      if (!emp) { toast('Selecciona un colaborador para eliminar.'); return; }
+      if (!confirm('¿Eliminar el expediente de ' + emp.nombres + ' ' + emp.apellidos + '? Esta acción no se puede deshacer.')) return;
+      empleados = empleados.filter(e => e.id !== emp.id);
+      guardarEmpleadosLS();
+      empleadoSeleccionadoId = null;
+      poblarFormulario(null);
+      document.getElementById('exp-titulo').textContent = 'Selecciona un colaborador';
+      setModoFicha('view');
+      renderListaEmpleados();
+      if (empleados.length) seleccionarEmpleado(empleados[0].id);
+      toast('Expediente eliminado.');
+    }
+
+    // ------------------------------------------------------------------
+    // 5. PARÁMETROS DE LEY + PLANILLA Y NÓMINA
+    // ------------------------------------------------------------------
+    const PARAMS_LEY_DEFAULT = {
+      ihssEmpleado: 0.035, ihssPatrono: 0.07, techoIhssMensual: 11903.13,
+      rapEmpleado: 0.015, rapPatrono: 0.015, infopPatrono: 0.01,
+      recargoExtra: 1.25, horasMes: 240,
+      isrTramos: [
+        { hasta: 217493.16, tasa: 0 },
+        { hasta: 308100.47, tasa: 0.15 },
+        { hasta: 772000.20, tasa: 0.20 },
+        { hasta: Infinity, tasa: 0.25 }
+      ]
+    };
+
+    let PARAMS_LEY = JSON.parse(JSON.stringify(PARAMS_LEY_DEFAULT));
+
+    function cargarParametrosLey() {
       try {
-        const rawCfg = localStorage.getItem('horizon_system_config');
-        if (!rawCfg) return;
-        const cfg = JSON.parse(rawCfg);
-
-        const companyName = cfg.empresa_nombre || (cfg.company && cfg.company.name) || cfg.company_name || cfg.razon_social || cfg.empresa || 'SOLUTIONS & APPLIANCES LTD';
-        const companyRtn = cfg.empresa_rtn || (cfg.company && cfg.company.rtn) || cfg.company_rtn || cfg.rtn || '08011990123456';
-        const periodText = cfg.periodo_activo || (cfg.period && cfg.period.label) || cfg.active_period || 'OCTUBRE 2026';
-
-        const elName = document.getElementById('hdr-company-name');
-        const elRtn = document.getElementById('hdr-company-rtn');
-        const elPeriod = document.getElementById('hdr-period-text');
-        const elLogo = document.getElementById('hdr-company-logo-container');
-
-        if (elName) {
-          elName.textContent = String(companyName).toUpperCase();
-          elName.title = String(companyName).toUpperCase();
+        const raw = JSON.parse(localStorage.getItem(LS_PARAMS_LEY) || 'null');
+        if (raw && raw.techoIhssMensual) {
+          PARAMS_LEY = Object.assign({}, PARAMS_LEY_DEFAULT, raw);
+          PARAMS_LEY.isrTramos = [
+            { hasta: Number(raw.isr1) || PARAMS_LEY_DEFAULT.isrTramos[0].hasta, tasa: 0 },
+            { hasta: Number(raw.isr2) || PARAMS_LEY_DEFAULT.isrTramos[1].hasta, tasa: 0.15 },
+            { hasta: Number(raw.isr3) || PARAMS_LEY_DEFAULT.isrTramos[2].hasta, tasa: 0.20 },
+            { hasta: Infinity, tasa: 0.25 }
+          ];
         }
-        if (elRtn) {
-          const cleanRtn = String(companyRtn).replace(/^RTN:\s*/i, '').trim();
-          elRtn.textContent = `RTN: ${cleanRtn}`;
-        }
-        if (elPeriod) {
-          elPeriod.textContent = String(periodText).toUpperCase();
-        }
+      } catch (e) {}
+    }
 
-        const logoData = cfg.company_logo || cfg.empresa_logo || (cfg.company && (cfg.company.logo || cfg.company.logo_url || cfg.company.logo_data_url));
-        if (elLogo && logoData) {
-          if (String(logoData).trim().startsWith('<svg')) {
-            elLogo.innerHTML = logoData;
-          } else {
-            elLogo.innerHTML = `<img src="${logoData}" alt="${companyName}" class="w-full h-full object-contain rounded-lg">`;
-          }
-        }
-      } catch (e) {
-        console.warn('Error sincronizando identidad del Header con Config:', e);
+    function poblarInputsParametrosLey() {
+      document.getElementById('ley-techo-ihss').value = PARAMS_LEY.techoIhssMensual;
+      document.getElementById('ley-ihss-emp').value = +(PARAMS_LEY.ihssEmpleado * 100).toFixed(2);
+      document.getElementById('ley-ihss-pat').value = +(PARAMS_LEY.ihssPatrono * 100).toFixed(2);
+      document.getElementById('ley-rap-emp').value = +(PARAMS_LEY.rapEmpleado * 100).toFixed(2);
+      document.getElementById('ley-rap-pat').value = +(PARAMS_LEY.rapPatrono * 100).toFixed(2);
+      document.getElementById('ley-infop-pat').value = +(PARAMS_LEY.infopPatrono * 100).toFixed(2);
+      document.getElementById('ley-isr-1').value = PARAMS_LEY.isrTramos[0].hasta;
+      document.getElementById('ley-isr-2').value = PARAMS_LEY.isrTramos[1].hasta;
+      document.getElementById('ley-isr-3').value = PARAMS_LEY.isrTramos[2].hasta;
+    }
+
+    function guardarParametrosLey() {
+      const obj = {
+        techoIhssMensual: parseFloat(document.getElementById('ley-techo-ihss').value) || PARAMS_LEY_DEFAULT.techoIhssMensual,
+        ihssEmpleado: (parseFloat(document.getElementById('ley-ihss-emp').value) || 3.5) / 100,
+        ihssPatrono: (parseFloat(document.getElementById('ley-ihss-pat').value) || 7) / 100,
+        rapEmpleado: (parseFloat(document.getElementById('ley-rap-emp').value) || 1.5) / 100,
+        rapPatrono: (parseFloat(document.getElementById('ley-rap-pat').value) || 1.5) / 100,
+        infopPatrono: (parseFloat(document.getElementById('ley-infop-pat').value) || 1) / 100,
+        isr1: parseFloat(document.getElementById('ley-isr-1').value) || PARAMS_LEY_DEFAULT.isrTramos[0].hasta,
+        isr2: parseFloat(document.getElementById('ley-isr-2').value) || PARAMS_LEY_DEFAULT.isrTramos[1].hasta,
+        isr3: parseFloat(document.getElementById('ley-isr-3').value) || PARAMS_LEY_DEFAULT.isrTramos[2].hasta
+      };
+      localStorage.setItem(LS_PARAMS_LEY, JSON.stringify(obj));
+      cargarParametrosLey();
+      toast('Parámetros legales actualizados.');
+    }
+
+    function restaurarParametrosLey() {
+      localStorage.removeItem(LS_PARAMS_LEY);
+      PARAMS_LEY = JSON.parse(JSON.stringify(PARAMS_LEY_DEFAULT));
+      poblarInputsParametrosLey();
+      toast('Parámetros legales restaurados a valores por defecto.');
+    }
+
+    function isrAnual(base) {
+      let isr = 0, prev = 0;
+      for (const t of PARAMS_LEY.isrTramos) {
+        if (base > prev) isr += (Math.min(base, t.hasta) - prev) * t.tasa;
+        prev = t.hasta;
       }
+      return isr;
     }
 
-    function normalizarCuentaRRHH(c) {
-      const codigo = c.codigo || c.code || '';
-      const nombre = c.nombre || c.name || '';
-      const natRaw = (c.naturaleza || c.nature || '').toUpperCase();
-      const naturaleza = natRaw.includes('HABER') || natRaw.includes('ACREED') || natRaw === 'CREDIT'
-        ? 'Acreedora (HABER)'
-        : 'Deudora (DEBE)';
-      const nivel = c.tipo || c.nivel || (codigo.split('.').length >= 4 ? 'DETALLE' : 'MAYOR');
-      return { codigo, nombre, naturaleza, nivel };
+    function factorPeriodo() {
+      return document.getElementById('pl-periodo').value === 'MENSUAL' ? 1 : 0.5;
     }
 
-    function obtenerCuentasDeConfig() {
-      try {
-        const rawCfg = localStorage.getItem('horizon_system_config');
-        if (rawCfg) {
-          const parsed = JSON.parse(rawCfg);
-          const cuentas = parsed.catalogo_cuentas || parsed.catalogoCuentasNIIF || parsed.cuentas_contables || parsed.accounts || parsed.chart_of_accounts;
-          if (Array.isArray(cuentas) && cuentas.length > 0) {
-            return cuentas.map(normalizarCuentaRRHH);
-          }
-        }
-        const rawCat = localStorage.getItem('horizon_catalogo_cuentas') || localStorage.getItem('catalogo_cuentas');
-        if (rawCat) {
-          const list = JSON.parse(rawCat);
-          if (Array.isArray(list) && list.length > 0) {
-            return list.map(normalizarCuentaRRHH);
-          }
-        }
-      } catch (e) {
-        console.warn('Error sincronizando catálogo con Config:', e);
-      }
-      return CUENTAS_RRHH_FALLBACK.map(normalizarCuentaRRHH);
+    function cuotaPrestamosEmpleado(empId) {
+      return leerPrestamos().filter(p => p.empleadoId === empId && p.saldo > 0).reduce((s, p) => s + Math.min(p.cuota, p.saldo), 0);
     }
 
-    function sincronizarCuentasRRHH() {
-      const todas = obtenerCuentasDeConfig();
+    function calcularFila(e, factor) {
+      const mensualEq = e.modalidad === 'JORNAL' ? (e.valorJornal || 0) * 30 : (e.salarioBase || 0);
+      const dias = 30 * factor;
+      const base = mensualEq * factor;
+      const horas = (e.horasExtras || 0) * factor;
+      const extras = horas * (mensualEq / PARAMS_LEY.horasMes) * PARAMS_LEY.recargoExtra;
+      const bonos = (e.bonos || 0) * factor;
+      const devengado = base + extras + bonos;
 
-      const cuentasSueldos = todas.filter(c => {
-        const txt = `${c.codigo} ${c.nombre}`.toLowerCase();
-        return txt.includes('sueldo') || txt.includes('salario') || txt.includes('gasto') || txt.includes('planilla') || c.codigo.startsWith('5.');
-      });
-      const listaSueldos = cuentasSueldos.length > 0 ? cuentasSueldos : todas;
+      const aplica = e.aplicaIhss !== 'NO';
+      const baseIhss = Math.min(devengado, PARAMS_LEY.techoIhssMensual * factor);
+      const baseRap = Math.max(0, devengado - PARAMS_LEY.techoIhssMensual * factor);
+      const ihss = aplica ? baseIhss * PARAMS_LEY.ihssEmpleado : 0;
+      const rap = aplica ? baseRap * PARAMS_LEY.rapEmpleado : 0;
+      const isr = (isrAnual((mensualEq + (e.horasExtras || 0) * (mensualEq / PARAMS_LEY.horasMes) * PARAMS_LEY.recargoExtra + (e.bonos || 0)) * 12) / 12) * factor;
+      const prestamos = cuotaPrestamosEmpleado(e.id) * factor;
+      const totalDed = ihss + rap + isr + prestamos;
 
-      const cuentasRet = todas.filter(c => {
-        const txt = `${c.codigo} ${c.nombre}`.toLowerCase();
-        return txt.includes('retenci') || txt.includes('ihss') || txt.includes('rap') || txt.includes('laboral') || txt.includes('por pagar') || c.codigo.startsWith('2.1.02');
-      });
-      const listaRet = cuentasRet.length > 0 ? cuentasRet : todas;
+      const ihssP = aplica ? baseIhss * PARAMS_LEY.ihssPatrono : 0;
+      const rapP = aplica ? baseRap * PARAMS_LEY.rapPatrono : 0;
+      const infop = devengado * PARAMS_LEY.infopPatrono;
+      const totalPat = ihssP + rapP + infop;
 
-      const selSueldos = document.getElementById('select-cuenta-sueldos');
-      if (selSueldos) {
-        selSueldos.innerHTML = listaSueldos.map(c => `<option value="${c.codigo}">${c.codigo} — ${c.nombre}</option>`).join('');
-      }
-
-      const selRet = document.getElementById('select-cuenta-retenciones');
-      if (selRet) {
-        selRet.innerHTML = listaRet.map(c => `<option value="${c.codigo}">${c.codigo} — ${c.nombre}</option>`).join('');
-      }
+      return { e, dias, base, horas, extras, bonos, devengado, ihss, rap, isr, prestamos, totalDed, ihssP, rapP, infop, totalPat, neto: devengado - totalDed };
     }
 
-    // -------------------------------------------------------------------------
-    // 3. DATOS OPERATIVOS DE LAS 4 SUB-VISTAS DE RRHH
-    // -------------------------------------------------------------------------
-    const colaboradoresData = [
-      { codigo: 'EMP-001', nombre: 'Carlos Hernández', dni: '0801-1988-01234', cargo: 'Auditor General', depto: 'Contabilidad y Finanzas', ingreso: '2021-03-15', salario: 42000.00, extras: 0, estado: 'Activo', vacDisp: 14 },
-      { codigo: 'EMP-002', nombre: 'Sofía Mendoza', dni: '0801-1993-05521', cargo: 'Contadora General', depto: 'Contabilidad y Finanzas', ingreso: '2022-06-01', salario: 28500.00, extras: 1800, estado: 'Activo', vacDisp: 10 },
-      { codigo: 'EMP-003', nombre: 'Jorge Castillo', dni: '0501-1995-09112', cargo: 'Coordinador de Logística', depto: 'Logística y Bodega', ingreso: '2023-02-10', salario: 21000.00, extras: 2400, estado: 'Activo', vacDisp: 12 },
-      { codigo: 'EMP-004', nombre: 'Valeria Reyes', dni: '0801-1997-03389', cargo: 'Ejecutiva Comercial SAR', depto: 'Ventas y Comercial', ingreso: '2024-01-15', salario: 18500.00, extras: 3200, estado: 'Activo', vacDisp: 8 }
-    ];
-
-    const asistenciaData = [
-      { fecha: '2026-10-08', nombre: 'Jorge Castillo', tipo: 'Vacaciones Gozadas', dias: 2, vacDisp: 12, estado: 'Aprobado' },
-      { fecha: '2026-10-11', nombre: 'Valeria Reyes', tipo: 'Incapacidad IHSS', dias: 3, vacDisp: 8, estado: 'Validado IHSS' }
-    ];
-
-    function fmt(num) {
-      return 'L ' + Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    function filasPlanilla() {
+      const factor = factorPeriodo();
+      const suc = document.getElementById('pl-sucursal').value;
+      return empleados.filter(e => e.estado === 'Activo' && (!suc || e.sucursal === suc)).map(e => calcularFila(e, factor));
     }
 
-    function renderExpedientes() {
-      const tbody = document.getElementById('tbody-expedientes');
-      const selAsis = document.getElementById('asis-emp-select');
-      const countEl = document.getElementById('kpi-emp-count');
-      if (!tbody) return;
-
-      tbody.innerHTML = colaboradoresData.map(e => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-4 font-bold text-sky-700">${e.codigo}</td>
-          <td class="py-3 px-4 font-sans font-bold text-slate-900">${e.nombre}</td>
-          <td class="py-3 px-4 text-slate-600">${e.dni}</td>
-          <td class="py-3 px-4 font-sans text-slate-800">${e.cargo}</td>
-          <td class="py-3 px-4 font-sans text-slate-500">${e.depto}</td>
-          <td class="py-3 px-4 text-slate-500">${e.ingreso}</td>
-          <td class="py-3 px-4 text-right font-bold text-slate-900">${fmt(e.salario)}</td>
-          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">${e.estado}</span></td>
-        </tr>
-      `).join('');
-
-      if (countEl) countEl.textContent = `${colaboradoresData.length} Colaboradores`;
-      if (selAsis) {
-        selAsis.innerHTML = colaboradoresData.map(e => `<option value="${e.nombre}">${e.codigo} — ${e.nombre}</option>`).join('');
-      }
+    function clavePlanilla() {
+      return [document.getElementById('pl-mes').value, document.getElementById('pl-periodo').value, document.getElementById('pl-sucursal').value || 'TODAS'].join('|');
+    }
+    function leerEstados() {
+      try { return JSON.parse(localStorage.getItem(LS_ESTADOS_PLANILLA) || '{}') || {}; } catch (e) { return {}; }
     }
 
-    function agregarColaborador() {
-      const nombre = document.getElementById('emp-nombre-input')?.value?.trim();
-      const dni = document.getElementById('emp-dni-input')?.value?.trim() || '0801-1996-00000';
-      const cargo = document.getElementById('emp-cargo-input')?.value?.trim() || 'Colaborador';
-      const depto = document.getElementById('emp-depto-input')?.value || 'Administración';
-      const salario = parseFloat(document.getElementById('emp-salario-input')?.value) || 0;
-      if (!nombre || salario <= 0) return;
-
-      colaboradoresData.push({
-        codigo: 'EMP-' + String(colaboradoresData.length + 1).padStart(3, '0'),
-        nombre,
-        dni,
-        cargo,
-        depto,
-        ingreso: new Date().toISOString().slice(0, 10),
-        salario,
-        extras: 0,
-        estado: 'Activo',
-        vacDisp: 10
-      });
-
-      document.getElementById('emp-nombre-input').value = '';
-      document.getElementById('emp-dni-input').value = '';
-      document.getElementById('emp-cargo-input').value = '';
-      document.getElementById('emp-salario-input').value = '';
-      renderExpedientes();
-      renderPlanilla();
+    function pintarEstadoPlanilla() {
+      const est = leerEstados()[clavePlanilla()] || 'EN_CURSO';
+      const cfg = {
+        EN_CURSO: ['En curso', 'bg-amber-100 text-amber-800 border-amber-300'],
+        PENDIENTE: ['Pendiente', 'bg-slate-200 text-slate-700 border-slate-300'],
+        PAGADA: ['Pagada', 'bg-emerald-100 text-emerald-800 border-emerald-300']
+      }[est];
+      const b = document.getElementById('pl-estado-badge');
+      b.textContent = cfg[0];
+      b.className = 'px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider border ' + cfg[1];
+      document.getElementById('pl-estado-select').value = est;
     }
 
-    function calcularPlanillaResumen() {
-      const factor = document.getElementById('planilla-periodo-select')?.value === 'MENSUAL' ? 1 : 0.5;
-      let totalBruto = 0;
-      let totalDed = 0;
-      let totalNeto = 0;
-
-      const filas = colaboradoresData.map(e => {
-        const base = e.salario * factor;
-        const extras = e.extras * factor;
-        const devengado = base + extras;
-        const ihssRap = Math.min(e.salario, 11903.13) * 0.035 * factor + Math.max(0, e.salario - 11903.13) * 0.015 * factor;
-        const isr = e.salario > 22000 ? (e.salario - 22000) * 0.15 * factor : 0;
-        const neto = devengado - ihssRap - isr;
-
-        totalBruto += devengado;
-        totalDed += (ihssRap + isr);
-        totalNeto += neto;
-
-        return { nombre: e.nombre, base, extras, devengado, ihssRap, isr, neto };
-      });
-
-      return { filas, totalBruto, totalDed, totalNeto };
+    function cambiarEstadoPlanilla(valor) {
+      const est = leerEstados();
+      est[clavePlanilla()] = valor;
+      localStorage.setItem(LS_ESTADOS_PLANILLA, JSON.stringify(est));
+      pintarEstadoPlanilla();
     }
 
     function renderPlanilla() {
-      const tbody = document.getElementById('tbody-planilla');
-      if (!tbody) return;
-      const { filas, totalBruto, totalDed, totalNeto } = calcularPlanillaResumen();
+      const mes = document.getElementById('pl-mes');
+      if (!mes.value) mes.value = new Date().toISOString().slice(0, 7);
 
-      tbody.innerHTML = filas.map(f => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-4 font-sans font-bold text-slate-900">${f.nombre}</td>
-          <td class="py-3 px-4 text-right">${fmt(f.base)}</td>
-          <td class="py-3 px-4 text-right text-sky-700">${fmt(f.extras)}</td>
-          <td class="py-3 px-4 text-right font-bold text-slate-900">${fmt(f.devengado)}</td>
-          <td class="py-3 px-4 text-right text-rose-700">${fmt(f.ihssRap)}</td>
-          <td class="py-3 px-4 text-right text-rose-700">${fmt(f.isr)}</td>
-          <td class="py-3 px-4 text-right font-black text-emerald-700">${fmt(f.neto)}</td>
-        </tr>
-      `).join('');
+      const filas = filasPlanilla();
+      const tb = document.getElementById('pl-tbody');
+      const R = 'px-3 py-2 text-right';
+      const B = ' border-r-2 border-slate-700';
 
-      document.getElementById('kpi-planilla-bruto').textContent = fmt(totalBruto);
-      document.getElementById('kpi-planilla-deducciones').textContent = fmt(totalDed);
-      document.getElementById('kpi-planilla-neto').textContent = fmt(totalNeto);
+      tb.innerHTML = filas.length ? filas.map(f => (
+        '<tr class="hover:bg-slate-50">' +
+          '<td class="px-3 py-2 font-bold text-sky-700">' + esc(f.e.codigo) + '</td>' +
+          '<td class="px-3 py-2 font-sans font-bold text-slate-900' + B + '">' + esc(f.e.nombres) + ' ' + esc(f.e.apellidos) + '</td>' +
+          '<td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ' + (f.e.modalidad === 'JORNAL' ? 'bg-violet-100 text-violet-700' : 'bg-sky-100 text-sky-700') + '">' + (f.e.modalidad === 'JORNAL' ? 'JORNAL' : 'SALARIO') + '</span></td>' +
+          '<td class="' + R + '">' + f.dias + '</td>' +
+          '<td class="' + R + B + '">' + fmt(f.base) + '</td>' +
+          '<td class="' + R + '">' + f.horas.toFixed(1) + '</td>' +
+          '<td class="' + R + '">' + fmt(f.extras) + '</td>' +
+          '<td class="' + R + '">' + fmt(f.bonos) + '</td>' +
+          '<td class="' + R + ' font-bold text-slate-900' + B + '">' + fmt(f.devengado) + '</td>' +
+          '<td class="' + R + ' text-rose-700">' + fmt(f.ihss) + '</td>' +
+          '<td class="' + R + ' text-rose-700">' + fmt(f.rap) + '</td>' +
+          '<td class="' + R + ' text-rose-700">' + fmt(f.isr + f.prestamos) + '</td>' +
+          '<td class="' + R + ' font-bold text-rose-800' + B + '">' + fmt(f.totalDed) + '</td>' +
+          '<td class="' + R + ' text-amber-700">' + fmt(f.ihssP) + '</td>' +
+          '<td class="' + R + ' text-amber-700">' + fmt(f.rapP) + '</td>' +
+          '<td class="' + R + ' text-amber-700">' + fmt(f.infop) + '</td>' +
+          '<td class="' + R + ' font-bold text-amber-800' + B + '">' + fmt(f.totalPat) + '</td>' +
+          '<td class="' + R + ' font-black text-emerald-700 bg-emerald-50/60">' + fmt(f.neto) + '</td>' +
+        '</tr>'
+      )).join('') : '<tr><td colspan="18" class="px-3 py-10 text-center text-xs text-slate-400 font-sans">No hay colaboradores activos para el filtro seleccionado.</td></tr>';
+
+      const sum = k => filas.reduce((s, f) => s + f[k], 0);
+      const set = (id, v) => { document.getElementById(id).textContent = v; };
+      set('ft-base', fmt(sum('base')));
+      set('ft-hrs', sum('horas').toFixed(1));
+      set('ft-extras', fmt(sum('extras')));
+      set('ft-bonos', fmt(sum('bonos')));
+      set('ft-devengado', fmt(sum('devengado')));
+      set('ft-ihss', fmt(sum('ihss')));
+      set('ft-rap', fmt(sum('rap')));
+      set('ft-isr', fmt(sum('isr') + sum('prestamos')));
+      set('ft-ded', fmt(sum('totalDed')));
+      set('ft-ihss-p', fmt(sum('ihssP')));
+      set('ft-rap-p', fmt(sum('rapP')));
+      set('ft-infop', fmt(sum('infop')));
+      set('ft-patronal', fmt(sum('totalPat')));
+      set('ft-neto', fmt(sum('neto')));
+      set('pl-total-count', '(' + filas.length + ')');
+      pintarEstadoPlanilla();
     }
 
-    function abrirModalPartidaPlanilla() {
-      const { totalBruto, totalDed, totalNeto } = calcularPlanillaResumen();
-      const selSueldos = document.getElementById('select-cuenta-sueldos');
-      const selRet = document.getElementById('select-cuenta-retenciones');
-      const cuentaSueldo = selSueldos && selSueldos.selectedIndex >= 0 ? selSueldos.options[selSueldos.selectedIndex].textContent : '5.1.01.01 — Sueldos y Salarios';
-      const cuentaRet = selRet && selRet.selectedIndex >= 0 ? selRet.options[selRet.selectedIndex].textContent : '2.1.02.02 — Retenciones Laborales';
+    // ------------------------------------------------------------------
+    // 6. SUB-VISTA 3: ASISTENCIA Y HORARIOS + IMPORTADOR INTELIGENTE
+    // ------------------------------------------------------------------
+    const FERIADOS_HONDURAS = {
+      '01-01': 'Año Nuevo',
+      '04-14': 'Día de las Américas',
+      '05-01': 'Día Internacional del Trabajador',
+      '09-15': 'Día de la Independencia Patria',
+      '10-03': 'Nacimiento de Francisco Morazán',
+      '10-12': 'Día de la Raza',
+      '10-21': 'Día de las Fuerzas Armadas',
+      '12-25': 'Navidad'
+    };
 
-      document.getElementById('contenido-partida-planilla').innerHTML = `
-        <div class="flex justify-between py-2 border-b border-slate-100"><span class="font-bold text-slate-800">${cuentaSueldo}</span><span class="text-emerald-700 font-bold">DEBE: ${fmt(totalBruto)}</span></div>
-        <div class="flex justify-between py-2 border-b border-slate-100"><span class="font-bold text-slate-800">${cuentaRet}</span><span class="text-rose-700 font-bold">HABER: ${fmt(totalDed)}</span></div>
-        <div class="flex justify-between py-2 border-b border-slate-100"><span class="font-bold text-slate-800">2.1.02.01 — Sueldos y Salarios por Pagar</span><span class="text-rose-700 font-bold">HABER: ${fmt(totalNeto)}</span></div>
-        <div class="pt-2 text-right font-black text-slate-950">CUADRE PARTIDA DOBLE: ${fmt(totalBruto)} = ${fmt(totalDed + totalNeto)}</div>
-      `;
-      document.getElementById('modal-partida-planilla').classList.remove('hidden');
+    const ASISTENCIA_MUESTRA = [
+      { id: 'AS-1', empleadoId: 'EMP-001', fecha: '2026-05-01', jornada: 'DIURNA', entrada: '08:00', salida: '17:00', proyecto: 'Casa Matriz TGU' },
+      { id: 'AS-2', empleadoId: 'EMP-002', fecha: '2026-05-04', jornada: 'DIURNA', entrada: '08:00', salida: '19:00', proyecto: 'Casa Matriz TGU' },
+      { id: 'AS-3', empleadoId: 'EMP-003', fecha: '2026-05-05', jornada: 'JORNAL', entrada: '07:00', salida: '17:00', proyecto: 'Sucursal San Pedro Sula' },
+      { id: 'AS-4', empleadoId: 'EMP-004', fecha: '2026-05-06', jornada: 'NOCTURNA', entrada: '19:00', salida: '03:00', proyecto: 'Sucursal San Pedro Sula' }
+    ];
+
+    function leerAsistencia() {
+      try {
+        const r = JSON.parse(localStorage.getItem(LS_ASISTENCIA) || 'null');
+        if (Array.isArray(r) && r.length) return r;
+      } catch (e) {}
+      localStorage.setItem(LS_ASISTENCIA, JSON.stringify(ASISTENCIA_MUESTRA));
+      return JSON.parse(JSON.stringify(ASISTENCIA_MUESTRA));
+    }
+    function guardarAsistencia(arr) {
+      localStorage.setItem(LS_ASISTENCIA, JSON.stringify(arr));
     }
 
-    function cerrarModalPartidaPlanilla() {
-      document.getElementById('modal-partida-planilla').classList.add('hidden');
+    function horasEntre(entrada, salida) {
+      const [h1, m1] = String(entrada || '08:00').split(':').map(Number);
+      const [h2, m2] = String(salida || '17:00').split(':').map(Number);
+      let min = (h2 * 60 + (m2 || 0)) - (h1 * 60 + (m1 || 0));
+      if (min <= 0) min += 24 * 60;
+      const hrs = min / 60;
+      return hrs > 6 ? hrs - 1 : hrs; // descuenta 1h de almuerzo en jornadas > 6h
     }
 
-    function renderAsistencia() {
-      const tbody = document.getElementById('tbody-asistencia');
-      if (!tbody) return;
-      tbody.innerHTML = asistenciaData.map(a => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-3 px-4 text-slate-500">${a.fecha}</td>
-          <td class="py-3 px-4 font-sans font-bold text-slate-900">${a.nombre}</td>
-          <td class="py-3 px-4 font-sans">${a.tipo}</td>
-          <td class="py-3 px-4 text-right font-bold">${a.dias}</td>
-          <td class="py-3 px-4 text-right text-sky-700 font-bold">${a.vacDisp} días</td>
-          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">${a.estado}</span></td>
-        </tr>
-      `).join('');
-    }
+    function evaluarMarcaje(m, emp) {
+      const mmdd = String(m.fecha || '').slice(5, 10);
+      const feriado = FERIADOS_HONDURAS[mmdd] || null;
+      const totalHrs = Math.max(0, horasEntre(m.entrada, m.salida));
+      const topeOrd = m.jornada === 'NOCTURNA' ? 6 : m.jornada === 'MIXTA' ? 7 : 8;
+      const hrsOrd = Math.min(totalHrs, topeOrd);
+      const hrsExt = Math.max(0, totalHrs - topeOrd);
 
-    function registrarNovedadAsistencia() {
-      const nombre = document.getElementById('asis-emp-select')?.value;
-      const tipo = document.getElementById('asis-tipo-input')?.value;
-      const dias = parseInt(document.getElementById('asis-dias-input')?.value, 10) || 1;
-      const emp = colaboradoresData.find(e => e.nombre === nombre);
-      if (emp && tipo === 'Vacaciones Gozadas') {
-        emp.vacDisp = Math.max(0, emp.vacDisp - dias);
+      const mensualEq = emp ? (emp.modalidad === 'JORNAL' ? (emp.valorJornal || 0) * 30 : (emp.salarioBase || 0)) : 0;
+      const valorHora = mensualEq / PARAMS_LEY.horasMes;
+
+      // Recargos Código del Trabajo HN: Diurna +25%, Mixta +50%, Nocturna +75%, Feriado Nacional +100%
+      const pctExtra = feriado ? 100 : (m.jornada === 'NOCTURNA' ? 75 : m.jornada === 'MIXTA' ? 50 : 25);
+      const factorExtra = 1 + pctExtra / 100;
+
+      let monto = hrsExt * valorHora * factorExtra;
+      if (m.jornada === 'JORNAL' && emp) {
+        const jornalBase = emp.valorJornal || (mensualEq / 30);
+        monto += jornalBase * (feriado ? 2 : 1);
+      } else if (feriado) {
+        monto += hrsOrd * valorHora; // recargo 100% sobre horas ordinarias trabajadas en feriado
       }
-      asistenciaData.unshift({
-        fecha: new Date().toISOString().slice(0, 10),
-        nombre,
-        tipo,
-        dias,
-        vacDisp: emp ? emp.vacDisp : 10,
-        estado: 'Registrado'
-      });
+
+      return { feriado, hrsOrd, hrsExt, pctExtra, monto };
+    }
+
+    function seleccionarEmpleadoAsistencia(id) {
+      asEmpleadoId = id;
       renderAsistencia();
     }
 
-    function calcularSimuladorPrestaciones() {
-      const sal = parseFloat(document.getElementById('sim-salario-input')?.value) || 0;
-      const anios = parseFloat(document.getElementById('sim-anios-input')?.value) || 0;
-      const preaviso = anios >= 2 ? sal * 2 : sal;
-      const cesantia = sal * Math.min(anios, 25);
-      document.getElementById('sim-preaviso').textContent = fmt(preaviso);
-      document.getElementById('sim-cesantia').textContent = fmt(cesantia);
-      document.getElementById('sim-total').textContent = fmt(preaviso + cesantia);
+    function renderAsistencia() {
+      const mesEl = document.getElementById('as-mes');
+      if (!mesEl.value) mesEl.value = '2026-05';
+      const inFecha = document.getElementById('as-in-fecha');
+      if (!inFecha.value) inFecha.value = mesEl.value + '-01';
+
+      const q = (document.getElementById('as-buscar').value || '').toLowerCase().trim();
+      const marcajes = leerAsistencia();
+      const filtrados = empleados.filter(e => !q || (e.nombres + ' ' + e.apellidos + ' ' + e.codigo).toLowerCase().includes(q));
+
+      let kpiReg = 0, kpiExt = 0, kpiMonto = 0;
+      empleados.forEach(e => {
+        marcajes.filter(m => m.empleadoId === e.id && (!mesEl.value || m.fecha.startsWith(mesEl.value))).forEach(m => {
+          const ev = evaluarMarcaje(m, e);
+          kpiReg += ev.hrsOrd; kpiExt += ev.hrsExt; kpiMonto += ev.monto;
+        });
+      });
+      document.getElementById('as-kpi-reg').textContent = kpiReg.toFixed(1) + ' h';
+      document.getElementById('as-kpi-ext').textContent = kpiExt.toFixed(1) + ' h';
+      document.getElementById('as-kpi-monto').textContent = 'L ' + fmt(kpiMonto);
+      document.getElementById('as-count').textContent = filtrados.length;
+
+      document.getElementById('as-lista').innerHTML = filtrados.map(e => {
+        const activo = e.id === asEmpleadoId;
+        const mis = marcajes.filter(m => m.empleadoId === e.id && (!mesEl.value || m.fecha.startsWith(mesEl.value)));
+        const sumExt = mis.reduce((s, m) => s + evaluarMarcaje(m, e).hrsExt, 0);
+        return '<button type="button" onclick="seleccionarEmpleadoAsistencia(\'' + esc(e.id) + '\')" class="w-full text-left px-4 py-3 flex items-center justify-between gap-2 transition cursor-pointer ' + (activo ? 'bg-slate-900 text-white' : 'hover:bg-slate-50') + '">' +
+          '<span class="min-w-0">' +
+            '<span class="block text-xs font-extrabold truncate">' + esc(e.nombres) + ' ' + esc(e.apellidos) + '</span>' +
+            '<span class="block text-[10px] truncate ' + (activo ? 'text-slate-300' : 'text-slate-500') + '">' + esc(e.codigo) + ' · ' + mis.length + ' días reg.</span>' +
+          '</span>' +
+          '<span class="font-mono text-[11px] font-bold px-2.5 py-0.5 rounded-full ' + (sumExt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600') + '">+' + sumExt.toFixed(1) + 'h</span>' +
+        '</button>';
+      }).join('');
+
+      const emp = empleados.find(e => e.id === asEmpleadoId);
+      document.getElementById('as-titulo').textContent = emp ? (emp.nombres + ' ' + emp.apellidos + ' — ' + emp.codigo + ' (' + emp.modalidad + ')') : 'Selecciona un colaborador';
+
+      const filas = marcajes.filter(m => m.empleadoId === asEmpleadoId && (!mesEl.value || m.fecha.startsWith(mesEl.value)))
+        .sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+      let sumOrd = 0, sumExt = 0, sumMonto = 0;
+      document.getElementById('as-tbody').innerHTML = filas.length ? filas.map(m => {
+        const ev = evaluarMarcaje(m, emp);
+        sumOrd += ev.hrsOrd; sumExt += ev.hrsExt; sumMonto += ev.monto;
+        return '<tr class="hover:bg-slate-50">' +
+          '<td class="px-3 py-2 font-bold">' + esc(m.fecha) + '</td>' +
+          '<td class="px-3 py-2 font-sans">' + (ev.feriado ? '<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold">🇭🇳 Feriado: ' + esc(ev.feriado) + '</span>' : '<span class="text-slate-500">Día hábil</span>') + '</td>' +
+          '<td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">' + esc(m.jornada) + '</span></td>' +
+          '<td class="px-3 py-2 text-center">' + esc(m.entrada) + '</td>' +
+          '<td class="px-3 py-2 text-center">' + esc(m.salida) + '</td>' +
+          '<td class="px-3 py-2 text-right">' + ev.hrsOrd.toFixed(1) + '</td>' +
+          '<td class="px-3 py-2 text-right font-bold text-amber-700">' + ev.hrsExt.toFixed(1) + '</td>' +
+          '<td class="px-3 py-2 text-center text-sky-700 font-bold">+' + ev.pctExtra + '%</td>' +
+          '<td class="px-3 py-2 text-right font-bold text-emerald-700">L ' + fmt(ev.monto) + '</td>' +
+          '<td class="px-3 py-2 font-sans text-slate-600">' + esc(m.proyecto) + '</td>' +
+          '<td class="px-3 py-2 text-center"><button type="button" onclick="eliminarMarcaje(\'' + esc(m.id) + '\')" class="text-rose-600 hover:underline text-[11px] font-sans font-bold cursor-pointer">Quitar</button></td>' +
+        '</tr>';
+      }).join('') : '<tr><td colspan="11" class="px-3 py-8 text-center text-xs text-slate-400 font-sans">Sin marcajes en este mes para el colaborador seleccionado.</td></tr>';
+
+      document.getElementById('as-ft-ord').textContent = sumOrd.toFixed(1);
+      document.getElementById('as-ft-ext').textContent = sumExt.toFixed(1);
+      document.getElementById('as-ft-monto').textContent = 'L ' + fmt(sumMonto);
     }
 
-    window.addEventListener('storage', (e) => {
-      if (!e.key || e.key === 'horizon_system_config' || e.key === 'horizon_catalogo_cuentas' || e.key === 'catalogo_cuentas') {
+    function agregarMarcajeManual() {
+      if (!asEmpleadoId) return;
+      const fecha = document.getElementById('as-in-fecha').value;
+      if (!fecha) { toast('Selecciona una fecha.'); return; }
+      const arr = leerAsistencia();
+      arr.push({
+        id: 'AS-' + Date.now(),
+        empleadoId: asEmpleadoId,
+        fecha,
+        jornada: document.getElementById('as-in-jornada').value,
+        entrada: document.getElementById('as-in-entrada').value || '08:00',
+        salida: document.getElementById('as-in-salida').value || '17:00',
+        proyecto: document.getElementById('as-in-proyecto').value || 'Casa Matriz TGU'
+      });
+      guardarAsistencia(arr);
+      document.getElementById('as-mes').value = fecha.slice(0, 7);
+      renderAsistencia();
+      toast('Marcaje registrado.');
+    }
+
+    function eliminarMarcaje(id) {
+      guardarAsistencia(leerAsistencia().filter(m => m.id !== id));
+      renderAsistencia();
+    }
+
+    function sincronizarExtrasAPlanilla() {
+      const mes = document.getElementById('as-mes').value;
+      const marcajes = leerAsistencia().filter(m => !mes || m.fecha.startsWith(mes));
+      empleados.forEach(e => {
+        const hrs = marcajes.filter(m => m.empleadoId === e.id).reduce((s, m) => s + evaluarMarcaje(m, e).hrsExt, 0);
+        e.horasExtras = +hrs.toFixed(1);
+      });
+      guardarEmpleadosLS();
+      toast('Horas extras sincronizadas con la Sábana de Planilla.');
+    }
+
+    function abrirModalImportador() {
+      const m = document.getElementById('modal-importador');
+      m.classList.remove('hidden'); m.classList.add('flex');
+    }
+    function cerrarModalImportador() {
+      const m = document.getElementById('modal-importador');
+      m.classList.add('hidden'); m.classList.remove('flex');
+    }
+
+    function cargarEjemploImportador() {
+      document.getElementById('imp-texto').value = [
+        'EMP-001, 2026-05-01, 08:00, 17:00, DIURNA, Casa Matriz TGU',
+        'EMP-001, 2026-05-04, 08:00, 19:00, DIURNA, Casa Matriz TGU',
+        'EMP-002, 2026-05-01, 08:00, 17:00, DIURNA, Casa Matriz TGU',
+        'EMP-002, 2026-05-05, 14:00, 23:00, MIXTA, Casa Matriz TGU',
+        'EMP-003, 2026-05-01, 07:00, 17:00, JORNAL, Sucursal San Pedro Sula',
+        'EMP-003, 2026-05-06, 07:00, 18:00, JORNAL, Sucursal San Pedro Sula',
+        'EMP-004, 2026-05-07, 19:00, 04:00, NOCTURNA, Sucursal San Pedro Sula'
+      ].join('\n');
+    }
+
+    function cargarArchivoImportador(ev) {
+      const f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = e => { document.getElementById('imp-texto').value = String(e.target.result || ''); };
+      reader.readAsText(f);
+    }
+
+    function procesarImportacionHorarios() {
+      const raw = (document.getElementById('imp-texto').value || '').trim();
+      if (!raw) { toast('Pega o carga al menos una fila de horarios.'); return; }
+      const lineas = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const arr = leerAsistencia();
+      let importados = 0, feriadosDetectados = 0;
+
+      lineas.forEach((linea, idx) => {
+        const cols = linea.split(/[,;\t]/).map(c => c.trim());
+        if (cols.length < 4 || /^codigo/i.test(cols[0])) return;
+        const [cod, fecha, entrada, salida, jornadaRaw, proyecto] = cols;
+        const emp = empleados.find(e => e.codigo.toUpperCase() === cod.toUpperCase() || e.id.toUpperCase() === cod.toUpperCase());
+        if (!emp || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return;
+        const jornada = (jornadaRaw || (emp.modalidad === 'JORNAL' ? 'JORNAL' : 'DIURNA')).toUpperCase();
+        if (FERIADOS_HONDURAS[fecha.slice(5, 10)]) feriadosDetectados++;
+        arr.push({
+          id: 'AS-IMP-' + Date.now() + '-' + idx,
+          empleadoId: emp.id,
+          fecha,
+          entrada: entrada || '08:00',
+          salida: salida || '17:00',
+          jornada: ['DIURNA', 'MIXTA', 'NOCTURNA', 'JORNAL'].includes(jornada) ? jornada : 'DIURNA',
+          proyecto: proyecto || emp.sucursal || 'Casa Matriz TGU'
+        });
+        importados++;
+      });
+
+      guardarAsistencia(arr);
+      sincronizarExtrasAPlanilla();
+      cerrarModalImportador();
+      renderAsistencia();
+      toast('Importados ' + importados + ' marcajes (' + feriadosDetectados + ' en feriado nacional).');
+    }
+
+    // ------------------------------------------------------------------
+    // 7. SUB-VISTA 4: DEDUCCIONES, LIQUIDACIONES Y PARÁMETROS DE LEY
+    // ------------------------------------------------------------------
+    const PRESTAMOS_MUESTRA = [
+      { id: 'PR-1', empleadoId: 'EMP-002', fecha: '2026-02-15', tipo: 'PRESTAMO', concepto: 'Préstamo cooperativo interno', monto: 12000, cuota: 1500, saldo: 7500 },
+      { id: 'PR-2', empleadoId: 'EMP-004', fecha: '2026-04-10', tipo: 'ANTICIPO', concepto: 'Anticipo quincenal autorizado', monto: 2000, cuota: 1000, saldo: 1000 }
+    ];
+
+    function leerPrestamos() {
+      try {
+        const r = JSON.parse(localStorage.getItem(LS_PRESTAMOS) || 'null');
+        if (Array.isArray(r)) return r;
+      } catch (e) {}
+      localStorage.setItem(LS_PRESTAMOS, JSON.stringify(PRESTAMOS_MUESTRA));
+      return JSON.parse(JSON.stringify(PRESTAMOS_MUESTRA));
+    }
+    function guardarPrestamos(arr) {
+      localStorage.setItem(LS_PRESTAMOS, JSON.stringify(arr));
+    }
+
+    function cambiarTabDeducciones(tab) {
+      dedTabActiva = tab;
+      ['prestamos', 'liquidacion', 'ley'].forEach(t => {
+        document.getElementById('tab-panel-' + t).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('tab-btn-' + t);
+        btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ' + (t === tab ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900');
+      });
+      renderDeducciones();
+    }
+
+    function seleccionarEmpleadoDeducciones(id) {
+      dedEmpleadoId = id;
+      const emp = empleados.find(e => e.id === id);
+      if (emp) {
+        document.getElementById('liq-ingreso').value = emp.fechaIngreso || '2022-01-01';
+        if (!document.getElementById('liq-salida').value) {
+          document.getElementById('liq-salida').value = new Date().toISOString().slice(0, 10);
+        }
+      }
+      renderDeducciones();
+    }
+
+    function renderDeducciones() {
+      const q = (document.getElementById('ded-buscar').value || '').toLowerCase().trim();
+      const prestamos = leerPrestamos();
+      const filtrados = empleados.filter(e => !q || (e.nombres + ' ' + e.apellidos + ' ' + e.codigo).toLowerCase().includes(q));
+      document.getElementById('ded-count').textContent = filtrados.length;
+
+      document.getElementById('ded-lista').innerHTML = filtrados.map(e => {
+        const activo = e.id === dedEmpleadoId;
+        const saldo = prestamos.filter(p => p.empleadoId === e.id).reduce((s, p) => s + p.saldo, 0);
+        return '<button type="button" onclick="seleccionarEmpleadoDeducciones(\'' + esc(e.id) + '\')" class="w-full text-left px-4 py-3 flex items-center justify-between gap-2 transition cursor-pointer ' + (activo ? 'bg-slate-900 text-white' : 'hover:bg-slate-50') + '">' +
+          '<span class="min-w-0">' +
+            '<span class="block text-xs font-extrabold truncate">' + esc(e.nombres) + ' ' + esc(e.apellidos) + '</span>' +
+            '<span class="block text-[10px] truncate ' + (activo ? 'text-slate-300' : 'text-slate-500') + '">' + esc(e.codigo) + ' · ' + esc(e.cargo) + '</span>' +
+          '</span>' +
+          '<span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full ' + (saldo > 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-600') + '">L ' + fmt(saldo) + '</span>' +
+        '</button>';
+      }).join('');
+
+      const emp = empleados.find(e => e.id === dedEmpleadoId);
+      document.getElementById('ded-titulo').textContent = emp ? (emp.nombres + ' ' + emp.apellidos + ' — ' + emp.codigo) : 'Selecciona un colaborador';
+
+      // Render Pestaña 1: Préstamos
+      const misPr = prestamos.filter(p => p.empleadoId === dedEmpleadoId);
+      let sumCuota = 0, sumSaldo = 0;
+      document.getElementById('pr-tbody').innerHTML = misPr.length ? misPr.map(p => {
+        if (p.saldo > 0) sumCuota += Math.min(p.cuota, p.saldo);
+        sumSaldo += p.saldo;
+        return '<tr class="hover:bg-slate-50">' +
+          '<td class="px-3 py-2">' + esc(p.fecha) + '</td>' +
+          '<td class="px-3 py-2"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">' + esc(p.tipo) + '</span></td>' +
+          '<td class="px-3 py-2 font-sans font-semibold">' + esc(p.concepto) + '</td>' +
+          '<td class="px-3 py-2 text-right">L ' + fmt(p.monto) + '</td>' +
+          '<td class="px-3 py-2 text-right text-rose-700 font-bold">L ' + fmt(p.cuota) + '</td>' +
+          '<td class="px-3 py-2 text-right font-bold">L ' + fmt(p.saldo) + '</td>' +
+          '<td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ' + (p.saldo > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800') + '">' + (p.saldo > 0 ? 'ACTIVO' : 'LIQUIDADO') + '</span></td>' +
+          '<td class="px-3 py-2 text-center space-x-2">' +
+            (p.saldo > 0 ? '<button type="button" onclick="abonarCuotaPrestamo(\'' + esc(p.id) + '\')" class="text-emerald-700 hover:underline text-[11px] font-sans font-bold cursor-pointer">Abonar cuota</button>' : '') +
+            '<button type="button" onclick="eliminarPrestamo(\'' + esc(p.id) + '\')" class="text-rose-600 hover:underline text-[11px] font-sans font-bold cursor-pointer">Borrar</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('') : '<tr><td colspan="8" class="px-3 py-8 text-center text-xs text-slate-400 font-sans">El colaborador no registra préstamos, anticipos ni deducciones individuales.</td></tr>';
+
+      document.getElementById('pr-ft-cuota').textContent = 'L ' + fmt(sumCuota);
+      document.getElementById('pr-ft-saldo').textContent = 'L ' + fmt(sumSaldo);
+
+      // Render Pestaña 2: Liquidación
+      if (emp) {
+        if (!document.getElementById('liq-ingreso').value) document.getElementById('liq-ingreso').value = emp.fechaIngreso || '2022-01-01';
+        if (!document.getElementById('liq-salida').value) document.getElementById('liq-salida').value = new Date().toISOString().slice(0, 10);
+        calcularLiquidacion();
+      }
+    }
+
+    function agregarPrestamo() {
+      if (!dedEmpleadoId) return;
+      const concepto = (document.getElementById('pr-concepto').value || '').trim();
+      const monto = parseFloat(document.getElementById('pr-monto').value) || 0;
+      const cuota = parseFloat(document.getElementById('pr-cuota').value) || 0;
+      if (!concepto || monto <= 0 || cuota <= 0) { toast('Completa concepto, monto total y cuota mensual.'); return; }
+      const arr = leerPrestamos();
+      arr.push({
+        id: 'PR-' + Date.now(),
+        empleadoId: dedEmpleadoId,
+        fecha: new Date().toISOString().slice(0, 10),
+        tipo: document.getElementById('pr-tipo').value,
+        concepto,
+        monto,
+        cuota,
+        saldo: monto
+      });
+      guardarPrestamos(arr);
+      document.getElementById('pr-concepto').value = '';
+      document.getElementById('pr-monto').value = '';
+      document.getElementById('pr-cuota').value = '';
+      renderDeducciones();
+      toast('Deducción / préstamo registrado.');
+    }
+
+    function abonarCuotaPrestamo(id) {
+      const arr = leerPrestamos();
+      const p = arr.find(x => x.id === id);
+      if (!p) return;
+      p.saldo = Math.max(0, p.saldo - p.cuota);
+      guardarPrestamos(arr);
+      renderDeducciones();
+      toast('Cuota abonada al saldo.');
+    }
+
+    function eliminarPrestamo(id) {
+      guardarPrestamos(leerPrestamos().filter(p => p.id !== id));
+      renderDeducciones();
+    }
+
+    function calcularLiquidacion() {
+      const emp = empleados.find(e => e.id === dedEmpleadoId);
+      if (!emp) return;
+      const fIn = new Date((document.getElementById('liq-ingreso').value || emp.fechaIngreso || '2022-01-01') + 'T00:00:00');
+      const fOut = new Date((document.getElementById('liq-salida').value || new Date().toISOString().slice(0, 10)) + 'T00:00:00');
+      const motivo = document.getElementById('liq-motivo').value;
+      const vacPend = parseFloat(document.getElementById('liq-vac-pend').value) || 0;
+
+      const diasTotales = Math.max(1, Math.round((fOut - fIn) / 86400000));
+      const anios = Math.floor(diasTotales / 365);
+      const meses = Math.floor((diasTotales % 365) / 30);
+      const diasResto = (diasTotales % 365) % 30;
+
+      const salBase = emp.modalidad === 'JORNAL' ? (emp.valorJornal || 0) * 30 : (emp.salarioBase || 0);
+      const salDiario = salBase / 30;
+      const salProm = salBase * (14 / 12); // incluye 13º y 14º mes (Art. 120/123 CT Honduras)
+      const salPromDiario = salProm / 30;
+
+      // Escala de Preaviso (Art. 116 CT HN)
+      let diasPreaviso = 0;
+      if (motivo === 'DESPIDO_INJUSTIFICADO') {
+        if (diasTotales < 60) diasPreaviso = 1;
+        else if (diasTotales < 180) diasPreaviso = 7;
+        else if (diasTotales < 365) diasPreaviso = 14;
+        else if (diasTotales < 730) diasPreaviso = 30;
+        else diasPreaviso = 60;
+      }
+
+      // Auxilio de Cesantía (Art. 120 CT HN): 1 mes por año trabajado (tope 25 meses) + proporcional
+      let diasCesantia = 0;
+      if (motivo !== 'RENUNCIA') {
+        const factorMotivo = motivo === 'MUTUO_ACUERDO' ? 0.5 : 1;
+        if (diasTotales >= 90) {
+          diasCesantia = Math.min(25 * 30, (diasTotales / 365) * 30) * factorMotivo;
+        }
+      }
+
+      // Vacaciones proporcionales (escala 10, 12, 15, 20 días según antigüedad)
+      const topeVacAnual = anios >= 4 ? 20 : anios === 3 ? 15 : anios === 2 ? 12 : 10;
+      const diasVacProp = ((diasTotales % 365) / 365) * topeVacAnual + vacPend;
+
+      // 13º (Aguinaldo: Ene-Dic) y 14º (Jul-Jun) proporcionales
+      const inicioAnio = new Date(fOut.getFullYear(), 0, 1);
+      const dias13 = Math.max(0, Math.round((fOut - Math.max(fIn, inicioAnio)) / 86400000));
+      const prop13 = (dias13 / 360) * salBase;
+
+      const inicioJul = fOut.getMonth() >= 6 ? new Date(fOut.getFullYear(), 6, 1) : new Date(fOut.getFullYear() - 1, 6, 1);
+      const dias14 = Math.max(0, Math.round((fOut - Math.max(fIn, inicioJul)) / 86400000));
+      const prop14 = (dias14 / 360) * salBase;
+
+      const mPreaviso = diasPreaviso * salPromDiario;
+      const mCesantia = diasCesantia * salPromDiario;
+      const mVac = diasVacProp * salPromDiario;
+      const saldoPrestamos = leerPrestamos().filter(p => p.empleadoId === emp.id).reduce((s, p) => s + p.saldo, 0);
+      const totalNeto = mPreaviso + mCesantia + mVac + prop13 + prop14 - saldoPrestamos;
+
+      document.getElementById('liq-antiguedad').textContent = anios + 'a ' + meses + 'm ' + diasResto + 'd';
+      document.getElementById('liq-dias-total').textContent = diasTotales + ' días acumulados';
+      document.getElementById('liq-sal-base').textContent = 'L ' + fmt(salBase);
+      document.getElementById('liq-sal-diario').textContent = 'Diario: L ' + fmt(salDiario);
+      document.getElementById('liq-sal-prom').textContent = 'L ' + fmt(salProm);
+      document.getElementById('liq-sal-prom-diario').textContent = 'Diario prom.: L ' + fmt(salPromDiario);
+      document.getElementById('liq-total').textContent = 'L ' + fmt(totalNeto);
+      document.getElementById('liq-ded-prestamos').textContent = 'Menos saldo préstamos: L ' + fmt(saldoPrestamos);
+
+      const conceptos = [
+        ['Preaviso (Art. 116 CT)', 'Salario ordinario promedio diario', diasPreaviso.toFixed(1) + ' días', mPreaviso],
+        ['Auxilio de Cesantía + Proporcional (Art. 120 CT)', 'Salario ordinario promedio diario', diasCesantia.toFixed(1) + ' días', mCesantia],
+        ['Vacaciones Proporcionales + Pendientes', 'Escala legal ' + topeVacAnual + ' días/año', diasVacProp.toFixed(1) + ' días', mVac],
+        ['Décimo Tercer Mes Proporcional (Aguinaldo)', 'Enero a fecha de corte', dias13 + ' días', prop13],
+        ['Décimo Cuarto Mes Proporcional (Bono 14)', 'Julio a fecha de corte', dias14 + ' días', prop14],
+        ['Deducción por Saldo de Préstamos / Anticipos', 'Retención autorizada en finiquito', '—', -saldoPrestamos]
+      ];
+
+      document.getElementById('liq-tbody').innerHTML = conceptos.map(c =>
+        '<tr class="hover:bg-slate-50">' +
+          '<td class="px-4 py-2 font-sans font-bold text-slate-900">' + c[0] + '</td>' +
+          '<td class="px-4 py-2 font-sans text-slate-500">' + c[1] + '</td>' +
+          '<td class="px-4 py-2 text-right">' + c[2] + '</td>' +
+          '<td class="px-4 py-2 text-right font-bold ' + (c[3] < 0 ? 'text-rose-700' : 'text-slate-900') + '">L ' + fmt(c[3]) + '</td>' +
+        '</tr>'
+      ).join('');
+    }
+
+    // ------------------------------------------------------------------
+    // 8. MODAL DE DISPERSIÓN + INTEGRACIÓN CONTABLE Y TESORERÍA
+    // ------------------------------------------------------------------
+    function etiquetaPeriodo() {
+      const p = document.getElementById('pl-periodo');
+      return document.getElementById('pl-mes').value + ' · ' + p.options[p.selectedIndex].text;
+    }
+
+    function abrirModalDispersion() {
+      const filas = filasPlanilla();
+      if (!filas.length) { toast('No hay colaboradores en la planilla para enviar.'); return; }
+      const total = filas.reduce((s, f) => s + f.neto, 0);
+      document.getElementById('disp-resumen').textContent = etiquetaPeriodo() + ' · ' + filas.length + ' colaboradores · Neto L ' + fmt(total);
+      const m = document.getElementById('modal-dispersion');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+    function cerrarModalDispersion() {
+      const m = document.getElementById('modal-dispersion');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function registrarAsientoPlanilla(filas) {
+      const sum = k => +filas.reduce((s, f) => s + f[k], 0).toFixed(2);
+      const devengado = sum('devengado');
+      const patronal = sum('totalPat');
+      const ihssTotal = +(sum('ihss') + sum('ihssP')).toFixed(2);
+      const rapTotal = +(sum('rap') + sum('rapP')).toFixed(2);
+      const infop = sum('infop');
+      const isr = sum('isr');
+      const prestamos = sum('prestamos');
+      const neto = +(devengado - (sum('ihss') + sum('rap') + isr + prestamos)).toFixed(2);
+      const totalDebe = +(devengado + patronal).toFixed(2);
+
+      const asiento = {
+        id: 'AST-RRHH-' + Date.now(),
+        fecha: new Date().toISOString().slice(0, 10),
+        periodo: document.getElementById('pl-mes').value,
+        origen: 'RRHH_PLANILLA',
+        referencia: 'PLANILLA ' + etiquetaPeriodo(),
+        descripcion: 'Reconocimiento y provisión de planilla (' + filas.length + ' colaboradores)',
+        cuadrado: true,
+        totalDebe,
+        totalHaber: totalDebe,
+        partidas: [
+          { codigo: '5101', cuenta: 'Sueldos, Salarios y Horas Extras', debe: devengado, haber: 0 },
+          { codigo: '5102', cuenta: 'Cuotas Patronales IHSS, RAP e INFOP', debe: patronal, haber: 0 },
+          { codigo: '2103', cuenta: 'Retenciones y Aportaciones IHSS por Pagar', debe: 0, haber: ihssTotal },
+          { codigo: '2104', cuenta: 'Aportaciones RAP e INFOP por Pagar', debe: 0, haber: +(rapTotal + infop).toFixed(2) },
+          { codigo: '2105', cuenta: 'Retención ISR Empleados (SAR)', debe: 0, haber: isr },
+          { codigo: '1104', cuenta: 'Cuentas por Cobrar Empleados (Préstamos/Anticipos)', debe: 0, haber: prestamos },
+          { codigo: '2101', cuenta: 'Sueldos y Salarios por Pagar / Bancos Planilla', debe: 0, haber: neto }
+        ]
+      };
+
+      let lista = [];
+      try { lista = JSON.parse(localStorage.getItem(LS_ASIENTOS) || '[]') || []; } catch (e) { lista = []; }
+      lista.unshift(asiento);
+      localStorage.setItem(LS_ASIENTOS, JSON.stringify(lista));
+      return asiento;
+    }
+
+    function registrarSolicitudPagoTesoreria(filas, asientoId) {
+      const neto = +filas.reduce((s, f) => s + f.neto, 0).toFixed(2);
+      const solicitud = {
+        id: 'SOL-NOM-' + Date.now(),
+        fecha: new Date().toISOString().slice(0, 10),
+        origen: 'RRHH',
+        tipo: 'DISPERSIÓN_PLANILLA',
+        periodo: etiquetaPeriodo(),
+        sucursal: document.getElementById('pl-sucursal').value || 'TODAS',
+        colaboradores: filas.length,
+        montoNeto: neto,
+        moneda: 'HNL',
+        estado: 'PENDIENTE_DESEMBOLSO',
+        asientoContableId: asientoId || null,
+        beneficiarios: filas.map(f => ({
+          codigo: f.e.codigo,
+          nombre: f.e.nombres + ' ' + f.e.apellidos,
+          banco: f.e.banco,
+          tipoCuenta: f.e.tipoCuenta,
+          cuenta: f.e.cuentaBancaria,
+          neto: +f.neto.toFixed(2)
+        }))
+      };
+      let lista = [];
+      try { lista = JSON.parse(localStorage.getItem(LS_SOLICITUDES_TESORERIA) || '[]') || []; } catch (e) { lista = []; }
+      lista.unshift(solicitud);
+      localStorage.setItem(LS_SOLICITUDES_TESORERIA, JSON.stringify(lista));
+      return solicitud;
+    }
+
+    function descargarCsvBancario(filas) {
+      const enc = ['Codigo', 'Colaborador', 'Banco', 'TipoCuenta', 'NumeroCuenta', 'MontoNeto', 'Referencia'];
+      const ref = 'PLANILLA-' + etiquetaPeriodo().replace(/[^A-Za-z0-9]+/g, '-');
+      const lineas = filas.filter(f => f.e.banco && f.e.cuentaBancaria && !/sin cuenta/i.test(f.e.banco)).map(f =>
+        [f.e.codigo, f.e.nombres + ' ' + f.e.apellidos, f.e.banco, f.e.tipoCuenta, f.e.cuentaBancaria, f.neto.toFixed(2), ref]
+          .map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
+      const blob = new Blob(['\ufeff' + [enc.join(',')].concat(lineas).join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = ref + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      return lineas.length;
+    }
+
+    function abrirBoletas(filas, imprimir) {
+      const cfg = leerConfig();
+      const empresa = cfg.empresa_nombre || (cfg.company && cfg.company.name) || 'Horizon LC';
+      const periodo = etiquetaPeriodo();
+      const boletas = filas.map(f =>
+        '<section style="page-break-after:always;border:1px solid #cbd5e1;border-radius:12px;padding:20px;margin:16px auto;max-width:640px;font-family:Inter,Arial,sans-serif;font-size:12px">' +
+        '<h2 style="margin:0 0 2px;font-size:16px">' + esc(empresa) + '</h2><div style="color:#64748b;margin-bottom:12px">Boleta de pago · ' + esc(periodo) + '</div>' +
+        '<div><strong>' + esc(f.e.nombres) + ' ' + esc(f.e.apellidos) + '</strong> — ' + esc(f.e.codigo) + ' · ' + esc(f.e.cargo) + '</div><hr>' +
+        '<table style="width:100%;border-collapse:collapse">' +
+        [['Salario base', f.base], ['Horas extras', f.extras], ['Bonificaciones', f.bonos], ['Total devengado', f.devengado], ['IHSS', -f.ihss], ['RAP', -f.rap], ['ISR y Préstamos', -(f.isr + f.prestamos)]]
+          .map(r => '<tr><td style="padding:3px 0">' + r[0] + '</td><td style="text-align:right">L ' + fmt(r[1]) + '</td></tr>').join('') +
+        '<tr><td style="padding-top:8px;font-weight:800">NETO A PAGAR</td><td style="padding-top:8px;text-align:right;font-weight:800">L ' + fmt(f.neto) + '</td></tr></table>' +
+        '</section>').join('');
+      const w = window.open('', '_blank');
+      if (!w) return false;
+      w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Boletas ' + esc(periodo) + '</title></head><body>' + boletas + '</body></html>');
+      w.document.close();
+      if (imprimir) setTimeout(() => w.print(), 400);
+      return true;
+    }
+
+    function ejecutarDispersion() {
+      const chCont = document.getElementById('disp-contabilidad').checked;
+      const chTes = document.getElementById('disp-tesoreria').checked;
+      const chBol = document.getElementById('disp-boletas').checked;
+      const chCsv = document.getElementById('disp-csv').checked;
+      const chPrn = document.getElementById('disp-print').checked;
+      if (!chCont && !chTes && !chBol && !chCsv && !chPrn) { toast('Selecciona al menos una opción de envío.'); return; }
+
+      const filas = filasPlanilla();
+      const acciones = [];
+      let asientoId = null;
+
+      if (chCont) {
+        const ast = registrarAsientoPlanilla(filas);
+        asientoId = ast.id;
+        acciones.push('partida contable cuadrada (' + ast.id + ' · L ' + fmt(ast.totalDebe) + ')');
+      }
+      if (chTes) {
+        const sol = registrarSolicitudPagoTesoreria(filas, asientoId);
+        acciones.push('solicitud Tesorería (' + sol.id + ')');
+      }
+      if (chCsv) acciones.push('CSV bancario (' + descargarCsvBancario(filas) + ' transferencias)');
+      if (chBol || chPrn) {
+        const ok = abrirBoletas(filas, chPrn);
+        acciones.push(ok ? (chPrn ? 'boletas enviadas a impresión' : 'boletas generadas') : 'boletas bloqueadas (habilita pop-ups)');
+      }
+
+      cambiarEstadoPlanilla('PAGADA');
+      cerrarModalDispersion();
+      toast('Cierre ejecutado: ' + acciones.join(' · '));
+    }
+
+    // ------------------------------------------------------------------
+    // 9. EVENTOS E INICIALIZACIÓN
+    // ------------------------------------------------------------------
+    window.addEventListener('storage', e => {
+      if (!e.key || e.key === 'horizon_system_config') {
         sincronizarIdentidadDesdeConfig();
-        sincronizarCuentasRRHH();
+        poblarSelectoresMaestros();
+      }
+      if (!e.key || e.key === LS_EMPLEADOS) {
+        if (modoFicha === 'view') {
+          cargarEmpleados();
+          poblarSelectoresMaestros();
+          renderListaEmpleados();
+          renderPlanilla();
+        }
       }
     });
 
-    // Inicializar siempre mostrando #view-gateway primero
-    volverAGateway();
+    cargarParametrosLey();
+    cargarEmpleados();
     sincronizarIdentidadDesdeConfig();
-    sincronizarCuentasRRHH();
-    renderExpedientes();
-    renderPlanilla();
-    renderAsistencia();
-    calcularSimuladorPrestaciones();
+    poblarSelectoresMaestros();
+    setModoFicha('view');
+    volverAGateway(); // El Gateway SIEMPRE se muestra primero
   </script>
 </body>
 </html>
