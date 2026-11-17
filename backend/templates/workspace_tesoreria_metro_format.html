@@ -628,10 +628,10 @@
         { id: 'CTA-005', tipo: 'CAJA', nombre: 'Caja Chica Casa Matriz', numero: 'CC-MATRIZ-01', codigo: '1.1.01.06', moneda: 'HNL', saldo: 25000 }
       ], x => x && x.id && x.tipo && typeof x.saldo === 'number');
       D.prov = ld(K.prov, () => [
-        { id: 'PRV-001', nombre: 'Logística del Norte, S. de R.L.', rtn: '05019995123456', contacto: 'Marta Reyes', email: 'cobros@logisticanorte.hn', banco: 'Banco Atlántida', cuenta: '1100-338201-7', tipoCuenta: 'Cheques', condicion: 'Crédito 30 días' },
-        { id: 'PRV-002', nombre: 'Distribuidora Eléctrica Centroamericana', rtn: '08019001234567', contacto: 'Julio Cárcamo', email: 'ventas@dec-ca.com', banco: 'BAC Credomatic', cuenta: '740-882190-3', tipoCuenta: 'Corriente', condicion: 'Crédito 30 días' },
-        { id: 'PRV-003', nombre: 'Servicios Aduanales de Honduras', rtn: '05019885554321', contacto: 'Karla Mejía', email: 'admin@sadh.hn', banco: 'Banco Ficohsa', cuenta: '2000-110233-0', tipoCuenta: 'Ahorro', condicion: 'Crédito 30 días' },
-        { id: 'PRV-004', nombre: 'Papelería y Suministros El Éxito', rtn: '08011977765432', contacto: 'Rene Pineda', email: 'elexito@gmail.com', banco: 'Banco Atlántida', cuenta: '1100-770412-5', tipoCuenta: 'Ahorro', condicion: 'Contado' }
+        { id: 'PRV-001', nombre: 'Logística del Norte, S. de R.L.', rtn: '05019995123456', contacto: 'Marta Reyes', email: 'cobros@logisticanorte.hn', banco: 'Banco Atlántida', cuenta: '1100-338201-7', tipoCuenta: 'Cheques', condicion: 'Crédito 30 días', cuentasBancarias: [{ banco: 'Banco Atlántida', cuenta: '1100-338201-7', tipoCuenta: 'Cheques' }, { banco: 'BAC Credomatic', cuenta: '740-551920-4', tipoCuenta: 'Corriente' }] },
+        { id: 'PRV-002', nombre: 'Distribuidora Eléctrica Centroamericana', rtn: '08019001234567', contacto: 'Julio Cárcamo', email: 'ventas@dec-ca.com', banco: 'BAC Credomatic', cuenta: '740-882190-3', tipoCuenta: 'Corriente', condicion: 'Crédito 30 días', cuentasBancarias: [{ banco: 'BAC Credomatic', cuenta: '740-882190-3', tipoCuenta: 'Corriente' }, { banco: 'Banco Ficohsa', cuenta: '2000-441082-1', tipoCuenta: 'Cheques' }] },
+        { id: 'PRV-003', nombre: 'Servicios Aduanales de Honduras', rtn: '05019885554321', contacto: 'Karla Mejía', email: 'admin@sadh.hn', banco: 'Banco Ficohsa', cuenta: '2000-110233-0', tipoCuenta: 'Ahorro', condicion: 'Crédito 30 días', cuentasBancarias: [{ banco: 'Banco Ficohsa', cuenta: '2000-110233-0', tipoCuenta: 'Ahorro' }, { banco: 'Banco Atlántida', cuenta: '1100-904312-8', tipoCuenta: 'Cheques' }] },
+        { id: 'PRV-004', nombre: 'Papelería y Suministros El Éxito', rtn: '08011977765432', contacto: 'Rene Pineda', email: 'elexito@gmail.com', banco: 'Banco Atlántida', cuenta: '1100-770412-5', tipoCuenta: 'Ahorro', condicion: 'Contado', cuentasBancarias: [{ banco: 'Banco Atlántida', cuenta: '1100-770412-5', tipoCuenta: 'Ahorro' }] }
       ]);
       D.fcxp = ld(K.fcxp, () => [
         { id: 'FCP-001', provId: 'PRV-001', numero: '000-001-01-00004521', fecha: addD(h, -95), vence: addD(h, -65), monto: 48200, estado: 'ABIERTA', opId: '' },
@@ -724,7 +724,7 @@
     // -------------------------------------------------------------------------
     // 5. PANEL 1 — CUENTAS POR PAGAR
     // -------------------------------------------------------------------------
-    const CXP = { tab: 'prov', sel: '', edit: false, nuevo: false };
+    const CXP = { tab: 'prov', sel: '', edit: false, nuevo: false, desde: '', hasta: '' };
 
     function provSaldoInfo(pid) {
       const fs = D.fcxp.filter(f => f.provId === pid && f.estado !== 'PAGADA');
@@ -777,18 +777,48 @@
     function cxpSel(id) { CXP.sel = id; CXP.edit = false; CXP.nuevo = false; renderCxPList(); renderCxPDetalle(); }
     function cxpNuevoProv() { CXP.tab = 'prov'; CXP.sel = ''; CXP.nuevo = true; CXP.edit = true; renderCxP(); }
 
+    function provCuentas(p) {
+      if (p && Array.isArray(p.cuentasBancarias) && p.cuentasBancarias.length) return p.cuentasBancarias;
+      if (p && (p.banco || p.cuenta)) return [{ banco: p.banco || '', cuenta: p.cuenta || '', tipoCuenta: p.tipoCuenta || 'Corriente' }];
+      return [];
+    }
+    function syncCuentaProv(pid) {
+      const p = D.prov.find(x => x.id === pid); if (!p) return;
+      const b = val('pf-banco'), ctas = provCuentas(p).filter(c => c.banco === b);
+      const sel = $('pf-cuenta');
+      if (sel) sel.innerHTML = ctas.map(c => `<option value="${esc(c.cuenta)}">${esc(c.cuenta)} (${esc(c.tipoCuenta)})</option>`).join('');
+    }
     function provFormHtml(p) {
-      const v = k => esc(p ? p[k] : '');
-      const c = (id, lab, k, cls) => `<div class="${cls || ''}"><label class="fld-label">${lab}</label><input id="pf-${id}" class="fld" value="${v(k)}"></div>`;
-      return `<div class="grid grid-cols-1 md:grid-cols-3 gap-3">${c('nombre', 'Razón social', 'nombre', 'md:col-span-2')}${c('rtn', 'RTN', 'rtn')}${c('contacto', 'Contacto', 'contacto')}${c('email', 'Correo', 'email')}
-        <div><label class="fld-label">Condición</label><select id="pf-condicion" class="fld">${['Contado', 'Crédito 30 días', 'Crédito 60 días'].map(o => `<option ${p && p.condicion === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
-        ${c('banco', 'Banco', 'banco')}${c('cuenta', 'No. de cuenta', 'cuenta')}${c('tipoCuenta', 'Tipo de cuenta', 'tipoCuenta')}</div>
-        <div class="flex gap-2 mt-3"><button onclick="guardarProv('${p ? p.id : ''}')" class="${BTN1}">Guardar</button><button onclick="CXP.edit=false;CXP.nuevo=false;renderCxPDetalle()" class="${BTN2}">Cancelar</button></div>`;
+      if (!p) {
+        const c = (id, lab, cls) => `<div class="${cls || ''}"><label class="fld-label">${lab}</label><input id="pf-${id}" class="fld"></div>`;
+        return `<div class="grid grid-cols-1 md:grid-cols-3 gap-3">${c('nombre', 'Razón social', 'md:col-span-2')}${c('rtn', 'RTN')}${c('contacto', 'Contacto')}${c('email', 'Correo')}
+          <div><label class="fld-label">Condición</label><select id="pf-condicion" class="fld"><option>Contado</option><option selected>Crédito 30 días</option><option>Crédito 60 días</option></select></div>
+          ${c('banco', 'Banco')}${c('cuenta', 'No. de cuenta')}${c('tipoCuenta', 'Tipo de cuenta')}</div>
+          <div class="flex gap-2 mt-3"><button onclick="guardarProv('')" class="${BTN1}">Guardar</button><button onclick="CXP.edit=false;CXP.nuevo=false;renderCxPDetalle()" class="${BTN2}">Cancelar</button></div>`;
+      }
+      const ctas = provCuentas(p), bancos = [...new Set(ctas.map(c => c.banco))];
+      const ctasBanco = ctas.filter(c => c.banco === p.banco);
+      return `<div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-3 max-w-2xl">
+        <div><label class="fld-label">Correo</label><input id="pf-email" class="fld" value="${esc(p.email)}"></div>
+        <div><label class="fld-label">Condición</label><select id="pf-condicion" class="fld">${['Contado', 'Crédito 30 días', 'Crédito 60 días'].map(o => `<option ${p.condicion === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
+        <div><label class="fld-label">Banco (pre-registrado)</label><select id="pf-banco" class="fld" onchange="syncCuentaProv('${p.id}')">${bancos.map(b => `<option value="${esc(b)}" ${p.banco === b ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select></div>
+        <div class="md:col-span-2"><label class="fld-label">No. de cuenta (pre-registrada)</label><select id="pf-cuenta" class="fld">${(ctasBanco.length ? ctasBanco : ctas).map(c => `<option value="${esc(c.cuenta)}" ${p.cuenta === c.cuenta ? 'selected' : ''}>${esc(c.cuenta)} (${esc(c.tipoCuenta)})</option>`).join('')}</select></div>
+      </div>
+      <div class="flex gap-2 mt-3"><button onclick="guardarProv('${p.id}')" class="${BTN1}">Guardar</button><button onclick="CXP.edit=false;CXP.nuevo=false;renderCxPDetalle()" class="${BTN2}">Cancelar</button></div>`;
     }
     function guardarProv(id) {
-      const d = { nombre: val('pf-nombre'), rtn: val('pf-rtn'), contacto: val('pf-contacto'), email: val('pf-email'), condicion: val('pf-condicion'), banco: val('pf-banco'), cuenta: val('pf-cuenta'), tipoCuenta: val('pf-tipoCuenta') };
-      if (!d.nombre) { toast('La razón social es obligatoria.', 'err'); return; }
-      if (id) { Object.assign(D.prov.find(p => p.id === id), d); } else { id = nextId('PRV-', D.prov); D.prov.push(Object.assign({ id }, d)); }
+      if (id) {
+        const p = D.prov.find(x => x.id === id); if (!p) return;
+        const ctas = provCuentas(p), b = val('pf-banco'), cta = val('pf-cuenta');
+        const encontrada = ctas.find(c => c.banco === b && c.cuenta === cta) || ctas.find(c => c.cuenta === cta) || ctas[0];
+        p.email = val('pf-email'); p.condicion = val('pf-condicion');
+        if (encontrada) { p.banco = encontrada.banco; p.cuenta = encontrada.cuenta; p.tipoCuenta = encontrada.tipoCuenta; }
+      } else {
+        const d = { nombre: val('pf-nombre'), rtn: val('pf-rtn'), contacto: val('pf-contacto'), email: val('pf-email'), condicion: val('pf-condicion'), banco: val('pf-banco'), cuenta: val('pf-cuenta'), tipoCuenta: val('pf-tipoCuenta') || 'Corriente' };
+        if (!d.nombre) { toast('La razón social es obligatoria.', 'err'); return; }
+        d.cuentasBancarias = [{ banco: d.banco, cuenta: d.cuenta, tipoCuenta: d.tipoCuenta }];
+        id = nextId('PRV-', D.prov); D.prov.push(Object.assign({ id }, d));
+      }
       sv('prov'); CXP.sel = id; CXP.edit = false; CXP.nuevo = false; toast('Proveedor guardado.'); renderCxP();
     }
 
@@ -798,19 +828,42 @@
       if (!CXP.sel) { c.innerHTML = '<div class="h-full flex items-center justify-center text-sm text-slate-400">Seleccione un proveedor o una OP del panel izquierdo.</div>'; return; }
       if (CXP.sel.startsWith('OP-')) { renderOPDetalle(c); return; }
       const p = D.prov.find(x => x.id === CXP.sel); if (!p) { c.innerHTML = ''; return; }
-      const i = provSaldoInfo(p.id);
-      const facts = D.fcxp.filter(f => f.provId === p.id).sort((a, b) => a.vence < b.vence ? -1 : 1);
-      const ficha = CXP.edit ? provFormHtml(p) : `<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">${[['RTN', p.rtn], ['Contacto', p.contacto], ['Correo', p.email], ['Condición', p.condicion], ['Banco', p.banco], ['Cuenta', p.cuenta + ' (' + p.tipoCuenta + ')']].map(x => `<div><div class="fld-label">${x[0]}</div><div class="font-semibold text-slate-800 break-words">${esc(x[1])}</div></div>`).join('')}</div>`;
-      c.innerHTML = `<div class="flex flex-wrap items-start justify-between gap-3 mb-3"><div><h3 class="text-lg font-black text-slate-900">${esc(p.nombre)}</h3><div class="mt-1 flex items-center gap-2">${agingBadge(i.aging)}<span class="text-xs text-slate-500">Saldo pendiente: <b class="font-mono text-slate-900">${fm(i.saldo)}</b></span></div></div>
-        <div class="flex gap-2"><button onclick="CXP.edit=true;renderCxPDetalle()" class="${BTN2}">Modificar</button><button onclick="cxpNuevoProv()" class="${BTN1}">+ Nuevo</button></div></div>${ficha}
-        <div class="mt-5 flex items-center justify-between"><h4 class="text-sm font-black uppercase tracking-wider text-slate-700">Estado de cuenta</h4><button onclick="generarOP('${p.id}')" class="${BTN3}">Generar Orden de Pago (OP)</button></div>
-        <table class="w-full mt-2 text-xs"><thead class="bg-slate-50"><tr><th class="${TH} w-8"></th><th class="${TH}">Factura</th><th class="${TH}">Fecha</th><th class="${TH}">Vence</th><th class="${TH} text-right">Monto</th><th class="${TH}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
-        ${facts.map(f => `<tr><td class="py-2 px-3">${f.estado === 'ABIERTA' ? `<input type="checkbox" class="chk-fcxp w-4 h-4 accent-slate-900" value="${f.id}" onchange="cxpSumSel()">` : ''}</td><td class="py-2 px-3 font-mono">${esc(f.numero)}</td><td class="py-2 px-3">${f.fecha}</td><td class="py-2 px-3">${f.vence}</td><td class="py-2 px-3 text-right font-mono font-bold">${fm(f.monto)}</td><td class="py-2 px-3">${f.estado === 'EN_OP' ? `<a class="text-sky-700 font-bold cursor-pointer" onclick="cxpSel('${f.opId}');CXP.tab='ops';renderCxP()">${esc(f.opId)}</a>` : estadoBadge(f.estado === 'PAGADA' ? 'PAGADA' : 'POR CONCILIAR').replace('POR CONCILIAR', 'ABIERTA')}</td></tr>`).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Sin facturas.</td></tr>'}
+      const todas = D.fcxp.filter(f => f.provId === p.id);
+      const facts = todas.filter(f => (!CXP.desde || f.fecha >= CXP.desde) && (!CXP.hasta || f.fecha <= CXP.hasta)).sort((a, b) => a.vence < b.vence ? -1 : 1);
+      const subPend = r2(todas.filter(f => f.estado === 'ABIERTA').reduce((s, f) => s + f.monto, 0));
+      const subOP = r2(todas.filter(f => f.estado === 'EN_OP').reduce((s, f) => s + f.monto, 0));
+      const saldoAcreedor = r2(subPend + subOP);
+      const ficha = CXP.edit ? provFormHtml(p) : `<div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-xs max-w-2xl">${[['RTN', p.rtn], ['Contacto', p.contacto], ['Correo', p.email], ['Condición', p.condicion], ['Banco', p.banco], ['Nro. de Cuenta', p.cuenta + ' (' + p.tipoCuenta + ')']].map(x => `<div><div class="fld-label">${x[0]}</div><div class="font-semibold text-slate-800 break-words">${esc(x[1])}</div></div>`).join('')}</div>`;
+      const TH_BLK = 'py-2.5 px-3 text-center text-[12px] font-bold uppercase tracking-wider text-white';
+      c.innerHTML = `<div class="flex flex-col justify-between min-h-full gap-4"><div>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h3 class="text-lg font-black text-slate-900">${esc(p.nombre)}</h3>
+            ${ficha}
+          </div>
+          <div class="flex gap-2 shrink-0"><button onclick="CXP.edit=true;renderCxPDetalle()" class="${BTN2}">Modificar</button><button onclick="generarOP('${p.id}')" class="${BTN1}">CREAR OP</button></div>
+        </div>
+        <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <h3 class="text-lg font-black text-slate-900">Estado de cuenta</h3>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Desde</label>
+            <input type="date" id="cxp-f-desde" value="${esc(CXP.desde)}" onchange="CXP.desde=this.value;renderCxPDetalle()" class="fld w-36">
+            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hasta</label>
+            <input type="date" id="cxp-f-hasta" value="${esc(CXP.hasta)}" onchange="CXP.hasta=this.value;renderCxPDetalle()" class="fld w-36">
+            ${(CXP.desde || CXP.hasta) ? `<button onclick="CXP.desde='';CXP.hasta='';renderCxPDetalle()" class="${BTN2}">Limpiar</button>` : ''}
+          </div>
+        </div>
+        <table class="w-full mt-2 text-xs"><thead class="bg-black text-white"><tr class="text-center text-[12px]"><th class="${TH_BLK} w-8"></th><th class="${TH_BLK}">Fecha</th><th class="${TH_BLK}">Factura</th><th class="${TH_BLK}">Vence</th><th class="${TH_BLK}">Monto</th><th class="${TH_BLK}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
+        ${facts.map(f => `<tr><td class="py-2 px-3 text-center">${f.estado === 'ABIERTA' ? `<input type="checkbox" class="chk-fcxp w-4 h-4 accent-slate-900" value="${f.id}" onchange="cxpSumSel()">` : ''}</td><td class="py-2 px-3 text-center">${f.fecha}</td><td class="py-2 px-3 text-center">${esc(f.numero)}</td><td class="py-2 px-3 text-center">${f.vence}</td><td class="py-2 px-3 text-center">${fm(f.monto)}</td>${f.estado === 'ABIERTA' ? `<td class="py-2 px-3 text-center"><span class="px-2 py-3 text-[12px] font-bold text-amber-700">ABIERTA</span></td>` : f.estado === 'EN_OP' ? `<td class="py-2 px-3 text-center"><a class="text-sky-700 font-bold cursor-pointer" onclick="cxpSel('${f.opId}');CXP.tab='ops';renderCxP()">${esc(f.opId)}</a></td>` : `<td class="py-2 px-3 text-center">${estadoBadge('PAGADA')}</td>`}</tr>`).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Sin facturas.</td></tr>'}
         </tbody></table><div id="cxp-sum" class="text-right text-xs font-bold text-slate-600 mt-2"></div>
-        <h4 class="text-sm font-black uppercase tracking-wider text-slate-700 mt-5 mb-2">Registrar factura</h4>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 items-end"><div><label class="fld-label">No. factura</label><input id="nf-num" class="fld"></div><div><label class="fld-label">Fecha</label><input id="nf-fecha" type="date" class="fld" value="${hoy()}"></div><div><label class="fld-label">Monto</label><input id="nf-monto" type="number" step="0.01" class="fld"></div>
-        <div><label class="fld-label">Condición</label><select id="nf-cond" class="fld"><option ${p.condicion === 'Contado' ? '' : 'selected'}>Crédito</option><option ${p.condicion === 'Contado' ? 'selected' : ''}>Contado</option></select></div><button onclick="registrarFacturaCxP('${p.id}')" class="${BTN1}">Registrar</button></div>
-        <p class="text-[11px] text-slate-400 mt-1">Contado: genera una OP automática. Crédito: se agrega al estado de cuenta.</p>`;
+      </div>
+      <div class="pt-3 border-t border-slate-200 flex justify-end">
+        <div class="w-full sm:w-80 bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-1 text-xs" style="font-family: 'Inter', sans-serif;">
+          <div class="flex justify-between text-slate-600"><span>Facturas pendientes</span><span class="font-semibold text-slate-900">${fm(subPend)}</span></div>
+          <div class="flex justify-between text-slate-600"><span>En Orden de Pago (OP)</span><span class="font-semibold text-slate-900">${fm(subOP)}</span></div>
+          <div class="pt-1.5 border-t border-slate-200 flex justify-between items-baseline"><span class="text-[11px] font-bold uppercase tracking-wider text-slate-700">Saldo Acreedor</span><span class="text-base font-black text-slate-950">${fm(saldoAcreedor)}</span></div>
+        </div>
+      </div></div>`;
     }
     function cxpSumSel() {
       const ids = Array.from(document.querySelectorAll('.chk-fcxp:checked')).map(x => x.value);
@@ -829,16 +882,6 @@
       if (!ids.length) { toast('Marque al menos una factura de crédito.', 'err'); return; }
       const op = crearOP(D.prov.find(p => p.id === pid), D.fcxp.filter(f => ids.includes(f.id)));
       toast(op.id + ' generada con ' + ids.length + ' factura(s).'); CXP.tab = 'ops'; CXP.sel = op.id; renderCxP();
-    }
-    function registrarFacturaCxP(pid) {
-      const monto = num('nf-monto'), numero = val('nf-num'), fecha = val('nf-fecha') || hoy(), cond = val('nf-cond');
-      if (!numero || monto <= 0) { toast('Indique número de factura y monto.', 'err'); return; }
-      const prov = D.prov.find(p => p.id === pid);
-      const f = { id: nextId('FCP-', D.fcxp), provId: pid, numero, fecha, vence: cond === 'Contado' ? fecha : addD(fecha, /60/.test(prov.condicion) ? 60 : 30), monto: r2(monto), estado: 'ABIERTA', opId: '' };
-      D.fcxp.push(f); sv('fcxp');
-      if (cond === 'Contado') { const op = crearOP(prov, [f]); toast('Factura de contado: ' + op.id + ' generada automáticamente.'); CXP.tab = 'ops'; CXP.sel = op.id; }
-      else toast('Factura a crédito registrada en el estado de cuenta.');
-      renderCxP();
     }
 
     function renderOPDetalle(c) {
