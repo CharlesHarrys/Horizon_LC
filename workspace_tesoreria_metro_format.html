@@ -858,10 +858,10 @@
         </tbody></table><div id="cxp-sum" class="text-right text-xs font-bold text-slate-600 mt-2"></div>
       </div>
       <div class="pt-3 border-t border-slate-200 flex justify-end">
-        <div class="w-full sm:w-80 bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-1 text-xs" style="font-family: 'Inter', sans-serif;">
+        <div class="w-full mr-3 sm:w-80 space-y-1 text-xs" style="font-family: 'Inter', sans-serif;">
           <div class="flex justify-between text-slate-600"><span>Facturas pendientes</span><span class="font-semibold text-slate-900">${fm(subPend)}</span></div>
           <div class="flex justify-between text-slate-600"><span>En Orden de Pago (OP)</span><span class="font-semibold text-slate-900">${fm(subOP)}</span></div>
-          <div class="pt-1.5 border-t border-slate-200 flex justify-between items-baseline"><span class="text-[11px] font-bold uppercase tracking-wider text-slate-700">Saldo Acreedor</span><span class="text-base font-black text-slate-950">${fm(saldoAcreedor)}</span></div>
+          <div class="pt-1.5 border-t border-slate-200 flex justify-between items-baseline"><span class="text-[16px] font-bold uppercase tracking-wider text-slate-700">Saldo Acreedor</span><span class="text-base font-black text-slate-950">${fm(saldoAcreedor)}</span></div>
         </div>
       </div></div>`;
     }
@@ -886,21 +886,129 @@
 
     function renderOPDetalle(c) {
       const o = D.ops.find(x => x.id === CXP.sel); if (!o) { c.innerHTML = ''; return; }
-      const abierta = o.estado !== 'PAGADA', facts = D.fcxp.filter(f => o.facturas.includes(f.id));
-      const lote = o.origen === 'RRHH' ? o.beneficiarios.map(b => `<tr><td class="py-2 px-3">${esc(b.nombre)}</td><td class="py-2 px-3">${esc(b.banco)}</td><td class="py-2 px-3 font-mono">${esc(b.cuenta)}</td><td class="py-2 px-3 text-right font-mono font-bold">${fm(b.monto)}</td></tr>`).join('')
-        : facts.map(f => `<tr><td class="py-2 px-3 font-mono">${esc(f.numero)}</td><td class="py-2 px-3">${f.fecha}</td><td class="py-2 px-3">${f.vence}</td><td class="py-2 px-3 text-right font-mono font-bold">${fm(f.monto)}</td></tr>`).join('');
-      const th = o.origen === 'RRHH' ? ['Colaborador', 'Banco', 'Cuenta', 'Neto'] : ['Factura', 'Fecha', 'Vence', 'Monto'];
-      const cap = o.refBanco ? `<div class="mt-3 p-3 rounded-2xl bg-sky-50 border border-sky-200 text-xs"><b>Notificación bancaria capturada:</b> monto ${fm(o.montoBanco)} · ref. ${esc(o.refBanco)} · fecha ${esc(o.fechaBanco)}</div>` : '';
-      c.innerHTML = `<div class="flex flex-wrap items-start justify-between gap-3"><div><span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">${o.origen === 'RRHH' ? 'Nómina • RRHH' : 'Lote de pago'}</span><h3 class="text-lg font-black font-mono text-slate-900">${esc(o.id)} — ${esc(o.beneficiario)}</h3><div class="mt-1 flex items-center gap-2">${estadoBadge(o.estado)}<span class="text-xs text-slate-500">${esc(o.fecha)} · Total <b class="font-mono text-slate-900">${fm(o.monto)}</b>${o.chequeNo ? ' · Cheque ' + esc(o.chequeNo) : ''}</span></div></div>
-        ${o.estado === 'PENDIENTE DE EJECUCIÓN' ? `<button onclick="anularOP('${o.id}')" class="${BTNR}">Anular OP</button>` : ''}</div>
-        <div class="mt-4 max-w-md"><label class="fld-label">Cuenta bancaria de pago</label><select class="fld" ${abierta ? '' : 'disabled'} onchange="cambiarCuentaOP('${o.id}',this.value)">${optsBancos(o.cuentaId)}</select></div>
-        <table class="w-full mt-4 text-xs"><thead class="bg-slate-50"><tr>${th.map((t, i) => `<th class="${TH} ${i === 3 ? 'text-right' : ''}">${t}</th>`).join('')}</tr></thead><tbody class="divide-y divide-slate-100">${lote}</tbody></table>
-        ${cap}
-        <div class="mt-4 flex flex-wrap gap-2"><button onclick="descargarACH('${o.id}')" class="${BTN2}">Descargar .csv Banca ACH</button><button onclick="imprimirVoucher('${o.id}')" class="${BTN2}">Imprimir PDF / Voucher de Cheque</button>
-        <button ${o.estado === 'PENDIENTE DE EJECUCIÓN' ? '' : 'disabled style="opacity:.4;cursor:not-allowed"'} onclick="sincronizarCorreoOP('${o.id}')" class="${BTN2}">Sincronizar Notificaciones de Correo Bancario</button>
-        <button ${o.estado === 'BORRADOR POR VALIDAR' ? '' : 'disabled style="opacity:.4;cursor:not-allowed"'} onclick="confirmarOP('${o.id}')" class="${BTN3}">Confirmar y Contabilizar</button></div>`;
+      const p = D.prov.find(x => x.id === o.provId);
+      const abierta = o.estado !== 'PAGADA', esCheque = o.modo === 'Cheque', facts = D.fcxp.filter(f => o.facturas.includes(f.id));
+      const rtn = p ? p.rtn : 'Nómina RRHH', correo = p ? p.email : 'rrhh@horizon.hn';
+      const TH_BLK = 'py-2.5 px-3 text-center text-[12px] font-bold uppercase tracking-wider text-white sticky top-0 bg-black';
+      const thCols = o.origen === 'RRHH' ? ['Fecha', 'Colaborador', 'Banco', 'Cuenta', 'Monto'] : ['Fecha', 'Factura', 'Vence', 'Monto'];
+      const lote = o.origen === 'RRHH'
+        ? o.beneficiarios.map(b => `<tr><td class="py-2 px-3 text-center">${esc(o.fecha)}</td><td class="py-2 px-3 text-center">${esc(b.nombre)}</td><td class="py-2 px-3 text-center">${esc(b.banco)}</td><td class="py-2 px-3 text-center">${esc(b.cuenta)}</td><td class="py-2 px-3 text-right">${fm(b.monto)}</td></tr>`).join('')
+        : facts.map(f => `<tr><td class="py-2 px-3 text-center">${f.fecha}</td><td class="py-2 px-3 text-center">${esc(f.numero)}</td><td class="py-2 px-3 text-center">${f.vence}</td><td class="py-2 px-3 text-right">${fm(f.monto)}</td></tr>`).join('');
+
+      const listosManual = Boolean(abierta && (o.refBanco || '').trim() && Number(o.montoBanco) > 0);
+      const puedeACH = !esCheque && Boolean(o.opFirmada);
+      const puedeCorreo = abierta && o.estado === 'PENDIENTE DE EJECUCIÓN' && (esCheque ? Boolean(o.impreso) : Boolean(o.opFirmada));
+      const puedeContabilizar = abierta && (o.estado === 'BORRADOR POR VALIDAR' || listosManual);
+      const dis = (ok) => ok ? '' : 'disabled style="opacity:.4;cursor:not-allowed"';
+
+      const paso1 = true, paso2 = Boolean(o.impreso), paso3 = Boolean(o.opFirmada) || (esCheque && paso2), paso4 = esCheque ? Boolean(o.chequeNo) : Boolean(o.achDescargado), paso5 = o.estado === 'BORRADOR POR VALIDAR' || listosManual || !abierta, paso6 = !abierta;
+      const pasos = [
+        { n: 1, t: 'OP Creada', ok: paso1 },
+        { n: 2, t: esCheque ? 'Cheque Impreso' : 'Impresión Física', ok: paso2 },
+        { n: 3, t: 'OP Firmada', ok: paso3 },
+        { n: 4, t: esCheque ? 'Cheque Emitido' : 'CSV Banca ACH', ok: paso4 },
+        { n: 5, t: 'Borrador / Correo', ok: paso5 },
+        { n: 6, t: o.notificadoProv ? 'Contabilizada · Avisada' : 'Contabilizada', ok: paso6 }
+      ];
+
+      const cajaAdjunto = o.opFirmada
+        ? `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2 text-xs">
+            <div class="min-w-0"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Firmada Adjunta (Bloqueada)</div><div class="font-semibold text-slate-900 truncate">${esc(o.opFirmada.nombre)} · ${esc(o.opFirmada.fecha)}</div></div>
+            ${abierta ? `<button onclick="eliminarOPFirmada('${o.id}')" class="${BTNR} shrink-0">Eliminar</button>` : ''}
+          </div>`
+        : `<label class="p-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 hover:border-slate-900 flex items-center justify-between gap-3 cursor-pointer text-xs">
+            <div><div class="font-bold text-slate-800">Adjuntar OP firmada</div><div class="text-[11px] text-slate-500">PDF o imagen · requerido para habilitar ACH y correo</div></div>
+            <span class="${BTN2} shrink-0">Seleccionar archivo</span>
+            <input type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden" onchange="adjuntarOPFirmada('${o.id}',this)">
+          </label>`;
+
+      c.innerHTML = `<div class="flex flex-col justify-between min-h-full gap-4"><div>
+        <div class="flex flex-wrap items-start justify-between gap-3"><div class="min-w-0">
+          <h3 class="text-lg font-black text-slate-900">${esc(o.beneficiario)}</h3>
+          <div class="mt-2 grid grid-cols-2 md:grid-cols-2 gap-x-6 gap-y-2 text-xs max-w-2xl">
+            <div><div class="fld-label">RTN</div><div class="font-semibold text-slate-800 break-words">${esc(rtn)}</div></div>
+            <div><div class="fld-label">Correo</div><div class="font-semibold text-slate-800 break-words">${esc(correo)}</div></div>
+            <div><div class="fld-label">Documento</div><div class="font-semibold text-slate-800 break-words">${esc(o.id)}${o.chequeNo ? ' · ' + esc(o.chequeNo) : ''}</div></div>
+            <div><div class="fld-label">Ejecucion</div><select ${abierta ? '' : 'disabled'} onchange="cambiarModoOP('${o.id}',this.value)" class="fld py-0.5 px-2 text-xs font-semibold text-slate-800 w-36"><option value="Transferencia" ${!esCheque ? 'selected' : ''}>Transferencia</option><option value="Cheque" ${esCheque ? 'selected' : ''}>Cheque</option></select></div>
+          </div>
+        </div>
+        ${o.estado === 'PENDIENTE DE EJECUCIÓN' ? `<button onclick="anularOP('${o.id}')" class="${BTNR}">Anular OP</button>` : estadoBadge(o.estado)}</div>
+
+        <div class="border-t border-slate-200 mt-3"></div>
+        <div class="mt-4 max-h-[220px] overflow-y-auto border border-slate-200 rounded-2xl">
+          <table class="w-full text-xs"><thead class="bg-black text-white"><tr class="text-center text-[12px]">${thCols.map(t => `<th class="${TH_BLK}">${t}</th>`).join('')}</tr></thead><tbody class="divide-y divide-slate-100">${lote || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin detalle.</td></tr>'}</tbody></table>
+        </div>
+
+        <div class="border-t border-slate-200 mt-3"></div>
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <h3 class="text-lg font-black text-slate-900">Ejecucion de pago</h3>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <label for="op-fecha" class="text-[10px] font-bold uppercase tracking-wider text-slate-500">FECHA</label>
+            <input type="date" id="op-fecha" value="${esc(o.fechaBanco || hoy())}" ${abierta ? '' : 'disabled'} onchange="actualizarCampoOP('${o.id}','fechaBanco',this.value)" class="fld w-36">
+          </div>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-6">
+          <div class="flex-1 min-w-[220px] max-w-md"><label for="op-cuenta" class="fld-label ml-2">Cuenta bancaria de pago</label><select id="op-cuenta" class="fld" ${abierta ? '' : 'disabled'} onchange="cambiarCuentaOP('${o.id}',this.value)">${optsBancos(o.cuentaId)}</select></div>
+          <div class="flex-1 min-w-[180px] max-w-md"><label for="op-ref" class="fld-label ml-2">REFERENCIA BANCARIA</label><input id="op-ref" type="text" class="fld" placeholder="Referencia" value="${esc(o.refBanco || o.chequeNo || '')}" ${abierta ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','refBanco',this.value)"></div>
+          <div class="flex-1 min-w-[160px] max-w-md"><label for="op-monto" class="fld-label ml-2">MONTO ABONADO</label><input id="op-monto" type="number" step="0.01" min="0" class="fld text-right" placeholder="0.00" value="${o.montoBanco ? Number(o.montoBanco).toFixed(2) : ''}" ${abierta ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','montoBanco',parseFloat(this.value)||0)"></div>
+        </div>
+
+        <div class="border-t border-slate-200 mt-4"></div>
+        <div class="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-center">
+          <div>${cajaAdjunto}</div>
+          <div class="flex flex-wrap justify-end gap-2">
+            ${esCheque
+              ? `<button onclick="imprimirVoucher('${o.id}')" class="${BTN2}">Imprimir PDF / Voucher de Cheque</button>`
+              : `<button onclick="imprimirOPFisica('${o.id}')" class="${BTN2}">Imprimir OP Física</button><button ${dis(puedeACH)} onclick="descargarACH('${o.id}')" class="${BTN2}">Descargar .csv Banca ACH</button>`}
+            <button ${dis(puedeCorreo)} onclick="sincronizarCorreoOP('${o.id}')" class="${BTN2}">Sincronizar Correo Bancario</button>
+            <button id="btn-contab-op" ${dis(puedeContabilizar)} onclick="confirmarOP('${o.id}')" class="${BTN3}">Confirmar y Contabilizar</button>
+            ${!abierta ? `<button onclick="notificarProveedorOP('${o.id}')" class="${o.notificadoProv ? BTN2 : BTN1}">${o.notificadoProv ? '✓ Proveedor Notificado' : 'Informar al Proveedor'}</button>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-200">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Línea de tiempo del pago</div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">${pasos.map(s => `<div class="px-2.5 py-2 rounded-xl border text-[11px] flex items-center gap-1.5 ${s.ok ? 'bg-slate-900 text-white border-slate-900 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}"><span class="w-4 h-4 rounded-full text-[10px] flex items-center justify-center shrink-0 ${s.ok ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'}">${s.ok ? '✓' : s.n}</span><span class="truncate">${s.t}</span></div>`).join('')}</div>
+      </div></div>`;
     }
-    function cambiarCuentaOP(id, cid) { const o = D.ops.find(x => x.id === id); o.cuentaId = cid; sv('ops'); }
+    function cambiarCuentaOP(id, cid) { const o = D.ops.find(x => x.id === id); if (o) { o.cuentaId = cid; sv('ops'); } }
+    function cambiarModoOP(id, modo) { const o = D.ops.find(x => x.id === id); if (o) { o.modo = modo; sv('ops'); renderCxPDetalle(); } }
+    function actualizarCampoOP(id, k, v) {
+      const o = D.ops.find(x => x.id === id); if (!o) return;
+      o[k] = v;
+      if (k === 'montoBanco' || k === 'refBanco') {
+        const b = $('btn-contab-op');
+        const ok = o.estado !== 'PAGADA' && (o.estado === 'BORRADOR POR VALIDAR' || (Boolean((o.refBanco || '').trim()) && Number(o.montoBanco) > 0));
+        if (b) { b.disabled = !ok; b.style.opacity = ok ? '' : '.4'; b.style.cursor = ok ? 'pointer' : 'not-allowed'; }
+      }
+      sv('ops');
+    }
+    function adjuntarOPFirmada(id, inp) {
+      const f = inp.files && inp.files[0]; if (!f) return;
+      const o = D.ops.find(x => x.id === id); if (!o) return;
+      o.opFirmada = { nombre: f.name, fecha: hoy() }; o.impreso = true; sv('ops');
+      toast('OP firmada adjuntada.'); renderCxPDetalle();
+    }
+    function eliminarOPFirmada(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
+      o.opFirmada = null; sv('ops'); toast('Adjunto eliminado.'); renderCxPDetalle();
+    }
+    function imprimirOPFisica(id) {
+      const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId); if (!o) return;
+      o.impreso = true; sv('ops');
+      const w = window.open('', '_blank', 'width=820,height=620');
+      if (w) {
+        w.document.write(`<html><head><title>${esc(o.id)}</title><style>body{font-family:Arial;padding:30px}.c{border:2px solid #0f172a;padding:20px;border-radius:8px}.r{display:flex;justify-content:space-between;margin:8px 0}td,th{border:1px solid #cbd5e1;padding:6px;font-size:12px}table{border-collapse:collapse;width:100%;margin-top:14px}</style></head><body>
+          <div class="c"><div class="r"><b>${esc($('hdr-company-name').textContent)}</b><b>Orden de Pago ${esc(o.id)}</b></div><div class="r"><span>Beneficiario: <b>${esc(o.beneficiario)}</b></span><span>Fecha: ${esc(o.fecha)}</span></div>
+          <div class="r"><span>Cuenta Origen: ${esc(cta ? cta.nombre : '')}</span><b>${esc(SYM)}${r2(o.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</b></div>
+          <table><tr><th>Detalle</th><th>Monto</th></tr>${(o.origen === 'RRHH' ? o.beneficiarios.map(b => [b.nombre, b.monto]) : D.fcxp.filter(f => o.facturas.includes(f.id)).map(f => ['Factura ' + f.numero, f.monto])).map(r => `<tr><td>${esc(r[0])}</td><td style="text-align:right">${r2(r[1]).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td></tr>`).join('')}</table>
+          <div class="r" style="margin-top:55px"><span>_____________________<br>Elaboró</span><span>_____________________<br>Autorizó (Firma)</span><span>_____________________<br>Tesorería</span></div></div>
+          <script>setTimeout(function(){window.print()},300)<\/script></body></html>`);
+        w.document.close();
+      } else toast('OP marcada como impresa (ventana emergente bloqueada).');
+      renderCxPDetalle();
+    }
     function anularOP(id) {
       const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'PENDIENTE DE EJECUCIÓN') return;
       if (!confirm('¿Anular ' + id + '? Las facturas volverán al estado de cuenta.')) return;
@@ -914,9 +1022,11 @@
     }
     function descargarACH(id) {
       const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId);
+      if (!o || !o.opFirmada) { toast('Adjunte primero la OP firmada.', 'err'); return; }
       const filas = [['Cuenta Origen', 'Banco Destino', 'Cuenta Destino', 'Beneficiario', 'Monto', 'Moneda', 'Referencia']];
       o.beneficiarios.forEach(b => filas.push([cta ? cta.numero : '', b.banco, b.cuenta, b.nombre, r2(b.monto).toFixed(2), cta ? cta.moneda : 'HNL', o.id]));
-      descargarCSV('ACH_' + o.id + '.csv', filas); toast('Archivo ACH generado.');
+      o.achDescargado = true; sv('ops');
+      descargarCSV('ACH_' + o.id + '.csv', filas); toast('Archivo ACH generado.'); renderCxPDetalle();
     }
     function imprimirVoucher(id) {
       const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId);
@@ -925,17 +1035,19 @@
         if (!chq) { toast('No hay chequera activa para la cuenta seleccionada.', 'err'); return; }
         o.chequeNo = chq.prefijo + String(chq.siguiente).padStart(5, '0'); chq.siguiente++;
         if (chq.siguiente > chq.hasta) chq.activa = false;
-        sv('chq', 'ops');
       }
+      o.impreso = true; if (!o.refBanco) o.refBanco = o.chequeNo; sv('chq', 'ops');
       const w = window.open('', '_blank', 'width=820,height=620');
-      if (!w) { toast('El navegador bloqueó la ventana de impresión.', 'err'); return; }
-      w.document.write(`<html><head><title>${esc(o.chequeNo)}</title><style>body{font-family:Arial;padding:30px}.c{border:2px solid #0f172a;padding:20px;border-radius:8px}.r{display:flex;justify-content:space-between;margin:8px 0}td,th{border:1px solid #cbd5e1;padding:6px;font-size:12px}table{border-collapse:collapse;width:100%;margin-top:14px}</style></head><body>
-        <div class="c"><div class="r"><b>${esc($('hdr-company-name').textContent)}</b><b>Cheque ${esc(o.chequeNo)}</b></div><div class="r"><span>Banco: ${esc(cta ? cta.nombre : '')}</span><span>Fecha: ${hoy()}</span></div>
-        <div class="r"><span>Pagar a la orden de: <b>${esc(o.beneficiario)}</b></span><b>${esc(SYM)}${r2(o.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</b></div><div class="r"><span>Concepto: Orden de pago ${esc(o.id)}</span></div>
-        <table><tr><th>Detalle</th><th>Monto</th></tr>${(o.origen === 'RRHH' ? o.beneficiarios.map(b => [b.nombre, b.monto]) : D.fcxp.filter(f => o.facturas.includes(f.id)).map(f => ['Factura ' + f.numero, f.monto])).map(r => `<tr><td>${esc(r[0])}</td><td style="text-align:right">${r2(r[1]).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td></tr>`).join('')}</table>
-        <div class="r" style="margin-top:50px"><span>_____________________<br>Elaboró</span><span>_____________________<br>Autorizó</span><span>_____________________<br>Recibí conforme</span></div></div>
-        <script>setTimeout(function(){window.print()},300)<\/script></body></html>`);
-      w.document.close(); renderCxPDetalle();
+      if (w) {
+        w.document.write(`<html><head><title>${esc(o.chequeNo)}</title><style>body{font-family:Arial;padding:30px}.c{border:2px solid #0f172a;padding:20px;border-radius:8px}.r{display:flex;justify-content:space-between;margin:8px 0}td,th{border:1px solid #cbd5e1;padding:6px;font-size:12px}table{border-collapse:collapse;width:100%;margin-top:14px}</style></head><body>
+          <div class="c"><div class="r"><b>${esc($('hdr-company-name').textContent)}</b><b>Cheque ${esc(o.chequeNo)}</b></div><div class="r"><span>Banco: ${esc(cta ? cta.nombre : '')}</span><span>Fecha: ${hoy()}</span></div>
+          <div class="r"><span>Pagar a la orden de: <b>${esc(o.beneficiario)}</b></span><b>${esc(SYM)}${r2(o.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</b></div><div class="r"><span>Concepto: Orden de pago ${esc(o.id)}</span></div>
+          <table><tr><th>Detalle</th><th>Monto</th></tr>${(o.origen === 'RRHH' ? o.beneficiarios.map(b => [b.nombre, b.monto]) : D.fcxp.filter(f => o.facturas.includes(f.id)).map(f => ['Factura ' + f.numero, f.monto])).map(r => `<tr><td>${esc(r[0])}</td><td style="text-align:right">${r2(r[1]).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td></tr>`).join('')}</table>
+          <div class="r" style="margin-top:50px"><span>_____________________<br>Elaboró</span><span>_____________________<br>Autorizó</span><span>_____________________<br>Recibí conforme</span></div></div>
+          <script>setTimeout(function(){window.print()},300)<\/script></body></html>`);
+        w.document.close();
+      } else toast('Cheque ' + o.chequeNo + ' emitido (ventana emergente bloqueada).');
+      renderCxPDetalle();
     }
     function sincronizarCorreoOP(id) {
       const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'PENDIENTE DE EJECUCIÓN') return;
@@ -944,15 +1056,24 @@
       sv('ops'); toast('Notificación bancaria capturada. Revise y confirme.'); renderCxP();
     }
     function confirmarOP(id) {
-      const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'BORRADOR POR VALIDAR') return;
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
+      const monto = r2(Number(o.montoBanco) || num('op-monto')), ref = (o.refBanco || val('op-ref') || '').trim(), fecha = o.fechaBanco || val('op-fecha') || hoy();
+      if (!ref || monto <= 0) { toast('Indique referencia bancaria y monto abonado.', 'err'); return; }
       const cta = ctaBanco(o.cuentaId); if (!cta) { toast('Seleccione una cuenta bancaria.', 'err'); return; }
-      if (cta.saldo < o.montoBanco) { toast('Saldo insuficiente en ' + cta.nombre + '.', 'err'); return; }
+      if (cta.saldo < monto) { toast('Saldo insuficiente en ' + cta.nombre + '.', 'err'); return; }
       const deb = o.origen === 'RRHH' ? '2.1.02.01' : '2.1.01.01';
-      pushAsiento('TESORERÍA', o.id, 'Pago ' + o.id + ' — ' + o.beneficiario + ' (ref. ' + o.refBanco + ')', [{ codigo: deb, debe: o.montoBanco }, { codigo: cta.codigo, haber: o.montoBanco }], o.fechaBanco);
-      cta.saldo = r2(cta.saldo - o.montoBanco); o.estado = 'PAGADA';
+      pushAsiento('TESORERÍA', o.id, 'Pago ' + o.id + ' — ' + o.beneficiario + ' (ref. ' + ref + ')', [{ codigo: deb, debe: monto }, { codigo: cta.codigo, haber: monto }], fecha);
+      cta.saldo = r2(cta.saldo - monto); o.montoBanco = monto; o.refBanco = ref; o.fechaBanco = fecha; o.estado = 'PAGADA';
       D.fcxp.forEach(f => { if (f.opId === o.id) f.estado = 'PAGADA'; });
       if (o.solId) { try { const s = JSON.parse(localStorage.getItem(LS_SOLICITUDES) || '[]'); s.forEach(x => { if (x.id === o.solId) x.estado = 'DESEMBOLSADA'; }); localStorage.setItem(LS_SOLICITUDES, JSON.stringify(s)); } catch (e) { /* noop */ } }
       sv('cuentas', 'ops', 'fcxp'); toast(o.id + ' contabilizada y saldo bancario actualizado.'); renderCxP();
+    }
+    function notificarProveedorOP(id) {
+      const o = D.ops.find(x => x.id === id), p = o && D.prov.find(x => x.id === o.provId);
+      if (!o || o.estado !== 'PAGADA') return;
+      const correo = p ? p.email : 'rrhh@horizon.hn';
+      o.notificadoProv = true; sv('ops');
+      toast('Comprobante de pago ' + o.id + ' enviado a ' + correo + '.'); renderCxPDetalle();
     }
 
     // -------------------------------------------------------------------------
