@@ -755,9 +755,11 @@
       f.innerHTML = opts.map(o => `<option value="${esc(o.v)}" ${o.v === prev ? 'selected' : ''}>${esc(o.l)}</option>`).join('');
       const totalPend = D.fcxp.filter(x => x.estado !== 'PAGADA').reduce((s, x) => s + x.monto, 0);
       const opsPend = D.ops.filter(o => o.estado !== 'PAGADA');
+      const borradores = D.ops.filter(o => o.estado === 'BORRADOR POR VALIDAR');
       const badge = $('cxp-ops-badge');
       if (badge) { badge.textContent = opsPend.length; badge.style.display = opsPend.length > 0 ? '' : 'none'; }
-      $('cxp-kpis').innerHTML = [['Saldo por pagar', fm(totalPend)], ['Monto en OPs', fm(opsPend.reduce((s, o) => s + o.monto, 0))]]
+      const notifBorrador = borradores.length ? `<button onclick="CXP.tab='ops';renderCxP();$('cxp-f').value='BORRADOR POR VALIDAR';renderCxPList()" class="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold hover:bg-amber-100 cursor-pointer">⚠ ${borradores.length} pago(s) en borrador por sincronizar</button>` : '';
+      $('cxp-kpis').innerHTML = notifBorrador + [['Saldo por pagar', fm(totalPend)], ['Monto en OPs', fm(opsPend.reduce((s, o) => s + o.monto, 0))]]
         .map(k => `<div class="px-3 border-l border-slate-200"><div class="text-[9px] uppercase tracking-wider mb-1 font-bold text-slate-400">${k[0]}</div><div class="text-sm text-right ml-2 font-black text-slate-900">${k[1]}</div></div>`).join('');
       renderCxPList(); renderCxPDetalle();
     }
@@ -884,6 +886,13 @@
       toast(op.id + ' generada con ' + ids.length + ' factura(s).'); CXP.tab = 'ops'; CXP.sel = op.id; renderCxP();
     }
 
+    function registrarAuditoriaOP(opId, evento, detalle) {
+      let logs = [];
+      try { logs = JSON.parse(localStorage.getItem('horizon_tesoreria_auditoria') || '[]'); if (!Array.isArray(logs)) logs = []; } catch (e) { logs = []; }
+      logs.unshift({ id: 'AUD-' + Date.now().toString(36).toUpperCase(), fecha: hoy(), hora: new Date().toTimeString().slice(0, 8), usuario: 'Carlos Hernández', opId, evento, detalle });
+      localStorage.setItem('horizon_tesoreria_auditoria', JSON.stringify(logs));
+    }
+
     function renderOPDetalle(c) {
       const o = D.ops.find(x => x.id === CXP.sel); if (!o) { c.innerHTML = ''; return; }
       const p = D.prov.find(x => x.id === o.provId);
@@ -895,32 +904,73 @@
         ? o.beneficiarios.map(b => `<tr><td class="py-2 px-3 text-center">${esc(o.fecha)}</td><td class="py-2 px-3 text-center">${esc(b.nombre)}</td><td class="py-2 px-3 text-center">${esc(b.banco)}</td><td class="py-2 px-3 text-center">${esc(b.cuenta)}</td><td class="py-2 px-3 text-right">${fm(b.monto)}</td></tr>`).join('')
         : facts.map(f => `<tr><td class="py-2 px-3 text-center">${f.fecha}</td><td class="py-2 px-3 text-center">${esc(f.numero)}</td><td class="py-2 px-3 text-center">${f.vence}</td><td class="py-2 px-3 text-right">${fm(f.monto)}</td></tr>`).join('');
 
-      const listosManual = Boolean(abierta && (o.refBanco || '').trim() && Number(o.montoBanco) > 0);
-      const puedeACH = !esCheque && Boolean(o.opFirmada);
-      const puedeCorreo = abierta && o.estado === 'PENDIENTE DE EJECUCIÓN' && (esCheque ? Boolean(o.impreso) : Boolean(o.opFirmada));
-      const puedeContabilizar = abierta && (o.estado === 'BORRADOR POR VALIDAR' || listosManual);
+      // Determinar etapa actual (1..6)
+      let etapa = 1;
+      if (!abierta) etapa = 6;
+      else if (o.ejecucionHabilitada) etapa = 4;
+      else if (o.opValidada) etapa = 3;
+      else if (o.impreso) etapa = 2;
+
+      const ejecucionActiva = abierta && etapa >= 4;
+      const camposLlenos = Boolean((o.fechaBanco || hoy()) && o.cuentaId && (o.refBanco || '').trim() && Number(o.montoBanco) > 0);
+      const puedeGuardar = ejecucionActiva && camposLlenos;
       const dis = (ok) => ok ? '' : 'disabled style="opacity:.4;cursor:not-allowed"';
 
-      const paso1 = true, paso2 = Boolean(o.impreso), paso3 = Boolean(o.opFirmada) || (esCheque && paso2), paso4 = esCheque ? Boolean(o.chequeNo) : Boolean(o.achDescargado), paso5 = o.estado === 'BORRADOR POR VALIDAR' || listosManual || !abierta, paso6 = !abierta;
       const pasos = [
-        { n: 1, t: 'OP Creada', ok: paso1 },
-        { n: 2, t: esCheque ? 'Cheque Impreso' : 'Impresión Física', ok: paso2 },
-        { n: 3, t: 'OP Firmada', ok: paso3 },
-        { n: 4, t: esCheque ? 'Cheque Emitido' : 'CSV Banca ACH', ok: paso4 },
-        { n: 5, t: 'Borrador / Correo', ok: paso5 },
-        { n: 6, t: o.notificadoProv ? 'Contabilizada · Avisada' : 'Contabilizada', ok: paso6 }
+        { n: 1, t: 'OP Creada', ok: true },
+        { n: 2, t: esCheque ? 'Cheque Impreso' : 'Impresión Física', ok: etapa >= 2 },
+        { n: 3, t: 'OP Validada', ok: etapa >= 3 },
+        { n: 4, t: esCheque ? 'Ejecución Lista' : 'CSV Banca ACH', ok: etapa >= 4 },
+        { n: 5, t: 'Borrador / Correo', ok: o.estado === 'BORRADOR POR VALIDAR' || puedeGuardar || etapa >= 6 },
+        { n: 6, t: o.notificadoProv ? 'Contabilizada · Avisada' : 'Contabilizada', ok: etapa >= 6 }
       ];
 
-      const cajaAdjunto = o.opFirmada
-        ? `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2 text-xs">
-            <div class="min-w-0"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Firmada Adjunta (Bloqueada)</div><div class="font-semibold text-slate-900 truncate">${esc(o.opFirmada.nombre)} · ${esc(o.opFirmada.fecha)}</div></div>
-            ${abierta ? `<button onclick="eliminarOPFirmada('${o.id}')" class="${BTNR} shrink-0">Eliminar</button>` : ''}
-          </div>`
-        : `<label class="p-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 hover:border-slate-900 flex items-center justify-between gap-3 cursor-pointer text-xs">
-            <div><div class="font-bold text-slate-800">Adjuntar OP firmada</div><div class="text-[11px] text-slate-500">PDF o imagen · requerido para habilitar ACH y correo</div></div>
-            <span class="${BTN2} shrink-0">Seleccionar archivo</span>
-            <input type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden" onchange="adjuntarOPFirmada('${o.id}',this)">
-          </label>`;
+      // Contenido izquierdo (adjunto / estado) y botones derechos por etapa
+      let cajaIzq = '', btnsDer = '';
+      if (etapa === 1) {
+        cajaIzq = `<div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2 text-xs">
+          <span class="text-slate-500">Ejecución de pago bloqueada hasta imprimir y validar la OP.</span>
+          <button onclick="desbloquearConToken('${o.id}')" class="${BTN2} shrink-0">Desbloquear con Token</button>
+        </div>`;
+        btnsDer = esCheque
+          ? `<button onclick="imprimirVoucher('${o.id}')" class="${BTN1}">Imprimir Cheque</button>`
+          : `<button onclick="imprimirOPFisica('${o.id}')" class="${BTN1}">Imprimir OP</button>`;
+      } else if (etapa === 2) {
+        cajaIzq = o.opFirmada
+          ? `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2 text-xs">
+              <div class="min-w-0"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Firmada Adjunta</div><div class="font-semibold text-slate-900 truncate">${esc(o.opFirmada.nombre)} · ${esc(o.opFirmada.fecha)}</div></div>
+              <button onclick="eliminarOPFirmada('${o.id}')" class="${BTNR} shrink-0">Eliminar</button>
+            </div>`
+          : `<label class="p-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 hover:border-slate-900 flex items-center justify-between gap-3 cursor-pointer text-xs">
+              <div><div class="font-bold text-slate-800">Adjuntar OP firmada</div><div class="text-[11px] text-slate-500">PDF o imagen</div></div>
+              <span class="${BTN2} shrink-0">Seleccionar archivo</span>
+              <input type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden" onchange="adjuntarOPFirmada('${o.id}',this)">
+            </label>`;
+        btnsDer = `<button onclick="volverEtapaOP('${o.id}')" class="${BTN2}">Volver</button>
+          <button onclick="desbloquearConToken('${o.id}')" class="${BTN2}">Token Auditoría</button>
+          <button ${dis(Boolean(o.opFirmada))} onclick="validarFirmasOP('${o.id}')" class="${BTN1}">Validar OP</button>`;
+      } else if (etapa === 3) {
+        cajaIzq = `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2 text-xs">
+          <div class="min-w-0"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Validada (Firmas Autorizadas)</div><div class="font-semibold text-slate-900 truncate">${o.opFirmada ? esc(o.opFirmada.nombre) : 'Validación registrada'}</div></div>
+          <button onclick="desbloquearConToken('${o.id}')" class="${BTN2} shrink-0">Desbloquear con Token</button>
+        </div>`;
+        btnsDer = esCheque
+          ? `<button onclick="habilitarEjecucionOP('${o.id}')" class="${BTN1}">Habilitar Ejecución</button>`
+          : `<button onclick="descargarACH('${o.id}')" class="${BTN1}">Descargar .csv Banca ACH</button>`;
+      } else if (etapa === 4) {
+        cajaIzq = o.tokenAuditoria
+          ? `<div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-800">⚠ Desbloqueo por Token de Auditoría</div><div class="text-slate-700 truncate">Usuario: <b>${esc(o.tokenAuditoria.usuario)}</b> · ${esc(o.tokenAuditoria.fecha)}</div></div>`
+          : `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Validada · Ejecución Habilitada</div><div class="text-slate-700 truncate">${o.achDescargado ? 'Archivo ACH generado · ' : ''}${o.opFirmada ? esc(o.opFirmada.nombre) : ''}</div></div>`;
+        btnsDer = `<button onclick="sincronizarCorreoOP('${o.id}')" class="${BTN2}">Sincronizar</button>
+          <button onclick="guardarBorradorOP('${o.id}')" class="${BTN2}">Borrador</button>
+          <button id="btn-contab-op" ${dis(puedeGuardar)} onclick="confirmarOP('${o.id}')" class="${BTN3}">Guardar</button>`;
+      } else {
+        cajaIzq = `<div class="p-3 rounded-2xl bg-slate-900 text-white text-xs flex items-center justify-between gap-2">
+          <div class="min-w-0"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">✓ Contabilizada y Congelada</div><div class="truncate">Asiento: <b>${esc(o.asientoId || o.id)}</b> · Ref: ${esc(o.refBanco)}</div></div>
+        </div>`;
+        btnsDer = `<button onclick="reversarOPContabilizada('${o.id}')" class="${BTNR}">Modificar</button>
+          <button onclick="notificarProveedorOP('${o.id}')" class="${o.notificadoProv ? BTN2 : BTN1}">${o.notificadoProv ? '✓ Proveedor Notificado' : 'Notificar a proveedor'}</button>`;
+      }
 
       c.innerHTML = `<div class="flex flex-col justify-between min-h-full gap-4"><div>
         <div class="flex flex-wrap items-start justify-between gap-3"><div class="min-w-0">
@@ -929,46 +979,38 @@
             <div><div class="fld-label">RTN</div><div class="font-semibold text-slate-800 break-words">${esc(rtn)}</div></div>
             <div><div class="fld-label">Correo</div><div class="font-semibold text-slate-800 break-words">${esc(correo)}</div></div>
             <div><div class="fld-label">Documento</div><div class="font-semibold text-slate-800 break-words">${esc(o.id)}${o.chequeNo ? ' · ' + esc(o.chequeNo) : ''}</div></div>
-            <div><div class="fld-label">Ejecucion</div><select ${abierta ? '' : 'disabled'} onchange="cambiarModoOP('${o.id}',this.value)" class="fld py-0.5 px-2 text-xs font-semibold text-slate-800 w-36"><option value="Transferencia" ${!esCheque ? 'selected' : ''}>Transferencia</option><option value="Cheque" ${esCheque ? 'selected' : ''}>Cheque</option></select></div>
+            <div><div class="fld-label">Ejecucion</div><select ${abierta ? '' : 'disabled'} onchange="cambiarModoOP('${o.id}',this.value)" class="font-semibold text-slate-800 text-xs break-words w-36 bg-transparent"><option value="Transferencia" ${!esCheque ? 'selected' : ''}>Transferencia</option><option value="Cheque" ${esCheque ? 'selected' : ''}>Cheque</option></select></div>
           </div>
         </div>
         ${o.estado === 'PENDIENTE DE EJECUCIÓN' ? `<button onclick="anularOP('${o.id}')" class="${BTNR}">Anular OP</button>` : estadoBadge(o.estado)}</div>
 
-        <div class="border-t border-slate-200 mt-3"></div>
-        <div class="mt-4 max-h-[220px] overflow-y-auto border border-slate-200 rounded-2xl">
+        <div class="border-t border-slate-200 mt-2"></div>
+        <div class="mt-2 max-h-[220px] overflow-y-auto">
           <table class="w-full text-xs"><thead class="bg-black text-white"><tr class="text-center text-[12px]">${thCols.map(t => `<th class="${TH_BLK}">${t}</th>`).join('')}</tr></thead><tbody class="divide-y divide-slate-100">${lote || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin detalle.</td></tr>'}</tbody></table>
         </div>
 
         <div class="border-t border-slate-200 mt-3"></div>
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
           <h3 class="text-lg font-black text-slate-900">Ejecucion de pago</h3>
           <div class="flex flex-wrap items-center gap-2 text-xs">
             <label for="op-fecha" class="text-[10px] font-bold uppercase tracking-wider text-slate-500">FECHA</label>
-            <input type="date" id="op-fecha" value="${esc(o.fechaBanco || hoy())}" ${abierta ? '' : 'disabled'} onchange="actualizarCampoOP('${o.id}','fechaBanco',this.value)" class="fld w-36">
+            <input type="date" id="op-fecha" value="${esc(o.fechaBanco || hoy())}" ${ejecucionActiva ? '' : 'disabled'} onchange="actualizarCampoOP('${o.id}','fechaBanco',this.value)" class="fld w-36 ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}">
           </div>
         </div>
-        <div class="mt-3 flex flex-wrap gap-6">
-          <div class="flex-1 min-w-[220px] max-w-md"><label for="op-cuenta" class="fld-label ml-2">Cuenta bancaria de pago</label><select id="op-cuenta" class="fld" ${abierta ? '' : 'disabled'} onchange="cambiarCuentaOP('${o.id}',this.value)">${optsBancos(o.cuentaId)}</select></div>
-          <div class="flex-1 min-w-[180px] max-w-md"><label for="op-ref" class="fld-label ml-2">REFERENCIA BANCARIA</label><input id="op-ref" type="text" class="fld" placeholder="Referencia" value="${esc(o.refBanco || o.chequeNo || '')}" ${abierta ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','refBanco',this.value)"></div>
-          <div class="flex-1 min-w-[160px] max-w-md"><label for="op-monto" class="fld-label ml-2">MONTO ABONADO</label><input id="op-monto" type="number" step="0.01" min="0" class="fld text-right" placeholder="0.00" value="${o.montoBanco ? Number(o.montoBanco).toFixed(2) : ''}" ${abierta ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','montoBanco',parseFloat(this.value)||0)"></div>
+        <div class="mt-1 flex flex-wrap gap-6">
+          <div class="flex-1 min-w-[220px] max-w-md"><label for="op-cuenta" class="fld-label ml-2">Cuenta bancaria de pago</label><select id="op-cuenta" class="fld ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" ${ejecucionActiva ? '' : 'disabled'} onchange="cambiarCuentaOP('${o.id}',this.value)">${optsBancos(o.cuentaId)}</select></div>
+          <div class="flex-1 min-w-[180px] max-w-md"><label for="op-ref" class="fld-label ml-2">REFERENCIA BANCARIA</label><input id="op-ref" type="text" class="fld ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" placeholder="Referencia" value="${esc(o.refBanco || o.chequeNo || '')}" ${ejecucionActiva ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','refBanco',this.value)"></div>
+          <div class="flex-1 min-w-[160px] max-w-md"><label for="op-monto" class="fld-label ml-2">MONTO ABONADO</label><input id="op-monto" type="number" step="0.01" min="0" class="fld text-right ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" placeholder="0.00" value="${o.montoBanco ? Number(o.montoBanco).toFixed(2) : ''}" ${ejecucionActiva ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','montoBanco',parseFloat(this.value)||0)"></div>
         </div>
 
         <div class="border-t border-slate-200 mt-4"></div>
         <div class="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-center">
-          <div>${cajaAdjunto}</div>
-          <div class="flex flex-wrap justify-end gap-2">
-            ${esCheque
-              ? `<button onclick="imprimirVoucher('${o.id}')" class="${BTN2}">Imprimir PDF / Voucher de Cheque</button>`
-              : `<button onclick="imprimirOPFisica('${o.id}')" class="${BTN2}">Imprimir OP Física</button><button ${dis(puedeACH)} onclick="descargarACH('${o.id}')" class="${BTN2}">Descargar .csv Banca ACH</button>`}
-            <button ${dis(puedeCorreo)} onclick="sincronizarCorreoOP('${o.id}')" class="${BTN2}">Sincronizar Correo Bancario</button>
-            <button id="btn-contab-op" ${dis(puedeContabilizar)} onclick="confirmarOP('${o.id}')" class="${BTN3}">Confirmar y Contabilizar</button>
-            ${!abierta ? `<button onclick="notificarProveedorOP('${o.id}')" class="${o.notificadoProv ? BTN2 : BTN1}">${o.notificadoProv ? '✓ Proveedor Notificado' : 'Informar al Proveedor'}</button>` : ''}
-          </div>
+          <div>${cajaIzq}</div>
+          <div class="flex flex-wrap justify-end gap-2">${btnsDer}</div>
         </div>
       </div>
 
-      <div class="pt-3 border-t border-slate-200">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Línea de tiempo del pago</div>
+      <div class="pt-2 border-t border-slate-200">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">${pasos.map(s => `<div class="px-2.5 py-2 rounded-xl border text-[11px] flex items-center gap-1.5 ${s.ok ? 'bg-slate-900 text-white border-slate-900 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}"><span class="w-4 h-4 rounded-full text-[10px] flex items-center justify-center shrink-0 ${s.ok ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'}">${s.ok ? '✓' : s.n}</span><span class="truncate">${s.t}</span></div>`).join('')}</div>
       </div></div>`;
     }
@@ -977,22 +1019,44 @@
     function actualizarCampoOP(id, k, v) {
       const o = D.ops.find(x => x.id === id); if (!o) return;
       o[k] = v;
-      if (k === 'montoBanco' || k === 'refBanco') {
-        const b = $('btn-contab-op');
-        const ok = o.estado !== 'PAGADA' && (o.estado === 'BORRADOR POR VALIDAR' || (Boolean((o.refBanco || '').trim()) && Number(o.montoBanco) > 0));
-        if (b) { b.disabled = !ok; b.style.opacity = ok ? '' : '.4'; b.style.cursor = ok ? 'pointer' : 'not-allowed'; }
-      }
+      if (!o.fechaBanco) o.fechaBanco = val('op-fecha') || hoy();
+      const b = $('btn-contab-op');
+      const ok = o.estado !== 'PAGADA' && Boolean(o.ejecucionHabilitada) && Boolean((o.fechaBanco || '').trim() && o.cuentaId && (o.refBanco || '').trim() && Number(o.montoBanco) > 0);
+      if (b) { b.disabled = !ok; b.style.opacity = ok ? '' : '.4'; b.style.cursor = ok ? 'pointer' : 'not-allowed'; }
       sv('ops');
+    }
+    function volverEtapaOP(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
+      o.impreso = false; o.opFirmada = null; o.opValidada = false; sv('ops');
+      toast('OP devuelta a etapa inicial para anular o reimprimir.'); renderCxPDetalle();
     }
     function adjuntarOPFirmada(id, inp) {
       const f = inp.files && inp.files[0]; if (!f) return;
       const o = D.ops.find(x => x.id === id); if (!o) return;
-      o.opFirmada = { nombre: f.name, fecha: hoy() }; o.impreso = true; sv('ops');
-      toast('OP firmada adjuntada.'); renderCxPDetalle();
+      o.opFirmada = { nombre: f.name, fecha: hoy() }; sv('ops');
+      toast('Archivo adjuntado. Presione Validar OP.'); renderCxPDetalle();
     }
     function eliminarOPFirmada(id) {
-      const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
+      const o = D.ops.find(x => x.id === id); if (!o || o.opValidada || o.estado === 'PAGADA') return;
       o.opFirmada = null; sv('ops'); toast('Adjunto eliminado.'); renderCxPDetalle();
+    }
+    function validarFirmasOP(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || !o.opFirmada) { toast('Adjunte la OP firmada antes de validar.', 'err'); return; }
+      o.opValidada = true; registrarAuditoriaOP(o.id, 'VALIDACION_FIRMAS_OP', 'Firmas autorizadas validadas (' + o.opFirmada.nombre + ')');
+      sv('ops'); toast('Firmas validadas correctamente.'); renderCxPDetalle();
+    }
+    function habilitarEjecucionOP(id) {
+      const o = D.ops.find(x => x.id === id); if (!o) return;
+      o.ejecucionHabilitada = true; sv('ops'); toast('Ejecución de pago habilitada.'); renderCxPDetalle();
+    }
+    function desbloquearConToken(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
+      const tok = prompt('Ingrese su Token de autorización para desbloquear Ejecución de Pago (se registrará en auditoría):');
+      if (!tok || !tok.trim()) return;
+      o.ejecucionHabilitada = true;
+      o.tokenAuditoria = { usuario: 'Carlos Hernández', token: tok.trim().slice(0, 4) + '***', fecha: hoy() };
+      registrarAuditoriaOP(o.id, 'DESBLOQUEO_TOKEN_EJECUCION', 'Zona de ejecución desbloqueada por token de usuario responsable.');
+      sv('ops'); toast('Ejecución desbloqueada y registrada en auditoría.'); renderCxPDetalle();
     }
     function imprimirOPFisica(id) {
       const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId); if (!o) return;
@@ -1006,11 +1070,11 @@
           <div class="r" style="margin-top:55px"><span>_____________________<br>Elaboró</span><span>_____________________<br>Autorizó (Firma)</span><span>_____________________<br>Tesorería</span></div></div>
           <script>setTimeout(function(){window.print()},300)<\/script></body></html>`);
         w.document.close();
-      } else toast('OP marcada como impresa (ventana emergente bloqueada).');
+      } else toast('OP impresa. Adjunte el documento firmado.');
       renderCxPDetalle();
     }
     function anularOP(id) {
-      const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'PENDIENTE DE EJECUCIÓN') return;
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
       if (!confirm('¿Anular ' + id + '? Las facturas volverán al estado de cuenta.')) return;
       D.fcxp.forEach(f => { if (f.opId === id) { f.estado = 'ABIERTA'; f.opId = ''; } });
       D.ops = D.ops.filter(x => x.id !== id); sv('ops', 'fcxp'); CXP.sel = ''; toast(id + ' anulada.'); renderCxP();
@@ -1022,11 +1086,11 @@
     }
     function descargarACH(id) {
       const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId);
-      if (!o || !o.opFirmada) { toast('Adjunte primero la OP firmada.', 'err'); return; }
+      if (!o || !o.opValidada) { toast('Valide primero la OP firmada.', 'err'); return; }
       const filas = [['Cuenta Origen', 'Banco Destino', 'Cuenta Destino', 'Beneficiario', 'Monto', 'Moneda', 'Referencia']];
       o.beneficiarios.forEach(b => filas.push([cta ? cta.numero : '', b.banco, b.cuenta, b.nombre, r2(b.monto).toFixed(2), cta ? cta.moneda : 'HNL', o.id]));
-      o.achDescargado = true; sv('ops');
-      descargarCSV('ACH_' + o.id + '.csv', filas); toast('Archivo ACH generado.'); renderCxPDetalle();
+      o.achDescargado = true; o.ejecucionHabilitada = true; sv('ops');
+      descargarCSV('ACH_' + o.id + '.csv', filas); toast('Archivo ACH generado y Ejecución de Pago habilitada.'); renderCxPDetalle();
     }
     function imprimirVoucher(id) {
       const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId);
@@ -1050,10 +1114,15 @@
       renderCxPDetalle();
     }
     function sincronizarCorreoOP(id) {
-      const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'PENDIENTE DE EJECUCIÓN') return;
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
       const cta = ctaBanco(o.cuentaId);
       o.estado = 'BORRADOR POR VALIDAR'; o.montoBanco = o.monto; o.refBanco = (cta ? cta.nombre.split(' ')[0].toUpperCase().slice(0, 3) : 'BNK') + '-' + Math.floor(100000 + Math.random() * 900000); o.fechaBanco = hoy();
-      sv('ops'); toast('Notificación bancaria capturada. Revise y confirme.'); renderCxP();
+      sv('ops'); toast('Pago sincronizado desde correo bancario. Presione Guardar para contabilizar.'); renderCxP();
+    }
+    function guardarBorradorOP(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
+      o.estado = 'BORRADOR POR VALIDAR'; sv('ops');
+      toast('Guardado como borrador. Aparecerá en notificaciones para sincronizar.'); renderCxP();
     }
     function confirmarOP(id) {
       const o = D.ops.find(x => x.id === id); if (!o || o.estado === 'PAGADA') return;
@@ -1062,18 +1131,51 @@
       const cta = ctaBanco(o.cuentaId); if (!cta) { toast('Seleccione una cuenta bancaria.', 'err'); return; }
       if (cta.saldo < monto) { toast('Saldo insuficiente en ' + cta.nombre + '.', 'err'); return; }
       const deb = o.origen === 'RRHH' ? '2.1.02.01' : '2.1.01.01';
-      pushAsiento('TESORERÍA', o.id, 'Pago ' + o.id + ' — ' + o.beneficiario + ' (ref. ' + ref + ')', [{ codigo: deb, debe: monto }, { codigo: cta.codigo, haber: monto }], fecha);
-      cta.saldo = r2(cta.saldo - monto); o.montoBanco = monto; o.refBanco = ref; o.fechaBanco = fecha; o.estado = 'PAGADA';
+      const astId = pushAsiento('TESORERÍA', o.id, 'Pago ' + o.id + ' — ' + o.beneficiario + ' (ref. ' + ref + ')', [{ codigo: deb, debe: monto }, { codigo: cta.codigo, haber: monto }], fecha);
+      cta.saldo = r2(cta.saldo - monto); o.montoBanco = monto; o.refBanco = ref; o.fechaBanco = fecha; o.asientoId = astId; o.estado = 'PAGADA';
       D.fcxp.forEach(f => { if (f.opId === o.id) f.estado = 'PAGADA'; });
       if (o.solId) { try { const s = JSON.parse(localStorage.getItem(LS_SOLICITUDES) || '[]'); s.forEach(x => { if (x.id === o.solId) x.estado = 'DESEMBOLSADA'; }); localStorage.setItem(LS_SOLICITUDES, JSON.stringify(s)); } catch (e) { /* noop */ } }
-      sv('cuentas', 'ops', 'fcxp'); toast(o.id + ' contabilizada y saldo bancario actualizado.'); renderCxP();
+      sv('cuentas', 'ops', 'fcxp'); toast(o.id + ' contabilizada y congelada (' + astId + ').'); renderCxP();
+    }
+    function reversarOPContabilizada(id) {
+      const o = D.ops.find(x => x.id === id); if (!o || o.estado !== 'PAGADA') return;
+      if (!confirm('¿Modificar ' + id + '? Se creará una contra-partida contable dejando rastro en auditoría y el proceso volverá al inicio.')) return;
+      const cta = ctaBanco(o.cuentaId), deb = o.origen === 'RRHH' ? '2.1.02.01' : '2.1.01.01', m = r2(o.montoBanco || o.monto);
+      const revId = pushAsiento('TESORERÍA', 'REV-' + o.id, 'Contra-partida por modificación de ' + o.id + ' (ref. ' + o.refBanco + ')', [{ codigo: cta ? cta.codigo : '1.1.01.02', debe: m }, { codigo: deb, haber: m }], hoy());
+      if (cta) cta.saldo = r2(cta.saldo + m);
+      registrarAuditoriaOP(o.id, 'MODIFICACION_CONTRAPARTIDA', 'Contra-partida ' + revId + ' por ' + fm(m) + '. Registro reiniciado.');
+      o.estado = 'PENDIENTE DE EJECUCIÓN'; o.impreso = false; o.opFirmada = null; o.opValidada = false; o.achDescargado = false; o.ejecucionHabilitada = false; o.tokenAuditoria = null; o.refBanco = ''; o.montoBanco = 0; o.asientoId = ''; o.notificadoProv = false;
+      D.fcxp.forEach(f => { if (f.opId === o.id) f.estado = 'EN_OP'; });
+      sv('cuentas', 'ops', 'fcxp'); toast('Contra-partida ' + revId + ' registrada. Proceso reiniciado.'); renderCxP();
     }
     function notificarProveedorOP(id) {
       const o = D.ops.find(x => x.id === id), p = o && D.prov.find(x => x.id === o.provId);
       if (!o || o.estado !== 'PAGADA') return;
-      const correo = p ? p.email : 'rrhh@horizon.hn';
+      const correo = p ? p.email : 'rrhh@horizon.hn', cta = ctaBanco(o.cuentaId);
+      const facs = D.fcxp.filter(f => o.facturas.includes(f.id)).map(f => f.numero).join(', ') || o.id;
+      const asunto = 'Comprobante de Pago ' + o.id + ' — ' + ($('hdr-company-name') ? $('hdr-company-name').textContent : 'Horizon LC');
+      const cuerpo = `Estimado(a) ${o.beneficiario},\n\nLe informamos que se ha ejecutado el pago correspondiente a la Orden de Pago ${o.id}:\n- Facturas canceladas: ${facs}\n- Fecha de pago: ${o.fechaBanco}\n- Banco emisor: ${cta ? cta.nombre : ''}\n- Referencia bancaria: ${o.refBanco}\n- Monto abonado: ${fm(o.montoBanco)}\n\nAtentamente,\nTesorería Corporativa`;
+      let mod = $('modal-notif-prov');
+      if (!mod) { mod = document.createElement('div'); mod.id = 'modal-notif-prov'; mod.setAttribute('data-modal', '1'); mod.className = 'fixed inset-0 z-50 bg-slate-950/50 flex items-center justify-center p-4'; document.body.appendChild(mod); }
+      mod.classList.remove('hidden');
+      mod.innerHTML = `<div class="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-5 space-y-3 shadow-xl">
+        <div class="flex justify-between items-center"><h4 class="text-base font-black text-slate-900">Notificar Pago al Proveedor</h4><button onclick="$('modal-notif-prov').classList.add('hidden')" class="text-xs font-bold text-slate-400 hover:text-slate-900 cursor-pointer">✕</button></div>
+        <div class="text-xs space-y-2">
+          <div><span class="fld-label">Para</span><input id="np-para" class="fld" value="${esc(correo)}"></div>
+          <div><span class="fld-label">Asunto</span><input id="np-asunto" class="fld" value="${esc(asunto)}"></div>
+          <div><span class="fld-label">Mensaje predefinido</span><textarea id="np-cuerpo" rows="7" class="fld">${esc(cuerpo)}</textarea></div>
+        </div>
+        <div class="flex justify-end gap-2"><button onclick="$('modal-notif-prov').classList.add('hidden')" class="${BTN2}">Cerrar</button><button onclick="enviarCorreoProveedor('${o.id}')" class="${BTN1}">Enviar Notificación</button></div>
+      </div>`;
+    }
+    function enviarCorreoProveedor(id) {
+      const o = D.ops.find(x => x.id === id); if (!o) return;
+      const para = val('np-para'), asunto = val('np-asunto'), cuerpo = val('np-cuerpo');
       o.notificadoProv = true; sv('ops');
-      toast('Comprobante de pago ' + o.id + ' enviado a ' + correo + '.'); renderCxPDetalle();
+      $('modal-notif-prov').classList.add('hidden');
+      toast('Notificación enviada a ' + para + '.');
+      try { window.open('mailto:' + encodeURIComponent(para) + '?subject=' + encodeURIComponent(asunto) + '&body=' + encodeURIComponent(cuerpo), '_blank'); } catch (e) { /* noop */ }
+      renderCxPDetalle();
     }
 
     // -------------------------------------------------------------------------
