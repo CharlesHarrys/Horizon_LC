@@ -57,7 +57,7 @@
     .fld-label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 2px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-slate-900 selection:text-white relative bg-[#f6f5f4] p-2.5">
+<body class="h-screen overflow-hidden flex flex-col antialiased selection:bg-slate-900 selection:text-white relative bg-[#f6f5f4] p-2.5">
 
   <!-- Retícula de fondo -->
   <div class="grid-vignette"></div>
@@ -148,7 +148,7 @@
   <!-- =========================================================================
        GATEWAY DE TESORERÍA (4 PANELES METRO UI — GRID 2x2)
        ========================================================================= -->
-  <div class="flex-1 flex flex-col justify-center py-2 w-full relative z-10" id="view-gateway">
+  <div class="flex-1 min-h-0 flex flex-col justify-center py-2 w-full relative z-10 overflow-y-auto" id="view-gateway">
     <div class="text-center max-w-2xl mx-auto mb-4 space-y-1">
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">ÁREA DE TESORERÍA Y LIQUIDEZ</h1>
     </div>
@@ -228,14 +228,14 @@
   <!-- =========================================================================
        SUB-VISTA 1: CUENTAS POR PAGAR (#view-panel-cxp) — Maestro / Detalle
        ========================================================================= -->
-  <div id="view-panel-cxp" class="hidden flex-1 flex flex-col w-full py-2 relative z-10 gap-2">
+  <div id="view-panel-cxp" class="hidden flex-1 min-h-0 flex flex-col w-full pt-2 relative z-10 gap-2 overflow-hidden">
     <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
       <div>
         <h2 class="text-xl font-black tracking-tight text-slate-950">PROVEEDORES Y ÓRDENES DE PAGO</h2>
       </div>
       <div id="cxp-kpis" class="flex flex-wrap gap-2"></div>
     </div>
-    <div class="w-full grid grid-cols-1 lg:grid-cols-[28%_1fr] gap-2 flex-1 min-h-0" style="height: calc(100vh - 210px);">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[28%_1fr] gap-2 flex-1 min-h-0">
       <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
         <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
           <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-full p-1">
@@ -250,14 +250,14 @@
         </div>
         <div id="cxp-lista" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
       </aside>
-      <section id="cxp-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0"></section>
+      <section id="cxp-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0 h-full"></section>
     </div>
   </div>
 
   <!-- =========================================================================
        SUB-VISTA 2: CUENTAS POR COBRAR E INGRESOS (#view-panel-cxc) — Maestro / Detalle
        ========================================================================= -->
-  <div id="view-panel-cxc" class="hidden flex-1 flex flex-col w-full py-2 relative z-10 gap-2">
+  <div id="view-panel-cxc" class="hidden flex-1 min-h-0 flex flex-col w-full pt-2 relative z-10 gap-2 overflow-hidden">
     <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
       <div>
         <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Cuentas por Cobrar e Ingresos</span>
@@ -265,7 +265,7 @@
       </div>
       <div id="cxc-kpis" class="flex flex-wrap gap-2"></div>
     </div>
-    <div class="w-full grid grid-cols-1 lg:grid-cols-[32%_1fr] gap-2 flex-1 min-h-0" style="height: calc(100vh - 210px);">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[32%_1fr] gap-2 flex-1 min-h-0">
       <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
         <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
           <div class="grid grid-cols-3 gap-1 bg-slate-100 rounded-full p-1">
@@ -280,14 +280,14 @@
         </div>
         <div id="cxc-lista" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
       </aside>
-      <section id="cxc-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0"></section>
+      <section id="cxc-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0 h-full"></section>
     </div>
   </div>
 
   <!-- =========================================================================
        SUB-VISTA 3: CONCILIACIÓN, SALUD DE CAJAS Y TRASLADOS (#view-panel-conciliacion)
        ========================================================================= -->
-  <div id="view-panel-conciliacion" class="hidden flex-1 flex flex-col w-full py-2 relative z-10 gap-2">
+  <div id="view-panel-conciliacion" class="hidden flex-1 min-h-0 flex flex-col w-full pt-2 relative z-10 gap-2 overflow-hidden">
     <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
       <div>
         <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Cero Descuadres</span>
@@ -299,13 +299,13 @@
         <button id="con-tab-traslados" onclick="conSetTab('traslados')" class="rounded-full text-[11px] font-bold uppercase tracking-wider px-4 py-1.5 cursor-pointer">Traslados Atómicos</button>
       </div>
     </div>
-    <section id="con-body" class="w-full flex-1 bg-white border border-slate-200 rounded-3xl p-5 overflow-y-auto"></section>
+    <section id="con-body" class="w-full flex-1 min-h-0 bg-white border border-slate-200 rounded-3xl p-5 overflow-y-auto"></section>
   </div>
 
   <!-- =========================================================================
        SUB-VISTA 4: PRÉSTAMOS Y CRÉDITOS (#view-panel-prestamos) — Maestro / Detalle
        ========================================================================= -->
-  <div id="view-panel-prestamos" class="hidden flex-1 flex flex-col w-full py-2 relative z-10 gap-2">
+  <div id="view-panel-prestamos" class="hidden flex-1 min-h-0 flex flex-col w-full pt-2 relative z-10 gap-2 overflow-hidden">
     <div class="w-full bg-white border border-slate-200 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
       <div>
         <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-600">Tesorería • Obligaciones Financieras</span>
@@ -313,7 +313,7 @@
       </div>
       <div id="prs-kpis" class="flex flex-wrap gap-2"></div>
     </div>
-    <div class="w-full grid grid-cols-1 lg:grid-cols-[32%_1fr] gap-2 flex-1 min-h-0" style="height: calc(100vh - 210px);">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-[32%_1fr] gap-2 flex-1 min-h-0">
       <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
         <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
           <input id="prs-q" oninput="renderPrestamosList()" placeholder="Buscar préstamo o banco…" class="fld">
@@ -321,7 +321,7 @@
         </div>
         <div id="prs-lista" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
       </aside>
-      <section id="prs-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0"></section>
+      <section id="prs-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0 h-full"></section>
     </div>
   </div>
 
@@ -837,15 +837,15 @@
       const saldoAcreedor = r2(subPend + subOP);
       const ficha = CXP.edit ? provFormHtml(p) : `<div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-xs max-w-2xl">${[['RTN', p.rtn], ['Contacto', p.contacto], ['Correo', p.email], ['Condición', p.condicion], ['Banco', p.banco], ['Nro. de Cuenta', p.cuenta + ' (' + p.tipoCuenta + ')']].map(x => `<div><div class="fld-label">${x[0]}</div><div class="font-semibold text-slate-800 break-words">${esc(x[1])}</div></div>`).join('')}</div>`;
       const TH_BLK = 'py-2.5 px-3 text-center text-[12px] font-bold uppercase tracking-wider text-white';
-      c.innerHTML = `<div class="flex flex-col justify-between min-h-full gap-4"><div>
-        <div class="flex flex-wrap items-start justify-between gap-3">
+      c.innerHTML = `<div class="flex flex-col justify-between h-full min-h-0 gap-3"><div class="flex flex-col flex-1 min-h-0">
+        <div class="flex flex-wrap items-start justify-between gap-3 shrink-0">
           <div class="min-w-0">
             <h3 class="text-lg font-black text-slate-900">${esc(p.nombre)}</h3>
             ${ficha}
           </div>
           <div class="flex gap-2 shrink-0"><button onclick="CXP.edit=true;renderCxPDetalle()" class="${BTN2}">Modificar</button><button onclick="generarOP('${p.id}')" class="${BTN1}">CREAR OP</button></div>
         </div>
-        <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <h3 class="text-lg font-black text-slate-900">Estado de cuenta</h3>
           <div class="flex flex-wrap items-center gap-2 text-xs">
             <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Desde</label>
@@ -855,11 +855,14 @@
             ${(CXP.desde || CXP.hasta) ? `<button onclick="CXP.desde='';CXP.hasta='';renderCxPDetalle()" class="${BTN2}">Limpiar</button>` : ''}
           </div>
         </div>
-        <table class="w-full mt-2 text-xs"><thead class="bg-black text-white"><tr class="text-center text-[12px]"><th class="${TH_BLK} w-8"></th><th class="${TH_BLK}">Fecha</th><th class="${TH_BLK}">Factura</th><th class="${TH_BLK}">Vence</th><th class="${TH_BLK}">Monto</th><th class="${TH_BLK}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
-        ${facts.map(f => `<tr><td class="py-2 px-3 text-center">${f.estado === 'ABIERTA' ? `<input type="checkbox" class="chk-fcxp w-4 h-4 accent-slate-900" value="${f.id}" onchange="cxpSumSel()">` : ''}</td><td class="py-2 px-3 text-center">${f.fecha}</td><td class="py-2 px-3 text-center">${esc(f.numero)}</td><td class="py-2 px-3 text-center">${f.vence}</td><td class="py-2 px-3 text-center">${fm(f.monto)}</td>${f.estado === 'ABIERTA' ? `<td class="py-2 px-3 text-center"><span class="px-2 py-3 text-[12px] font-bold text-amber-700">ABIERTA</span></td>` : f.estado === 'EN_OP' ? `<td class="py-2 px-3 text-center"><a class="text-sky-700 font-bold cursor-pointer" onclick="cxpSel('${f.opId}');CXP.tab='ops';renderCxP()">${esc(f.opId)}</a></td>` : `<td class="py-2 px-3 text-center">${estadoBadge('PAGADA')}</td>`}</tr>`).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Sin facturas.</td></tr>'}
-        </tbody></table><div id="cxp-sum" class="text-right text-xs font-bold text-slate-600 mt-2"></div>
+        <div class="mt-2 flex-1 min-h-0 overflow-y-auto">
+          <table class="w-full text-xs"><thead class="bg-black text-white sticky top-0"><tr class="text-center text-[12px]"><th class="${TH_BLK} w-8"></th><th class="${TH_BLK}">Fecha</th><th class="${TH_BLK}">Factura</th><th class="${TH_BLK}">Vence</th><th class="${TH_BLK}">Monto</th><th class="${TH_BLK}">Estado</th></tr></thead><tbody class="divide-y divide-slate-100">
+          ${facts.map(f => `<tr><td class="py-2 px-3 text-center">${f.estado === 'ABIERTA' ? `<input type="checkbox" class="chk-fcxp w-4 h-4 accent-slate-900" value="${f.id}" onchange="cxpSumSel()">` : ''}</td><td class="py-2 px-3 text-center">${f.fecha}</td><td class="py-2 px-3 text-center">${esc(f.numero)}</td><td class="py-2 px-3 text-center">${f.vence}</td><td class="py-2 px-3 text-center">${fm(f.monto)}</td>${f.estado === 'ABIERTA' ? `<td class="py-2 px-3 text-center"><span class="px-2 py-3 text-[12px] font-bold text-amber-700">ABIERTA</span></td>` : f.estado === 'EN_OP' ? `<td class="py-2 px-3 text-center"><a class="text-sky-700 font-bold cursor-pointer" onclick="cxpSel('${f.opId}');CXP.tab='ops';renderCxP()">${esc(f.opId)}</a></td>` : `<td class="py-2 px-3 text-center">${estadoBadge('PAGADA')}</td>`}</tr>`).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Sin facturas.</td></tr>'}
+          </tbody></table>
+        </div>
+        <div id="cxp-sum" class="text-right text-xs font-bold text-slate-600 mt-1 shrink-0"></div>
       </div>
-      <div class="pt-3 border-t border-slate-200 flex justify-end">
+      <div class="pt-3 border-t border-slate-200 flex justify-end shrink-0">
         <div class="w-full mr-3 sm:w-80 space-y-1 text-xs" style="font-family: 'Inter', sans-serif;">
           <div class="flex justify-between text-slate-600"><span>Facturas pendientes</span><span class="font-semibold text-slate-900">${fm(subPend)}</span></div>
           <div class="flex justify-between text-slate-600"><span>En Orden de Pago (OP)</span><span class="font-semibold text-slate-900">${fm(subOP)}</span></div>
@@ -957,9 +960,9 @@
       let zonaAcciones = '';
       if (etapa === 1) {
         // Evento 1: sin banner a la izquierda, solo botón IMPRIMIR OP más grande abajo a la derecha
-        zonaAcciones = `<div class="mt-11 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
+        zonaAcciones = `<div class="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
           <div></div>
-          <div class="flex flex-wrap justify-end gap-2 mt-12">
+          <div class="flex flex-wrap justify-end gap-2">
             ${esCheque
               ? `<button onclick="imprimirVoucher('${o.id}')" class="px-6 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-wider cursor-pointer transition bg-black text-white hover:bg-neutral-800">IMPRIMIR CHEQUE</button>`
               : `<button onclick="imprimirOPFisica('${o.id}')" class="px-6 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-wider cursor-pointer transition bg-black text-white hover:bg-neutral-800">IMPRIMIR OP</button>`}
@@ -976,23 +979,23 @@
               <div><div class="font-bold text-slate-800">Adjuntar OP firmada</div><div class="text-[11px] text-slate-500">PDF o imagen</div></div>
               <input type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden" onchange="adjuntarOPFirmada('${o.id}',this)">
             </label>`;
-        zonaAcciones = `<div class="mt-11 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-center">
+        zonaAcciones = `<div class="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
           <div class="flex flex-wrap justify-start gap-2">${adjBox}
             <button onclick="desbloquearConToken('${o.id}')" class="p-4 rounded-2xl border ml-3 text-[12px] font-bold uppercase tracking-wider cursor-pointer transition bg-white text-slate-800 border-slate-300 hover:border-slate-900">TOKEN</button>
           </div>
-          <div class="flex flex-wrap justify-end gap-2 mt-12">
+          <div class="flex flex-wrap justify-end gap-2">
             <button onclick="volverEtapaOP('${o.id}')" class="${BTN12_2}">Volver</button>
             <button ${dis(Boolean(o.opFirmada))} onclick="validarFirmasOP('${o.id}')" class="${BTN12_1}">Validar OP</button>
           </div>
         </div>`;
       } else if (etapa === 3) {
         // Etapa intermedia cuando se validó firma (o salto a descarga ACH)
-        zonaAcciones = `<div class="mt-11 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
+        zonaAcciones = `<div class="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
           <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs">
             <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Validada (Firmas Autorizadas)</div>
             <div class="font-semibold text-slate-900 truncate">${o.opFirmada ? esc(o.opFirmada.nombre) : 'Validación registrada'}</div>
           </div>
-          <div class="flex flex-wrap justify-end gap-2 mt-12">
+          <div class="flex flex-wrap justify-end gap-2">
             <button onclick="volverAPasoAdjuntoOP('${o.id}')" class="${BTN12_2}">Volver</button>
             ${esCheque
               ? `<button onclick="habilitarEjecucionOP('${o.id}')" class="${BTN12_1}">Habilitar Ejecución</button>`
@@ -1004,9 +1007,9 @@
         const bannerIzq = o.tokenAuditoria
           ? `<div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-800">⚠ Desbloqueo por Token de Auditoría</div><div class="text-slate-700 truncate">Usuario: <b>${esc(o.tokenAuditoria.usuario)}</b> · ${esc(o.tokenAuditoria.fecha)}</div></div>`
           : `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Validada · Ejecución Habilitada</div><div class="text-slate-700 truncate">${o.achDescargado ? 'Archivo ACH descargado · ' : ''}${o.opFirmada ? esc(o.opFirmada.nombre) : ''}</div></div>`;
-        zonaAcciones = `<div class="mt-11 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
+        zonaAcciones = `<div class="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
           <div>${bannerIzq}</div>
-          <div class="flex flex-wrap justify-end gap-2 mt-12">
+          <div class="flex flex-wrap justify-end gap-2">
             <button onclick="volverPasoEjecucionOP('${o.id}')" class="${BTN12_2}">Volver</button>
             ${!esCheque && o.opValidada ? `<button onclick="descargarACH('${o.id}')" class="${BTN12_2}">Descargar .csv ACH</button>` : ''}
             <button onclick="sincronizarCorreoOP('${o.id}')" class="${BTN12_2}">Sincronizar</button>
@@ -1019,7 +1022,7 @@
         const cta = ctaBanco(o.cuentaId);
         const codDeb = o.origen === 'RRHH' ? '2.1.02.01' : '2.1.01.01';
         const opContable = `${codDeb} ${nombreCuenta(codDeb)} → ${cta ? cta.codigo + ' ' + cta.nombre : 'Banco'}`;
-        zonaAcciones = `<div class="mt-11 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
+        zonaAcciones = `<div class="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
           <div class="p-3 rounded-2xl bg-slate-900 text-white text-xs flex items-center justify-between gap-2">
             <div class="min-w-0 space-y-0.5">
               <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">✓ Contabilizada y Congelada</div>
@@ -1027,17 +1030,17 @@
               <div class="text-[11px] text-slate-300 truncate">Operación contable: ${esc(opContable)} · Monto: <b>${fm(o.montoBanco || o.monto)}</b></div>
             </div>
           </div>
-          <div class="flex flex-wrap justify-end gap-2 mt-12">
+          <div class="flex flex-wrap justify-end gap-2">
             <button onclick="reversarOPContabilizada('${o.id}')" class="${BTN12_R}">Modificar registro</button>
             <button onclick="notificarProveedorOP('${o.id}')" class="${o.notificadoProv ? BTN12_2 : BTN12_1}">${o.notificadoProv ? '✓ Proveedor Notificado' : 'Notificar a proveedor'}</button>
           </div>
         </div>`;
       }
 
-      c.innerHTML = `<div class="flex flex-col justify-between min-h-full gap-4"><div>
-        <div class="flex flex-wrap items-start justify-between gap-3"><div class="min-w-0">
+      c.innerHTML = `<div class="flex flex-col justify-between h-full min-h-0 gap-3"><div class="flex flex-col flex-1 min-h-0">
+        <div class="flex flex-wrap items-start justify-between gap-3 shrink-0"><div class="min-w-0">
           <h3 class="text-lg font-black text-slate-900">${esc(o.beneficiario)}</h3>
-          <div class="mt-2 grid grid-cols-2 md:grid-cols-2 gap-x-6 gap-y-2 text-xs max-w-2xl">
+          <div class="mt-1.5 grid grid-cols-2 md:grid-cols-2 gap-x-6 gap-y-1.5 text-xs max-w-2xl">
             <div><div class="fld-label">RTN</div><div class="font-semibold text-slate-800 break-words">${esc(rtn)}</div></div>
             <div><div class="fld-label">Correo</div><div class="font-semibold text-slate-800 break-words">${esc(correo)}</div></div>
             <div><div class="fld-label">Documento</div><div class="font-semibold text-slate-800 break-words">${esc(o.id)}${o.chequeNo ? ' · ' + esc(o.chequeNo) : ''}</div></div>
@@ -1046,27 +1049,27 @@
         </div>
         ${o.estado === 'PENDIENTE DE EJECUCIÓN' ? `<button onclick="anularOP('${o.id}')" class="${BTNR}">Anular OP</button>` : estadoBadge(o.estado)}</div>
 
-        <div class="border-t border-slate-200 mt-2"></div>
-        <div class="mt-2 h-[180px] overflow-y-auto">
+        <div class="border-t border-slate-200 mt-2 shrink-0"></div>
+        <div class="mt-2 h-[180px] overflow-y-auto shrink-0">
           <table class="w-full text-xs"><thead class="bg-black text-white"><tr class="text-center text-[12px]">${thCols.map(t => `<th class="${TH_BLK}">${t}</th>`).join('')}</tr></thead><tbody class="divide-y divide-slate-100">${lote || '<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin detalle.</td></tr>'}</tbody></table>
         </div>
 
-        <div class="border-t border-slate-200 mt-3"></div>
-        <div class="mt-3">
+        <div class="border-t border-slate-200 mt-2 shrink-0"></div>
+        <div class="mt-2 shrink-0">
           <h3 class="text-lg font-black text-slate-900">Ejecucion de pago</h3>
         </div>
-        <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[150px_1.5fr_1fr_1fr] gap-4 items-end">
+        <div class="mt-1.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[150px_1.5fr_1fr_1fr] gap-4 items-end shrink-0">
           <div><label for="op-fecha" class="fld-label ml-2">FECHA</label><input type="date" id="op-fecha" value="${esc(o.fechaBanco || hoy())}" ${ejecucionActiva ? '' : 'disabled'} onchange="actualizarCampoOP('${o.id}','fechaBanco',this.value)" class="fld ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}"></div>
           <div><label for="op-cuenta" class="fld-label ml-2">Cuenta bancaria de pago</label><select id="op-cuenta" class="fld ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" ${ejecucionActiva ? '' : 'disabled'} onchange="cambiarCuentaOP('${o.id}',this.value)">${optsBancos(o.cuentaId)}</select></div>
           <div><label for="op-ref" class="fld-label ml-2">REFERENCIA BANCARIA</label><input id="op-ref" type="text" class="fld ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" placeholder="Referencia" value="${esc(o.refBanco || o.chequeNo || '')}" ${ejecucionActiva ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','refBanco',this.value)"></div>
           <div><label for="op-monto" class="fld-label ml-2">MONTO ABONADO</label><input id="op-monto" type="text" inputmode="decimal" class="fld text-right ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" placeholder="0.00" value="${o.montoBanco ? fmtInputMonto(o.montoBanco) : ''}" ${ejecucionActiva ? '' : 'disabled'} onfocus="onFocusMontoOP(this)" onblur="onBlurMontoOP(this)" oninput="onInputMontoOP('${o.id}',this)"></div>
         </div>
 
-        <div class="border-t border-slate-200 mt-4"></div>
-        ${zonaAcciones}
+        <div class="border-t border-slate-200 mt-3 shrink-0"></div>
+        <div class="mt-auto shrink-0">${zonaAcciones}</div>
       </div>
 
-      <div class="pt-2 border-t border-slate-200">
+      <div class="pt-2 border-t border-slate-200 shrink-0">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">${pasos.map(s => `<div class="px-2.5 py-2 rounded-xl border text-[11px] flex items-center gap-1.5 ${s.ok ? 'bg-slate-900 text-white border-slate-900 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}"><span class="w-4 h-4 rounded-full text-[10px] flex items-center justify-center shrink-0 ${s.ok ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'}">${s.ok ? '✓' : s.n}</span><span class="truncate">${s.t}</span></div>`).join('')}</div>
       </div></div>`;
     }
