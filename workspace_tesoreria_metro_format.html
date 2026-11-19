@@ -1056,7 +1056,7 @@
               <div class="min-w-0"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Firmada Adjunta</div><div class="font-semibold text-slate-900 truncate">${esc(o.opFirmada.nombre)} · ${esc(o.opFirmada.fecha)}</div></div>
               <button onclick="eliminarOPFirmada('${o.id}')" class="${BTN12_R} shrink-0">Eliminar</button>
             </div>`
-          : `<label class="w-[140px] p-4 rounded-2xl border ml-3 text-center border-dashed border-slate-300 bg-slate-50 hover:border-slate-900 flex items-center justify-between cursor-pointer text-xs">
+          : `<label class="p-2 rounded-2xl border ml-3 text-center border-dashed border-slate-300 bg-slate-50 hover:border-slate-900 flex items-center justify-between cursor-pointer text-xs">
               <div><div class="font-bold text-slate-800">Adjuntar OP firmada</div><div class="text-[11px] text-slate-500">PDF o imagen</div></div>
               <input type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden" onchange="adjuntarOPFirmada('${o.id}',this)">
             </label>`;
@@ -1084,31 +1084,36 @@
           </div>
         </div>`;
       } else if (etapa === 4) {
-        // Evento 3: Ejecución desbloqueada, banner Token Auditoría (o Validada) a la izquierda, 4 botones a la derecha (Volver, Sincronizar, Borrador, Guardar)
+        // Evento 3 / Fase 4: Ejecución desbloqueada — Volver, Generar .csv, Sincronizar y selector desplegable (Borrador / Guardar)
         const bannerIzq = o.tokenAuditoria
-          ? `<div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-800">⚠ Desbloqueo por Token de Auditoría</div><div class="text-slate-700 truncate">Usuario: <b>${esc(o.tokenAuditoria.usuario)}</b> · ${esc(o.tokenAuditoria.fecha)}</div></div>`
-          : `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Validada · Ejecución Habilitada</div><div class="text-slate-700 truncate">${o.achDescargado ? 'Archivo ACH descargado · ' : ''}${o.opFirmada ? esc(o.opFirmada.nombre) : ''}</div></div>`;
+          ? `<div class="p-2 w-[280px] rounded-2xl bg-amber-50 border border-amber-200 text-xs"><div class="text-[10px] font-bold uppercase tracking-wider text-amber-800">⚠ Desbloqueo por Token de Auditoría</div><div class="text-slate-700 truncate">Usuario: <b>${esc(o.tokenAuditoria.usuario)}</b> · ${esc(o.tokenAuditoria.fecha)}</div></div>`
+          : `<div class="p-2 w-[280px] rounded-2xl bg-emerald-50 border border-emerald-200 text-xs"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ OP Validada · Ejecución Habilitada</div><div class="text-slate-700 truncate">${o.achDescargado ? 'Archivo ACH descargado · ' : ''}${o.opFirmada ? esc(o.opFirmada.nombre) : ''}</div></div>`;
         zonaAcciones = `<div class="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
           <div>${bannerIzq}</div>
-          <div class="flex flex-wrap justify-end gap-2">
+          <div class="flex flex-wrap justify-end items-center gap-2">
             <button onclick="volverPasoEjecucionOP('${o.id}')" class="${BTN12_2}">Volver</button>
-            ${!esCheque && o.opValidada ? `<button onclick="descargarACH('${o.id}')" class="${BTN12_2}">Descargar .csv ACH</button>` : ''}
+            ${!esCheque ? `<button onclick="descargarACH('${o.id}')" class="${BTN12_2}">Generar .csv</button>` : ''}
             <button onclick="sincronizarCorreoOP('${o.id}')" class="${BTN12_2}">Sincronizar</button>
-            <button onclick="guardarBorradorOP('${o.id}')" class="${BTN12_2}">Borrador</button>
-            <button id="btn-contab-op" ${dis(puedeGuardar)} onclick="confirmarOP('${o.id}')" class="${BTN12_3}">Guardar</button>
+            <div class="relative inline-block">
+              <button type="button" onclick="$('op-guardar-menu').classList.toggle('hidden')" class="${BTN12_3} flex items-center gap-1.5">Guardar <span class="text-[10px]">▾</span></button>
+              <div id="op-guardar-menu" class="hidden absolute right-0 bottom-full mb-1.5 w-36 bg-white border border-slate-200 rounded-2xl shadow-lg py-1 z-20 text-[12px]">
+                <button type="button" onclick="$('op-guardar-menu').classList.add('hidden');guardarBorradorOP('${o.id}')" class="w-full text-left px-3 py-1.5 font-semibold text-slate-800 hover:bg-slate-100 cursor-pointer">Borrador</button>
+                <button id="btn-contab-op" type="button" ${dis(puedeGuardar)} onclick="$('op-guardar-menu').classList.add('hidden');confirmarOP('${o.id}')" class="w-full text-left px-3 py-1.5 font-bold text-sky-700 hover:bg-slate-100 cursor-pointer">Guardar</button>
+              </div>
+            </div>
           </div>
         </div>`;
       } else {
-        // Evento 4: Pago procesado — detalles operativos abajo a la izquierda y botones abajo a la derecha
+        // Evento 4: Pago procesado — tarjeta compacta de máximo 2 líneas (izquierda: Registro completo, derecha: referencia y cuentas)
         const cta = ctaBanco(o.cuentaId);
         const codDeb = o.origen === 'RRHH' ? '2.1.02.01' : '2.1.01.01';
         const opContable = `${codDeb} ${nombreCuenta(codDeb)} → ${cta ? cta.codigo + ' ' + cta.nombre : 'Banco'}`;
         zonaAcciones = `<div class="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
-          <div class="p-3 rounded-2xl bg-slate-900 text-white text-xs flex items-center justify-between gap-2">
-            <div class="min-w-0 space-y-0.5">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">✓ Contabilizada y Congelada</div>
-              <div class="truncate">No. Registro: <b>${esc(o.id)}</b> · Asiento: <b>${esc(o.asientoId || o.id)}</b> · Ref: <b>${esc(o.refBanco)}</b> · Fecha: ${esc(o.fechaBanco)}</div>
-              <div class="text-[11px] text-slate-300 truncate">Operación contable: ${esc(opContable)} · Monto: <b>${fm(o.montoBanco || o.monto)}</b></div>
+          <div class="p-2 px-3 rounded-2xl bg-slate-900 text-white text-[12px] flex items-center justify-between gap-3 min-w-0">
+            <div class="font-bold text-emerald-400 shrink-0 whitespace-nowrap">✓ Registro completo</div>
+            <div class="min-w-0 text-right leading-tight">
+              <div class="truncate">Ref: <b>${esc(o.refBanco)}</b> · ${esc(o.id)}</div>
+              <div class="text-[11px] text-slate-300 truncate">${esc(opContable)}</div>
             </div>
           </div>
           <div class="flex flex-wrap justify-end gap-2">
@@ -1241,7 +1246,7 @@
     }
     function descargarACH(id) {
       const o = D.ops.find(x => x.id === id), cta = ctaBanco(o.cuentaId);
-      if (!o || !o.opValidada) { toast('Valide primero la OP firmada.', 'err'); return; }
+      if (!o || (!o.opValidada && !o.ejecucionHabilitada)) { toast('Valide primero la OP firmada o desbloquee con token.', 'err'); return; }
       const filas = [['Cuenta Origen', 'Banco Destino', 'Cuenta Destino', 'Beneficiario', 'Monto', 'Moneda', 'Referencia']];
       o.beneficiarios.forEach(b => filas.push([cta ? cta.numero : '', b.banco, b.cuenta, b.nombre, r2(b.monto).toFixed(2), cta ? cta.moneda : 'HNL', o.id]));
       o.achDescargado = true; o.ejecucionHabilitada = true; sv('ops');
