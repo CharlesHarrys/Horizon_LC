@@ -243,7 +243,7 @@
             <button id="cxp-tab-ops" onclick="cxpSetTab('ops')" class="rounded-full text-[12px] font-bold uppercase tracking-wider py-1.5 cursor-pointer flex items-center justify-center gap-1.5">Bandeja de OPs <span id="cxp-ops-badge" class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">0</span></button>
             <button id="cxp-tab-hist" onclick="cxpSetTab('hist')" class="rounded-full text-[12px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Histórico</button>
           </div>
-          <div class="flex gap-2">
+          <div id="cxp-filtros-bar" class="flex gap-2">
             <input id="cxp-q" oninput="renderCxPList()" placeholder="Buscar…" class="fld flex-1">
             <select id="cxp-f" onchange="renderCxPList()" class="fld w-36"></select>
           </div>
@@ -750,6 +750,7 @@
       $('cxp-tab-ops').className = 'rounded-full text-[12px] font-bold uppercase tracking-wider py-1.5 cursor-pointer flex items-center justify-center gap-1.5 ' + (CXP.tab === 'ops' ? act : ina);
       $('cxp-tab-hist').className = 'rounded-full text-[12px] font-bold uppercase tracking-wider py-1.5 cursor-pointer ' + (CXP.tab === 'hist' ? act : ina);
       $('cxp-btn-nuevo').style.display = CXP.tab === 'prov' ? '' : 'none';
+      if ($('cxp-filtros-bar')) $('cxp-filtros-bar').style.display = CXP.tab === 'hist' ? 'none' : '';
       const opts = CXP.tab !== 'ops'
         ? [{ v: 'Todos', l: 'Todos' }, { v: 'Corriente', l: 'Corriente' }, { v: '1-30d', l: '-30 dias' }, { v: '31-60d', l: '31-60 dias' }, { v: '+60d', l: '+60 dias' }]
         : ['Todos', 'PENDIENTE DE EJECUCIÓN', 'BORRADOR POR VALIDAR', 'PAGADA'].map(o => ({ v: o, l: o }));
@@ -767,8 +768,22 @@
     }
     function renderCxPList() {
       const q = val('cxp-q').toLowerCase(), f = $('cxp-f').value || 'Todos', cont = $('cxp-lista');
+      if (CXP.tab === 'hist') {
+        const BH = 'px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider cursor-pointer transition bg-black text-white hover:bg-neutral-800';
+        const sel = (id, arr, cur) => `<select id="${id}" class="fld text-[12px]">${arr.map(t => `<option ${cur === t ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+        cont.innerHTML = `<div class="p-3 h-full"><div class="flex flex-col gap-3 h-full text-[12px]">
+          <div class="font-black text-slate-900 uppercase tracking-wider">Filtros</div>
+          <div><label class="fld-label">Proveedor</label><select id="hist-prov" class="fld text-[12px]"><option value="">Seleccione…</option>${D.prov.map(x => `<option value="${esc(x.id)}" ${x.id === CXP.sel ? 'selected' : ''}>${esc(x.nombre)}</option>`).join('')}</select></div>
+          <div><label class="fld-label">Desde</label><input type="date" id="hist-desde" value="${esc(HIST.desde)}" class="fld text-[12px]"></div>
+          <div><label class="fld-label">Hasta</label><input type="date" id="hist-hasta" value="${esc(HIST.hasta)}" class="fld text-[12px]"></div>
+          <div><label class="fld-label">Movimiento</label>${sel('hist-tipo', ['Todos', 'Solo Cargos', 'Solo Abonos'], HIST.tipo)}</div>
+          <div><label class="fld-label">Documento</label>${sel('hist-doc', ['Todos', 'Factura', 'OP', 'Recibo', 'Cheque'], HIST.doc)}</div>
+          <div class="mt-auto flex flex-col gap-2"><button onclick="histFiltrar()" class="${BH} w-full">Aplicar Filtros</button><button onclick="histLimpiar()" class="text-[12px] text-slate-500 underline cursor-pointer">Limpiar</button></div>
+        </div></div>`;
+        return;
+      }
       let html = '';
-      if (CXP.tab !== 'ops') {
+      if (CXP.tab === 'prov') {
         const l = D.prov.filter(p => (!q || (p.nombre + p.rtn).toLowerCase().includes(q)) && (f === 'Todos' || agingKey(provSaldoInfo(p.id).aging) === f));
         html = l.map(p => { const i = provSaldoInfo(p.id), dot = provStatusDot(p, i);
           return `<div onclick="cxpSel('${p.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXP.sel === p.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold text-slate-900 truncate">${esc(p.nombre)}</span><span class="w-2 h-2 mr-2 mt-1 rounded-full shrink-0 ${dot.cls}" title="${esc(dot.title)}"></span></div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span>${esc(p.rtn)} · ${i.n} fact.</span><span class="font-bold text-slate-800">${fm(i.saldo)}</span></div></div>`; }).join('');
@@ -888,10 +903,10 @@
     }
     function histFiltrar() {
       HIST.desde = val('hist-desde'); HIST.hasta = val('hist-hasta'); HIST.tipo = val('hist-tipo') || 'Todos'; HIST.doc = val('hist-doc') || 'Todos';
-      const pv = val('hist-prov'); if (pv) CXP.sel = pv;
+      CXP.sel = val('hist-prov');
       renderCxPList(); renderCxPDetalle();
     }
-    function histLimpiar() { HIST.desde = ''; HIST.hasta = ''; HIST.tipo = 'Todos'; HIST.doc = 'Todos'; renderCxPDetalle(); }
+    function histLimpiar() { HIST.desde = ''; HIST.hasta = ''; HIST.tipo = 'Todos'; HIST.doc = 'Todos'; renderCxPList(); renderCxPDetalle(); }
     function histFilas() {
       let acum = 0, tc = 0, ta = 0; const rows = [];
       histMovs(CXP.sel).forEach(m => {
@@ -922,18 +937,8 @@
       const BH = 'px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider cursor-pointer transition bg-black text-white hover:bg-neutral-800';
       const TH_H = 'py-2.5 px-3 text-center text-[12px] font-bold uppercase tracking-wider bg-black text-white sticky top-0';
       const td = 'py-2 px-3 text-[12px] text-slate-800';
-      const sel = (id, arr, cur) => `<select id="${id}" class="fld text-[12px]">${arr.map(t => `<option ${cur === t ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
       const p = D.prov.find(x => x.id === CXP.sel);
       const h = p ? histFilas() : { rows: [], tc: 0, ta: 0 };
-      const filtros = `<div class="flex flex-col gap-3 h-full text-[12px]">
-        <div class="font-black text-slate-900 uppercase tracking-wider">Filtros</div>
-        <div><label class="fld-label">Proveedor</label><select id="hist-prov" class="fld text-[12px]"><option value="">Seleccione…</option>${D.prov.map(x => `<option value="${esc(x.id)}" ${x.id === CXP.sel ? 'selected' : ''}>${esc(x.nombre)}</option>`).join('')}</select></div>
-        <div><label class="fld-label">Desde</label><input type="date" id="hist-desde" value="${esc(HIST.desde)}" class="fld text-[12px]"></div>
-        <div><label class="fld-label">Hasta</label><input type="date" id="hist-hasta" value="${esc(HIST.hasta)}" class="fld text-[12px]"></div>
-        <div><label class="fld-label">Movimiento</label>${sel('hist-tipo', ['Todos', 'Solo Cargos', 'Solo Abonos'], HIST.tipo)}</div>
-        <div><label class="fld-label">Documento</label>${sel('hist-doc', ['Todos', 'Factura', 'OP', 'Recibo', 'Cheque'], HIST.doc)}</div>
-        <div class="mt-auto flex flex-col gap-2"><button onclick="histFiltrar()" class="${BH} w-full">Aplicar Filtros</button><button onclick="histLimpiar()" class="text-[12px] text-slate-500 underline cursor-pointer">Limpiar</button></div>
-      </div>`;
       const cuerpo = p ? `<div class="flex flex-col h-full min-h-0 gap-3 text-[12px]">
         <div class="shrink-0"><h3 class="text-lg font-black text-slate-900">Estado de Cuenta</h3>
           <div class="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 max-w-2xl"><div><div class="fld-label">Proveedor</div><div class="font-semibold text-slate-800">${esc(p.nombre)}</div></div><div><div class="fld-label">RTN</div><div class="font-semibold text-slate-800">${esc(p.rtn)}</div></div><div class="col-span-2"><div class="fld-label">Contacto</div><div class="font-semibold text-slate-800">${esc(p.contacto)} · ${esc(p.email)}</div></div></div></div>
@@ -944,7 +949,7 @@
         </div>
         <div class="shrink-0 pt-2 border-t border-slate-200 flex justify-end gap-2"><button onclick="histExportar('pdf')" class="${BH}">Imprimir PDF</button><button onclick="histExportar('xls')" class="${BH}">Exportar Excel</button></div>
       </div>` : '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Seleccione un proveedor para ver su estado de cuenta.</div>';
-      c.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4 h-full min-h-0"><div class="lg:border-r lg:border-slate-200 lg:pr-4 min-h-0 overflow-y-auto">${filtros}</div><div class="min-h-0">${cuerpo}</div></div>`;
+      c.innerHTML = `<div class="min-h-0 h-full">${cuerpo}</div>`;
     }
     function cxpSumSel() {
       const ids = Array.from(document.querySelectorAll('.chk-fcxp:checked')).map(x => x.value);
