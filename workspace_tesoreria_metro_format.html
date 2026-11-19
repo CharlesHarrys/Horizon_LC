@@ -1145,6 +1145,10 @@
           <div><label for="op-ref" class="fld-label ml-2">REFERENCIA BANCARIA</label><input id="op-ref" type="text" class="fld ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" placeholder="Referencia" value="${esc(o.refBanco || o.chequeNo || '')}" ${ejecucionActiva ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','refBanco',this.value)"></div>
           <div><label for="op-monto" class="fld-label ml-2">MONTO ABONADO</label><input id="op-monto" type="text" inputmode="decimal" class="fld text-right ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" placeholder="0.00" value="${o.montoBanco ? fmtInputMonto(o.montoBanco) : ''}" ${ejecucionActiva ? '' : 'disabled'} onfocus="onFocusMontoOP(this)" onblur="onBlurMontoOP(this)" oninput="onInputMontoOP('${o.id}',this)"></div>
         </div>
+        <div class="w-full mt-3 shrink-0">
+          <label for="op-desc" class="block text-[12px] font-bold text-slate-600 ml-2 mb-1">Descripción de Ejecución (Opcional/Notas del Banco)</label>
+          <input id="op-desc" type="text" class="fld text-[12px] text-black ${ejecucionActiva ? '' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}" placeholder="Notas u observaciones del banco…" value="${esc(o.descEjecucion || '')}" ${ejecucionActiva ? '' : 'disabled'} oninput="actualizarCampoOP('${o.id}','descEjecucion',this.value)">
+        </div>
 
         <div class="border-t border-slate-200 mt-3 shrink-0"></div>
         <div class="mt-auto shrink-0">${zonaAcciones}</div>
