@@ -606,11 +606,11 @@
     }
     function agingKey(d) { return d === null ? 'Sin saldo' : d <= 0 ? 'Corriente' : d <= 30 ? '1-30d' : d <= 60 ? '31-60d' : '+60d'; }
     function estadoBadge(e) {
-      const m = { 'PENDIENTE DE EJECUCIÓN': 'bg-amber-50 text-amber-700 border-amber-200', 'BORRADOR POR VALIDAR': 'bg-sky-50 text-sky-700 border-sky-200', 'PAGADA': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        'ENVIADO': 'bg-sky-50 text-sky-700 border-sky-200', 'COBRADO': 'bg-emerald-50 text-emerald-700 border-emerald-200', 'EN TRÁNSITO': 'bg-amber-50 text-amber-700 border-amber-200',
-        'PENDIENTE T+1': 'bg-amber-50 text-amber-700 border-amber-200', 'LIQUIDACIÓN POR VALIDAR': 'bg-sky-50 text-sky-700 border-sky-200', 'CONCILIADO': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        'POR CONCILIAR': 'bg-amber-50 text-amber-700 border-amber-200', 'SIN SUSTENTAR': 'bg-rose-50 text-rose-700 border-rose-200', 'RESUELTO': 'bg-emerald-50 text-emerald-700 border-emerald-200', 'VALIDADO': 'bg-emerald-50 text-emerald-700 border-emerald-200' };
-      return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${m[e] || 'bg-slate-100 text-slate-600 border-slate-200'}">${esc(e)}</span>`;
+      const m = { 'PENDIENTE DE EJECUCIÓN': 'text-amber-700', 'BORRADOR POR VALIDAR': 'text-sky-700', 'PAGADA': 'text-emerald-700',
+        'ENVIADO': 'text-sky-700', 'COBRADO': 'text-emerald-700', 'EN TRÁNSITO': 'text-amber-700',
+        'PENDIENTE T+1': 'text-amber-700', 'LIQUIDACIÓN POR VALIDAR': 'text-sky-700', 'CONCILIADO': 'text-emerald-700',
+        'POR CONCILIAR': 'text-amber-700', 'SIN SUSTENTAR': 'text-rose-700', 'RESUELTO': 'text-emerald-700', 'VALIDADO': 'text-emerald-700' };
+      return `<span class="text-[10px] font-bold whitespace-nowrap ${m[e] || 'text-slate-600'}">${esc(e)}</span>`;
     }
     const BTN = 'px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer transition ';
     const BTN1 = BTN + 'bg-black text-white hover:bg-neutral-800';
@@ -758,13 +758,16 @@
       f.innerHTML = opts.map(o => `<option value="${esc(o.v)}" ${o.v === prev ? 'selected' : ''}>${esc(o.l)}</option>`).join('');
       const totalPend = D.fcxp.filter(x => x.estado !== 'PAGADA').reduce((s, x) => s + x.monto, 0);
       const opsPend = D.ops.filter(o => o.estado !== 'PAGADA');
-      const borradores = D.ops.filter(o => o.estado === 'BORRADOR POR VALIDAR');
       const badge = $('cxp-ops-badge');
       if (badge) { badge.textContent = opsPend.length; badge.style.display = opsPend.length > 0 ? '' : 'none'; }
-      const notifBorrador = borradores.length ? `<button onclick="CXP.tab='ops';renderCxP();$('cxp-f').value='BORRADOR POR VALIDAR';renderCxPList()" class="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold hover:bg-amber-100 cursor-pointer">⚠ ${borradores.length} pago(s) en borrador por sincronizar</button>` : '';
-      $('cxp-kpis').innerHTML = notifBorrador + [['Saldo por pagar', fm(totalPend)], ['Monto en OPs', fm(opsPend.reduce((s, o) => s + o.monto, 0))]]
+      $('cxp-kpis').innerHTML = [['Saldo por pagar', fm(totalPend)], ['Monto en OPs', fm(opsPend.reduce((s, o) => s + o.monto, 0))]]
         .map(k => `<div class="px-3 border-l border-slate-200"><div class="text-[9px] uppercase tracking-wider mb-1 font-bold text-slate-400">${k[0]}</div><div class="text-sm text-right ml-2 font-black text-slate-900">${k[1]}</div></div>`).join('');
       renderCxPList(); renderCxPDetalle();
+    }
+    function opStatusIcon(o) {
+      if (o.estado === 'PAGADA') return '<span class="text-emerald-600 font-bold text-sm leading-none shrink-0" title="Pagada">✓</span>';
+      if (o.estado === 'BORRADOR POR VALIDAR' || o.impreso || o.opFirmada || o.opValidada || o.ejecucionHabilitada) return '<span class="text-amber-500 font-bold text-xs leading-none shrink-0" title="En proceso">⏸</span>';
+      return '<span class="w-2 h-2 mr-1 mt-1 rounded-full shrink-0 bg-rose-600" title="Sin iniciar"></span>';
     }
     function renderCxPList() {
       const q = val('cxp-q').toLowerCase(), f = $('cxp-f').value || 'Todos', cont = $('cxp-lista');
@@ -789,7 +792,7 @@
           return `<div onclick="cxpSel('${p.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXP.sel === p.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold text-slate-900 truncate">${esc(p.nombre)}</span><span class="w-2 h-2 mr-2 mt-1 rounded-full shrink-0 ${dot.cls}" title="${esc(dot.title)}"></span></div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span>${esc(p.rtn)} · ${i.n} fact.</span><span class="font-bold text-slate-800">${fm(i.saldo)}</span></div></div>`; }).join('');
       } else {
         const l = D.ops.filter(o => (!q || (o.id + o.beneficiario).toLowerCase().includes(q)) && (f === 'Todos' || o.estado === f));
-        html = l.map(o => `<div onclick="cxpSel('${o.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXP.sel === o.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold font-mono text-slate-900">${esc(o.id)}</span>${estadoBadge(o.estado)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(o.beneficiario)}</span><span class="font-bold text-slate-800">${fm(o.monto)}</span></div></div>`).join('');
+        html = l.map(o => `<div onclick="cxpSel('${o.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXP.sel === o.id ? 'bg-slate-100' : ''}"><div class="flex justify-between items-center gap-2"><span class="text-xs font-bold text-slate-900">${esc(o.id)}</span>${opStatusIcon(o)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(o.beneficiario)}</span><span class="font-bold text-slate-800">${fm(o.monto)}</span></div></div>`).join('');
       }
       cont.innerHTML = html || '<div class="p-6 text-center text-xs text-slate-400">Sin resultados.</div>';
     }
@@ -1109,9 +1112,9 @@
         const codDeb = o.origen === 'RRHH' ? '2.1.02.01' : '2.1.01.01';
         const opContable = `${codDeb} ${nombreCuenta(codDeb)} → ${cta ? cta.codigo + ' ' + cta.nombre : 'Banco'}`;
         zonaAcciones = `<div class="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
-          <div class="p-2 px-3 rounded-2xl bg-slate-900 text-white text-[12px] flex items-center justify-between gap-3 min-w-0">
-            <div class="font-bold text-emerald-400 shrink-0 whitespace-nowrap">✓ Registro completo</div>
-            <div class="min-w-0 text-right leading-tight">
+          <div class="w-[600px] p-2 px-3 rounded-2xl bg-slate-900 text-white text-[12px] flex items-center justify-between gap-3 min-w-0">
+            <div class="w-[80px] px-2 font-bold text-emerald-400 shrink-0">Registro completo</div>
+            <div class="min-w-0 text-left leading-tight">
               <div class="truncate">Ref: <b>${esc(o.refBanco)}</b> · ${esc(o.id)}</div>
               <div class="text-[11px] text-slate-300 truncate">${esc(opContable)}</div>
             </div>
