@@ -874,52 +874,77 @@
       </div></div>`;
     }
     // Histórico de movimientos por proveedor: Cargo (+) = factura recibida, Abono (-) = pago aplicado
-    const HIST = { desde: '', hasta: '', tipo: 'Todos' };
+    const HIST = { desde: '', hasta: '', tipo: 'Todos', doc: 'Todos' };
     function histMovs(pid) {
       const movs = [];
       D.fcxp.filter(f => f.provId === pid).forEach(f => {
-        movs.push({ fecha: f.fecha, tipo: 'Cargo', ref: f.numero, concepto: 'Factura de proveedor', cargo: f.monto, abono: 0 });
+        movs.push({ fecha: f.fecha, doc: 'Factura', ref: f.numero, concepto: 'Factura de proveedor', venc: f.vence, cargo: f.monto, abono: 0 });
         if (f.estado === 'PAGADA') {
           const op = D.ops.find(o => o.estado === 'PAGADA' && (o.facturas || []).includes(f.id));
-          movs.push({ fecha: op ? (op.fechaBanco || op.fecha) : f.vence, tipo: 'Abono', ref: op ? op.id : 'PAGO', concepto: 'Pago de factura ' + f.numero, cargo: 0, abono: f.monto });
+          movs.push({ fecha: op ? (op.fechaBanco || op.fecha) : f.vence, doc: op ? (op.modo === 'Cheque' ? 'Cheque' : 'OP') : 'Recibo', ref: op ? op.id : 'PAGO', concepto: 'Pago de factura ' + f.numero, venc: '-', cargo: 0, abono: f.monto });
         }
       });
-      return movs.sort((a, b) => a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : (a.tipo === 'Cargo' ? -1 : 1));
+      return movs.sort((a, b) => a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : (a.cargo ? -1 : 1));
     }
     function histFiltrar() {
-      HIST.desde = val('hist-desde'); HIST.hasta = val('hist-hasta'); HIST.tipo = val('hist-tipo') || 'Todos';
+      HIST.desde = val('hist-desde'); HIST.hasta = val('hist-hasta'); HIST.tipo = val('hist-tipo') || 'Todos'; HIST.doc = val('hist-doc') || 'Todos';
       const pv = val('hist-prov'); if (pv) CXP.sel = pv;
       renderCxPList(); renderCxPDetalle();
+    }
+    function histLimpiar() { HIST.desde = ''; HIST.hasta = ''; HIST.tipo = 'Todos'; HIST.doc = 'Todos'; renderCxPDetalle(); }
+    function histFilas() {
+      let acum = 0, tc = 0, ta = 0; const rows = [];
+      histMovs(CXP.sel).forEach(m => {
+        acum = r2(acum + m.cargo - m.abono);
+        if (HIST.desde && m.fecha < HIST.desde) return;
+        if (HIST.hasta && m.fecha > HIST.hasta) return;
+        if (HIST.tipo === 'Solo Cargos' && !m.cargo) return;
+        if (HIST.tipo === 'Solo Abonos' && !m.abono) return;
+        if (HIST.doc !== 'Todos' && m.doc !== HIST.doc) return;
+        tc += m.cargo; ta += m.abono; rows.push(Object.assign({ saldo: acum }, m));
+      });
+      return { rows, tc: r2(tc), ta: r2(ta) };
+    }
+    function histExportar(modo) {
+      const p = D.prov.find(x => x.id === CXP.sel); if (!p) { toast('Seleccione un proveedor.', 'err'); return; }
+      const h = histFilas();
+      if (modo === 'xls') {
+        const f = [['Fecha', 'Documento', 'Referencia', 'Concepto', 'Vencimiento', 'Cargo (+)', 'Abono (-)', 'Saldo Corrido']];
+        h.rows.forEach(m => f.push([m.fecha, m.doc, m.ref, m.concepto, m.venc, m.cargo.toFixed(2), m.abono.toFixed(2), m.saldo.toFixed(2)]));
+        f.push(['', '', '', 'TOTALES', '', h.tc.toFixed(2), h.ta.toFixed(2), r2(h.tc - h.ta).toFixed(2)]);
+        descargarCSV('EstadoCuenta_' + p.id + '.csv', f); return;
+      }
+      const w = window.open('', '_blank', 'width=900,height=700'); if (!w) { toast('Permita ventanas emergentes para imprimir.', 'err'); return; }
+      w.document.write(`<html><head><title>Estado de Cuenta</title><style>body{font-family:Arial;padding:24px;font-size:12px}table{border-collapse:collapse;width:100%;margin-top:12px}th{background:#000;color:#fff;padding:6px}td{border-bottom:1px solid #cbd5e1;padding:5px}</style></head><body><h2>Estado de Cuenta</h2><div><b>${esc(p.nombre)}</b> · RTN ${esc(p.rtn)} · ${esc(p.contacto)} · ${esc(p.email)}</div><table><tr><th>Fecha</th><th>Documento</th><th>Referencia</th><th>Concepto</th><th>Vencimiento</th><th>Cargo (+)</th><th>Abono (-)</th><th>Saldo Corrido</th></tr>${h.rows.map(m => `<tr><td>${m.fecha}</td><td>${m.doc}</td><td>${esc(m.ref)}</td><td>${esc(m.concepto)}</td><td>${m.venc}</td><td align="right">${m.cargo ? fm(m.cargo) : ''}</td><td align="right">${m.abono ? fm(m.abono) : ''}</td><td align="right">${fm(m.saldo)}</td></tr>`).join('')}<tr><td colspan="5" align="right"><b>TOTALES</b></td><td align="right"><b>${fm(h.tc)}</b></td><td align="right"><b>${fm(h.ta)}</b></td><td align="right"><b>${fm(r2(h.tc - h.ta))}</b></td></tr></table><script>setTimeout(function(){window.print()},300)<\/script></body></html>`);
+      w.document.close();
     }
     function renderHistorico(c) {
       const BH = 'px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider cursor-pointer transition bg-black text-white hover:bg-neutral-800';
       const TH_H = 'py-2.5 px-3 text-center text-[12px] font-bold uppercase tracking-wider bg-black text-white sticky top-0';
       const td = 'py-2 px-3 text-[12px] text-slate-800';
-      let acum = 0, tc = 0, ta = 0, filas = '';
-      histMovs(CXP.sel).forEach(m => {
-        acum = r2(acum + m.cargo - m.abono);
-        if (HIST.desde && m.fecha < HIST.desde) return;
-        if (HIST.hasta && m.fecha > HIST.hasta) return;
-        if (HIST.tipo === 'Solo Cargos' && m.tipo !== 'Cargo') return;
-        if (HIST.tipo === 'Solo Abonos' && m.tipo !== 'Abono') return;
-        tc += m.cargo; ta += m.abono;
-        filas += `<tr><td class="${td} text-center">${esc(m.fecha)}</td><td class="${td} text-center">${m.tipo}</td><td class="${td} text-center">${esc(m.ref)}</td><td class="${td}">${esc(m.concepto)}</td><td class="${td} text-right">${m.cargo ? fm(m.cargo) : ''}</td><td class="${td} text-right">${m.abono ? fm(m.abono) : ''}</td><td class="${td} text-right font-bold">${fm(acum)}</td></tr>`;
-      });
-      tc = r2(tc); ta = r2(ta);
-      c.innerHTML = `<div class="flex flex-col h-full min-h-0 gap-3 text-[12px]">
-        <div class="flex flex-wrap items-end gap-3 shrink-0">
-          <div><label class="fld-label">Proveedor</label><select id="hist-prov" class="fld w-64 text-[12px]"><option value="">Seleccione…</option>${D.prov.map(p => `<option value="${esc(p.id)}" ${p.id === CXP.sel ? 'selected' : ''}>${esc(p.nombre)}</option>`).join('')}</select></div>
-          <div><label class="fld-label">Desde</label><input type="date" id="hist-desde" value="${esc(HIST.desde)}" class="fld w-36 text-[12px]"></div>
-          <div><label class="fld-label">Hasta</label><input type="date" id="hist-hasta" value="${esc(HIST.hasta)}" class="fld w-36 text-[12px]"></div>
-          <div><label class="fld-label">Tipo</label><select id="hist-tipo" class="fld w-36 text-[12px]">${['Todos', 'Solo Cargos', 'Solo Abonos'].map(t => `<option ${HIST.tipo === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
-          <button onclick="histFiltrar()" class="${BH}">Filtrar</button>
-        </div>
-        ${CXP.sel && D.prov.some(p => p.id === CXP.sel) ? `<div class="flex-1 min-h-0 overflow-y-auto">
-          <table class="w-full text-[12px]"><thead><tr><th class="${TH_H}">Fecha</th><th class="${TH_H}">Tipo de Movimiento</th><th class="${TH_H}">Referencia</th><th class="${TH_H}">Concepto</th><th class="${TH_H}">Cargo (+)</th><th class="${TH_H}">Abono (-)</th><th class="${TH_H}">Saldo Corrido</th></tr></thead>
-          <tbody class="divide-y divide-slate-100">${filas || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Sin movimientos.</td></tr>`}</tbody>
-          <tfoot><tr class="border-t-2 border-slate-900 font-black"><td colspan="4" class="${td} text-right uppercase">Totales</td><td class="${td} text-right">${fm(tc)}</td><td class="${td} text-right">${fm(ta)}</td><td class="${td} text-right">${fm(r2(tc - ta))}</td></tr></tfoot></table>
-        </div>` : '<div class="flex-1 flex items-center justify-center text-[12px] text-slate-400">Seleccione un proveedor para ver su histórico.</div>'}
+      const sel = (id, arr, cur) => `<select id="${id}" class="fld text-[12px]">${arr.map(t => `<option ${cur === t ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+      const p = D.prov.find(x => x.id === CXP.sel);
+      const h = p ? histFilas() : { rows: [], tc: 0, ta: 0 };
+      const filtros = `<div class="flex flex-col gap-3 h-full text-[12px]">
+        <div class="font-black text-slate-900 uppercase tracking-wider">Filtros</div>
+        <div><label class="fld-label">Proveedor</label><select id="hist-prov" class="fld text-[12px]"><option value="">Seleccione…</option>${D.prov.map(x => `<option value="${esc(x.id)}" ${x.id === CXP.sel ? 'selected' : ''}>${esc(x.nombre)}</option>`).join('')}</select></div>
+        <div><label class="fld-label">Desde</label><input type="date" id="hist-desde" value="${esc(HIST.desde)}" class="fld text-[12px]"></div>
+        <div><label class="fld-label">Hasta</label><input type="date" id="hist-hasta" value="${esc(HIST.hasta)}" class="fld text-[12px]"></div>
+        <div><label class="fld-label">Movimiento</label>${sel('hist-tipo', ['Todos', 'Solo Cargos', 'Solo Abonos'], HIST.tipo)}</div>
+        <div><label class="fld-label">Documento</label>${sel('hist-doc', ['Todos', 'Factura', 'OP', 'Recibo', 'Cheque'], HIST.doc)}</div>
+        <div class="mt-auto flex flex-col gap-2"><button onclick="histFiltrar()" class="${BH} w-full">Aplicar Filtros</button><button onclick="histLimpiar()" class="text-[12px] text-slate-500 underline cursor-pointer">Limpiar</button></div>
       </div>`;
+      const cuerpo = p ? `<div class="flex flex-col h-full min-h-0 gap-3 text-[12px]">
+        <div class="shrink-0"><h3 class="text-lg font-black text-slate-900">Estado de Cuenta</h3>
+          <div class="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 max-w-2xl"><div><div class="fld-label">Proveedor</div><div class="font-semibold text-slate-800">${esc(p.nombre)}</div></div><div><div class="fld-label">RTN</div><div class="font-semibold text-slate-800">${esc(p.rtn)}</div></div><div class="col-span-2"><div class="fld-label">Contacto</div><div class="font-semibold text-slate-800">${esc(p.contacto)} · ${esc(p.email)}</div></div></div></div>
+        <div class="flex-1 min-h-0 overflow-y-auto border-t border-slate-200">
+          <table class="w-full text-[12px]"><thead><tr><th class="${TH_H}">Fecha</th><th class="${TH_H}">Documento</th><th class="${TH_H}">Referencia</th><th class="${TH_H}">Concepto</th><th class="${TH_H}">Vencimiento</th><th class="${TH_H}">Cargo (+)</th><th class="${TH_H}">Abono (-)</th><th class="${TH_H}">Saldo Corrido</th></tr></thead>
+          <tbody class="divide-y divide-slate-100">${h.rows.map(m => `<tr><td class="${td} text-center">${esc(m.fecha)}</td><td class="${td} text-center">${m.doc}</td><td class="${td} text-center">${esc(m.ref)}</td><td class="${td}">${esc(m.concepto)}</td><td class="${td} text-center">${esc(m.venc)}</td><td class="${td} text-right">${m.cargo ? fm(m.cargo) : ''}</td><td class="${td} text-right">${m.abono ? fm(m.abono) : ''}</td><td class="${td} text-right font-bold">${fm(m.saldo)}</td></tr>`).join('') || `<tr><td colspan="8" class="p-4 text-center text-slate-400">Sin movimientos.</td></tr>`}</tbody>
+          <tfoot><tr class="border-t-2 border-slate-900 font-black"><td colspan="5" class="${td} text-right uppercase">Totales</td><td class="${td} text-right">${fm(h.tc)}</td><td class="${td} text-right">${fm(h.ta)}</td><td class="${td} text-right">${fm(r2(h.tc - h.ta))}</td></tr></tfoot></table>
+        </div>
+        <div class="shrink-0 pt-2 border-t border-slate-200 flex justify-end gap-2"><button onclick="histExportar('pdf')" class="${BH}">Imprimir PDF</button><button onclick="histExportar('xls')" class="${BH}">Exportar Excel</button></div>
+      </div>` : '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Seleccione un proveedor para ver su estado de cuenta.</div>';
+      c.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4 h-full min-h-0"><div class="lg:border-r lg:border-slate-200 lg:pr-4 min-h-0 overflow-y-auto">${filtros}</div><div class="min-h-0">${cuerpo}</div></div>`;
     }
     function cxpSumSel() {
       const ids = Array.from(document.querySelectorAll('.chk-fcxp:checked')).map(x => x.value);
