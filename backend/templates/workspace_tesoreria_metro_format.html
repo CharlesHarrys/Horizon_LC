@@ -347,50 +347,167 @@
         <table class="w-full"><thead><tr class="bg-black text-white text-center text-[12px]"><th class="p-2">Factura</th><th class="p-2">Cliente</th><th class="p-2">Monto</th><th class="p-2">Acciones</th></tr></thead><tbody id="dp-lista"></tbody></table></div>
           <button onclick="devLiquidar('pos')" class="w-full py-2 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Liquidar POS contra Banco</button>
         </div>
-        <div id="dev-m-efe" class="hidden flex flex-col gap-3">
-          <div class="font-black text-slate-900">Conciliación de Depósito en Efectivo</div>
-          <div class="grid grid-cols-2 gap-3">
-            <div class="border border-slate-200 rounded-xl p-3">
-              <div class="font-black mb-2">A. Esperado</div>
-              <label class="fld-label">Monto Cierre de Caja</label>
-              <input id="de-cierre" class="fld text-[12px] bg-slate-50" readonly value="0.00">
-              <div class="text-slate-500 mt-2">Desglose de Denominaciones esperado</div>
-              <div id="de-desglose" class="mt-1"></div>
+        <div id="dev-m-efe" class="hidden flex flex-col gap-4 text-[12px]">
+          <!-- ================= CONTENEDOR DE 3 COLUMNAS ================= -->
+          <div class="grid grid-cols-3 gap-4 h-full">
+            <!-- COLUMNA 1: ESPERADO -->
+            <div class="border border-slate-200 rounded-xl p-3 flex flex-col gap-4 h-full">
+              <div class="font-black text-slate-900 text-[14px]">Valores Esperados</div>
+
+              <!-- Info del Turno -->
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 space-y-1">
+                <div class="flex justify-between"><span class="text-slate-500">Caja:</span> <span id="de-caja" class="font-bold">001-002</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Cajero:</span> <span id="de-cajero-lbl" class="font-bold">Ana Flores</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Turno:</span> <span class="font-bold">Matutino</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Fecha:</span> <span id="de-fecha" class="font-bold">2026-11-15</span></div>
+                <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-200">
+                  <span class="text-slate-900 font-black">Total Esperado:</span>
+                  <span id="de-esperado-lbl" class="font-black text-[14px]">L 5,000.00</span>
+                  <input type="hidden" id="de-cierre" value="5000">
+                </div>
+              </div>
+
+              <!-- Desglose de Denominaciones -->
+              <div class="flex-1 border border-slate-200 rounded-lg overflow-hidden flex flex-col">
+                <table class="w-full text-left border-collapse">
+                  <thead class="bg-black text-white text-center">
+                    <tr>
+                      <th class="p-1.5 w-12">Cant</th>
+                      <th class="p-1.5">Billete</th>
+                      <th class="p-1.5 text-right pr-2">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="de-desglose" class="divide-y divide-slate-100">
+                    <tr class="hover:bg-slate-50">
+                      <td class="p-1.5 text-center font-bold">8</td>
+                      <td class="p-1.5 text-center text-slate-600">L 500.00</td>
+                      <td class="p-1.5 text-right font-bold pr-2">L 4,000.00</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                      <td class="p-1.5 text-center font-bold">10</td>
+                      <td class="p-1.5 text-center text-slate-600">L 100.00</td>
+                      <td class="p-1.5 text-right font-bold pr-2">L 1,000.00</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                      <td class="p-1.5 text-center font-bold text-slate-300">0</td>
+                      <td class="p-1.5 text-center text-slate-400">L 200.00</td>
+                      <td class="p-1.5 text-right font-bold text-slate-300 pr-2">L 0.00</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                      <td class="p-1.5 text-center font-bold text-slate-300">0</td>
+                      <td class="p-1.5 text-center text-slate-400">L 50.00</td>
+                      <td class="p-1.5 text-right font-bold text-slate-300 pr-2">L 0.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div class="border border-slate-200 rounded-xl p-3 flex flex-col">
-              <div class="flex justify-between items-center mb-2">
-                <div class="font-black">B. Realidad (Depósitos Bancarios)</div>
-                <button onclick="openBoletaModal()" class="bg-black text-white text-[12px] px-2 py-1 rounded hover:bg-gray-800">
+
+            <!-- COLUMNA 2: REALIDAD -->
+            <div class="border border-slate-200 rounded-xl p-3 flex flex-col gap-3 h-full relative">
+              <div class="flex justify-between items-center">
+                <div class="font-black text-slate-900 text-[14px]">Valores Reales</div>
+                <button onclick="openBoletaModal()" class="bg-black text-white px-2 py-1 rounded hover:bg-gray-800 transition-colors">
                   + Vincular Boleta
                 </button>
               </div>
-              <div class="border border-slate-200 rounded flex-1 overflow-hidden">
-                <div class="grid grid-cols-12 gap-2 p-2 border-b border-slate-200 bg-slate-50 font-bold text-[12px]">
-                  <div class="col-span-5">Ref. / Banco</div>
-                  <div class="col-span-3 text-right">Disponible</div>
-                  <div class="col-span-4 text-right">Aplicar al Cierre</div>
+
+              <!-- Lista de boletas -->
+              <div id="de-depositos-list" class="flex flex-col gap-2">
+                <div class="border border-slate-200 rounded-lg p-2 bg-slate-50 relative group">
+                  <button onclick="this.parentElement.remove(); devCalc();" class="absolute top-2 right-2 text-slate-300 hover:text-black font-bold hidden group-hover:block transition-all">✕</button>
+                  <div class="flex justify-between"><span class="text-slate-500">Fecha:</span><span class="font-bold text-slate-900">2026-11-16</span></div>
+                  <div class="flex justify-between mt-1"><span class="text-slate-500">Banco:</span><span class="font-bold text-slate-900">BANPAIS</span></div>
+                  <div class="flex justify-between mt-1"><span class="text-slate-500">Referencia:</span><span class="font-bold text-slate-900">42152002</span></div>
+                  <div class="flex justify-between mt-1"><span class="text-slate-500">Monto Recibido:</span><span class="font-bold text-slate-900">L 48,200.00</span></div>
+                  <div class="mt-2 flex items-center justify-between border-t border-slate-200 pt-2">
+                    <span class="font-black text-slate-900">Monto a Aplicar:</span>
+                    <div class="flex items-center gap-1">
+                      <span class="font-bold text-slate-900">L</span>
+                      <input type="number" step="0.01" class="text-[14px] text-right bg-white border border-slate-200 rounded px-1 w-24 font-bold outline-none focus:border-black dep-monto-input" value="5000.00" oninput="devCalc()">
+                    </div>
+                  </div>
                 </div>
-                <div id="de-depositos-list"></div>
               </div>
-              <div class="text-right font-black text-[12px] mt-2 pt-2 border-t border-slate-200">
-                Total Validado: L. <span id="de-total-validado">0.00</span>
+
+              <div id="de-valid-text" class="text-center text-slate-400 italic flex-1 flex items-end justify-center pb-2">
+                Documento válido verificado
               </div>
             </div>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-3">
-            <div class="font-black mb-2">Descuadre</div>
-            <div class="grid grid-cols-2 gap-3 items-end">
+
+            <!-- COLUMNA 3: RESULTADO -->
+            <div class="border border-slate-200 rounded-xl p-3 flex flex-col justify-between h-full bg-slate-50/50">
               <div>
-                <label class="fld-label">Diferencia (Validado − Cierre)</label>
-                <input id="de-dif" class="fld text-[12px] bg-slate-50 text-right" readonly value="0.00">
+                <div class="font-black text-slate-900 text-[14px] mb-4">Resumen</div>
+
+                <div class="space-y-4">
+                  <div>
+                    <label class="text-slate-500 block mb-1">Valores Esperados</label>
+                    <input id="de-res-esp" class="fld text-[12px] bg-slate-100 text-right font-bold w-full" value="L 5,000.00" readonly>
+                  </div>
+
+                  <div>
+                    <label class="text-slate-500 block mb-1">Valores Reales</label>
+                    <input id="de-total-validado-input" class="fld text-[12px] bg-slate-100 text-right font-bold w-full" value="L 5,000.00" readonly>
+                  </div>
+
+                  <div>
+                    <label class="text-slate-500 block mb-1">Tiempo Transcurrido</label>
+                    <input id="de-tiempo" class="fld text-[12px] bg-slate-100 text-right font-bold w-full text-slate-600" value="1 día" readonly>
+                  </div>
+
+                  <div>
+                    <label class="font-black text-slate-900 block mb-1">Diferencia</label>
+                    <input id="de-dif" class="fld text-[12px] bg-slate-200 text-right font-black w-full" value="L 0.00" readonly>
+                  </div>
+
+                  <div id="de-asig" class="hidden pt-2 border-t border-slate-200 mt-2">
+                    <label class="text-slate-900 font-bold block mb-1">Asignar Diferencia a:</label>
+                    <select id="de-cajero" class="fld text-[12px] w-full border-red-200 focus:border-red-400 focus:ring-red-400">
+                      <option>Ana Flores (Cajero en turno)</option>
+                      <option>Cuenta Contable (Pérdida asumida)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-              <div id="de-asig" class="hidden">
-                <label class="fld-label">Asignar Faltante/Sobrante a:</label>
-                <select id="de-cajero" class="fld text-[12px]"></select>
+
+              <button onclick="devLiquidar('efe')" class="w-full py-2.5 rounded-lg bg-black text-white text-[12px] font-bold hover:bg-gray-800 transition-colors mt-4">
+                Validar y Guardar
+              </button>
+            </div>
+          </div>
+
+          <!-- ================= TIME LINE (FLUJO DE ESTADOS) ================= -->
+          <div class="mt-2 p-4 bg-white border border-slate-200 rounded-xl relative">
+            <!-- Línea conectora de fondo -->
+            <div class="absolute top-[30px] left-10 right-10 h-[1px] bg-slate-200 z-0"></div>
+
+            <div class="flex justify-between relative z-10">
+              <!-- Evento 1: En Proceso (Completado) -->
+              <div class="flex flex-col items-center bg-white px-2 cursor-help" title="El registro ingresó al sistema pero no ha sido alterado.">
+                <div class="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center font-bold text-[10px] shadow-[0_0_0_4px_white]">✓</div>
+                <span class="font-bold text-slate-900 mt-2">1. En Proceso</span>
+              </div>
+
+              <!-- Evento 2: Borrador (Activo) -->
+              <div class="flex flex-col items-center bg-white px-2 cursor-help" title="Validación masiva encontró coincidencia. Esperando revisión final.">
+                <div class="w-6 h-6 rounded-full border-2 border-black text-black flex items-center justify-center font-bold text-[10px] shadow-[0_0_0_4px_white] bg-white">2</div>
+                <span class="font-bold text-black mt-2">2. Borrador</span>
+              </div>
+
+              <!-- Evento 3: Ajuste (Inactivo/Saltable) -->
+              <div class="flex flex-col items-center bg-white px-2 cursor-help" title="Si falla el cruce automático, requiere intervención manual.">
+                <div class="w-6 h-6 rounded-full border border-slate-300 text-slate-400 flex items-center justify-center font-bold text-[10px] shadow-[0_0_0_4px_white] bg-slate-50">3</div>
+                <span class="font-bold text-slate-400 mt-2">3. Ajuste</span>
+              </div>
+
+              <!-- Evento 4: Validación (Pendiente) -->
+              <div class="flex flex-col items-center bg-white px-2 cursor-help" title="El registro ha sido auditado y guardado permanentemente.">
+                <div class="w-6 h-6 rounded-full border border-slate-300 text-slate-400 flex items-center justify-center font-bold text-[10px] shadow-[0_0_0_4px_white] bg-slate-50">4</div>
+                <span class="font-bold text-slate-400 mt-2">4. Validación</span>
               </div>
             </div>
           </div>
-          <button onclick="devLiquidar('efe')" class="w-full py-2 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Conciliar Depósito Exacto</button>
         </div>
         <div id="dev-m-tra" class="hidden flex flex-col gap-3">
           <div class="font-black text-slate-900">Validación de Transferencia</div>
@@ -1558,19 +1675,28 @@
     }
     function addBoleta(referencia, disponible) {
       const container = document.getElementById('de-depositos-list');
-      const row = document.createElement('div');
-      row.className = 'grid grid-cols-12 gap-2 p-2 items-center border-b border-slate-200 text-[12px]';
-      row.innerHTML = `
-        <div class="col-span-5 truncate font-bold" title="${esc(referencia)}">${esc(referencia)}</div>
-        <div class="col-span-3 text-right text-slate-500">${disponible.toFixed(2)}</div>
-        <div class="col-span-4 flex gap-1 items-center">
-          <input type="number" step="0.01" max="${disponible}" value="0.00" class="fld text-[12px] text-right p-1 w-full dep-monto-input" oninput="devCalc()">
-          <button onclick="this.parentElement.parentElement.remove(); devCalc();" class="text-slate-400 hover:text-black font-bold px-1">✕</button>
+      const partes = String(referencia || '').split(/\s+/);
+      const banco = partes[0] || 'BANCO';
+      const refNum = partes.slice(1).join(' ') || referencia;
+      const card = document.createElement('div');
+      card.className = 'border border-slate-200 rounded-lg p-2 bg-slate-50 relative group';
+      card.innerHTML = `
+        <button onclick="this.parentElement.remove(); devCalc();" class="absolute top-2 right-2 text-slate-300 hover:text-black font-bold hidden group-hover:block transition-all">✕</button>
+        <div class="flex justify-between"><span class="text-slate-500">Fecha:</span><span class="font-bold text-slate-900">${esc(hoy())}</span></div>
+        <div class="flex justify-between mt-1"><span class="text-slate-500">Banco:</span><span class="font-bold text-slate-900">${esc(banco)}</span></div>
+        <div class="flex justify-between mt-1"><span class="text-slate-500">Referencia:</span><span class="font-bold text-slate-900">${esc(refNum)}</span></div>
+        <div class="flex justify-between mt-1"><span class="text-slate-500">Monto Recibido:</span><span class="font-bold text-slate-900">${fm(disponible)}</span></div>
+        <div class="mt-2 flex items-center justify-between border-t border-slate-200 pt-2">
+          <span class="font-black text-slate-900">Monto a Aplicar:</span>
+          <div class="flex items-center gap-1">
+            <span class="font-bold text-slate-900">L</span>
+            <input type="number" step="0.01" max="${disponible}" value="0.00" class="text-[14px] text-right bg-white border border-slate-200 rounded px-1 w-24 font-bold outline-none focus:border-black dep-monto-input" oninput="devCalc()">
+          </div>
         </div>
       `;
-      container.appendChild(row);
+      container.appendChild(card);
       closeBoletaModal();
-      const input = row.querySelector('input');
+      const input = card.querySelector('input');
       input.focus();
       input.select();
     }
@@ -1584,10 +1710,11 @@
         const inputsAplicados = document.querySelectorAll('.dep-monto-input');
         let totalValidado = 0;
         inputsAplicados.forEach(input => { totalValidado += parseFloat(input.value) || 0; });
-        document.getElementById('de-total-validado').innerText = totalValidado.toFixed(2);
-        const diferencia = totalValidado - esperado;
+        const totInp = document.getElementById('de-total-validado-input');
+        if (totInp) totInp.value = fm(totalValidado);
+        const diferencia = r2(totalValidado - esperado);
         const difInput = document.getElementById('de-dif');
-        difInput.value = diferencia.toFixed(2);
+        difInput.value = fm(diferencia);
         if (diferencia < 0) difInput.classList.add('text-red-600'); else difInput.classList.remove('text-red-600');
         const asigPanel = document.getElementById('de-asig');
         if (Math.abs(diferencia) > 0.01) asigPanel.classList.remove('hidden'); else asigPanel.classList.add('hidden');
@@ -1599,14 +1726,26 @@
       if (!it) return;
       if (CXD.modo === 'pos') { $('dp-lote').value = it.id + ' · ' + it.ref; $('dp-bruto').value = fm(it.monto); $('dp-com').value = it.comision || 0; $('dp-tas').value = 0; }
       if (CXD.modo === 'efe') {
+        const cajero = (D.cajas[0] && D.cajas[0].cajero) || 'Ana Flores';
+        const dias = Math.max(0, diasEntre(it.fecha || hoy(), hoy()));
         $('de-cierre').value = it.monto.toFixed(2);
+        if ($('de-esperado-lbl')) $('de-esperado-lbl').textContent = fm(it.monto);
+        if ($('de-res-esp')) $('de-res-esp').value = fm(it.monto);
+        if ($('de-fecha')) $('de-fecha').textContent = it.fecha || hoy();
+        if ($('de-cajero-lbl')) $('de-cajero-lbl').textContent = cajero;
+        if ($('de-tiempo')) $('de-tiempo').value = dias + (dias === 1 ? ' día' : ' días');
         $('de-depositos-list').innerHTML = '';
-        $('de-total-validado').innerText = '0.00';
-        $('de-dif').value = (-it.monto).toFixed(2);
+        if ($('de-total-validado-input')) $('de-total-validado-input').value = fm(0);
+        $('de-dif').value = fm(-it.monto);
         let r = Math.round(it.monto), h = '';
-        [500, 200, 100, 50, 20, 10, 5, 1].forEach(d => { const n = Math.floor(r / d); if (n) { h += `<div>${n} × L. ${d}</div>`; r -= n * d; } });
-        $('de-desglose').innerHTML = h || '—';
-        $('de-cajero').innerHTML = D.cajas.map(c => `<option>${esc(c.cajero)}</option>`).join('');
+        [500, 200, 100, 50, 20, 10, 5, 1].forEach(d => {
+          const n = Math.floor(r / d);
+          r -= n * d;
+          const mut = n ? '' : ' text-slate-300', mutB = n ? ' text-slate-600' : ' text-slate-400';
+          h += `<tr class="hover:bg-slate-50"><td class="p-1.5 text-center font-bold${mut}">${n}</td><td class="p-1.5 text-center${mutB}">L ${d.toFixed(2)}</td><td class="p-1.5 text-right font-bold pr-2${mut}">${fm(n * d)}</td></tr>`;
+        });
+        $('de-desglose').innerHTML = h;
+        $('de-cajero').innerHTML = D.cajas.map(c => `<option>${esc(c.cajero)} (Cajero en turno)</option>`).join('') + '<option>Cuenta Contable (Pérdida asumida)</option>';
       }
       if (CXD.modo === 'tra') { $('dt-ref').value = it.ref; $('dt-monto').value = fm(it.monto); $('dt-fecha').value = it.fecha; }
     }
