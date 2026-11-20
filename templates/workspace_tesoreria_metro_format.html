@@ -297,7 +297,33 @@
           </div>
           <div id="dev-lista" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2"></div>
         </aside>
-        <section id="dev-calc" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0 h-full"></section>
+        <section id="dev-calc" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0 h-full text-[12px]">
+        <div id="dev-m-pos" class="flex flex-col gap-3">
+          <div class="font-black text-slate-900">Liquidación de Lote POS</div>
+          <div class="grid grid-cols-2 gap-3"><div><label class="fld-label">Código de Autorización / Lote</label><input id="dp-lote" class="fld text-[12px] bg-slate-50" readonly></div><div><label class="fld-label">Monto Bruto POS (Cierre Cajero)</label><input id="dp-bruto" class="fld text-[12px] bg-slate-50" readonly></div></div>
+          <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">Deducciones</div><div class="grid grid-cols-3 gap-3 items-end"><div><label class="fld-label">(-) Comisión Adquirente</label><input id="dp-com" type="number" step="0.01" value="0" oninput="devCalc()" class="fld text-[12px]"></div><div><label class="fld-label">(-) Tasa de Seguridad</label><input id="dp-tas" type="number" step="0.01" value="0" oninput="devCalc()" class="fld text-[12px]"></div><div><div class="text-slate-500">Neto a depositar en Banco</div><div id="dp-neto" class="font-black">L. 0.00</div></div></div></div>
+          <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">Facturas asociadas al Código de Autorización</div><input id="dp-bq" oninput="devBuscar('dp',this.value)" placeholder="Buscar factura o cliente…" class="fld text-[12px] mb-2"><div id="dp-cand"></div>
+        <table class="w-full"><thead><tr class="bg-black text-white text-center text-[12px]"><th class="p-2">Factura</th><th class="p-2">Cliente</th><th class="p-2">Monto</th><th class="p-2">Acciones</th></tr></thead><tbody id="dp-lista"></tbody></table></div>
+          <button onclick="devLiquidar('pos')" class="w-full py-2 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Liquidar POS contra Banco</button>
+        </div>
+        <div id="dev-m-efe" class="hidden flex flex-col gap-3">
+          <div class="font-black text-slate-900">Conciliación de Depósito en Efectivo</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">A. Esperado</div><label class="fld-label">Monto Cierre de Caja</label><input id="de-cierre" class="fld text-[12px] bg-slate-50" readonly><div class="text-slate-500 mt-2">Desglose de Denominaciones esperado</div><div id="de-desglose" class="mt-1"></div></div>
+            <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">B. Realidad</div><label class="fld-label">Monto Depósito Bancario Confirmado</label><input id="de-dep" type="number" step="0.01" oninput="devCalc()" class="fld text-[12px]"></div>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">Descuadre</div><div class="grid grid-cols-2 gap-3 items-end"><div><label class="fld-label">Diferencia (Depósito − Cierre)</label><input id="de-dif" class="fld text-[12px] bg-slate-50" readonly></div><div id="de-asig" class="hidden"><label class="fld-label">Asignar Faltante/Sobrante a:</label><select id="de-cajero" class="fld text-[12px]"></select></div></div></div>
+          <button onclick="devLiquidar('efe')" class="w-full py-2 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Conciliar Depósito Exacto</button>
+        </div>
+        <div id="dev-m-tra" class="hidden flex flex-col gap-3">
+          <div class="font-black text-slate-900">Validación de Transferencia</div>
+          <div class="grid grid-cols-3 gap-3"><div><label class="fld-label">Referencia de Transferencia (correo)</label><input id="dt-ref" class="fld text-[12px] bg-slate-50" readonly></div><div><label class="fld-label">Monto Recibido</label><input id="dt-monto" class="fld text-[12px] bg-slate-50" readonly></div><div><label class="fld-label">Fecha</label><input id="dt-fecha" class="fld text-[12px] bg-slate-50" readonly></div></div>
+          <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">Vinculación de 1 o 2 facturas (deben sumar el Monto Recibido)</div><input id="dt-bq" oninput="devBuscar('dt',this.value)" placeholder="Buscar factura o cliente…" class="fld text-[12px] mb-2"><div id="dt-cand"></div>
+        <table class="w-full"><thead><tr class="bg-black text-white text-center text-[12px]"><th class="p-2">Factura</th><th class="p-2">Cliente</th><th class="p-2">Monto</th><th class="p-2">Acciones</th></tr></thead><tbody id="dt-lista"></tbody></table><div class="mt-2 text-slate-500">Suma vinculada: <b id="dt-suma" class="text-slate-900">L. 0.00</b></div></div>
+          <div class="border border-slate-200 rounded-xl p-3 flex flex-col gap-1"><label><input type="radio" name="dt-val" value="correo" checked> Validado por Correo Bancario</label><label><input type="radio" name="dt-val" value="manual"> Validación Manual de Contingencia (Forzada)</label></div>
+          <button onclick="devLiquidar('tra')" class="w-full py-2 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Aplicar Transferencia a Factura(s)</button>
+        </div>
+      </section>
       </div>
     </div>
   </div>
@@ -1367,7 +1393,7 @@
       const fs = D.fcxc.filter(f => f.cliId === cid && f.estado !== 'COBRADA');
       return { saldo: r2(fs.reduce((s, f) => s + f.monto, 0)), aging: agingDias(fs.map(f => f.vence)), n: fs.length };
     }
-    const CXD = { origen: 'Todos', sel: '', bruto: 0, filas: [], bq: '' };
+    const CXD = { origen: 'Todos', sel: '', bruto: 0, filas: [], bq: '', modo: 'pos', filled: null };
     function cxcSetTab(t) { CXC.tab = t; CXC.sel = ''; CXD.sel = ''; CXD.filas = []; renderCxC(); }
     function nombreCli(id) { const c = D.cli.find(x => x.id === id); return c ? c.nombre : id; }
     function cxcAgingTxt(d) { return d === null ? 'Sin saldo' : d <= 0 ? 'Al día' : d <= 30 ? '30 días' : d <= 60 ? '60 días' : '+90 días'; }
@@ -1402,53 +1428,90 @@
       const ecs = (o === 'Todos' || o === 'ECs en Proceso') ? D.ecs.filter(e => e.estado === 'ENVIADO').map(e => ({ id: e.id, tipo: 'Estado de Cuenta', ref: e.id, monto: e.total || e.monto || 0, fecha: e.fecha || '', cuentaId: '', comision: 0 })) : [];
       return pos.concat(ecs);
     }
-    function devSel(id) { const it = devItems().find(x => x.id === id); CXD.sel = id; CXD.filas = []; CXD.bq = ''; CXD.bruto = it ? it.monto : 0; renderDevengos(); }
+    function devSel(id) { const it = devItems().find(x => x.id === id); CXD.sel = id; renderDevengos(); }
     function devOrigen(v) { CXD.origen = v; CXD.sel = ''; renderDevengos(); }
-    function devAgregar(fid) { const f = D.fcxc.find(x => x.id === fid); if (!f || CXD.filas.some(x => x.id === fid)) return; CXD.filas.push({ id: f.id, num: f.numero, cli: nombreCli(f.cliId), monto: f.monto }); CXD.bq = ''; renderDevengos(); }
-    function devQuitar(fid) { CXD.filas = CXD.filas.filter(x => x.id !== fid); renderDevengos(); }
-    function devMonto(fid, v) { const r = CXD.filas.find(x => x.id === fid); if (r) r.monto = r2(parseFloat(v) || 0); devCalc(); }
+    function devModo(it) { return !it ? 'pos' : it.tipo === 'Lote Visa/MC' ? 'pos' : it.tipo === 'Depósito Efectivo' ? 'efe' : 'tra'; }
+    function devAgregar(fid) {
+      const f = D.fcxc.find(x => x.id === fid); if (!f || CXD.filas.some(x => x.id === fid)) return;
+      if (CXD.modo === 'tra' && CXD.filas.length >= 2) return toast('Máximo 2 facturas.');
+      CXD.filas.push({ id: f.id, num: f.numero, cli: nombreCli(f.cliId), monto: f.monto }); devListas();
+    }
+    function devQuitar(fid) { CXD.filas = CXD.filas.filter(x => x.id !== fid); devListas(); }
+    function devBuscar(p, v) { CXD.bq = v; devListas(); }
+    function devListas() {
+      ['dp', 'dt'].forEach(p => {
+        const q = (CXD.bq || '').toLowerCase(), c = $(p + '-cand'); if (!c) return;
+        const cand = q ? D.fcxc.filter(f => f.estado !== 'COBRADA' && !CXD.filas.some(x => x.id === f.id) && (f.numero + nombreCli(f.cliId)).toLowerCase().includes(q)).slice(0, 6) : [];
+        c.innerHTML = cand.length ? `<div class="border border-slate-200 rounded-lg mb-2 divide-y">${cand.map(f => `<div onclick="devAgregar('${f.id}')" class="p-2 cursor-pointer hover:bg-slate-50 flex justify-between"><span>${esc(f.numero)} · ${esc(nombreCli(f.cliId))}</span><b>${fm(f.monto)}</b></div>`).join('')}</div>` : '';
+        $(p + '-lista').innerHTML = CXD.filas.map(x => `<tr class="border-b border-slate-100"><td class="p-2 text-center">${esc(x.num)}</td><td class="p-2">${esc(x.cli)}</td><td class="p-2 text-right">${fm(x.monto)}</td><td class="p-2 text-center"><button onclick="devQuitar('${x.id}')" class="underline">Eliminar</button></td></tr>`).join('') || '<tr><td colspan="4" class="p-3 text-center text-slate-400">Sin facturas vinculadas.</td></tr>';
+      });
+      if ($('dt-suma')) $('dt-suma').textContent = fm(r2(CXD.filas.reduce((s, x) => s + x.monto, 0)));
+    }
     function devCalc() {
-      const com = num($('dev-com') ? $('dev-com').value : 0), tas = num($('dev-tas') ? $('dev-tas').value : 0);
-      const ap = r2(CXD.filas.reduce((s, x) => s + x.monto, 0));
-      if ($('dev-neto')) $('dev-neto').textContent = fm(r2(CXD.bruto - com - tas));
-      if ($('dev-saldo')) $('dev-saldo').textContent = fm(r2(CXD.bruto - ap));
-      if ($('dev-ap')) $('dev-ap').textContent = fm(ap);
+      const it = devItems().find(x => x.id === CXD.sel); if (!it) return;
+      if (CXD.modo === 'pos') $('dp-neto').textContent = fm(r2(it.monto - num(val('dp-com')) - num(val('dp-tas'))));
+      if (CXD.modo === 'efe') {
+        const dep = $('de-dep').value === '' ? null : num(val('de-dep')), dif = dep === null ? 0 : r2(dep - it.monto);
+        $('de-dif').value = dep === null ? '' : fm(dif);
+        $('de-asig').classList.toggle('hidden', Math.abs(dif) < 0.01);
+      }
+    }
+    function devFill(it) {
+      CXD.modo = devModo(it); CXD.filas = []; CXD.bq = '';
+      ['dp-bq', 'dt-bq'].forEach(i => { if ($(i)) $(i).value = ''; });
+      if (!it) return;
+      if (CXD.modo === 'pos') { $('dp-lote').value = it.id + ' · ' + it.ref; $('dp-bruto').value = fm(it.monto); $('dp-com').value = it.comision || 0; $('dp-tas').value = 0; }
+      if (CXD.modo === 'efe') {
+        $('de-cierre').value = fm(it.monto); $('de-dep').value = ''; $('de-dif').value = '';
+        let r = Math.round(it.monto), h = '';
+        [500, 200, 100, 50, 20, 10, 5, 1].forEach(d => { const n = Math.floor(r / d); if (n) { h += `<div>${n} × L. ${d}</div>`; r -= n * d; } });
+        $('de-desglose').innerHTML = h || '—';
+        $('de-cajero').innerHTML = D.cajas.map(c => `<option>${esc(c.cajero)}</option>`).join('');
+      }
+      if (CXD.modo === 'tra') { $('dt-ref').value = it.ref; $('dt-monto').value = fm(it.monto); $('dt-fecha').value = it.fecha; }
     }
     function renderDevengos() {
       $('dev-origen').value = CXD.origen;
       const items = devItems();
       $('dev-lista').innerHTML = items.map(i => `<div onclick="devSel('${i.id}')" class="p-2 rounded-lg border cursor-pointer text-[12px] ${CXD.sel === i.id ? 'border-black bg-slate-50' : 'border-slate-200 hover:border-slate-500'}"><div class="font-bold text-slate-900">${esc(i.tipo)}</div><div class="text-slate-600">Ref: ${esc(i.ref)}</div><div class="flex justify-between"><b>${fm(i.monto)}</b><span class="text-slate-500">${esc(i.fecha)}</span></div></div>`).join('') || '<div class="p-4 text-center text-[12px] text-slate-400">Sin valores en tránsito.</div>';
-      const it = items.find(x => x.id === CXD.sel), cont = $('dev-calc');
-      if (!it) { cont.innerHTML = '<div class="text-[12px] text-slate-400 text-center mt-10">Seleccione un valor en tránsito del panel izquierdo.</div>'; return; }
-      const cta = ctaBanco(it.cuentaId), box = 'border border-slate-200 rounded-xl p-3', dato = (l, v) => `<div><div class="text-slate-500">${l}</div><div class="font-bold">${esc(v || '—')}</div></div>`;
-      const bq = (CXD.bq || '').toLowerCase();
-      const cand = bq ? D.fcxc.filter(f => f.estado !== 'COBRADA' && !CXD.filas.some(x => x.id === f.id) && (f.numero + nombreCli(f.cliId)).toLowerCase().includes(bq)).slice(0, 6) : [];
-      cont.innerHTML = `<div class="flex flex-col gap-3 text-[12px]">
-        <div class="${box}"><div class="font-black mb-2">1. Detalle de Lote / Valor Recibido</div><div class="grid grid-cols-3 gap-3">${dato('Punto de emisión', 'POS Principal')}${dato('Cód. cierre de caja', it.id)}${dato('Banco', cta ? cta.nombre : 'Por definir')}${dato('Referencia', it.ref)}${dato('Código de Autorización', 'AUT-' + it.id.replace(/\D/g, ''))}${dato('Monto Bruto Total', fm(it.monto))}</div></div>
-        <div class="${box}"><div class="font-black mb-2">2. Deducciones Operativas</div><div class="grid grid-cols-3 gap-3 items-end"><div><label class="fld-label">(-) Comisión Bancaria</label><input id="dev-com" type="number" step="0.01" value="${it.comision}" oninput="devCalc()" class="fld text-[12px]"></div><div><label class="fld-label">(-) Tasa de Seguridad / Retenciones</label><input id="dev-tas" type="number" step="0.01" value="0" oninput="devCalc()" class="fld text-[12px]"></div><div><div class="text-slate-500">Monto Neto a Banco</div><div id="dev-neto" class="font-black">${fm(it.monto - it.comision)}</div></div></div></div>
-        <div class="${box}"><div class="font-black mb-2">3. Aplicación / Matcheo de Facturas</div><input id="dev-bq" value="${esc(CXD.bq || '')}" oninput="CXD.bq=this.value;renderDevengos();$('dev-bq').focus();" placeholder="Buscar factura o cliente…" class="fld text-[12px] mb-2">
-          ${cand.length ? `<div class="border border-slate-200 rounded-lg mb-2 divide-y">${cand.map(f => `<div onclick="devAgregar('${f.id}')" class="p-2 cursor-pointer hover:bg-slate-50 flex justify-between"><span>${esc(f.numero)} · ${esc(nombreCli(f.cliId))}</span><b>${fm(f.monto)}</b></div>`).join('')}</div>` : ''}
-          <table class="w-full"><thead><tr class="bg-black text-white text-center text-[12px]"><th class="p-2">Factura</th><th class="p-2">Cliente</th><th class="p-2">Monto a Aplicar</th><th class="p-2">Acciones</th></tr></thead><tbody>${CXD.filas.map(x => `<tr class="border-b border-slate-100"><td class="p-2 text-center">${esc(x.num)}</td><td class="p-2">${esc(x.cli)}</td><td class="p-2 text-right"><input type="number" step="0.01" value="${x.monto}" oninput="devMonto('${x.id}',this.value)" class="fld text-[12px] w-32 text-right"></td><td class="p-2 text-center"><button onclick="devQuitar('${x.id}')" class="underline">Eliminar</button></td></tr>`).join('') || '<tr><td colspan="4" class="p-3 text-center text-slate-400">Sin facturas aplicadas.</td></tr>'}</tbody></table></div>
-        <div class="${box}"><div class="grid grid-cols-3 gap-3 text-center"><div><div class="text-slate-500">Monto Bruto Total</div><b>${fm(it.monto)}</b></div><div><div class="text-slate-500">(−) Suma Facturas Aplicadas</div><b id="dev-ap">${fm(0)}</b></div><div><div class="text-slate-500">= Saldo por Aplicar</div><b id="dev-saldo">${fm(it.monto)}</b></div></div></div>
-        <button onclick="devLiquidar()" class="w-full py-2 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Liquidar y Conciliar Ingreso</button></div>`;
-      devCalc();
+      const it = items.find(x => x.id === CXD.sel);
+      if (CXD.filled !== CXD.sel) { devFill(it); CXD.filled = CXD.sel; }
+      ['pos', 'efe', 'tra'].forEach(m => $('dev-m-' + m).classList.toggle('hidden', m !== CXD.modo));
+      devListas(); devCalc();
     }
-    function devLiquidar() {
-      const p = D.pos.find(x => x.id === CXD.sel);
-      const com = num(val('dev-com')), tas = num(val('dev-tas')), ap = r2(CXD.filas.reduce((s, x) => s + x.monto, 0));
-      if (!CXD.filas.length) return toast('Agregue al menos una factura a aplicar.');
-      if (ap > CXD.bruto + 0.005) return toast('El monto aplicado excede el monto bruto.');
-      if (p) {
-        const cta = ctaBanco(p.cuentaId) || bancosLista()[0];
-        const neto = r2(p.monto - com - tas), parts = [{ codigo: cta.codigo, debe: neto }];
+    function devLiquidar(modo) {
+      const it = devItems().find(x => x.id === CXD.sel), p = D.pos.find(x => x.id === CXD.sel);
+      if (!it) return toast('Seleccione un valor en tránsito.');
+      if (modo !== devModo(it)) return toast('El valor seleccionado corresponde a otro motor.');
+      const cta = ctaBanco(it.cuentaId) || bancosLista()[0], cerrar = () => { sv(); CXD.sel = ''; CXD.filled = null; renderCxC(); };
+      const cobrar = () => CXD.filas.forEach(x => { const f = D.fcxc.find(y => y.id === x.id); if (f) f.estado = 'COBRADA'; });
+      if (modo === 'pos') {
+        const com = num(val('dp-com')), tas = num(val('dp-tas')), neto = r2(it.monto - com - tas);
+        if (neto < 0) return toast('Las deducciones exceden el monto bruto.');
+        const parts = [{ codigo: cta.codigo, debe: neto }];
         if (com + tas > 0) parts.push({ codigo: '5.2.02.01', debe: r2(com + tas) });
-        parts.push({ codigo: '1.1.02.02', haber: p.monto });
-        pushAsiento('TESORERÍA', p.id, 'Liquidación y conciliación de ingreso ' + p.id, parts);
-        p.estado = 'CONCILIADO'; p.comision = r2(com + tas); p.neto = neto;
+        parts.push({ codigo: '1.1.02.02', haber: it.monto });
+        pushAsiento('TESORERÍA', it.id, 'Liquidación POS ' + it.id, parts);
+        if (p) { p.estado = 'CONCILIADO'; p.comision = r2(com + tas); p.neto = neto; }
+        cobrar(); toast('Lote POS liquidado contra banco.'); return cerrar();
       }
-      CXD.filas.forEach(x => { const f = D.fcxc.find(y => y.id === x.id); if (f) f.estado = 'COBRADA'; });
-      sv(); toast('Ingreso liquidado y conciliado.');
-      CXD.sel = ''; CXD.filas = []; renderCxC();
+      if (modo === 'efe') {
+        if ($('de-dep').value === '') return toast('Ingrese el depósito bancario confirmado.');
+        const dep = num(val('de-dep')), dif = r2(dep - it.monto), m = Math.abs(dif);
+        const parts = [{ codigo: cta.codigo, debe: dep }];
+        if (m >= 0.01) { if (dif < 0) parts.push({ codigo: '1.1.02.05', debe: m }); else parts.push({ codigo: '4.2.01.01', haber: m }); }
+        parts.push({ codigo: '1.1.01.05', haber: dif < 0 ? it.monto : it.monto });
+        if (m >= 0.01 && dif > 0) parts[parts.length - 1].haber = it.monto;
+        pushAsiento('TESORERÍA', it.id, 'Depósito de efectivo ' + it.id + (m >= 0.01 ? ' (' + (dif < 0 ? 'faltante' : 'sobrante') + ' ' + fm(m) + ' — ' + val('de-cajero') + ')' : ''), parts);
+        if (p) { p.estado = 'CONCILIADO'; p.neto = dep; }
+        toast('Depósito conciliado.'); return cerrar();
+      }
+      const suma = r2(CXD.filas.reduce((s, x) => s + x.monto, 0)), forzada = document.querySelector('input[name="dt-val"]:checked').value === 'manual';
+      if (!CXD.filas.length) return toast('Vincule 1 o 2 facturas.');
+      if (Math.abs(suma - it.monto) >= 0.01) return toast('Las facturas deben sumar exactamente ' + fm(it.monto) + '.');
+      pushAsiento('TESORERÍA', it.id, 'Transferencia ' + it.ref + (forzada ? ' (validación manual de contingencia)' : ''), [{ codigo: cta.codigo, debe: it.monto }, { codigo: '1.1.02.02', haber: it.monto }]);
+      if (p) { p.estado = 'CONCILIADO'; p.neto = it.monto; }
+      cobrar(); toast('Transferencia aplicada.'); cerrar();
     }
 
     // ---- Clientes & ECs ----
