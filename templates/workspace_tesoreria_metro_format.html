@@ -266,22 +266,39 @@
       </div>
       <div id="cxc-kpis" class="flex flex-wrap gap-2"></div>
     </div>
-    <div class="w-full grid grid-cols-1 lg:grid-cols-[32%_1fr] gap-2 flex-1 min-h-0">
-      <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
-        <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
-          <div class="grid grid-cols-3 gap-1 bg-slate-100 rounded-full p-1">
-            <button id="cxc-tab-cli" onclick="cxcSetTab('cli')" class="rounded-full text-[10px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Clientes & ECs</button>
-            <button id="cxc-tab-pos" onclick="cxcSetTab('pos')" class="rounded-full text-[10px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Ingresos POS</button>
-            <button id="cxc-tab-pis" onclick="cxcSetTab('pis')" class="rounded-full text-[10px] font-bold uppercase tracking-wider py-1.5 cursor-pointer">Piscina & Anticipos</button>
+    <div class="w-full flex-1 min-h-0 flex flex-col gap-2">
+      <div class="grid grid-cols-2 gap-1 bg-slate-100 rounded-full p-1 w-[360px] shrink-0">
+        <button id="cxc-tab-cli" onclick="cxcSetTab('cli')" class="rounded-full text-[12px] font-bold py-1.5 cursor-pointer">1. Clientes</button>
+        <button id="cxc-tab-dev" onclick="cxcSetTab('dev')" class="rounded-full text-[12px] font-bold py-1.5 cursor-pointer">2. Devengos</button>
+      </div>
+      <div id="cxc-pane-cli" class="w-full grid grid-cols-1 lg:grid-cols-[25%_1fr] gap-2 flex-1 min-h-0 text-[12px]">
+        <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+          <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
+            <div class="font-black text-slate-900">Filtros</div>
+            <input id="cxc-q" placeholder="Nombre o RTN…" class="fld text-[12px]">
+            <select id="cxc-fe" class="fld text-[12px]"><option>Todos</option><option>Activo</option><option>Bloqueado</option></select>
+            <select id="cxc-fa" class="fld text-[12px]"><option>Todos</option><option>Al día</option><option>30 días</option><option>60 días</option><option>+90 días</option></select>
+            <button onclick="renderCxCList()" class="w-full py-1.5 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Aplicar Filtros</button>
           </div>
-          <div class="flex gap-2">
-            <input id="cxc-q" oninput="renderCxCList()" placeholder="Buscar…" class="fld flex-1">
-            <select id="cxc-f" onchange="renderCxCList()" class="fld w-36"></select>
+          <div id="cxc-lista" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
+        </aside>
+        <section class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0 h-full">
+          <h3 class="text-[12px] font-black text-slate-900 mb-2">Cartera de Clientes</h3>
+          <div id="cxc-sub" class="grid grid-cols-2 gap-x-6 gap-y-1 justify-items-start text-left mb-3 text-[12px]"></div>
+          <table class="w-full text-[12px]"><thead><tr class="bg-black text-white text-center text-[12px]"><th class="p-2">Fecha</th><th class="p-2">Documento</th><th class="p-2">Vencimiento</th><th class="p-2">Saldo</th><th class="p-2">Estado</th></tr></thead><tbody id="cxc-tbody"></tbody></table>
+        </section>
+      </div>
+      <div id="cxc-pane-dev" class="hidden w-full grid grid-cols-1 lg:grid-cols-[30%_1fr] gap-2 flex-1 min-h-0 text-[12px]">
+        <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
+          <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
+            <div class="font-black text-slate-900">Valores en Tránsito</div>
+            <label class="fld-label">Origen de Fondo</label>
+            <select id="dev-origen" onchange="devOrigen(this.value)" class="fld text-[12px]"><option>Todos</option><option>POS Tarjetas</option><option>Depósito Efectivo</option><option>Transferencia</option><option>ECs en Proceso</option></select>
           </div>
-        </div>
-        <div id="cxc-lista" class="flex-1 overflow-y-auto divide-y divide-slate-100"></div>
-      </aside>
-      <section id="cxc-detalle" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0 h-full"></section>
+          <div id="dev-lista" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2"></div>
+        </aside>
+        <section id="dev-calc" class="bg-white border border-slate-200 rounded-3xl overflow-y-auto p-5 min-h-0 h-full"></section>
+      </div>
     </div>
   </div>
 
@@ -1350,46 +1367,88 @@
       const fs = D.fcxc.filter(f => f.cliId === cid && f.estado !== 'COBRADA');
       return { saldo: r2(fs.reduce((s, f) => s + f.monto, 0)), aging: agingDias(fs.map(f => f.vence)), n: fs.length };
     }
-    function cxcSetTab(t) { CXC.tab = t; CXC.sel = ''; CXC.ecEdit = ''; $('cxc-q').value = ''; renderCxC(); }
+    const CXD = { origen: 'Todos', sel: '', bruto: 0, filas: [], bq: '' };
+    function cxcSetTab(t) { CXC.tab = t; CXC.sel = ''; CXD.sel = ''; CXD.filas = []; renderCxC(); }
     function nombreCli(id) { const c = D.cli.find(x => x.id === id); return c ? c.nombre : id; }
+    function cxcAgingTxt(d) { return d === null ? 'Sin saldo' : d <= 0 ? 'Al día' : d <= 30 ? '30 días' : d <= 60 ? '60 días' : '+90 días'; }
+    function cxcEstadoCli(c) { return c.bloqueado || c.estado === 'Bloqueado' ? 'Bloqueado' : 'Activo'; }
     function renderCxC() {
       const act = 'bg-black text-white', ina = 'text-slate-600 hover:text-slate-900';
-      ['cli', 'pos', 'pis'].forEach(t => { $('cxc-tab-' + t).className = 'rounded-full text-[10px] font-bold uppercase tracking-wider py-1.5 cursor-pointer ' + (CXC.tab === t ? act : ina); });
-      const opts = CXC.tab === 'cli' ? ['Todos', 'Corriente', '1-30d', '31-60d', '+60d'] : CXC.tab === 'pos' ? ['Todos', 'EN TRÁNSITO', 'PENDIENTE T+1', 'POR CONCILIAR', 'LIQUIDACIÓN POR VALIDAR', 'CONCILIADO'] : ['Todos', 'SIN SUSTENTAR', 'RESUELTO'];
-      const f = $('cxc-f'); const prev = f.value;
-      f.innerHTML = opts.map(o => `<option value="${esc(o)}" ${o === prev ? 'selected' : ''}>${esc(o)}</option>`).join('');
+      ['cli', 'dev'].forEach(t => { $('cxc-tab-' + t).className = 'rounded-full text-[12px] font-bold py-1.5 cursor-pointer ' + (CXC.tab === t ? act : ina); });
+      $('cxc-pane-cli').classList.toggle('hidden', CXC.tab !== 'cli');
+      $('cxc-pane-dev').classList.toggle('hidden', CXC.tab !== 'dev');
       const cxc = D.fcxc.filter(x => x.estado !== 'COBRADA').reduce((s, x) => s + x.monto, 0);
       const transito = D.pos.filter(p => p.estado !== 'CONCILIADO').reduce((s, p) => s + p.monto, 0);
-      const pis = D.pis.filter(p => p.estado === 'SIN SUSTENTAR').reduce((s, p) => s + p.monto, 0);
-      const ant = D.ant.reduce((s, a) => s + a.monto, 0);
-      $('cxc-kpis').innerHTML = [['Por cobrar', fm(cxc)], ['Ingresos por conciliar', fm(transito)], ['Piscina sin sustentar', fm(pis)], ['Anticipos (pasivo)', fm(ant)]]
-        .map(k => `<div class="px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200"><div class="text-[9px] uppercase tracking-wider font-bold text-slate-400">${k[0]}</div><div class="text-sm font-black font-mono text-slate-900">${k[1]}</div></div>`).join('');
-      renderCxCList(); renderCxCDetalle();
+      $('cxc-kpis').innerHTML = [['Por cobrar', fm(cxc)], ['Valores en tránsito', fm(transito)]]
+        .map(k => `<div class="px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200"><div class="text-[12px] text-slate-500">${k[0]}</div><div class="text-[12px] font-black text-slate-900">${k[1]}</div></div>`).join('');
+      if (CXC.tab === 'cli') renderCxCList(); else renderDevengos();
     }
-    function cxcSel(id) { CXC.sel = id; CXC.ecEdit = ''; renderCxCList(); renderCxCDetalle(); }
+    function cxcSel(id) { CXC.sel = id; renderCxCList(); }
     function renderCxCList() {
-      const q = val('cxc-q').toLowerCase(), f = $('cxc-f').value || 'Todos', cont = $('cxc-lista'); let html = '';
-      if (CXC.tab === 'cli') {
-        html = D.cli.filter(c => (!q || (c.nombre + c.rtn).toLowerCase().includes(q)) && (f === 'Todos' || agingKey(cliSaldoInfo(c.id).aging) === f)).map(c => {
-          const i = cliSaldoInfo(c.id), ecs = D.ecs.filter(e => e.cliId === c.id).map(e => e.id).join(', ');
-          return `<div onclick="cxcSel('${c.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXC.sel === c.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold text-slate-900 truncate">${esc(c.nombre)}</span>${agingBadge(i.aging)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${ecs ? esc(ecs) : 'Sin EC'}</span><span class="font-mono font-bold text-slate-800">${fm(i.saldo)}</span></div></div>`; }).join('');
-      } else if (CXC.tab === 'pos') {
-        html = D.pos.filter(p => (!q || (p.id + p.desc + p.tipo).toLowerCase().includes(q)) && (f === 'Todos' || p.estado === f)).map(p =>
-          `<div onclick="cxcSel('${p.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXC.sel === p.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold font-mono text-slate-900">${esc(p.id)} · ${esc(p.tipo)}</span>${estadoBadge(p.estado)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(p.fecha)} · ${esc(p.desc)}</span><span class="font-mono font-bold text-slate-800">${fm(p.monto)}</span></div></div>`).join('');
-      } else {
-        const its = D.pis.filter(p => (!q || (p.id + p.desc + p.ref).toLowerCase().includes(q)) && (f === 'Todos' || p.estado === f)).map(p =>
-          `<div onclick="cxcSel('${p.id}')" class="px-4 py-3 cursor-pointer hover:bg-slate-50 ${CXC.sel === p.id ? 'bg-slate-100' : ''}"><div class="flex justify-between gap-2"><span class="text-xs font-bold font-mono text-slate-900">${esc(p.id)}</span>${estadoBadge(p.estado)}</div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(p.fecha)} · ${esc(p.desc)}</span><span class="font-mono font-bold text-slate-800">${fm(p.monto)}</span></div></div>`).join('');
-        const ants = f === 'Todos' ? D.ant.filter(a => !q || (a.id + nombreCli(a.cliId)).toLowerCase().includes(q)).map(a =>
-          `<div class="px-4 py-3 bg-slate-50/60"><div class="flex justify-between gap-2"><span class="text-xs font-bold font-mono text-slate-900">${esc(a.id)} · Anticipo</span><span class="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-violet-50 text-violet-700 border-violet-200">Pasivo diferido</span></div><div class="flex justify-between mt-1 text-[11px] text-slate-500"><span class="truncate">${esc(nombreCli(a.cliId))}</span><span class="font-mono font-bold text-slate-800">${fm(a.monto)}</span></div></div>`).join('') : '';
-        html = its + ants;
-      }
-      cont.innerHTML = html || '<div class="p-6 text-center text-xs text-slate-400">Sin resultados.</div>';
+      const q = val('cxc-q').toLowerCase(), fe = val('cxc-fe') || 'Todos', fm_ = val('cxc-fa') || 'Todos';
+      const lista = D.cli.filter(c => (!q || (c.nombre + c.rtn).toLowerCase().includes(q)) && (fe === 'Todos' || cxcEstadoCli(c) === fe) && (fm_ === 'Todos' || cxcAgingTxt(cliSaldoInfo(c.id).aging) === fm_));
+      $('cxc-lista').innerHTML = lista.map(c => `<div onclick="cxcSel('${c.id}')" class="px-3 py-2 cursor-pointer hover:bg-slate-50 text-[12px] ${CXC.sel === c.id ? 'bg-slate-100' : ''}"><div class="font-bold text-slate-900 truncate">${esc(c.nombre)}</div><div class="flex justify-between text-slate-500"><span>${esc(c.rtn || '')}</span><span>${fm(cliSaldoInfo(c.id).saldo)}</span></div></div>`).join('') || '<div class="p-4 text-center text-[12px] text-slate-400">Sin resultados.</div>';
+      const c = D.cli.find(x => x.id === CXC.sel);
+      const dato = (l, v) => `<div><span class="text-slate-500">${l}:</span> <b>${esc(v || '—')}</b></div>`;
+      $('cxc-sub').innerHTML = c ? dato('RTN', c.rtn) + dato('Razón Social', c.nombre) + dato('Correo', c.email) + dato('Teléfono', c.telefono) : '<div class="col-span-2 text-slate-400">Seleccione un cliente.</div>';
+      const fs = c ? D.fcxc.filter(f => f.cliId === c.id) : [];
+      $('cxc-tbody').innerHTML = fs.map(f => `<tr class="border-b border-slate-100"><td class="p-2 text-center">${esc(f.fecha)}</td><td class="p-2 text-center">${esc(f.numero)}</td><td class="p-2 text-center">${esc(f.vence)}</td><td class="p-2 text-right">${fm(f.monto)}</td><td class="p-2 text-center">${f.estado === 'COBRADA' ? 'Cobrada' : f.vence < hoy() ? 'Vencida' : 'Vigente'}</td></tr>`).join('') || `<tr><td colspan="5" class="p-4 text-center text-slate-400">${c ? 'Sin documentos.' : 'Sin cliente seleccionado.'}</td></tr>`;
     }
-    function renderCxCDetalle() {
-      const c = $('cxc-detalle');
-      if (CXC.tab === 'cli') return renderCliDetalle(c);
-      if (CXC.tab === 'pos') return renderPosDetalle(c);
-      return renderPisDetalle(c);
+    // ---- Devengos ----
+    function devItems() {
+      const o = CXD.origen;
+      const pos = D.pos.filter(p => p.estado !== 'CONCILIADO' && (o === 'Todos' || (o === 'POS Tarjetas' && p.tipo === 'TARJETA') || (o === 'Depósito Efectivo' && p.tipo === 'EFECTIVO') || (o === 'Transferencia' && p.tipo === 'TRANSFERENCIA')))
+        .map(p => ({ id: p.id, tipo: p.tipo === 'TARJETA' ? 'Lote Visa/MC' : p.tipo === 'EFECTIVO' ? 'Depósito Efectivo' : 'Transferencia', ref: p.ref || p.desc || p.id, monto: p.monto, fecha: p.fecha, cuentaId: p.cuentaId, comision: p.comision || 0 }));
+      const ecs = (o === 'Todos' || o === 'ECs en Proceso') ? D.ecs.filter(e => e.estado === 'ENVIADO').map(e => ({ id: e.id, tipo: 'Estado de Cuenta', ref: e.id, monto: e.total || e.monto || 0, fecha: e.fecha || '', cuentaId: '', comision: 0 })) : [];
+      return pos.concat(ecs);
+    }
+    function devSel(id) { const it = devItems().find(x => x.id === id); CXD.sel = id; CXD.filas = []; CXD.bq = ''; CXD.bruto = it ? it.monto : 0; renderDevengos(); }
+    function devOrigen(v) { CXD.origen = v; CXD.sel = ''; renderDevengos(); }
+    function devAgregar(fid) { const f = D.fcxc.find(x => x.id === fid); if (!f || CXD.filas.some(x => x.id === fid)) return; CXD.filas.push({ id: f.id, num: f.numero, cli: nombreCli(f.cliId), monto: f.monto }); CXD.bq = ''; renderDevengos(); }
+    function devQuitar(fid) { CXD.filas = CXD.filas.filter(x => x.id !== fid); renderDevengos(); }
+    function devMonto(fid, v) { const r = CXD.filas.find(x => x.id === fid); if (r) r.monto = r2(parseFloat(v) || 0); devCalc(); }
+    function devCalc() {
+      const com = num($('dev-com') ? $('dev-com').value : 0), tas = num($('dev-tas') ? $('dev-tas').value : 0);
+      const ap = r2(CXD.filas.reduce((s, x) => s + x.monto, 0));
+      if ($('dev-neto')) $('dev-neto').textContent = fm(r2(CXD.bruto - com - tas));
+      if ($('dev-saldo')) $('dev-saldo').textContent = fm(r2(CXD.bruto - ap));
+      if ($('dev-ap')) $('dev-ap').textContent = fm(ap);
+    }
+    function renderDevengos() {
+      $('dev-origen').value = CXD.origen;
+      const items = devItems();
+      $('dev-lista').innerHTML = items.map(i => `<div onclick="devSel('${i.id}')" class="p-2 rounded-lg border cursor-pointer text-[12px] ${CXD.sel === i.id ? 'border-black bg-slate-50' : 'border-slate-200 hover:border-slate-500'}"><div class="font-bold text-slate-900">${esc(i.tipo)}</div><div class="text-slate-600">Ref: ${esc(i.ref)}</div><div class="flex justify-between"><b>${fm(i.monto)}</b><span class="text-slate-500">${esc(i.fecha)}</span></div></div>`).join('') || '<div class="p-4 text-center text-[12px] text-slate-400">Sin valores en tránsito.</div>';
+      const it = items.find(x => x.id === CXD.sel), cont = $('dev-calc');
+      if (!it) { cont.innerHTML = '<div class="text-[12px] text-slate-400 text-center mt-10">Seleccione un valor en tránsito del panel izquierdo.</div>'; return; }
+      const cta = ctaBanco(it.cuentaId), box = 'border border-slate-200 rounded-xl p-3', dato = (l, v) => `<div><div class="text-slate-500">${l}</div><div class="font-bold">${esc(v || '—')}</div></div>`;
+      const bq = (CXD.bq || '').toLowerCase();
+      const cand = bq ? D.fcxc.filter(f => f.estado !== 'COBRADA' && !CXD.filas.some(x => x.id === f.id) && (f.numero + nombreCli(f.cliId)).toLowerCase().includes(bq)).slice(0, 6) : [];
+      cont.innerHTML = `<div class="flex flex-col gap-3 text-[12px]">
+        <div class="${box}"><div class="font-black mb-2">1. Detalle de Lote / Valor Recibido</div><div class="grid grid-cols-3 gap-3">${dato('Punto de emisión', 'POS Principal')}${dato('Cód. cierre de caja', it.id)}${dato('Banco', cta ? cta.nombre : 'Por definir')}${dato('Referencia', it.ref)}${dato('Código de Autorización', 'AUT-' + it.id.replace(/\D/g, ''))}${dato('Monto Bruto Total', fm(it.monto))}</div></div>
+        <div class="${box}"><div class="font-black mb-2">2. Deducciones Operativas</div><div class="grid grid-cols-3 gap-3 items-end"><div><label class="fld-label">(-) Comisión Bancaria</label><input id="dev-com" type="number" step="0.01" value="${it.comision}" oninput="devCalc()" class="fld text-[12px]"></div><div><label class="fld-label">(-) Tasa de Seguridad / Retenciones</label><input id="dev-tas" type="number" step="0.01" value="0" oninput="devCalc()" class="fld text-[12px]"></div><div><div class="text-slate-500">Monto Neto a Banco</div><div id="dev-neto" class="font-black">${fm(it.monto - it.comision)}</div></div></div></div>
+        <div class="${box}"><div class="font-black mb-2">3. Aplicación / Matcheo de Facturas</div><input id="dev-bq" value="${esc(CXD.bq || '')}" oninput="CXD.bq=this.value;renderDevengos();$('dev-bq').focus();" placeholder="Buscar factura o cliente…" class="fld text-[12px] mb-2">
+          ${cand.length ? `<div class="border border-slate-200 rounded-lg mb-2 divide-y">${cand.map(f => `<div onclick="devAgregar('${f.id}')" class="p-2 cursor-pointer hover:bg-slate-50 flex justify-between"><span>${esc(f.numero)} · ${esc(nombreCli(f.cliId))}</span><b>${fm(f.monto)}</b></div>`).join('')}</div>` : ''}
+          <table class="w-full"><thead><tr class="bg-black text-white text-center text-[12px]"><th class="p-2">Factura</th><th class="p-2">Cliente</th><th class="p-2">Monto a Aplicar</th><th class="p-2">Acciones</th></tr></thead><tbody>${CXD.filas.map(x => `<tr class="border-b border-slate-100"><td class="p-2 text-center">${esc(x.num)}</td><td class="p-2">${esc(x.cli)}</td><td class="p-2 text-right"><input type="number" step="0.01" value="${x.monto}" oninput="devMonto('${x.id}',this.value)" class="fld text-[12px] w-32 text-right"></td><td class="p-2 text-center"><button onclick="devQuitar('${x.id}')" class="underline">Eliminar</button></td></tr>`).join('') || '<tr><td colspan="4" class="p-3 text-center text-slate-400">Sin facturas aplicadas.</td></tr>'}</tbody></table></div>
+        <div class="${box}"><div class="grid grid-cols-3 gap-3 text-center"><div><div class="text-slate-500">Monto Bruto Total</div><b>${fm(it.monto)}</b></div><div><div class="text-slate-500">(−) Suma Facturas Aplicadas</div><b id="dev-ap">${fm(0)}</b></div><div><div class="text-slate-500">= Saldo por Aplicar</div><b id="dev-saldo">${fm(it.monto)}</b></div></div></div>
+        <button onclick="devLiquidar()" class="w-full py-2 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Liquidar y Conciliar Ingreso</button></div>`;
+      devCalc();
+    }
+    function devLiquidar() {
+      const p = D.pos.find(x => x.id === CXD.sel);
+      const com = num(val('dev-com')), tas = num(val('dev-tas')), ap = r2(CXD.filas.reduce((s, x) => s + x.monto, 0));
+      if (!CXD.filas.length) return toast('Agregue al menos una factura a aplicar.');
+      if (ap > CXD.bruto + 0.005) return toast('El monto aplicado excede el monto bruto.');
+      if (p) {
+        const cta = ctaBanco(p.cuentaId) || bancosLista()[0];
+        const neto = r2(p.monto - com - tas), parts = [{ codigo: cta.codigo, debe: neto }];
+        if (com + tas > 0) parts.push({ codigo: '5.2.02.01', debe: r2(com + tas) });
+        parts.push({ codigo: '1.1.02.02', haber: p.monto });
+        pushAsiento('TESORERÍA', p.id, 'Liquidación y conciliación de ingreso ' + p.id, parts);
+        p.estado = 'CONCILIADO'; p.comision = r2(com + tas); p.neto = neto;
+      }
+      CXD.filas.forEach(x => { const f = D.fcxc.find(y => y.id === x.id); if (f) f.estado = 'COBRADA'; });
+      sv(); toast('Ingreso liquidado y conciliado.');
+      CXD.sel = ''; CXD.filas = []; renderCxC();
     }
 
     // ---- Clientes & ECs ----
