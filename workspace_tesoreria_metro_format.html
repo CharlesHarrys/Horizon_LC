@@ -309,10 +309,46 @@
         <div id="dev-m-efe" class="hidden flex flex-col gap-3">
           <div class="font-black text-slate-900">Conciliación de Depósito en Efectivo</div>
           <div class="grid grid-cols-2 gap-3">
-            <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">A. Esperado</div><label class="fld-label">Monto Cierre de Caja</label><input id="de-cierre" class="fld text-[12px] bg-slate-50" readonly><div class="text-slate-500 mt-2">Desglose de Denominaciones esperado</div><div id="de-desglose" class="mt-1"></div></div>
-            <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">B. Realidad</div><label class="fld-label">Monto Depósito Bancario Confirmado</label><input id="de-dep" type="number" step="0.01" oninput="devCalc()" class="fld text-[12px]"></div>
+            <div class="border border-slate-200 rounded-xl p-3">
+              <div class="font-black mb-2">A. Esperado</div>
+              <label class="fld-label">Monto Cierre de Caja</label>
+              <input id="de-cierre" class="fld text-[12px] bg-slate-50" readonly value="0.00">
+              <div class="text-slate-500 mt-2">Desglose de Denominaciones esperado</div>
+              <div id="de-desglose" class="mt-1"></div>
+            </div>
+            <div class="border border-slate-200 rounded-xl p-3 flex flex-col">
+              <div class="flex justify-between items-center mb-2">
+                <div class="font-black">B. Realidad (Depósitos Bancarios)</div>
+                <button onclick="openBoletaModal()" class="bg-black text-white text-[12px] px-2 py-1 rounded hover:bg-gray-800">
+                  + Vincular Boleta
+                </button>
+              </div>
+              <div class="border border-slate-200 rounded flex-1 overflow-hidden">
+                <div class="grid grid-cols-12 gap-2 p-2 border-b border-slate-200 bg-slate-50 font-bold text-[12px]">
+                  <div class="col-span-5">Ref. / Banco</div>
+                  <div class="col-span-3 text-right">Disponible</div>
+                  <div class="col-span-4 text-right">Aplicar al Cierre</div>
+                </div>
+                <div id="de-depositos-list"></div>
+              </div>
+              <div class="text-right font-black text-[12px] mt-2 pt-2 border-t border-slate-200">
+                Total Validado: L. <span id="de-total-validado">0.00</span>
+              </div>
+            </div>
           </div>
-          <div class="border border-slate-200 rounded-xl p-3"><div class="font-black mb-2">Descuadre</div><div class="grid grid-cols-2 gap-3 items-end"><div><label class="fld-label">Diferencia (Depósito − Cierre)</label><input id="de-dif" class="fld text-[12px] bg-slate-50" readonly></div><div id="de-asig" class="hidden"><label class="fld-label">Asignar Faltante/Sobrante a:</label><select id="de-cajero" class="fld text-[12px]"></select></div></div></div>
+          <div class="border border-slate-200 rounded-xl p-3">
+            <div class="font-black mb-2">Descuadre</div>
+            <div class="grid grid-cols-2 gap-3 items-end">
+              <div>
+                <label class="fld-label">Diferencia (Validado − Cierre)</label>
+                <input id="de-dif" class="fld text-[12px] bg-slate-50 text-right" readonly value="0.00">
+              </div>
+              <div id="de-asig" class="hidden">
+                <label class="fld-label">Asignar Faltante/Sobrante a:</label>
+                <select id="de-cajero" class="fld text-[12px]"></select>
+              </div>
+            </div>
+          </div>
           <button onclick="devLiquidar('efe')" class="w-full py-2 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Conciliar Depósito Exacto</button>
         </div>
         <div id="dev-m-tra" class="hidden flex flex-col gap-3">
@@ -1447,13 +1483,47 @@
       });
       if ($('dt-suma')) $('dt-suma').textContent = fm(r2(CXD.filas.reduce((s, x) => s + x.monto, 0)));
     }
+    function openBoletaModal() {
+      document.getElementById('modal-boletas').classList.remove('hidden');
+    }
+    function closeBoletaModal() {
+      document.getElementById('modal-boletas').classList.add('hidden');
+    }
+    function addBoleta(referencia, disponible) {
+      const container = document.getElementById('de-depositos-list');
+      const row = document.createElement('div');
+      row.className = 'grid grid-cols-12 gap-2 p-2 items-center border-b border-slate-200 text-[12px]';
+      row.innerHTML = `
+        <div class="col-span-5 truncate font-bold" title="${esc(referencia)}">${esc(referencia)}</div>
+        <div class="col-span-3 text-right text-slate-500">${disponible.toFixed(2)}</div>
+        <div class="col-span-4 flex gap-1 items-center">
+          <input type="number" step="0.01" max="${disponible}" value="0.00" class="fld text-[12px] text-right p-1 w-full dep-monto-input" oninput="devCalc()">
+          <button onclick="this.parentElement.parentElement.remove(); devCalc();" class="text-slate-400 hover:text-black font-bold px-1">✕</button>
+        </div>
+      `;
+      container.appendChild(row);
+      closeBoletaModal();
+      const input = row.querySelector('input');
+      input.focus();
+      input.select();
+    }
     function devCalc() {
-      const it = devItems().find(x => x.id === CXD.sel); if (!it) return;
-      if (CXD.modo === 'pos') $('dp-neto').textContent = fm(r2(it.monto - num(val('dp-com')) - num(val('dp-tas'))));
+      const it = devItems().find(x => x.id === CXD.sel);
+      if (CXD.modo === 'pos' && it) {
+        $('dp-neto').textContent = fm(r2(it.monto - num(val('dp-com')) - num(val('dp-tas'))));
+      }
       if (CXD.modo === 'efe') {
-        const dep = $('de-dep').value === '' ? null : num(val('de-dep')), dif = dep === null ? 0 : r2(dep - it.monto);
-        $('de-dif').value = dep === null ? '' : fm(dif);
-        $('de-asig').classList.toggle('hidden', Math.abs(dif) < 0.01);
+        const esperado = parseFloat(document.getElementById('de-cierre').value) || 0;
+        const inputsAplicados = document.querySelectorAll('.dep-monto-input');
+        let totalValidado = 0;
+        inputsAplicados.forEach(input => { totalValidado += parseFloat(input.value) || 0; });
+        document.getElementById('de-total-validado').innerText = totalValidado.toFixed(2);
+        const diferencia = totalValidado - esperado;
+        const difInput = document.getElementById('de-dif');
+        difInput.value = diferencia.toFixed(2);
+        if (diferencia < 0) difInput.classList.add('text-red-600'); else difInput.classList.remove('text-red-600');
+        const asigPanel = document.getElementById('de-asig');
+        if (Math.abs(diferencia) > 0.01) asigPanel.classList.remove('hidden'); else asigPanel.classList.add('hidden');
       }
     }
     function devFill(it) {
@@ -1462,7 +1532,10 @@
       if (!it) return;
       if (CXD.modo === 'pos') { $('dp-lote').value = it.id + ' · ' + it.ref; $('dp-bruto').value = fm(it.monto); $('dp-com').value = it.comision || 0; $('dp-tas').value = 0; }
       if (CXD.modo === 'efe') {
-        $('de-cierre').value = fm(it.monto); $('de-dep').value = ''; $('de-dif').value = '';
+        $('de-cierre').value = it.monto.toFixed(2);
+        $('de-depositos-list').innerHTML = '';
+        $('de-total-validado').innerText = '0.00';
+        $('de-dif').value = (-it.monto).toFixed(2);
         let r = Math.round(it.monto), h = '';
         [500, 200, 100, 50, 20, 10, 5, 1].forEach(d => { const n = Math.floor(r / d); if (n) { h += `<div>${n} × L. ${d}</div>`; r -= n * d; } });
         $('de-desglose').innerHTML = h || '—';
@@ -1496,13 +1569,15 @@
         cobrar(); toast('Lote POS liquidado contra banco.'); return cerrar();
       }
       if (modo === 'efe') {
-        if ($('de-dep').value === '') return toast('Ingrese el depósito bancario confirmado.');
-        const dep = num(val('de-dep')), dif = r2(dep - it.monto), m = Math.abs(dif);
+        const inputs = document.querySelectorAll('.dep-monto-input');
+        if (!inputs.length) return toast('Vincule al menos una boleta de depósito.');
+        let dep = 0; inputs.forEach(inp => { dep += parseFloat(inp.value) || 0; });
+        dep = r2(dep);
+        const dif = r2(dep - it.monto), m = Math.abs(dif);
         const parts = [{ codigo: cta.codigo, debe: dep }];
-        if (m >= 0.01) { if (dif < 0) parts.push({ codigo: '1.1.02.05', debe: m }); else parts.push({ codigo: '4.2.01.01', haber: m }); }
-        parts.push({ codigo: '1.1.01.05', haber: dif < 0 ? it.monto : it.monto });
-        if (m >= 0.01 && dif > 0) parts[parts.length - 1].haber = it.monto;
-        pushAsiento('TESORERÍA', it.id, 'Depósito de efectivo ' + it.id + (m >= 0.01 ? ' (' + (dif < 0 ? 'faltante' : 'sobrante') + ' ' + fm(m) + ' — ' + val('de-cajero') + ')' : ''), parts);
+        if (m > 0.01) { if (dif < 0) parts.push({ codigo: '1.1.02.05', debe: m }); else parts.push({ codigo: '4.2.01.01', haber: m }); }
+        parts.push({ codigo: '1.1.01.05', haber: it.monto });
+        pushAsiento('TESORERÍA', it.id, 'Depósito de efectivo ' + it.id + (m > 0.01 ? ' (' + (dif < 0 ? 'faltante' : 'sobrante') + ' ' + fm(m) + ' — ' + val('de-cajero') + ')' : ''), parts);
         if (p) { p.estado = 'CONCILIADO'; p.neto = dep; }
         toast('Depósito conciliado.'); return cerrar();
       }
@@ -2025,5 +2100,31 @@
     recalcularConciliacion();
     renderPrestamos();
   </script>
+  <div id="modal-boletas" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-4 w-[400px] shadow-lg flex flex-col gap-3 text-[12px]">
+      <div class="font-black text-[14px]">Boletas Pendientes (Dinero sin aplicar)</div>
+      <div class="flex flex-col gap-2 max-h-[300px] overflow-y-auto mt-2">
+        <div onclick="addBoleta('BAC #9910', 30000.00)" class="border border-slate-200 rounded p-2 cursor-pointer hover:border-black flex justify-between items-center">
+          <div>
+            <div class="font-bold">BAC #9910</div>
+            <div class="text-slate-500">20 Nov - Depósito Masivo</div>
+          </div>
+          <div class="font-black">L. 30,000.00</div>
+        </div>
+        <div onclick="addBoleta('Ficohsa #223', 2000.00)" class="border border-slate-200 rounded p-2 cursor-pointer hover:border-black flex justify-between items-center">
+          <div>
+            <div class="font-bold">Ficohsa #223</div>
+            <div class="text-slate-500">20 Nov - Depósito Tarde</div>
+          </div>
+          <div class="font-black">L. 2,000.00</div>
+        </div>
+      </div>
+      <div class="flex justify-end mt-2 pt-2 border-t border-slate-100">
+        <button onclick="closeBoletaModal()" class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded hover:bg-slate-50 text-[12px]">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
