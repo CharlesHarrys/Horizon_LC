@@ -1500,9 +1500,21 @@
     // ---- Devengos ----
     function devItems() {
       const o = CXD.origen;
+      const pref = t => t === 'EFECTIVO' ? 'DEP-' : t === 'TARJETA' ? 'LIQ-' : 'FT-';
+      const numId = id => String(id || '').replace(/\D/g, '').padStart(3, '0');
       const pos = D.pos.filter(p => p.estado !== 'CONCILIADO' && (o === 'Todos' || (o === 'POS Tarjetas' && p.tipo === 'TARJETA') || (o === 'Depósito Efectivo' && p.tipo === 'EFECTIVO') || (o === 'Transferencia' && p.tipo === 'TRANSFERENCIA')))
-        .map(p => ({ id: p.id, tipo: p.tipo === 'TARJETA' ? 'Lote Visa/MC' : p.tipo === 'EFECTIVO' ? 'Depósito Efectivo' : 'Transferencia', ref: p.ref || p.desc || p.id, monto: p.monto, fecha: p.fecha, cuentaId: p.cuentaId, comision: p.comision || 0 }));
-      const ecs = (o === 'Todos' || o === 'ECs en Proceso') ? D.ecs.filter(e => e.estado === 'ENVIADO').map(e => ({ id: e.id, tipo: 'Estado de Cuenta', ref: e.id, monto: e.total || e.monto || 0, fecha: e.fecha || '', cuentaId: '', comision: 0 })) : [];
+        .map(p => {
+          const d = (p.fecha || '').replace(/-/g, '');
+          const codigo = p.ref ? (/^(DEP|LIQ|FT|EC)-/i.test(p.ref) ? p.ref : pref(p.tipo) + p.ref) : pref(p.tipo) + d.slice(-4) + numId(p.id);
+          const lote = p.lote || ('Cierre-' + (d || '00000000') + numId(p.id));
+          return { id: p.id, tipo: p.tipo === 'TARJETA' ? 'Lote Visa/MC' : p.tipo === 'EFECTIVO' ? 'Depósito Efectivo' : 'Transferencia', codigo, lote, ref: p.ref || p.desc || p.id, monto: p.monto, fecha: p.fecha, cuentaId: p.cuentaId, comision: p.comision || 0 };
+        });
+      const ecs = (o === 'Todos' || o === 'ECs en Proceso') ? D.ecs.filter(e => e.estado === 'ENVIADO').map(e => {
+        const d = (e.fecha || '').replace(/-/g, '');
+        const codigo = /^EC-/i.test(e.id) ? e.id : 'EC-' + numId(e.id);
+        const lote = e.lote || ('Cierre-' + (d || '00000000') + numId(e.id));
+        return { id: e.id, tipo: 'Estado de Cuenta', codigo, lote, ref: e.id, monto: e.total || e.monto || 0, fecha: e.fecha || '', cuentaId: '', comision: 0 };
+      }) : [];
       return pos.concat(ecs);
     }
     function devSel(id) { const it = devItems().find(x => x.id === id); CXD.sel = id; renderDevengos(); }
@@ -1601,7 +1613,7 @@
     function renderDevengos() {
       $('dev-origen').value = CXD.origen;
       const items = devItems();
-      $('dev-lista').innerHTML = items.map(i => `<div onclick="devSel('${i.id}')" class="p-2 rounded-lg border cursor-pointer text-[12px] ${CXD.sel === i.id ? 'border-black bg-slate-50' : 'border-slate-200 hover:border-slate-500'}"><div class="font-bold text-slate-900">${esc(i.tipo)}</div><div class="text-slate-600">Ref: ${esc(i.ref)}</div><div class="flex justify-between"><b>${fm(i.monto)}</b><span class="text-slate-500">${esc(i.fecha)}</span></div></div>`).join('') || '<div class="p-4 text-center text-[12px] text-slate-400">Sin valores en tránsito.</div>';
+      $('dev-lista').innerHTML = items.map(i => `<div onclick="devSel('${i.id}')" class="p-2 rounded-lg border cursor-pointer text-[12px] ${CXD.sel === i.id ? 'border-black bg-slate-50' : 'border-slate-200 hover:border-slate-500'}"><div class="flex justify-between gap-2"><span class="font-bold text-slate-900 truncate">${esc(i.codigo)}</span><span class="text-slate-500 shrink-0">${esc(i.fecha)}</span></div><div class="flex justify-between gap-2 mt-1"><span class="text-slate-600 truncate">${esc(i.lote)}</span><b class="text-black shrink-0">${fm(i.monto)}</b></div></div>`).join('') || '<div class="p-4 text-center text-[12px] text-slate-400">Sin valores en tránsito.</div>';
       const it = items.find(x => x.id === CXD.sel);
       if (CXD.filled !== CXD.sel) { devFill(it); CXD.filled = CXD.sel; }
       ['pos', 'efe', 'tra'].forEach(m => $('dev-m-' + m).classList.toggle('hidden', m !== CXD.modo));
