@@ -292,6 +292,10 @@
         <aside class="bg-white border border-slate-200 rounded-3xl flex flex-col min-h-0 overflow-hidden">
           <div class="p-3 border-b border-slate-100 space-y-2 shrink-0">
             <div class="font-black text-slate-900">Valores en Tránsito</div>
+            <div class="p-2 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+              <div class="text-slate-500 text-[11px]">Última lectura bancaria: Hoy, 12:00 PM | 185 depósitos en cola</div>
+              <button onclick="openAutoMatchModal()" class="w-full py-1.5 rounded-lg bg-black text-white text-[12px] hover:bg-gray-800">Ejecutar Auto-Conciliación Masiva</button>
+            </div>
             <label class="fld-label">Origen de Fondo</label>
             <select id="dev-origen" onchange="devOrigen(this.value)" class="fld text-[12px]"><option>Todos</option><option>POS Tarjetas</option><option>Depósito Efectivo</option><option>Transferencia</option><option>ECs en Proceso</option></select>
           </div>
@@ -1489,6 +1493,21 @@
     function closeBoletaModal() {
       document.getElementById('modal-boletas').classList.add('hidden');
     }
+    function openAutoMatchModal() {
+      document.getElementById('modal-auto-match').classList.remove('hidden');
+    }
+    function closeAutoMatchModal() {
+      document.getElementById('modal-auto-match').classList.add('hidden');
+    }
+    function toggleAutoMatchAll(checked) {
+      document.querySelectorAll('.am-row-check').forEach(cb => { cb.checked = checked; });
+    }
+    function aprobarAutoMatch() {
+      const sel = [...document.querySelectorAll('.am-row-check')].filter(cb => cb.checked).length;
+      if (!sel) return toast('Seleccione al menos un depósito para liquidar.');
+      closeAutoMatchModal();
+      toast(sel + ' depósito(s) aprobados para liquidación automática.');
+    }
     function addBoleta(referencia, disponible) {
       const container = document.getElementById('de-depositos-list');
       const row = document.createElement('div');
@@ -2122,6 +2141,61 @@
       <div class="flex justify-end mt-2 pt-2 border-t border-slate-100">
         <button onclick="closeBoletaModal()" class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded hover:bg-slate-50 text-[12px]">
           Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="modal-auto-match" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-5 w-[700px] max-w-[95vw] shadow-lg flex flex-col gap-4 text-[12px]">
+      <div class="font-black text-slate-900">Resultado de Conciliación Automática</div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+          <div class="font-black text-slate-900">Cuadre Exacto Encontrado (170 depósitos)</div>
+          <div class="text-slate-600 mt-1">Estos depósitos coinciden exactamente con los cierres del sistema y están listos para aplicarse.</div>
+        </div>
+        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+          <div class="font-black text-slate-900">Requieren Revisión Manual (15 depósitos)</div>
+          <div class="text-slate-600 mt-1">Se enviarán a la bandeja manual por diferencias de montos para su validación individual.</div>
+        </div>
+      </div>
+      <div class="border border-slate-200 rounded-lg overflow-hidden max-h-[280px] overflow-y-auto">
+        <table class="w-full text-[12px]">
+          <thead>
+            <tr class="bg-black text-white text-center text-[12px]">
+              <th class="p-2 w-8"><input id="am-check-all" type="checkbox" checked onchange="toggleAutoMatchAll(this.checked)"></th>
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Referencia Banco</th>
+              <th class="p-2">Monto Banco</th>
+              <th class="p-2">Ref. Cierre Sistema</th>
+              <th class="p-2">Monto Sistema</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr class="hover:bg-slate-50">
+              <td class="p-2 text-center"><input type="checkbox" class="am-row-check" checked></td>
+              <td class="p-2 text-center">2026-11-20</td>
+              <td class="p-2 text-center">BAC #9910</td>
+              <td class="p-2 text-right">L. 48,200.00</td>
+              <td class="p-2 text-center">POS-001 · Cierre Matriz</td>
+              <td class="p-2 text-right">L. 48,200.00</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-2 text-center"><input type="checkbox" class="am-row-check" checked></td>
+              <td class="p-2 text-center">2026-11-20</td>
+              <td class="p-2 text-center">Ficohsa #223</td>
+              <td class="p-2 text-right">L. 31,500.00</td>
+              <td class="p-2 text-center">POS-003 · QR/ACH</td>
+              <td class="p-2 text-right">L. 31,500.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-200">
+        <button onclick="closeAutoMatchModal()" class="px-4 py-2 border border-slate-300 text-black rounded-lg hover:bg-slate-50 text-[12px]">
+          Cancelar
+        </button>
+        <button onclick="aprobarAutoMatch()" class="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 text-[12px] min-w-[240px]">
+          Aprobar y Liquidar Seleccionados
         </button>
       </div>
     </div>
